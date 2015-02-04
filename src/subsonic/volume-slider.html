@@ -1,0 +1,19 @@
+<html><head></head><body><polymer-element name="volume-slider" attributes="volume">
+  <template>
+    <style>
+      .white-slider paper-slider::shadow #sliderKnobInner,
+      .white-slider paper-slider::shadow #sliderKnobInner::before,
+      .white-slider paper-slider::shadow #sliderBar::shadow #activeProgress {
+        background-color: #000000;
+        color:#ffffff;
+      }
+      core-icon {
+        color:#ffffff;
+      }
+    </style>
+    <section class="white-slider">
+      <paper-slider value="{{volume}}" min="0" max="100"></paper-slider>
+    </section>
+  </template>
+  <script src="volume-slider.html.0.js"></script>
+</polymer-element></body></html>

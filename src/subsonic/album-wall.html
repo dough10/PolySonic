@@ -1,0 +1,42 @@
+<html><head><link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
+<link href="../../bower_components/paper-item/paper-item.html" rel="import">
+<link href="../../bower_components/paper-spinner/paper-spinner.html" rel="import">
+<link href="../../bower_components/paper-button/paper-button.html" rel="import">
+</head><body><polymer-element name="album-wall" attributes="url user pass version sort wall">
+  <template>
+    <style>
+      paper-item {
+        text-align:center;
+      }
+      #spinner {
+        margin:8px;
+      }
+      #forward {
+        float:right;
+        margin-right:10%;
+      }
+      #back {
+        float:left;
+        margin-left:10%;
+      }
+      #more {
+        margin-bottom:16px;
+      }
+    </style>
+    <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}">
+    </core-ajax>
+    <template repeat="{{i in wall}}">
+      <album-art item="{{i.id}}" cover="{{i.coverArt}}" artist="{{i.artist}}" album="{{i.name}}" url="{{i.url}}" user="{{i.user}}" pass="{{i.pass}}" version="{{i.version}}">
+      </album-art>
+    </template>
+    <br>
+    <template if="{{isLoading}}">
+      <paper-spinner id="spinner" active=""></paper-spinner>
+    </template>
+    <template if="{{!isLoading}}">
+      <paper-button id="more" on-tap="{{loadMore}}">Load More</paper-button>
+    </template>
+  </template>
+  <script src="album-wall.html.0.js"></script>
+</polymer-element>
+</body></html>

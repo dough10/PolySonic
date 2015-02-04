@@ -1,0 +1,240 @@
+<html><head><link href="../../bower_components/polymer/polymer.html" rel="import">
+<link href="../../bower_components/paper-shadow/paper-shadow.html" rel="import">
+<link href="../../bower_components/paper-icon-button/paper-icon-button.html" rel="import">
+<link href="../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
+<link href="../../bower_components/core-icons/av-icons.html" rel="import">
+<link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
+<link href="../../bower_components/paper-item/paper-item.html" rel="import">
+<link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
+</head><body><polymer-element name="album-art" attributes="artist album cover item user pass url version">
+  <template>
+    <style>
+      :host {
+        display:inline-block;
+        margin:0.5%;
+      }
+      #card {
+        border-radius:2px;
+        height:{{height}};
+        width:{{width}};
+        background-image:url("../../assets/default-cover-art.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:{{height}} {{width}};
+        font-family: 'Helvetica Neue', Helvetica, Arial;
+      }
+      core-animated-pages {
+        height:100%;
+      }
+      .wrapper {
+        overflow:hidden;
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        right:0;
+      }
+      #overlay-low {
+        position:absolute;
+        top:80%;
+        height:{{height}};
+        width:{{width}};
+        padding:1em;
+        background:rgba(255,255,255, 0.97);
+        border:1px solid #d8d8d8;
+        text-align:left;
+      }
+      #overlay-high {
+        position:absolute;
+        top:0%;
+        height:{{height}};
+        width:{{width}};
+        padding:1em;
+        background:rgba(255,255,255, 0.97);
+        border:1px solid #d8d8d8;
+        text-align:left;
+      }
+      #overlay-high-small {
+        position:absolute;
+        top:0%;
+        height:{{height}};
+        width:{{width}};
+        padding:0.5em;
+        background:rgba(255,255,255, 0.97);
+        border:1px solid #d8d8d8;
+        text-align:left;
+      }
+      #overlay-off {
+        position:absolute;
+        top:100%;
+        height:{{height}};
+        width:{{width}};
+        padding:1em;
+        background:rgba(255,255,255, 0.97);
+        border:1px solid #d8d8d8;
+        text-align:left;
+      }
+      .left-icon {
+        position:relative;
+        right:20px;
+        top:-10px;
+        float:right;
+      }
+      .artist {
+        position:relative;
+        display:inline-block;
+        font-size: 10pt;
+        top:-8px;
+        overflow:hidden;
+        max-width:80%;
+        pointer-events:none;
+        max-height:20px;
+      }
+      .album {
+        position:relative;
+        display:inline-block;
+        font-size: 12pt;
+        top:-13px;
+        overflow:hidden;
+        max-width:80%;
+        pointer-events:none;
+        line-height: 150%;
+        max-height:20px;
+      }
+      .artist2 {
+        position:relative;
+        display:inline-block;
+        font-size: 8pt;
+        top:-5px;
+        overflow:hidden;
+        max-width:80%;
+        pointer-events:none;
+      }
+      .album2 {
+        position:relative;
+        display:inline-block;
+        font-size: 10pt;
+        top:-8px;
+        overflow:hidden;
+        max-width:80%;
+        pointer-events:none;
+      }
+      p {
+        position:relative;
+        top:0px;
+        font-size:10pt;
+        display:inline-block;
+      }
+      #play {
+        position:absolute;
+        bottom:40px;
+        left:5px;
+      }
+      .tracks {
+        border-top:1px solid #CECECE;
+        position:absolute;
+        top:50px;
+        bottom:0px;
+        left:0px;
+        right:0px;
+        overflow:scroll;
+      }
+      paper-item {
+        font-size: 10pt;
+      }
+      paper-icon-button: {
+        color:#000000;
+      }
+      .dialog {
+        position:static;
+      }
+    </style>
+    <core-media-query query="max-width:1000px" querymatches="{{phoneSize}}"></core-media-query>
+    <paper-action-dialog id="dialog" class="dialog" transition="paper-dialog-transition-center">
+      <div style="font-size:10pt;">
+        <template if="{{cover}}">
+          <img id="art" height="250" width="250">
+        </template>
+        <template if="{{!cover}}">
+          <img id="img" src="../../assets/default-cover-art.png" height="250" width="250">
+        </template>
+        <br>
+        <div style="font-size:14pt; margin:8px; max-width:250px;">
+          {{artist}} / {{album}}
+        </div>
+        <template repeat="{{track in tracks}}">
+          <paper-item style="border-top:1px solid #CECECE; max-width:250px;" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" album="{{track.album}}" ident="{{track.id}}" contenttype="{{track.contentType}}">{{track.title}}</paper-item>
+        </template>
+      </div>
+    </paper-action-dialog>
+    <paper-shadow z="1" id="card">
+      <core-animated-pages selected="{{page}}" valueattr="page" transitions="crossfade hero-transition">
+        <div page="cover">
+          <div class="wrapper">
+            <div id="overlay-low" hero-id="hero" hero="">
+              <paper-icon-button id="icon" on-tap="{{slideUp}}" class="left-icon" icon="more-vert"></paper-icon-button>
+              <div class="artist">{{artist}}</div>
+              <br>
+              <div class="album">{{album}}</div>
+            </div>
+          </div>
+        </div>
+        <div page="info">
+          <div class="wrapper">
+            <div id="overlay-high" hero-id="hero" hero="">
+              <paper-icon-button id="icon" on-tap="{{closeSlide}}" class="left-icon" icon="close"></paper-icon-button>
+              <div class="artist">{{artist}}</div>
+              <br>
+              <div class="album">{{album}}</div>
+              <br>
+              <paper-item on-tap="{{playAlbum}}">
+                <core-icon icon="av:play-arrow"></core-icon>
+                Play Album Now
+              </paper-item>
+              <paper-item on-tap="{{doDialog}}">
+                <core-icon icon="reorder"></core-icon>
+                Tracks
+              </paper-item>
+              <paper-item on-tap="{{add2Playlist}}">
+                <core-icon icon="add"></core-icon>
+                Add to Playlist
+              </paper-item>
+            </div>
+          </div>
+        </div>
+        <div page="small" on-tap="{{slide2}}">
+          <div class="wrapper">
+            <div id="overlay-off" hero-id="hero" hero=""></div>
+          </div>
+        </div>
+        <div page="info2">
+          <div class="wrapper">
+            <div id="overlay-high-small" on-tap="{{backToSmall}}" hero-id="hero" hero="">
+              <div class="artist2">{{artist}}</div>
+              <br>
+              <div class="album2">{{album}}</div>
+              <br>
+              <paper-item on-tap="{{playAlbum}}">
+                <core-icon icon="av:play-arrow"></core-icon>
+                Play Album Now
+              </paper-item>
+              <paper-item on-tap="{{doDialog}}">
+                <core-icon icon="reorder"></core-icon>
+                Tracks
+              </paper-item>
+              <paper-item on-tap="{{add2Playlist}}">
+                <core-icon icon="add"></core-icon>
+                Add to Playlist
+              </paper-item>
+            </div>
+          </div>
+        </div>
+      </core-animated-pages>
+    </paper-shadow>
+    <core-ajax auto="" method="GET" id="track" url="{{url}}/rest/getAlbum.view" params="{&quot;u&quot;:&quot;{{user}}&quot;, &quot;p&quot;:&quot;{{pass}}&quot;, &quot;f&quot;:&quot;json&quot;, &quot;v&quot;:&quot;{{version}}&quot;, &quot;c&quot;:&quot;PolySonic&quot;, &quot;id&quot;:&quot;{{item}}&quot;}" handleas="json" response="{{trackResponse}}">
+    </core-ajax>
+  </template>
+  <script src="album-art.html.0.js"></script>
+</polymer-element>
+</body></html>

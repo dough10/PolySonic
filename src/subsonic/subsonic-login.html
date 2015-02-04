@@ -1,0 +1,79 @@
+<html><head><link href="../../bower_components/polymer/polymer.html" rel="import">
+<link rel="import" href="../../bower_components/font-roboto/roboto.html">
+<link href="../../bower_components/paper-input/paper-input.html" rel="import">
+<link href="../../bower_components/paper-button/paper-button.html" rel="import">
+<link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
+<link href="../../bower_components/paper-spinner/paper-spinner.html" rel="import">
+<link href="../../bower_components/paper-toast/paper-toast.html" rel="import">
+<link href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html" rel="import">
+<link href="../../bower_components/core-menu/core-menu.html" rel="import">
+<link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
+<link href="../../bower_components/paper-dropdown/paper-dropdown.html" rel="import">
+</head><body><polymer-element name="subsonic-login">
+  <template>
+    <style>
+      :host {
+        text-align:center;
+        margin:auto;
+        font-family: 'RobotoDraft', sans-serif;
+      }
+      #load {
+        position:absolute;
+        top:0;
+        bottom:0;
+        right:0;
+        left:0;
+        background: rgba(255,255,255,0.7);
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        align-items:center;
+        justify-content:center;
+      }
+      paper-button {
+        background:#cccccc;
+      }
+    </style>
+    <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v={{version}}&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
+    </core-ajax>
+    <div id="validate">
+      <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="URL Required" label="URL">
+        <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
+      </paper-input-decorator>
+      <br>
+      <paper-input-decorator id="input2" labelvisible="" floatinglabel="" error="Username Required" label="Username">
+        <input is="core-input" type="text" value="{{post.user}}" required="">
+      </paper-input-decorator>
+      <br>
+      <paper-input-decorator id="input3" labelvisible="" floatinglabel="" error="Password Required" label="Password">
+        <input is="core-input" type="password" value="{{post.pass}}">
+      </paper-input-decorator>
+      <br>
+      Version:
+      <paper-dropdown-menu label="Select Version">
+        <paper-dropdown layered="" class="dropdown">
+          <core-menu class="menu" selected="{{version}}" valueattr="i">
+            <template repeat="{{versions}}">
+              <paper-item i="{{api}}">{{sub}}</paper-item>
+            </template>
+          </core-menu>
+        </paper-dropdown>
+      </paper-dropdown-menu>
+      <br>
+      <paper-button on-tap="{{submit}}">
+        <template if="{{isLoading}}">
+          <div id="load">
+            <paper-spinner active=""></paper-spinner>
+          </div>
+        </template>
+        Submit
+      </paper-button>
+      <paper-toast id="toast"></paper-toast>
+    </div>
+  </template>
+  <script src="subsonic-login.html.0.js"></script>
+</polymer-element></body></html>

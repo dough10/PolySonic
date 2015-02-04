@@ -1,0 +1,261 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>PolySonic</title>
+  <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
+  <link rel="import" href="bower_components/font-roboto/roboto.html">
+  <link href="src/subsonic/album-art.html" rel="import">
+  <link href="src/subsonic/album-wall.html" rel="import">
+  <link href="bower_components/core-animated-pages/core-animated-pages.html" rel="import">
+  <link href="bower_components/core-animated-pages/transitions/slide-from-right.html" rel="import">
+  <link href="bower_components/core-toolbar/core-toolbar.html" rel="import">
+  <link href="bower_components/paper-icon-button/paper-icon-button.html" rel="import">
+  <link href="bower_components/core-header-panel/core-header-panel.html" rel="import">
+  <link href="bower_components/core-drawer-panel/core-drawer-panel.html" rel="import">
+  <link href="bower_components/core-menu/core-menu.html" rel="import">
+  <link href="bower_components/core-icons/av-icons.html" rel="import">
+  <link href="bower_components/paper-progress/paper-progress.html" rel="import">
+  <link href="bower_components/paper-slider/paper-slider.html" rel="import">
+  <link href="bower_components/paper-dialog/paper-dialog.html" rel="import">
+  <link href="bower_components/paper-dialog/paper-action-dialog.html" rel="import">
+  <link href="bower_components/paper-menu-button/paper-menu-button.html" rel="import">
+  <link href="bower_components/paper-dropdown/paper-dropdown.html" rel="import">
+  <link href="bower_components/core-menu/core-menu.html" rel="import">
+  <link href="bower_components/core-collapse/core-collapse.html" rel="import">
+  <link href="src/subsonic/volume-slider.html" rel="import">
+  <link href="src/subsonic/subsonic-login.html" rel="import">
+  <style>
+    body {
+      margin:0;
+      font-family: 'RobotoDraft', sans-serif;
+      background:#e5e5e5;
+    }
+    core-toolbar {
+      background: #6e6d6d;
+      color:#ffffff;
+    }
+    div {
+      margin: auto;
+      text-align: center;
+    }
+    core-menu {
+      padding:0;
+      margin:0;
+    }
+    [drawer] {
+      background-color: #fff;
+    }
+    paper-icon-button {
+      color:#ffffff;
+    }
+    #panel:not([narrow]) #menuButton {
+      display: none;
+    }
+    .controlsWrapper {
+      background: #6e6d6d;
+      height:128px;
+      display:block;
+      position: static;
+      bottom:0;
+      left:0;
+      right:0;
+      text-align: center;
+      margin:auto;
+    }
+    #time {
+      color: #ffffff;
+      position: absolute;
+      right: 2%;
+      margin-top: 18px;
+    }
+    #coverArt {
+      background-image:url("images/default-cover-art.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-origin: content-box;
+    }
+    paper-icon-button.huge::shadow #icon {
+      width: 95px;
+      height: 95px;
+    }
+    paper-icon-button.big::shadow #icon {
+      width: 50px;
+      height: 50px;
+      margin-bottom:12px;
+    }
+    #progress {
+      position:absolute;
+      left:0;
+      right:0;
+      width:100%;
+      margin:0;
+      padding:0;
+      cursor:pointer;
+      height:15px;
+    }
+    paper-progress::shadow #activeProgress {
+      background-color:#db4437;
+    }
+    #avIcon {
+      padding:0px;
+      margin-top:16px;
+    }
+    #volume {
+      position:absolute;
+      right:1%;
+      margin-top:66px;
+    }
+    #playing {
+      max-height:65px;
+      overflow: hidden;
+      font-size:10pt;
+    }
+    .bar {
+      height:30px;
+      background:#000000;
+    }
+    #loader.hide {
+      bottom:100%;
+      visibility: hidden;
+    }
+    #loader {
+      position: absolute;
+      bottom:0;
+      right:0;
+      top: 0;
+      left: 0;
+      background: #ffffff;
+      display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+      display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+      display: -ms-flexbox;      /* TWEENER - IE 10 */
+      display: -webkit-flex;     /* NEW - Chrome */
+      display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+      -webkit-justify-content: center;
+      -webkit-align-items: center;
+      justify-content: center;
+      align-items: center;
+      z-index:6;
+      transition: all 0.6s;
+    }
+    .box {
+      width:128px;
+      transition: all 0.4s;
+    }
+    .box.hide {
+      opacity:0;
+      visibility: hidden;
+    }
+    #toolbar1 {
+      -webkit-app-region: drag;
+    }
+    #toolbar2 {
+      -webkit-app-region: drag;
+    }
+    paper-icon-button {
+      -webkit-app-region: no-drag;
+    }
+  </style>
+</head>
+<body>
+  <div id="loader">
+    <div class="box">
+      <div style="height:30px">
+        <paper-spinner id="spinner" active=""></paper-spinner>
+      </div>
+    </div>
+  </div>
+  <div unresolved>
+    <template is="auto-binding" id="tmpl">
+      <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px">
+        <!-- menu -->
+        <core-scroll-header-panel drawer flex mode="seamed">
+          <core-menu id="menu" selected="{{selected}}" valueattr="i">
+            <core-toolbar class="medium-tall">
+            </core-toolbar>
+            <template repeat="{{type in sortTypes}}">
+              <paper-item on-tap="{{selectAction}}" i="{{type.sort}}">
+                <core-icon icon="sort"></core-icon>
+                {{type.name}}
+              </paper-item>
+            </template>
+            <paper-item on-tap="{{getPodcast}}">
+              <core-icon icon="sort"></core-icon>
+              Podcast
+            </paper-item>
+            <paper-item>
+              <core-icon icon="settings"></core-icon>
+              Settings
+            </paper-item>
+          </core-menu>
+        </core-scroll-header-panel>
+        <!-- body -->
+        <core-header-panel id="headerPanel" main flex mode="seamed">
+          <core-toolbar id="toolbar1" class="medium-tall">
+            <div flex></div>
+            <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
+            <paper-icon-button icon="check-box-outline-blank" on-tap="{{maximize}}"></paper-icon-button>
+            <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
+            <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
+            <div flex style="text-align: left;" class="bottom">PolySonic</div>
+            <paper-icon-button style="display:none" id="nowPlaying" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
+          </core-toolbar>
+          <core-toolbar id="toolbar2" style="display:none" class="medium-tall">
+            <div flex></div>
+            <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
+            <paper-icon-button icon="check-box-outline-blank" on-tap="{{maximize}}"></paper-icon-button>
+            <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
+            <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
+            <div class="bottom" id="playing" flex></div>
+            <paper-icon-button class="bottom" on-tap="{{showPlaylist}}" icon="more-vert"></paper-icon-button>
+          </core-toolbar>
+          <core-animated-pages selected="{{page}}">
+            <section>
+              <album-wall id="wall" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}"></album-wall>
+            </section>
+            <section>
+              <div id="coverArt"></div>
+              <div class="controlsWrapper">
+                <paper-progress id="progress" on-tap="{{progressClick}}"></paper-progress>
+                <div id="time"></div>
+                <template if="{{playlist && playing !== 0}}">
+                  <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
+                </template>
+                <template if="{{playlist && playing === 0}}">
+                  <paper-icon-button class="big"></paper-icon-button>
+                </template>
+                <paper-icon-button id="avIcon" class="huge" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
+                <template if="{{playlist}}">
+                  <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
+                </template>
+                <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
+              </div>
+            </section>
+          </core-animated-pages>
+        </core-header-panel>
+      </core-drawer-panel>
+      <paper-dialog id="playlistDialog" transition="paper-dialog-transition-center" heading="Playlist">
+        <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
+          <template repeat="{{playlist}}">
+            <paper-item on-tap="{{playThis}}" ident="{{id}}" cover="{{cover}}" artist="{{artist}}" title="{{title}}" style="color:#000000" ident="{{id}}">{{artist}} - {{title}}</paper-item>
+          </template>
+        </core-menu>
+      </paper-dialog>
+      <paper-dialog id="volumeDialog" transition="paper-dialog-transition-center">
+        Volume
+        <br>
+        <volume-slider></volume-slider>
+      </paper-dialog>
+      <paper-dialog id="firstRun" transition="paper-dialog-transition-center">
+        <subsonic-login></subsonic-login>
+      </paper-dialog>
+      <audio preload src="" id="audio" style="display:none"></audio>
+    </template>
+  </div>
+  <script src="PolySonic.js"></script>
+</body>

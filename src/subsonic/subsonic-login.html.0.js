@@ -1,0 +1,88 @@
+
+    Polymer('subsonic-login',{
+      versions: [
+        {sub:'5.1', api:'1.11.0'},
+        {sub:'4.9', api:'1.10.2'},
+        {sub:'4.8', api:'1.9.0'},
+        {sub:'4.7', api:'1.8.0'}
+      ],
+      ready: function () {
+        'use strict';
+        this.post = [];
+      },
+      validate: function () {
+        'use strict';
+
+        /*
+          here i use polymer built in selector to select all the inputs that are inside the div with the id of validate
+        */
+        var $d = this.$.validate.querySelectorAll('paper-input-decorator');
+        Array.prototype.forEach.call($d, function(d) {
+          d.isInvalid = !d.querySelector('input').validity.valid;
+        });
+      },
+      submit: function () {
+        'use strict';
+
+        /*
+          preforms the validation
+        */
+        this.validate();
+
+        /*
+          the timeout makes sure that enough time is given for all inputs to be validated
+
+          then we check if any input has a invalid class. if no input is invalid we run the ajax.
+
+          a variable will need to be made for each input you want to check as well as adding the variable to the folowing if statment
+
+          data is in the this.post variable.
+        */
+        setTimeout(function () {
+          var invalid1 = this.$.input1.classList.contains("invalid"),
+            invalid2 = this.$.input2.classList.contains("invalid"),
+            invalid3 = this.$.input3.classList.contains("invalid");
+
+          if (!invalid1 && !invalid2 && !invalid3 && this.version !== '') {
+            console.log(this.post);
+            this.$.ajax.go();
+          }
+        }.bind(this), 100);
+      },
+      responseChanged: function () {
+        var tmpl = document.querySelector("#tmpl"),
+          wall = document.querySelector('#wall');
+        'use strict';
+        /*
+          will display server response in a toast
+        */
+        if (this.response['subsonic-response'].status === 'ok') {
+          chrome.storage.sync.set({
+            'url': this.post.url,
+            'user': this.post.user,
+            'pass': this.post.pass,
+            'version': this.version
+          });
+
+          tmpl.url = this.post.url;
+
+          tmpl.user = this.post.user;
+
+          tmpl.pass = this.post.pass;
+
+          tmpl.version = this.version;
+
+          wall.doAjax();
+        }
+      },
+      errorChanged: function () {
+        'use strict';
+        /*
+          will display any ajax error in a toast
+        */
+        if (this.error) {
+          this.$.toast.text = this.error;
+          this.$.toast.show();
+        }
+      }
+    });
