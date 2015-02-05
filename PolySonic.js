@@ -236,14 +236,11 @@
         PolySonic.sizePlayer();
       };
       this.playPause = function () {
-        var button = document.querySelector('#avIcon'),
-            audio = document.querySelector('#audio');
+        var audio = document.querySelector('#audio');
         if (!audio.paused) {
           audio.pause();
-          button.icon = "av:play-arrow";
         } else {
           audio.play();
-          button.icon = "av:pause";
         }
       };
       this.minimize = function () {
@@ -296,11 +293,16 @@
         this.page = 2;
         PolySonic.closePanel();
       };
+      this.clearPlaylist = function () {
+        this.playlist = [];
+      };
       PolySonic.loadListeners();
       PolySonic.loadData();
       setInterval(function () {
-        var audio = document.querySelector('#audio');
+        var audio = document.querySelector('#audio'),
+          button = document.querySelector('#avIcon');
         if (!audio.paused) {
+          button.icon = "av:pause";
           var progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
             current = (audio.currentTime / 60),
             duration = (audio.duration / 60),
@@ -320,6 +322,7 @@
         } else {
           var nowPlaying = document.querySelector('#nowPlaying');
           nowPlaying.style.display = "none";
+          button.icon = "av:play-arrow";
         }
       }, 100);
     });

@@ -127,14 +127,16 @@
     #loader.hide {
       bottom:100%;
       visibility: hidden;
+      opacity:0;
     }
     #loader {
       position: absolute;
       bottom:0;
       right:0;
-      top: 0;
+      top: 128px;
       left: 0;
-      background: #6e6d6d;
+      height:100%;
+      background: #e5e5e5;
       display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
       display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
       display: -ms-flexbox;      /* TWEENER - IE 10 */
@@ -145,7 +147,7 @@
       justify-content: center;
       align-items: center;
       z-index:6;
-      transition: all 0.6s;
+      transition: all 0.5s;
     }
     .box {
       width:128px;
@@ -177,9 +179,20 @@
       font-size:10pt;
       position:relative;
     }
+    .sysBar {
+      min-height:128px;
+      display:block;
+      background:#6e6d6d
+    }
   </style>
 </head>
 <body>
+  <div class="sysBar">
+    <div flex></div>
+    <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
+    <paper-icon-button icon="check-box-outline-blank" on-tap="{{maximize}}"></paper-icon-button>
+    <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
+  </div>
   <div id="loader">
     <div class="box">
       <img src="assets/icon_128.png" height="128" width="128" alt="Icon">
@@ -270,6 +283,10 @@
         </core-header-panel>
       </core-drawer-panel>
       <paper-dialog id="playlistDialog" transition="paper-dialog-transition-center" heading="Playlist">
+        <paper-item on-tap="{{clearPlaylist}}">
+          <core-icon icon="close"></core-icon>
+          Clear Playlist
+        </paper-item>
         <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
           <template repeat="{{playlist}}">
             <paper-item on-tap="{{playThis}}" ident="{{id}}" cover="{{cover}}" artist="{{artist}}" title="{{title}}" style="color:#000000" ident="{{id}}">{{artist}} - {{title}}</paper-item>
@@ -286,8 +303,7 @@
       </paper-dialog>
       <x-notification
         id="playNotify"
-        timeout='10000'
-        tag='tag'></x-notification>
+        timeout='10000'></x-notification>
       <audio preload src="" id="audio" style="display:none"></audio>
     </template>
   </div>
