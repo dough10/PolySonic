@@ -3,6 +3,16 @@ chrome.app.runtime.onLaunched.addListener(function() {
     'id': 'PolySonic',
     'frame': {
       'type':'none'
+    },
+    'bounds': {
+      'width': 605,
+      'height': 618
+    },
+    'innerBounds': {
+      'width': 605,
+      'height': 861,
+      'minWidth': 605,
+      'minHeight': 861
     }
   });
 });

@@ -6,6 +6,7 @@
 <link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
 <link href="../../bower_components/paper-item/paper-item.html" rel="import">
 <link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
+<link href="../../bower_components/core-item/core-item.html" rel="import">
 </head><body><polymer-element name="album-art" attributes="artist album cover item user pass url version">
   <template>
     <style>
@@ -150,21 +151,38 @@
         position:static;
       }
     </style>
-    <core-media-query query="max-width:1000px" querymatches="{{phoneSize}}"></core-media-query>
+    <core-media-query query="max-width:500px" querymatches="{{phoneSize}}"></core-media-query>
     <paper-action-dialog id="dialog" class="dialog" transition="paper-dialog-transition-center">
       <div style="font-size:10pt;">
-        <template if="{{cover}}">
-          <img id="art" height="250" width="250">
-        </template>
-        <template if="{{!cover}}">
-          <img id="img" src="../../assets/default-cover-art.png" height="250" width="250">
-        </template>
+        <div flex style="text-align:center; margin:auto;">
+          <template if="{{cover}}">
+            <img id="art" height="250" width="250">
+          </template>
+          <template if="{{!cover}}">
+            <img id="img" src="../../assets/default-cover-art.png" height="250" width="250">
+          </template>
+        </div>
         <br>
-        <div style="font-size:14pt; margin:8px; max-width:250px;">
+        <div style="font-size:14pt; margin:8px">
           {{artist}} / {{album}}
         </div>
+        <paper-icon-button on-tap="{{playAlbum}}" dismissive="" icon="av:play-arrow"></paper-icon-button>
+        <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
+        <template if="{{!isFavorite}}">
+          <paper-icon-button on-tap="{{addFavorite}}" icon="favorite-outline"></paper-icon-button>
+        </template>
+        <template if="{{isFavorite}}">
+          <paper-icon-button on-tap="{{removeFavorite}}" icon="favorite"></paper-icon-button>
+        </template>
+        <paper-icon-button icon="file-download"></paper-icon-button>
         <template repeat="{{track in tracks}}">
-          <paper-item style="border-top:1px solid #CECECE; max-width:250px;" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" album="{{track.album}}" ident="{{track.id}}" contenttype="{{track.contentType}}">{{track.title}}</paper-item>
+          <core-item style="border-top:1px solid #CECECE;">
+            {{track.title}}
+          </core-item>
+          <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
+          <paper-icon-button on-tap="{{addtoPlaylist}}" icon="add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
+          <paper-icon-button icon="file-download"></paper-icon-button>
+          <br>
         </template>
       </div>
     </paper-action-dialog>
@@ -188,18 +206,18 @@
               <br>
               <div class="album">{{album}}</div>
               <br>
-              <paper-item on-tap="{{playAlbum}}">
-                <core-icon icon="av:play-arrow"></core-icon>
-                Play Album Now
-              </paper-item>
-              <paper-item on-tap="{{doDialog}}">
-                <core-icon icon="reorder"></core-icon>
-                Tracks
-              </paper-item>
-              <paper-item on-tap="{{add2Playlist}}">
-                <core-icon icon="add"></core-icon>
+              <core-item>
+                <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
+                Play Album
+              </core-item>
+              <core-item>
+                <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
                 Add to Playlist
-              </paper-item>
+              </core-item>
+              <core-item>
+                <paper-icon-button on-tap="{{doDialog}}" icon="reorder"></paper-icon-button>
+                More Options
+              </core-item>
             </div>
           </div>
         </div>
@@ -232,6 +250,11 @@
         </div>
       </core-animated-pages>
     </paper-shadow>
+    <paper-toast id="toast"></paper-toast>
+    <x-notification
+      id="playNotify"
+      timeout='10000'
+      tag='tag'></x-notification>
     <core-ajax auto="" method="GET" id="track" url="{{url}}/rest/getAlbum.view" params="{&quot;u&quot;:&quot;{{user}}&quot;, &quot;p&quot;:&quot;{{pass}}&quot;, &quot;f&quot;:&quot;json&quot;, &quot;v&quot;:&quot;{{version}}&quot;, &quot;c&quot;:&quot;PolySonic&quot;, &quot;id&quot;:&quot;{{item}}&quot;}" handleas="json" response="{{trackResponse}}">
     </core-ajax>
   </template>

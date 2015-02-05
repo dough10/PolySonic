@@ -9,6 +9,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <title>PolySonic</title>
   <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
+  <script src="bower_components/x-notification/x-notification.js"></script>
+  <script type="text/javascript" src="cast_sender.js"></script>
   <link rel="import" href="bower_components/font-roboto/roboto.html">
   <link href="src/subsonic/album-art.html" rel="import">
   <link href="src/subsonic/album-wall.html" rel="import">
@@ -28,6 +30,8 @@
   <link href="bower_components/paper-dropdown/paper-dropdown.html" rel="import">
   <link href="bower_components/core-menu/core-menu.html" rel="import">
   <link href="bower_components/core-collapse/core-collapse.html" rel="import">
+  <link href="bower_components/paper-shadow/paper-shadow.html" rel="import">
+  <link href="bower_components/paper-input/paper-input.html" rel="import">
   <link href="src/subsonic/volume-slider.html" rel="import">
   <link href="src/subsonic/subsonic-login.html" rel="import">
   <style>
@@ -130,7 +134,7 @@
       right:0;
       top: 0;
       left: 0;
-      background: #ffffff;
+      background: #6e6d6d;
       display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
       display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
       display: -ms-flexbox;      /* TWEENER - IE 10 */
@@ -160,11 +164,25 @@
     paper-icon-button {
       -webkit-app-region: no-drag;
     }
+    .card {
+      margin:1%;
+      margin-top:5px;
+      display:block;
+      background-color:#FFFFFF;
+      border-radius:2px;
+      color:#000000;
+      border:1px solid #d8d8d8;
+      padding:10px;
+      text-align:center;
+      font-size:10pt;
+      position:relative;
+    }
   </style>
 </head>
 <body>
   <div id="loader">
     <div class="box">
+      <img src="assets/icon_128.png" height="128" width="128" alt="Icon">
       <div style="height:30px">
         <paper-spinner id="spinner" active=""></paper-spinner>
       </div>
@@ -184,11 +202,11 @@
                 {{type.name}}
               </paper-item>
             </template>
-            <paper-item on-tap="{{getPodcast}}">
+            <!--<paper-item on-tap="{{getPodcast}}">
               <core-icon icon="sort"></core-icon>
               Podcast
-            </paper-item>
-            <paper-item>
+            </paper-item>-->
+            <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
               Settings
             </paper-item>
@@ -214,6 +232,13 @@
             <div class="bottom" id="playing" flex></div>
             <paper-icon-button class="bottom" on-tap="{{showPlaylist}}" icon="more-vert"></paper-icon-button>
           </core-toolbar>
+          <core-toolbar id="toolbar3" style="display:none" class="medium-tall">
+            <div flex></div>
+            <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
+            <paper-icon-button icon="check-box-outline-blank" on-tap="{{maximize}}"></paper-icon-button>
+            <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
+            <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
+          </core-toolbar>
           <core-animated-pages selected="{{page}}">
             <section>
               <album-wall id="wall" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}"></album-wall>
@@ -236,6 +261,11 @@
                 <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
               </div>
             </section>
+            <section>
+              <paper-shadow z='1' class='card'>
+                OMG's
+              </paper-shadow>
+            </section>
           </core-animated-pages>
         </core-header-panel>
       </core-drawer-panel>
@@ -251,9 +281,13 @@
         <br>
         <volume-slider></volume-slider>
       </paper-dialog>
-      <paper-dialog id="firstRun" transition="paper-dialog-transition-center">
+      <paper-dialog id="firstRun" autoclosedisabled transition="paper-dialog-transition-center">
         <subsonic-login></subsonic-login>
       </paper-dialog>
+      <x-notification
+        id="playNotify"
+        timeout='10000'
+        tag='tag'></x-notification>
       <audio preload src="" id="audio" style="display:none"></audio>
     </template>
   </div>

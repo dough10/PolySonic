@@ -43,7 +43,20 @@
             invalid2 = this.$.input2.classList.contains("invalid"),
             invalid3 = this.$.input3.classList.contains("invalid");
 
-          if (!invalid1 && !invalid2 && !invalid3 && this.version !== '') {
+
+          if (invalid1 && invalid2 && this.version === undefined) {
+            this.$.toast.text = "URL, Username & Version Required";
+            this.$.toast.show();
+          } else if (invalid1) {
+            this.$.toast.text = "URL Required";
+            this.$.toast.show();
+          } else if (invalid2) {
+            this.$.toast.text = "Username Required";
+            this.$.toast.show();
+          } else if (this.version === undefined) {
+            this.$.toast.text = "Version Required";
+            this.$.toast.show();
+          } else if (!invalid1 && !invalid2 && !invalid3 && this.version !== undefined) {
             console.log(this.post);
             this.$.ajax.go();
           }
@@ -56,6 +69,10 @@
         /*
           will display server response in a toast
         */
+        if (!this.response) {
+          this.$.toast.text = "Error Connecting to Server";
+          this.$.toast.show();
+        }
         if (this.response['subsonic-response'].status === 'ok') {
           chrome.storage.sync.set({
             'url': this.post.url,
@@ -71,7 +88,11 @@
           tmpl.pass = this.post.pass;
 
           tmpl.version = this.version;
-
+          this.$.toast.text = "Connection OK Loading Data";
+          this.$.toast.show();
+          setTimeout(function () {
+            document.querySelector('core-overlay-layer').classList.remove('core-opened');
+          }, 3000);
           wall.doAjax();
         }
       },

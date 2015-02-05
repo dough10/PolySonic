@@ -18,9 +18,25 @@
           var next = tmpl.playing + 1;
           if (PolySonic.playlist[next]) {
             tmpl.playing = next;
-            document.querySelector('#playing').innerHTML = PolySonic.playlist[next].artist+ ' - ' + PolySonic.playlist[next].title;
+            document.querySelector('#playNotify').title = 'Now Playing' + PolySonic.playlist[next].artist + ' - ' + PolySonic.playlist[next].title;
+            document.querySelector('#playing').innerHTML = PolySonic.playlist[next].artist + ' - ' + PolySonic.playlist[next].title;
             this.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + PolySonic.playlist[next].id;
             this.play();
+            if (PolySonic.playlist[next].cover !== undefined) {
+              var xhr = new XMLHttpRequest();
+              xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + tmpl.user +"&p=" + tmpl.pass +"&f=json&v=" + tmpl.version + "&c=PolySonic&id=" + PolySonic.playlist[next].cover, true);
+              xhr.responseType = 'blob';
+              var card = document.querySelector('#coverArt');
+              xhr.onload = function(e) {
+                this.image = window.URL.createObjectURL(this.response);
+                card.style.backgroundImage = "url('" + this.image + "')";
+                document.querySelector('#playNotify').icon = this.image;
+                document.querySelector("#playNotify").show();
+              };
+              xhr.send();
+            } else {
+              document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
+            }
           } else {
             tmpl.page = 0;
             toolbar1.style.display = 'block';
@@ -28,6 +44,21 @@
             this.src = '';
             scroller.scrollTop = PolySonic.position;
             PolySonic.playlist = [];
+          }
+        }
+        initializeCastApi = function() {
+          console.log(this);
+          var sessionRequest = new chrome.cast.SessionRequest(applicationID);
+          var apiConfig = new chrome.cast.ApiConfig(sessionRequest,
+            sessionListener,
+            receiverListener);
+          chrome.cast.initialize(apiConfig, onInitSuccess, onError);
+        };
+        window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
+          if (loaded) {
+            initializeCastApi();
+          } else {
+            console.log(errorInfo);
           }
         }
       },
@@ -77,38 +108,63 @@
         {sort:'alphabeticalByArtist', name:'By Artist'},
         {sort:'recent', name:'Recently Played'}
       ];
+
+
       this.playThis = function (event, detail, sender) {
         var tmpl = document.querySelector('#tmpl'),
           url = tmpl.url,
           user = tmpl.user,
-          pass = tmpl.pass;
+          pass = tmpl.pass,
+          cover = document.querySelector('#playNotify');
         document.querySelector('#playing').innerHTML = sender.attributes.artist.value+ ' - ' + sender.attributes.title.value;
         audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + sender.attributes.ident.value;
         audio.play();
+        cover.title = 'Now Playing... ' + sender.attributes.artist.value+ ' - ' + sender.attributes.title.value;
         if (sender.attributes.cover.value !== undefined) {
           var xhr = new XMLHttpRequest();
           xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + tmpl.user +"&p=" + tmpl.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.cover.value, true);
           xhr.responseType = 'blob';
           var card = document.querySelector('#coverArt');
           xhr.onload = function(e) {
-            this.image = window.URL.createObjectURL(this.response);;
+            this.image = window.URL.createObjectURL(this.response);
             card.style.backgroundImage = "url('" + this.image + "')";
+            cover.icon = this.image;
+            document.querySelector("#playNotify").show();
           };
           xhr.send();
         } else {
           document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
         }
       };
+
+
       this.nextTrack = function () {
         var tmpl = document.querySelector('#tmpl'),
           next = tmpl.playing + 1,
           audio = document.querySelector('#audio'),
-          scroller = PolySonic.appScroller();
+          scroller = PolySonic.appScroller(),
+          cover = document.querySelector('#playNotify');
         if (PolySonic.playlist[next]) {
           tmpl.playing = next;
           document.querySelector('#playing').innerHTML = PolySonic.playlist[next].artist+ ' - ' + PolySonic.playlist[next].title;
           audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + PolySonic.playlist[next].id;
           audio.play();
+          cover.title = 'Now Playing... ' + PolySonic.playlist[next].artist+ ' - ' + PolySonic.playlist[next].title;
+          if (PolySonic.playlist[next].cover !== undefined) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + PolySonic.playlist[next].cover, true);
+            xhr.responseType = 'blob';
+            var card = document.querySelector('#coverArt');
+            xhr.onload = function(e) {
+              this.image = window.URL.createObjectURL(this.response);
+              card.style.backgroundImage = "url('" + this.image + "')";
+              cover.icon = this.image;
+              document.querySelector("#playNotify").show();
+            };
+            xhr.send();
+          } else {
+            document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
+          }
         } else {
           tmpl.page = 0;
           toolbar1.style.display = 'block';
@@ -122,12 +178,29 @@
         var tmpl = document.querySelector('#tmpl'),
           next = tmpl.playing - 1,
           audio = document.querySelector('#audio'),
-          scroller = PolySonic.appScroller();
+          scroller = PolySonic.appScroller(),
+          cover = document.querySelector('#playNotify');
         if (PolySonic.playlist[next]) {
           tmpl.playing = next;
           document.querySelector('#playing').innerHTML = PolySonic.playlist[next].artist+ ' - ' + PolySonic.playlist[next].title;
           audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + PolySonic.playlist[next].id;
           audio.play();
+          cover.title = 'Now Playing... ' + PolySonic.playlist[next].artist+ ' - ' + PolySonic.playlist[next].title;
+          if (PolySonic.playlist[next].cover !== undefined) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + PolySonic.playlist[next].cover, true);
+            xhr.responseType = 'blob';
+            var card = document.querySelector('#coverArt');
+            xhr.onload = function(e) {
+              this.image = window.URL.createObjectURL(this.response);
+              card.style.backgroundImage = "url('" + this.image + "')";
+              cover.icon = this.image;
+            };
+            xhr.send();
+            document.querySelector("#playNotify").show();
+          } else {
+            document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
+          }
         } else {
           tmpl.page = 0;
           toolbar1.style.display = 'block';
@@ -141,9 +214,11 @@
         var tmpl = document.querySelector('#tmpl'),
           toolbar1 = document.querySelector("#toolbar1"),
           toolbar2 = document.querySelector("#toolbar2"),
+          toolbar3 = document.querySelector("#toolbar3"),
           scroller = PolySonic.appScroller();
         toolbar1.style.display = 'block';
-        toolbar2.style.display = 'none'
+        toolbar2.style.display = 'none';
+        toolbar3.style.display = 'none';
         tmpl.page = 0;
         setTimeout(function () {
           scroller.scrollTop = PolySonic.position;
@@ -152,9 +227,11 @@
       this.nowPlaying = function () {
         var tmpl = document.querySelector('#tmpl'),
           toolbar1 = document.querySelector("#toolbar1"),
-          toolbar2 = document.querySelector("#toolbar2");
+          toolbar2 = document.querySelector("#toolbar2"),
+          toolbar3 = document.querySelector("#toolbar3");
         toolbar1.style.display = 'none';
-        toolbar2.style.display = 'block'
+        toolbar2.style.display = 'block';
+        toolbar3.style.display = 'none';
         tmpl.page = 1;
         PolySonic.sizePlayer();
       };
@@ -211,6 +288,13 @@
       this.openPanel = function () {
         var panel = document.querySelector('#panel');
         panel.openDrawer();
+      };
+      this.gotoSettings = function () {
+        this.$.toolbar1.style.display = 'none';
+        this.$.toolbar2.style.display = 'none';
+        this.$.toolbar3.style.display = 'block';
+        this.page = 2;
+        PolySonic.closePanel();
       };
       PolySonic.loadListeners();
       PolySonic.loadData();
