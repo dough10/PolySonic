@@ -92,9 +92,9 @@
 
       trackResponseChanged: function () {
         if (this.trackResponse) {
+          this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
           this.tracks = [];
           Array.prototype.forEach.call(this.trackResponse['subsonic-response'].album.song, function (e) {
-            //console.log(e);
             var obj = {id:e.id, artist:e.artist, title:e.title, cover:this.cover};
             this.tracks.push(obj);
           }.bind(this));
@@ -104,7 +104,6 @@
           document.querySelector('#loader').classList.add('hide');
           document.querySelector(".box").classList.add('hide');
         }
-
         this.playlist = this.tracks;
       },
 
@@ -114,14 +113,15 @@
 
       add2Playlist: function () {
         var audio = document.querySelector("#audio"),
-          playlist = PolySonic.playlist;
+          playlist = PolySonic.playlist,
+          tmpl = document.querySelector("#tmpl");
         if (!playlist){
           playlist = [];
           document.querySelector('#tmpl').playlist = [];
         }
         this.$.playNotify.title = 'Added to Playlist';
         if (audio.paused) {
-          document.querySelector('#playing').innerHTML = this.playlist[0].artist+ ' - ' + this.playlist[0].title;
+          tmpl.currentPlaying = this.playlist[0].artist+ ' - ' + this.playlist[0].title;
           audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&id=' + this.playlist[0].id;
           audio.play();
           if (this.cover !== undefined) {
@@ -150,16 +150,17 @@
         this.$.playNotify.show();
       },
 
+      doDownload: function (event, detail, sender) {
+        window.open(this.url +"/rest/download.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.ident.value,'_blank');
+      },
+      
       playAlbum: function () {
         var audio = document.querySelector("#audio"),
-          height = (window.innerHeight - 256) + 'px',
-          width = window.innerWidth + 'px',
           scroller = PolySonic.appScroller(),
-          toolbar1 = document.querySelector("#toolbar1"),
-          toolbar2 = document.querySelector("#toolbar2");
+          tmpl = document.querySelector("#tmpl");
 
         PolySonic.position = scroller.scrollTop;
-        document.querySelector('#playing').innerHTML = this.playlist[0].artist + ' - ' + this.playlist[0].title;
+        tmpl.currentPlaying = this.playlist[0].artist + ' - ' + this.playlist[0].title;
         this.$.playNotify.title = 'Now Playing... ' + this.playlist[0].artist + ' - ' + this.playlist[0].title;
         if (this.cover !== undefined) {
           var xhr = new XMLHttpRequest();
@@ -179,15 +180,6 @@
 
         audio.play();
         document.querySelector('#tmpl').page = 1;
-        toolbar1.style.display = 'none';
-        toolbar2.style.display = 'block';
-        document.querySelector('#coverArt').style.width = width;
-        document.querySelector('#coverArt').style.height = height;
-        if (window.innerWidth > window.innerHeight) {
-          document.querySelector('#coverArt').style.backgroundSize = width;
-        } else {
-          document.querySelector('#coverArt').style.backgroundSize = height;
-        }
         PolySonic.playlist = this.playlist;
         document.querySelector('#tmpl').playlist = this.playlist;
         document.querySelector('#tmpl').playing = 0;
@@ -200,15 +192,12 @@
       */
       playTrack: function (event, detail, sender) {
         var audio = document.querySelector("#audio"),
-          height = (window.innerHeight - 256) + 'px',
-          width = window.innerWidth + 'px',
           scroller = PolySonic.appScroller(),
-          toolbar1 = document.querySelector("#toolbar1"),
-          toolbar2 = document.querySelector("#toolbar2");
+          tmpl = document.querySelector("#tmpl");
 
         PolySonic.position = scroller.scrollTop;
 
-        document.querySelector('#playing').innerHTML = sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
+        tmpl.currentPlaying = sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
         this.$.playNotify.title = 'Now Playing... ' + sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
         if (this.cover !== undefined) {
           var xhr = new XMLHttpRequest();
@@ -230,28 +219,14 @@
         audio.play();
 
         document.querySelector('#tmpl').page = 1;
-
-        var toolbar1 = document.querySelector("#toolbar1"),
-          toolbar2 = document.querySelector("#toolbar2");
-
-        toolbar1.style.display = 'none';
-        toolbar2.style.display = 'block';
-        document.querySelector('#coverArt').style.width = width;
-        document.querySelector('#coverArt').style.height = height;
-        if (window.innerWidth > window.innerHeight) {
-          document.querySelector('#coverArt').style.backgroundSize = width;
-        } else {
-          document.querySelector('#coverArt').style.backgroundSize = height;
-        }
-
         this.$.playNotify.show();
-
         document.querySelector('#tmpl').playlist = [{id:sender.attributes.ident.value, artist:sender.attributes.artist.value, title:sender.attributes.title.value, cover:sender.attributes.cover.value}];
       },
 
       addtoPlaylist: function (event, detail, sender) {
         var playlist = document.querySelector('#tmpl').playlist,
-          note = this.$.playNotify;
+          note = this.$.playNotify
+          tmpl = document.querySelector("#tmpl");
         if (!playlist){
           playlist = [];
           document.querySelector('#tmpl').playlist = [];
@@ -262,7 +237,7 @@
         var obj = {id:sender.attributes.ident.value, artist:sender.attributes.artist.value, title:sender.attributes.title.value, cover:sender.attributes.cover.value};
         document.querySelector('#tmpl').playlist.push(obj);
         if (audio.paused) {
-          document.querySelector('#playing').innerHTML = sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
+          tmpl.currentPlaying = sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
           audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&id=' + sender.attributes.ident.value;
           audio.play();
           if (this.cover !== undefined) {
