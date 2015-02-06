@@ -7,7 +7,7 @@
 <link href="../../bower_components/paper-item/paper-item.html" rel="import">
 <link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
 <link href="../../bower_components/core-item/core-item.html" rel="import">
-</head><body><polymer-element name="album-art" attributes="artist album cover item user pass url version">
+</head><body><polymer-element name="album-art" attributes="artist album cover item user pass url version isFavorite">
   <template>
     <style>
       :host {
@@ -166,22 +166,13 @@
         <div style="font-size:14pt; margin:8px">
           {{artist}} / {{album}}
         </div>
-        <paper-icon-button on-tap="{{playAlbum}}" dismissive="" icon="av:play-arrow"></paper-icon-button>
-        <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
-        <template if="{{!isFavorite}}">
-          <paper-icon-button on-tap="{{addFavorite}}" ident="{{albumID}}" icon="favorite-outline"></paper-icon-button>
-        </template>
-        <template if="{{isFavorite}}">
-          <paper-icon-button on-tap="{{removeFavorite}}" ident="{{albumID}}" icon="favorite"></paper-icon-button>
-        </template>
-        <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
         <template repeat="{{track in tracks}}">
           <core-item style="border-top:1px solid #CECECE;">
             <div flex style="margin-right:8px">
               {{track.title}}
             </div>
             <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
-            <paper-icon-button on-tap="{{addtoPlaylist}}" icon="add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
+            <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
             <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
           </core-item>
         </template>
@@ -206,7 +197,6 @@
               <div class="artist">{{artist}}</div>
               <br>
               <div class="album">{{album}}</div>
-              <br>
               <core-item>
                 <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
                 Play Album
@@ -216,8 +206,21 @@
                 Add to Playlist
               </core-item>
               <core-item>
+                <template if="{{!isFavorite}}">
+                  <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
+                </template>
+                <template if="{{isFavorite}}">
+                  <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
+                </template>
+                Favorite
+              </core-item>
+              <core-item>
+                <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+                Downlaod
+              </core-item>
+              <core-item>
                 <paper-icon-button on-tap="{{doDialog}}" icon="reorder"></paper-icon-button>
-                More Options
+                Track List
               </core-item>
             </div>
           </div>

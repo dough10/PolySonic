@@ -77,6 +77,7 @@
       position: absolute;
       right: 2%;
       margin-top: 18px;
+      font-size: 14pt;
     }
     #coverArt {
       background-image:url("images/default-cover-art.png");
@@ -191,12 +192,6 @@
   </style>
 </head>
 <body>
-  <div class="sysBar">
-    <div flex></div>
-    <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-    <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
-    <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
-  </div>
   <div id="loader">
     <div class="box">
       <img src="assets/icon_128.png" height="128" width="128" alt="Icon">
@@ -223,6 +218,10 @@
               <core-icon icon="sort"></core-icon>
               Podcast
             </paper-item>-->
+            <paper-item on-tap="{{getStarred}}">
+              <core-icon icon="favorite"></core-icon>
+              Favorites
+            </paper-item>
             <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
               Settings

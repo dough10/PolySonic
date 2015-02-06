@@ -24,12 +24,20 @@
         this.wall = [];
       },
       responseChanged: function () {
-        var wall = this.wall;
         if (this.response) {
-          Array.prototype.forEach.call(this.response['subsonic-response'].albumList2.album, function (e) {
-            obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, url:this.url, user:this.user, pass:this.pass, version:this.version};
-            wall.push(obj);
-          }.bind(this));
+          var wall = this.wall,
+            response = this.response['subsonic-response'];
+          if (response.albumList2) {
+            Array.prototype.forEach.call(this.response['subsonic-response'].albumList2.album, function (e) {
+              obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version};
+              wall.push(obj);
+            }.bind(this));
+          } else if (response.starred2) {
+            Array.prototype.forEach.call(this.response['subsonic-response'].starred2.album, function (e) {
+              obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version};
+              wall.push(obj);
+            }.bind(this));
+          }
         }
       },
       doAjax: function () {
@@ -39,6 +47,12 @@
       },
       getPodcast: function () {
         this.request = 'getPodcasts';
+        this.post.type = '';
+        this.post.offset = 0;
+        this.$.ajax.go();
+      },
+      getStarred: function () {
+        this.request = 'getStarred2';
         this.post.type = '';
         this.post.offset = 0;
         this.$.ajax.go();

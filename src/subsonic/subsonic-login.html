@@ -37,6 +37,10 @@
       paper-button {
         background:#cccccc;
       }
+      #showPass {
+        font-size:8pt;
+        cursor:pointer;
+      }
     </style>
     <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v={{version}}&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
     </core-ajax>
@@ -50,9 +54,10 @@
       </paper-input-decorator>
       <br>
       <paper-input-decorator id="input3" labelvisible="" floatinglabel="" error="Password Required" label="Password">
-        <input is="core-input" type="password" value="{{post.pass}}">
+        <input is="core-input" id="password" type="password" value="{{post.pass}}">
       </paper-input-decorator>
       <br>
+      <div id="showPass" on-tap="{{hidePass}}">Show Password</div>
       Version:
       <paper-dropdown-menu label="Select Version">
         <paper-dropdown layered class="dropdown">

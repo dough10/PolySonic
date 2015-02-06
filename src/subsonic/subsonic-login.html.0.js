@@ -6,6 +6,7 @@
         {sub:'4.8', api:'1.9.0'},
         {sub:'4.7', api:'1.8.0'}
       ],
+      timer: 0,
       ready: function () {
         'use strict';
         this.post = [];
@@ -61,6 +62,29 @@
             this.$.ajax.go();
           }
         }.bind(this), 100);
+      },
+      hidePass: function (event, detail, sender) {
+        'use strict';
+        var type = this.$.password.type,
+          button = this.$.showPass,
+          timer = this.timer;
+
+        if (type === "text") {
+          this.$.password.type = "password";
+          button.innerHTML = "Show Password";
+          if (timer) {
+            clearTimeout(timer);
+            timer = 0;
+          }
+        } else {
+          this.$.password.type = "text";
+          button.innerHTML = "Hide Password";
+          timer = setTimeout(function () {
+            this.$.password.type = "password";
+            button.innerHTML = "Show Password";
+            timer = 0;
+          }.bind(this), 15000);
+        }
       },
       responseChanged: function () {
         var tmpl = document.querySelector("#tmpl"),

@@ -49,7 +49,6 @@
             tmpl.page = 0;
             this.src = '';
             scroller.scrollTop = PolySonic.position;
-            PolySonic.playlist = [];
             this.playlist = [];
           }
         }
@@ -179,10 +178,7 @@
             document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
           }
         } else {
-          tmpl.page = 0;
-          this.src = '';
-          scroller.scrollTop = PolySonic.position;
-          PolySonic.playlist = [];
+          this.clearPlayer();
         }
       };
       
@@ -214,13 +210,21 @@
             document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
           }
         } else {
-          tmpl.page = 0;
-          this.src = '';
-          scroller.scrollTop = PolySonic.position;
-          PolySonic.playlist = [];
+
         }
       };
       
+      this.playlistChanged = function () {
+        PolySonic.playlist = this.playlist;
+      };
+
+      this.clearPlayer = function () {
+        tmpl.page = 0;
+        this.src = '';
+        scroller.scrollTop = PolySonic.position;
+        this.playlist = [];
+      };
+
       this.back2List = function () {
         var tmpl = document.querySelector('#tmpl'),
           scroller = PolySonic.appScroller();
@@ -286,10 +290,17 @@
       };
       
       this.getPodcast = function () {
+        PolySonic.closePanel();
         document.querySelector("#wall").clearData();
         document.querySelector("#wall").getPodcast();
       };
       
+      this.getStarred = function () {
+        PolySonic.closePanel();
+        document.querySelector("#wall").clearData();
+        document.querySelector("#wall").getStarred();
+      };
+
       this.toggleVolume = function () {
         var dialog = document.querySelector("#volumeDialog");
         dialog.toggle();
@@ -320,7 +331,6 @@
       
       this.clearPlaylist = function () {
         this.playlist = [];
-        PolySonic.playlist = [];
       };
       
       PolySonic.loadListeners();
