@@ -169,20 +169,21 @@
         <paper-icon-button on-tap="{{playAlbum}}" dismissive="" icon="av:play-arrow"></paper-icon-button>
         <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
         <template if="{{!isFavorite}}">
-          <paper-icon-button on-tap="{{addFavorite}}" icon="favorite-outline"></paper-icon-button>
+          <paper-icon-button on-tap="{{addFavorite}}" ident="{{albumID}}" icon="favorite-outline"></paper-icon-button>
         </template>
         <template if="{{isFavorite}}">
-          <paper-icon-button on-tap="{{removeFavorite}}" icon="favorite"></paper-icon-button>
+          <paper-icon-button on-tap="{{removeFavorite}}" ident="{{albumID}}" icon="favorite"></paper-icon-button>
         </template>
-        <paper-icon-button icon="file-download"></paper-icon-button>
+        <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
         <template repeat="{{track in tracks}}">
           <core-item style="border-top:1px solid #CECECE;">
-            {{track.title}}
+            <div flex style="margin-right:8px">
+              {{track.title}}
+            </div>
+            <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
+            <paper-icon-button on-tap="{{addtoPlaylist}}" icon="add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
+            <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
           </core-item>
-          <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
-          <paper-icon-button on-tap="{{addtoPlaylist}}" icon="add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
-          <paper-icon-button icon="file-download"></paper-icon-button>
-          <br>
         </template>
       </div>
     </paper-action-dialog>

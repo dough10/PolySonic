@@ -8,7 +8,7 @@
   "private": true,
   "dependencies": {
     "polymer": "Polymer/polymer#latest",
-    "paper-elements": "Polymer/paper-elements#latest",
+    "paper-elements": "Polymer/paper-elements",
     "x-notification": "1000ch/x-notification#latest",
     "core-ajax" : "Polymer/core-ajax#latest",
     "core-animated-pages" : "Polymer/core-animated-pages#latest",

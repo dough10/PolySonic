@@ -70,10 +70,11 @@
           will display server response in a toast
         */
         if (!this.response) {
-          this.$.toast.text = "Error Connecting to Server";
+          this.$.toast.text = "Error Connecting to Server. Check Settings";
           this.$.toast.show();
         }
         if (this.response['subsonic-response'].status === 'ok') {
+          document.querySelector('core-overlay-layer').classList.remove('core-opened');
           chrome.storage.sync.set({
             'url': this.post.url,
             'user': this.post.user,
@@ -88,10 +89,10 @@
           tmpl.pass = this.post.pass;
 
           tmpl.version = this.version;
-          this.$.toast.text = "Connection OK Loading Data";
+          this.$.toast.text = "Connection Successful Loading Data";
           this.$.toast.show();
           setTimeout(function () {
-            document.querySelector('core-overlay-layer').classList.remove('core-opened');
+            //document.querySelector('core-overlay-layer').classList.remove('core-opened');
           }, 3000);
           wall.doAjax();
         }
@@ -105,5 +106,17 @@
           this.$.toast.text = this.error;
           this.$.toast.show();
         }
+      },
+      
+      urlChanged: function () {
+        this.post.url = this.url;
+      },
+      
+      userChanged: function () {
+        this.post.user = this.user;
+      },
+      
+      passChanged: function () {
+        this.post.pass = this.pass;
       }
     });

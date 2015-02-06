@@ -166,6 +166,10 @@
     paper-icon-button {
       -webkit-app-region: no-drag;
     }
+    icon-transition {
+      -webkit-app-region: no-drag;
+      color:#ffffff;
+    }
     .card {
       margin:1%;
       margin-top:5px;
@@ -190,7 +194,7 @@
   <div class="sysBar">
     <div flex></div>
     <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-    <paper-icon-button icon="check-box-outline-blank" on-tap="{{maximize}}"></paper-icon-button>
+    <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
     <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
   </div>
   <div id="loader">
@@ -230,27 +234,25 @@
           <core-toolbar id="toolbar1" class="medium-tall">
             <div flex></div>
             <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-            <paper-icon-button icon="check-box-outline-blank" on-tap="{{maximize}}"></paper-icon-button>
+            <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
             <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
-            <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
-            <div flex style="text-align: left;" class="bottom">PolySonic</div>
-            <paper-icon-button style="display:none" id="nowPlaying" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
-          </core-toolbar>
-          <core-toolbar id="toolbar2" style="display:none" class="medium-tall">
-            <div flex></div>
-            <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-            <paper-icon-button icon="check-box-outline-blank" on-tap="{{maximize}}"></paper-icon-button>
-            <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
-            <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
-            <div class="bottom" id="playing" flex></div>
-            <paper-icon-button class="bottom" on-tap="{{showPlaylist}}" icon="more-vert"></paper-icon-button>
-          </core-toolbar>
-          <core-toolbar id="toolbar3" style="display:none" class="medium-tall">
-            <div flex></div>
-            <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-            <paper-icon-button icon="check-box-outline-blank" on-tap="{{maximize}}"></paper-icon-button>
-            <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
-            <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
+            <template if="{{page === 0}}">
+              <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
+              <div flex style="text-align: left;" class="bottom">PolySonic</div>
+              <template if="{{isNowPlaying}}">
+                <paper-icon-button on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
+              </template>
+            </template>
+            <template if="{{page === 1}}">
+              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
+              <div class="bottom" flex>{{currentPlaying}}</div>
+              <template if="{{playlist}}">
+                <paper-icon-button class="bottom" on-tap="{{showPlaylist}}" icon="more-vert"></paper-icon-button>
+              </template>
+            </template>
+            <template if="{{page === 2}}">
+              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
+            </template>
           </core-toolbar>
           <core-animated-pages selected="{{page}}">
             <section>
@@ -299,11 +301,11 @@
         <volume-slider></volume-slider>
       </paper-dialog>
       <paper-dialog id="firstRun" autoclosedisabled transition="paper-dialog-transition-center">
-        <subsonic-login></subsonic-login>
+        <subsonic-login url="{{url}}" user="{{user}}" pass="{{pass}}"></subsonic-login>
       </paper-dialog>
       <x-notification
         id="playNotify"
-        timeout='10000'></x-notification>
+        timeout='5000'></x-notification>
       <audio preload src="" id="audio" style="display:none"></audio>
     </template>
   </div>
