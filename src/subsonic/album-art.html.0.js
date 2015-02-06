@@ -8,38 +8,40 @@
         /*
           default page
         */
-        this.page = "cover";
+        this.page = this.page || "cover";
 
         /*
           Artist name
         */
-        this.artist = "Artist Name";
+        this.artist = this.artist || "Artist Name";
 
         /*
           Album name
         */
-        this.album = "Album Title";
+        this.album = this.album || "Album Title";
 
 
         this.playlist = [];
+        
       },
+      
       /*
         method ran when size of element is changed
 
         changing size changes both height and width values
       */
-      phoneSizeChanged: function () {
-        if (this.phoneSize) {
+      listModeChanged: function () {
+        if (this.listMode === 'list') {
           this.page = "small";
-          this.width = "150px";
-          this.height = "150px";
+          this.width = '556px';
+          this.height = "60px";
         } else  {
           this.page = "cover";
           this.width = "250px";
           this.height = "250px";
         }
       },
-
+      
       /*
         method ran when cover attribute is changed
       */
@@ -74,20 +76,6 @@
       */
       closeSlide: function () {
         this.page = "cover";
-      },
-
-      /*
-        slide up info box on mouseover for small setting
-      */
-      slide2: function () {
-        this.page = "info2";
-      },
-
-      /*
-        return element to small setting
-      */
-      backToSmall: function () {
-        this.page = "small";
       },
 
       trackResponseChanged: function () {

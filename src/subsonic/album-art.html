@@ -7,7 +7,7 @@
 <link href="../../bower_components/paper-item/paper-item.html" rel="import">
 <link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
 <link href="../../bower_components/core-item/core-item.html" rel="import">
-</head><body><polymer-element name="album-art" attributes="artist album cover item user pass url version isFavorite">
+</head><body><polymer-element name="album-art" attributes="artist album cover item user pass url version isFavorite listMode">
   <template>
     <style>
       :host {
@@ -22,7 +22,7 @@
         background-repeat: no-repeat;
         background-position: center;
         background-origin: content-box;
-        background-size:{{height}} {{width}};
+        background-size:{{width}};
         font-family: 'Helvetica Neue', Helvetica, Arial;
       }
       core-animated-pages {
@@ -58,11 +58,11 @@
       }
       #overlay-high-small {
         position:absolute;
-        top:0%;
+        top:10%;
         height:{{height}};
         width:{{width}};
         padding:0.5em;
-        background:rgba(255,255,255, 0.97);
+        background:rgba(255,255,255, 1);
         border:1px solid #d8d8d8;
         text-align:left;
       }
@@ -150,8 +150,10 @@
       .dialog {
         position:static;
       }
+      .bumpMargin {
+        margin-right:16px;
+      }
     </style>
-    <core-media-query query="max-width:500px" querymatches="{{phoneSize}}"></core-media-query>
     <paper-action-dialog id="dialog" class="dialog" transition="paper-dialog-transition-center">
       <div style="font-size:10pt;">
         <div flex style="text-align:center; margin:auto;">
@@ -225,30 +227,24 @@
             </div>
           </div>
         </div>
-        <div page="small" on-tap="{{slide2}}">
+        <div page="small">
           <div class="wrapper">
-            <div id="overlay-off" hero-id="hero" hero=""></div>
-          </div>
-        </div>
-        <div page="info2">
-          <div class="wrapper">
-            <div id="overlay-high-small" on-tap="{{backToSmall}}" hero-id="hero" hero="">
-              <div class="artist2">{{artist}}</div>
-              <br>
-              <div class="album2">{{album}}</div>
-              <br>
-              <paper-item on-tap="{{playAlbum}}">
-                <core-icon icon="av:play-arrow"></core-icon>
-                Play Album Now
-              </paper-item>
-              <paper-item on-tap="{{doDialog}}">
-                <core-icon icon="reorder"></core-icon>
-                Tracks
-              </paper-item>
-              <paper-item on-tap="{{add2Playlist}}">
-                <core-icon icon="add"></core-icon>
-                Add to Playlist
-              </paper-item>
+            <div id="overlay-high-small" hero-id="hero" hero="">
+              <core-item>
+                <div flex>
+                  {{artist}} - {{album}}
+                </div>
+                <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
+                <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
+                <template if="{{!isFavorite}}">
+                  <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
+                </template>
+                <template if="{{isFavorite}}">
+                  <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
+                </template>
+                <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+                <paper-icon-button class="bumpMargin" on-tap="{{doDialog}}" icon="reorder"></paper-icon-button>
+              </core-item>
             </div>
           </div>
         </div>

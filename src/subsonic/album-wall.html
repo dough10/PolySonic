@@ -2,7 +2,7 @@
 <link href="../../bower_components/paper-item/paper-item.html" rel="import">
 <link href="../../bower_components/paper-spinner/paper-spinner.html" rel="import">
 <link href="../../bower_components/paper-button/paper-button.html" rel="import">
-</head><body><polymer-element name="album-wall" attributes="url user pass version sort wall">
+</head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode">
   <template>
     <style>
       paper-item {
@@ -25,7 +25,7 @@
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <template repeat="{{i in wall}}">
-      <album-art item="{{i.id}}" cover="{{i.coverArt}}" artist="{{i.artist}}" album="{{i.name}}" url="{{i.url}}" user="{{i.user}}" pass="{{i.pass}}" version="{{i.version}}" isFavorite="{{i.starred}}">
+      <album-art listMode="{{listMode}}" item="{{i.id}}" cover="{{i.coverArt}}" artist="{{i.artist}}" album="{{i.name}}" url="{{i.url}}" user="{{i.user}}" pass="{{i.pass}}" version="{{i.version}}" isFavorite="{{i.starred}}">
       </album-art>
     </template>
     <br>

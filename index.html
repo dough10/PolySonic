@@ -147,7 +147,7 @@
       -webkit-align-items: center;
       justify-content: center;
       align-items: center;
-      z-index:6;
+      z-index:5000;
       transition: all 0.5s;
     }
     .box {
@@ -242,6 +242,7 @@
             <template if="{{page === 0}}">
               <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
               <div flex style="text-align: left;" class="bottom">PolySonic</div>
+              <paper-icon-button on-tap="{{toggleWall}}" icon="{{view}}" class="bottom"></paper-icon-button>
               <template if="{{isNowPlaying}}">
                 <paper-icon-button on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
               </template>
@@ -259,7 +260,7 @@
           </core-toolbar>
           <core-animated-pages selected="{{page}}">
             <section>
-              <album-wall id="wall" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}"></album-wall>
+              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}"></album-wall>
             </section>
             <section>
               <div id="coverArt"></div>

@@ -11,7 +11,8 @@
           scroller = PolySonic.appScroller(),
           audio = document.querySelector('#audio'),
           maximized = chrome.app.window.current().isMaximized(),
-          buttons = document.querySelectorAll('.max');
+          buttons = document.querySelectorAll('.max'),
+          wall = document.querySelector("#wall");
         if (maximized) {
           Array.prototype.forEach.call(buttons, function (e) {
             e.icon = 'flip-to-back';
@@ -100,6 +101,22 @@
         });
         chrome.storage.sync.get('version', function (result) {
           tmpl.version = result.version;
+        });
+        chrome.storage.sync.get('listMode', function (result) {
+          if (typeof result.listMode === 'undefined') {
+            chrome.storage.sync.set({
+              'listMode': 'cover'
+            });
+            tmpl.listMode = 'cover';
+            tmpl.view = 'view-stream';
+          } else {
+            tmpl.listMode = result.listMode;
+            if (result.listMode === 'cover') {
+              tmpl.view = 'view-stream';
+            } else {
+              tmpl.view = 'view-module';
+            }
+          }
         });
         setTimeout(function () {
           if (tmpl.url && tmpl.user && tmpl.pass && tmpl.version) {
@@ -213,6 +230,23 @@
 
         }
       };
+      
+      this.toggleWall = function () {
+        var wall = document.querySelector("#wall");
+        if (wall.listMode === 'cover') {
+          wall.listMode = 'list';
+          tmpl.view = 'view-module';
+          chrome.storage.sync.set({
+            'listMode': 'list'
+          });
+        } else {
+          wall.listMode = 'cover';
+          tmpl.view = 'view-stream';
+          chrome.storage.sync.set({
+            'listMode': 'cover'
+          });
+        }
+      },
       
       this.playlistChanged = function () {
         tmpl.playlist = this.playlist;
@@ -341,7 +375,9 @@
       };
       
       PolySonic.loadListeners();
-      PolySonic.loadData();
+      setTimeout(function () {
+        PolySonic.loadData();
+      }, 200);
       setInterval(function () {
         var audio = document.querySelector('#audio'),
           button = document.querySelector('#avIcon');
