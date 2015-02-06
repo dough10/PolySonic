@@ -208,6 +208,10 @@
           <core-menu id="menu" selected="{{selected}}" valueattr="i">
             <core-toolbar class="medium-tall">
             </core-toolbar>
+            <paper-item on-tap="{{getArtist}}">
+              <core-icon icon="perm-identity"></core-icon>
+              Artists List
+            </paper-item>
             <template repeat="{{type in sortTypes}}">
               <paper-item on-tap="{{selectAction}}" i="{{type.sort}}">
                 <core-icon icon="sort"></core-icon>

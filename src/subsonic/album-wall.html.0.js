@@ -57,6 +57,12 @@
         this.post.offset = 0;
         this.$.ajax.go();
       },
+      getArtist: function () {
+        this.request = 'getArtists';
+        this.post.type = '';
+        this.post.offset = 0;
+        this.$.ajax.go();
+      },
       sortChanged: function () {
         this.request = 'getAlbumList2';
         this.post.type = this.sort;

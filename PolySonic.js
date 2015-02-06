@@ -24,15 +24,15 @@
         window.onresize = PolySonic.sizePlayer;
         audio.onended = function () {
           var next = tmpl.playing + 1;
-          if (PolySonic.playlist[next]) {
+          if (tmpl.playlist[next]) {
             tmpl.playing = next;
-            document.querySelector('#playNotify').title = 'Now Playing... ' + PolySonic.playlist[next].artist + ' - ' + PolySonic.playlist[next].title;
-            tmpl.currentPlaying = PolySonic.playlist[next].artist + ' - ' + PolySonic.playlist[next].title;
-            this.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + PolySonic.playlist[next].id;
+            document.querySelector('#playNotify').title = 'Now Playing... ' + tmpl.playlist[next].artist + ' - ' + tmpl.playlist[next].title;
+            tmpl.currentPlaying = tmpl.playlist[next].artist + ' - ' + tmpl.playlist[next].title;
+            this.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + tmpl.playlist[next].id;
             this.play();
-            if (PolySonic.playlist[next].cover !== undefined) {
+            if (tmpl.playlist[next].cover !== undefined) {
               var xhr = new XMLHttpRequest();
-              xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + tmpl.user +"&p=" + tmpl.pass +"&f=json&v=" + tmpl.version + "&c=PolySonic&id=" + PolySonic.playlist[next].cover, true);
+              xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + tmpl.user +"&p=" + tmpl.pass +"&f=json&v=" + tmpl.version + "&c=PolySonic&id=" + tmpl.playlist[next].cover, true);
               xhr.responseType = 'blob';
               var card = document.querySelector('#coverArt');
               xhr.onload = function(e) {
@@ -156,15 +156,15 @@
           audio = document.querySelector('#audio'),
           scroller = PolySonic.appScroller(),
           cover = document.querySelector('#playNotify');
-        if (PolySonic.playlist[next]) {
+        if (tmpl.playlist[next]) {
           tmpl.playing = next;
-          tmpl.currentPlaying = PolySonic.playlist[next].artist+ ' - ' + PolySonic.playlist[next].title;
-          audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + PolySonic.playlist[next].id;
+          tmpl.currentPlaying = tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
+          audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + tmpl.playlist[next].id;
           audio.play();
-          cover.title = 'Now Playing... ' + PolySonic.playlist[next].artist+ ' - ' + PolySonic.playlist[next].title;
-          if (PolySonic.playlist[next].cover !== undefined) {
+          cover.title = 'Now Playing... ' + tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
+          if (tmpl.playlist[next].cover !== undefined) {
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + PolySonic.playlist[next].cover, true);
+            xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + tmpl.playlist[next].cover, true);
             xhr.responseType = 'blob';
             var card = document.querySelector('#coverArt');
             xhr.onload = function(e) {
@@ -188,15 +188,15 @@
           audio = document.querySelector('#audio'),
           scroller = PolySonic.appScroller(),
           cover = document.querySelector('#playNotify');
-        if (PolySonic.playlist[next]) {
+        if (tmpl.playlist[next]) {
           tmpl.playing = next;
-          tmpl.currentPlaying = PolySonic.playlist[next].artist+ ' - ' + PolySonic.playlist[next].title;
-          audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + PolySonic.playlist[next].id;
+          tmpl.currentPlaying = tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
+          audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + tmpl.playlist[next].id;
           audio.play();
-          cover.title = 'Now Playing... ' + PolySonic.playlist[next].artist+ ' - ' + PolySonic.playlist[next].title;
-          if (PolySonic.playlist[next].cover !== undefined) {
+          cover.title = 'Now Playing... ' + tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
+          if (tmpl.playlist[next].cover !== undefined) {
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + PolySonic.playlist[next].cover, true);
+            xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + tmpl.playlist[next].cover, true);
             xhr.responseType = 'blob';
             var card = document.querySelector('#coverArt');
             xhr.onload = function(e) {
@@ -215,7 +215,7 @@
       };
       
       this.playlistChanged = function () {
-        PolySonic.playlist = this.playlist;
+        tmpl.playlist = this.playlist;
       };
 
       this.clearPlayer = function () {
@@ -301,6 +301,12 @@
         document.querySelector("#wall").getStarred();
       };
 
+      this.getArtist = function () {
+        PolySonic.closePanel();
+        document.querySelector("#wall").clearData();
+        document.querySelector("#wall").getArtist();
+      };
+
       this.toggleVolume = function () {
         var dialog = document.querySelector("#volumeDialog");
         dialog.toggle();
@@ -314,6 +320,7 @@
         var panel = document.querySelector('#panel');
         panel.openDrawer();
       };
+
       this.gotoSettings = function () {
         this.page = 2;
         PolySonic.closePanel();
