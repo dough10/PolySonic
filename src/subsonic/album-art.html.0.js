@@ -25,11 +25,7 @@
         
       },
       
-      /*
-        method ran when size of element is changed
 
-        changing size changes both height and width values
-      */
       listModeChanged: function () {
         if (this.listMode === 'list') {
           this.page = "small";
@@ -58,8 +54,12 @@
             card.style.backgroundImage = "url('" + this.image + "')";
             art.src = this.image;
             note.icon = this.image;
+            var visible = document.querySelector("#loader").classList.contains("hide");
+            if (!visible) {
+              document.querySelector('#loader').classList.add('hide');
+              document.querySelector(".box").classList.add('hide');
+            }
           };
-
           xhr.send();
         }
       },
@@ -87,11 +87,6 @@
             this.tracks.push(obj);
           }.bind(this));
         }
-        var visible = document.querySelector("#loader").classList.contains("hide");
-        if (visible === false) {
-          document.querySelector('#loader').classList.add('hide');
-          document.querySelector(".box").classList.add('hide');
-        }
         this.playlist = this.tracks;
       },
 
@@ -110,7 +105,7 @@
         this.$.playNotify.title = 'Added to Playlist';
         if (audio.paused) {
           tmpl.currentPlaying = this.playlist[0].artist+ ' - ' + this.playlist[0].title;
-          audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&id=' + this.playlist[0].id;
+          audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
           audio.play();
           if (this.cover !== undefined) {
             var xhr = new XMLHttpRequest();
@@ -161,7 +156,7 @@
         } else {
           document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
         }
-        audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&id=' + this.playlist[0].id;
+        audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
         audio.play();
         document.querySelector('#tmpl').page = 1;
         tmpl.playlist = this.playlist;
@@ -190,7 +185,7 @@
         } else {
           document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
         }
-        audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&id=' + sender.attributes.ident.value;
+        audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
         audio.play();
         document.querySelector('#tmpl').page = 1;
         this.$.playNotify.show();
@@ -212,7 +207,7 @@
         document.querySelector('#tmpl').playlist.push(obj);
         if (audio.paused) {
           tmpl.currentPlaying = sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
-          audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&id=' + sender.attributes.ident.value;
+          audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
           audio.play();
           if (this.cover !== undefined) {
             var xhr = new XMLHttpRequest();

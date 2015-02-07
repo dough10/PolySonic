@@ -34,6 +34,7 @@
   <link href="bower_components/paper-input/paper-input.html" rel="import">
   <link href="src/subsonic/volume-slider.html" rel="import">
   <link href="src/subsonic/subsonic-login.html" rel="import">
+  <link href="src/subsonic/settings-menu.html" rel="import">
   <style>
     body {
       margin:0;
@@ -148,6 +149,7 @@
       justify-content: center;
       align-items: center;
       z-index:5000;
+      pointer-events: none;
       transition: all 0.5s;
     }
     .box {
@@ -260,7 +262,7 @@
           </core-toolbar>
           <core-animated-pages selected="{{page}}">
             <section>
-              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}"></album-wall>
+              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}"></album-wall>
             </section>
             <section>
               <div id="coverArt"></div>
@@ -282,7 +284,7 @@
             </section>
             <section>
               <paper-shadow z='1' class='card'>
-                OMG's
+                <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}"></settings-menu>
               </paper-shadow>
             </section>
           </core-animated-pages>
@@ -305,7 +307,7 @@
         <volume-slider></volume-slider>
       </paper-dialog>
       <paper-dialog id="firstRun" autoclosedisabled transition="paper-dialog-transition-center">
-        <subsonic-login url="{{url}}" user="{{user}}" pass="{{pass}}"></subsonic-login>
+        <subsonic-login></subsonic-login>
       </paper-dialog>
       <x-notification
         id="playNotify"

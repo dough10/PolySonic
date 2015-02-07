@@ -9,7 +9,7 @@
           offset: 0
         };
         this.wall = [];
-        this.request = 'getAlbumList2';
+        this.request = this.request || 'getAlbumList2';
       },
       userChanged: function () {
         this.post.u = this.user;
@@ -29,12 +29,12 @@
             response = this.response['subsonic-response'];
           if (response.albumList2) {
             Array.prototype.forEach.call(this.response['subsonic-response'].albumList2.album, function (e) {
-              obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version};
+              obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version, bitRate:this.bitRate};
               wall.push(obj);
             }.bind(this));
           } else if (response.starred2) {
             Array.prototype.forEach.call(this.response['subsonic-response'].starred2.album, function (e) {
-              obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version};
+              obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version, bitRate:this.bitRate};
               wall.push(obj);
             }.bind(this));
           }

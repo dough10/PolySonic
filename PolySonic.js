@@ -29,7 +29,7 @@
             tmpl.playing = next;
             document.querySelector('#playNotify').title = 'Now Playing... ' + tmpl.playlist[next].artist + ' - ' + tmpl.playlist[next].title;
             tmpl.currentPlaying = tmpl.playlist[next].artist + ' - ' + tmpl.playlist[next].title;
-            this.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + tmpl.playlist[next].id;
+            this.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + tmpl.bitRate + '&id=' + tmpl.playlist[next].id;
             this.play();
             if (tmpl.playlist[next].cover !== undefined) {
               var xhr = new XMLHttpRequest();
@@ -51,23 +51,6 @@
             this.src = '';
             scroller.scrollTop = PolySonic.position;
             this.playlist = [];
-          }
-        }
-        
-        /* chromecast api */
-        initializeCastApi = function() {
-          console.log(this);
-          var sessionRequest = new chrome.cast.SessionRequest(applicationID);
-          var apiConfig = new chrome.cast.ApiConfig(sessionRequest,
-            sessionListener,
-            receiverListener);
-          chrome.cast.initialize(apiConfig, onInitSuccess, onError);
-        };
-        window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
-          if (loaded) {
-            initializeCastApi();
-          } else {
-            console.log(errorInfo);
           }
         }
       },
@@ -118,11 +101,26 @@
             }
           }
         });
+        chrome.storage.sync.get('bitRate', function (result) {
+          if (typeof result.bitRate === 'undefined') {
+            chrome.storage.sync.set({
+              'bitRate': '320'
+            });
+            tmpl.bitRate = '320';
+          } else {
+            tmpl.bitRate = result.bitRate;
+          }
+        });
+        chrome.storage.sync.get('sort', function (result) {
+          if (typeof result.sort === 'undefined') {
+            tmpl.selected = '';
+          }
+        });
         setTimeout(function () {
-          if (tmpl.url && tmpl.user && tmpl.pass && tmpl.version) {
+          if (tmpl.url && tmpl.user && tmpl.pass && tmpl.version && tmpl.bitRate && tmpl.listMode) {
             document.querySelector('#wall').doAjax();
           } else {
-            PolySonic.loadData();
+            document.querySelector("#firstRun").toggle();
           }
         }, 100);
         PolySonic.sizePlayer();
@@ -147,7 +145,7 @@
           pass = tmpl.pass,
           cover = document.querySelector('#playNotify');
         tmpl.currentPlaying = sender.attributes.artist.value+ ' - ' + sender.attributes.title.value;
-        audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + sender.attributes.ident.value;
+        audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + tmpl.bitRate + '&id=' + sender.attributes.ident.value;
         audio.play();
         cover.title = 'Now Playing... ' + sender.attributes.artist.value+ ' - ' + sender.attributes.title.value;
         if (sender.attributes.cover.value !== undefined) {
@@ -176,7 +174,7 @@
         if (tmpl.playlist[next]) {
           tmpl.playing = next;
           tmpl.currentPlaying = tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
-          audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + tmpl.playlist[next].id;
+          audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + tmpl.bitRate + '&id=' + tmpl.playlist[next].id;
           audio.play();
           cover.title = 'Now Playing... ' + tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
           if (tmpl.playlist[next].cover !== undefined) {
@@ -208,7 +206,7 @@
         if (tmpl.playlist[next]) {
           tmpl.playing = next;
           tmpl.currentPlaying = tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
-          audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&id=' + tmpl.playlist[next].id;
+          audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + tmpl.bitRate + '&id=' + tmpl.playlist[next].id;
           audio.play();
           cover.title = 'Now Playing... ' + tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
           if (tmpl.playlist[next].cover !== undefined) {
@@ -375,23 +373,23 @@
       };
       
       PolySonic.loadListeners();
-      setTimeout(function () {
-        PolySonic.loadData();
-      }, 200);
+      PolySonic.loadData();
       setInterval(function () {
         var audio = document.querySelector('#audio'),
           button = document.querySelector('#avIcon');
         if (!audio.paused) {
           button.icon = "av:pause";
           var progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
-            current = (audio.currentTime / 60),
-            duration = (audio.duration / 60),
+            currentMins = Math.floor(audio.currentTime / 60),
+            currentSecs = Math.round(audio.currentTime - currentMins * 60),
+            totalMins = Math.floor(audio.duration / 60),
+            totalSecs = Math.round(audio.duration - totalMins * 60),
             time = document.querySelector('#time');
           tmpl.isNowPlaying = true;
           if (!audio.duration) {
-            time.innerHTML = (Math.round(current * 100) / 100).toFixed(2) + ' / ?:??';
+            time.innerHTML = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
           } else {
-            time.innerHTML = (Math.round(current * 100) / 100).toFixed(2) + ' / ' + (Math.round(duration * 100) / 100).toFixed(2);
+            time.innerHTML = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
           }
           if (!audio.duration) {
             document.querySelector('#progress').value = 0;
