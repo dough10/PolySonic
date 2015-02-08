@@ -1,0 +1,95 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'update', '-g', 'vulcanize' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.36
+4 verbose node symlink /usr/bin/node
+5 verbose request where is /vulcanize
+6 verbose request registry https://registry.npmjs.org/
+7 verbose request id 3f02818d340551d6
+8 verbose url raw /vulcanize
+9 verbose url resolving [ 'https://registry.npmjs.org/', './vulcanize' ]
+10 verbose url resolved https://registry.npmjs.org/vulcanize
+11 verbose request where is https://registry.npmjs.org/vulcanize
+12 info trying registry request attempt 1 at 15:28:16
+13 verbose etag "AGO5G8LDKL03K15ZDFCF4V31M"
+14 http GET https://registry.npmjs.org/vulcanize
+15 http 200 https://registry.npmjs.org/vulcanize
+16 silly registry.get cb [ 200,
+16 silly registry.get   { date: 'Sun, 08 Feb 2015 21:28:17 GMT',
+16 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+16 silly registry.get     etag: '"AO7PFX8SU0WELGQIKBU11L9FR"',
+16 silly registry.get     'content-type': 'application/json',
+16 silly registry.get     'cache-control': 'max-age=60',
+16 silly registry.get     'content-length': '56896',
+16 silly registry.get     'accept-ranges': 'bytes',
+16 silly registry.get     via: '1.1 varnish',
+16 silly registry.get     age: '0',
+16 silly registry.get     'x-served-by': 'cache-dfw1820-DFW',
+16 silly registry.get     'x-cache': 'MISS',
+16 silly registry.get     'x-cache-hits': '0',
+16 silly registry.get     'x-timer': 'S1423430896.771850,VS0,VE265',
+16 silly registry.get     vary: 'Accept',
+16 silly registry.get     'keep-alive': 'timeout=10, max=50',
+16 silly registry.get     connection: 'Keep-Alive' } ]
+17 info outdated updating [ [ '/usr/lib', 'vulcanize', '0.7.7', '0.7.8', '0.7.8', 'latest' ] ]
+18 verbose install where,what [ '/usr/lib', [ 'vulcanize@0.7.8' ] ]
+19 verbose cache add [ 'vulcanize@0.7.8', null ]
+20 verbose cache add name=undefined spec="vulcanize@0.7.8" args=["vulcanize@0.7.8",null]
+21 verbose parsed url { protocol: null,
+21 verbose parsed url   slashes: null,
+21 verbose parsed url   auth: null,
+21 verbose parsed url   host: null,
+21 verbose parsed url   port: null,
+21 verbose parsed url   hostname: null,
+21 verbose parsed url   hash: null,
+21 verbose parsed url   search: null,
+21 verbose parsed url   query: null,
+21 verbose parsed url   pathname: 'vulcanize@0.7.8',
+21 verbose parsed url   path: 'vulcanize@0.7.8',
+21 verbose parsed url   href: 'vulcanize@0.7.8' }
+22 verbose cache add name="vulcanize" spec="0.7.8" args=["vulcanize","0.7.8"]
+23 verbose parsed url { protocol: null,
+23 verbose parsed url   slashes: null,
+23 verbose parsed url   auth: null,
+23 verbose parsed url   host: null,
+23 verbose parsed url   port: null,
+23 verbose parsed url   hostname: null,
+23 verbose parsed url   hash: null,
+23 verbose parsed url   search: null,
+23 verbose parsed url   query: null,
+23 verbose parsed url   pathname: '0.7.8',
+23 verbose parsed url   path: '0.7.8',
+23 verbose parsed url   href: '0.7.8' }
+24 verbose addNamed [ 'vulcanize', '0.7.8' ]
+25 verbose addNamed [ '0.7.8', '0.7.8' ]
+26 silly lockFile b32062f3-vulcanize-0-7-8 vulcanize@0.7.8
+27 verbose lock vulcanize@0.7.8 /home/crumb/.npm/b32062f3-vulcanize-0-7-8.lock
+28 verbose registry.get https://registry.npmjs.org/vulcanize not expired, no request
+29 silly lockFile 6a265347-rg-vulcanize-vulcanize-0-7-8-tgz https://registry.npmjs.org/vulcanize/-/vulcanize-0.7.8.tgz
+30 verbose lock https://registry.npmjs.org/vulcanize/-/vulcanize-0.7.8.tgz /home/crumb/.npm/6a265347-rg-vulcanize-vulcanize-0-7-8-tgz.lock
+31 verbose addRemoteTarball [ 'https://registry.npmjs.org/vulcanize/-/vulcanize-0.7.8.tgz',
+31 verbose addRemoteTarball   '2269a048c2a40ddf2eec9c9e01486c842fd514ff' ]
+32 info retry fetch attempt 1 at 15:28:17
+33 verbose fetch to= /tmp/npm-11981-zGztPQBH/registry.npmjs.org/vulcanize/-/vulcanize-0.7.8.tgz
+34 http GET https://registry.npmjs.org/vulcanize/-/vulcanize-0.7.8.tgz
+35 http 200 https://registry.npmjs.org/vulcanize/-/vulcanize-0.7.8.tgz
+36 silly lockFile 6a265347-rg-vulcanize-vulcanize-0-7-8-tgz https://registry.npmjs.org/vulcanize/-/vulcanize-0.7.8.tgz
+37 silly lockFile 6a265347-rg-vulcanize-vulcanize-0-7-8-tgz https://registry.npmjs.org/vulcanize/-/vulcanize-0.7.8.tgz
+38 silly lockFile b32062f3-vulcanize-0-7-8 vulcanize@0.7.8
+39 silly lockFile b32062f3-vulcanize-0-7-8 vulcanize@0.7.8
+40 error Error: EACCES, mkdir '/home/crumb/.npm/vulcanize/0.7.8'
+40 error  { [Error: EACCES, mkdir '/home/crumb/.npm/vulcanize/0.7.8']
+40 error   errno: 3,
+40 error   code: 'EACCES',
+40 error   path: '/home/crumb/.npm/vulcanize/0.7.8' }
+41 error Please try running this command again as root/Administrator.
+42 error System Linux 3.13.0-45-generic
+43 error command "/usr/bin/node" "/usr/bin/npm" "update" "-g" "vulcanize"
+44 error cwd /home/crumb/Documents/PolySonic
+45 error node -v v0.10.36
+46 error npm -v 1.4.28
+47 error path /home/crumb/.npm/vulcanize/0.7.8
+48 error code EACCES
+49 error errno 3
+50 error stack Error: EACCES, mkdir '/home/crumb/.npm/vulcanize/0.7.8'
+51 verbose exit [ 3, true ]

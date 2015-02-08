@@ -13,6 +13,13 @@
         256,
         320
       ],
+      sizes: [
+        20,
+        30,
+        40,
+        50,
+        60
+      ],
       timer: 0,
       ready: function () {
         'use strict';
@@ -102,7 +109,8 @@
               'user': this.post.user,
               'pass': this.post.pass,
               'version': this.post.version,
-              'bitRate': this.post.bitRate
+              'bitRate': this.post.bitRate,
+              'querySize': this.post.querySize
             });
 
             tmpl.url = this.post.url;
@@ -114,6 +122,8 @@
             tmpl.version = this.post.version;
 
             tmpl.bitRate = this.post.bitRate;
+
+            tmpl.querySize = this.post.querySize;
 
             this.$.toast.text = "Settings Saved";
             this.$.toast.show();
@@ -149,5 +159,9 @@
 
       bitRateChanged: function () {
         this.post.bitRate = this.bitRate;
+      },
+
+      querySizeChanged: function () {
+        this.post.querySize = this.querySize;
       }
     });

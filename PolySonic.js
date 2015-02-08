@@ -1,14 +1,45 @@
-    var PolySonic = {
-      position:0,
-      playlist:[],
-      closePanel: function () {
+    document.querySelector('#tmpl').addEventListener('template-bound', function () {
+      this.position = 0;
+      this.playlist = [];
+      this.page = this.page || 0;
+      this.pageLimit = false;
+      this.volume = 100;
+      this.sortTypes = [
+        {sort:'newest', name:'Newest'},
+        {sort:'frequent', name:'Frequent'},
+        {sort:'alphabeticalByName', name:'By Title'},
+        {sort:'alphabeticalByArtist', name:'By Artist'},
+        {sort:'recent', name:'Recently Played'}
+      ];
+
+      this.closeDrawer = function () {
         var panel = document.querySelector('#panel');
         panel.closeDrawer();
-      },
-      loadListeners: function () {
+      };
+
+      this.appScroller = function () {
+        return document.querySelector('#headerPanel').scroller;
+      };
+
+      this.topOfPage = function () {
+        scroller = this.appScroller();
+        if (scroller.scrollTop !== 0) {
+          scroller.scrollTop = 0;
+        }
+      };
+
+      this.sizePlayer = function () {
+        var height = (window.innerHeight - 256) + 'px',
+          width = window.innerWidth + 'px';
+        document.querySelector('#coverArt').style.width = width;
+        document.querySelector('#coverArt').style.height = height;
+        document.querySelector('#coverArt').style.backgroundSize = width;
+      };
+
+      this.loadListeners = function () {
         var menuButton = document.querySelector("#menuButton"),
           tmpl = document.querySelector('#tmpl'),
-          scroller = PolySonic.appScroller(),
+          scroller = this.appScroller(),
           audio = document.querySelector('#audio'),
           maximized = chrome.app.window.current().isMaximized(),
           buttons = document.querySelectorAll('.max'),
@@ -22,7 +53,14 @@
             e.icon = 'check-box-outline-blank';
           });
         }
-        window.onresize = PolySonic.sizePlayer;
+        scroller.onscroll = function (e) {
+          var precent = (scroller.scrollTop / (scroller.scrollHeight - scroller.offsetHeight)) * 100,
+            tmpl = document.querySelector("#tmpl");
+          if (tmpl.page === 0 && precent > 85 && !tmpl.pageLimit) {
+            document.querySelector("#wall").loadMore();
+          }
+        }
+        window.onresize = this.sizePlayer;
         audio.onended = function () {
           var next = tmpl.playing + 1;
           if (tmpl.playlist[next]) {
@@ -44,48 +82,28 @@
               };
               xhr.send();
             } else {
-              document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
+              document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
             }
           } else {
             tmpl.page = 0;
             this.src = '';
-            scroller.scrollTop = PolySonic.position;
             this.playlist = [];
           }
         }
-      },
+      };
       
-      sizePlayer: function () {
-        var height = (window.innerHeight - 256) + 'px',
-          width = window.innerWidth + 'px';
-        document.querySelector('#coverArt').style.width = width;
-        document.querySelector('#coverArt').style.height = height;
-        document.querySelector('#coverArt').style.backgroundSize = width;
-      },
-      
-      appScroller: function () {
-        return document.querySelector('#headerPanel').scroller;
-      },
-      
-      loadData: function () {
+      this.loadData = function () {
         var tmpl = document.querySelector("#tmpl");
-        chrome.storage.sync.get('url', function (result) {
+        chrome.storage.sync.get(function (result) {
           if (typeof result.url === 'undefined') {
             document.querySelector('#firstRun').toggle();
           } else {
             tmpl.url = result.url;
           }
-        });
-        chrome.storage.sync.get('user', function (result) {
           tmpl.user = result.user;
-        });
-        chrome.storage.sync.get('pass', function (result) {
+          console.log(result);
           tmpl.pass = result.pass;
-        });
-        chrome.storage.sync.get('version', function (result) {
           tmpl.version = result.version;
-        });
-        chrome.storage.sync.get('listMode', function (result) {
           if (typeof result.listMode === 'undefined') {
             chrome.storage.sync.set({
               'listMode': 'cover'
@@ -100,8 +118,6 @@
               tmpl.view = 'view-module';
             }
           }
-        });
-        chrome.storage.sync.get('bitRate', function (result) {
           if (typeof result.bitRate === 'undefined') {
             chrome.storage.sync.set({
               'bitRate': '320'
@@ -110,33 +126,25 @@
           } else {
             tmpl.bitRate = result.bitRate;
           }
-        });
-        chrome.storage.sync.get('sort', function (result) {
           if (typeof result.sort === 'undefined') {
             tmpl.selected = '';
           }
+          if (typeof result.querySize === 'undefined') {
+            chrome.storage.sync.set({
+              'querySize': '40'
+            });
+            tmpl.querySize = 40;
+          } else {
+            tmpl.querySize = result.querySize;
+          }
         });
         setTimeout(function () {
-          if (tmpl.url && tmpl.user && tmpl.pass && tmpl.version && tmpl.bitRate && tmpl.listMode) {
+          if (tmpl.url && tmpl.user && tmpl.pass && tmpl.version) {
             document.querySelector('#wall').doAjax();
-          } else {
-            document.querySelector("#firstRun").toggle();
           }
         }, 100);
-        PolySonic.sizePlayer();
-      }
-    };
-
-    document.querySelector('#tmpl').addEventListener('template-bound', function () {
-      this.page = this.page || 0;
-      this.volume = 100;
-      this.sortTypes = [
-        {sort:'newest', name:'Newest'},
-        {sort:'frequent', name:'Frequent'},
-        {sort:'alphabeticalByName', name:'By Title'},
-        {sort:'alphabeticalByArtist', name:'By Artist'},
-        {sort:'recent', name:'Recently Played'}
-      ];
+        this.sizePlayer();
+      };
 
       this.playThis = function (event, detail, sender) {
         var tmpl = document.querySelector('#tmpl'),
@@ -161,7 +169,7 @@
           };
           xhr.send();
         } else {
-          document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
+          document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
         }
       };
 
@@ -169,7 +177,6 @@
         var tmpl = document.querySelector('#tmpl'),
           next = tmpl.playing + 1,
           audio = document.querySelector('#audio'),
-          scroller = PolySonic.appScroller(),
           cover = document.querySelector('#playNotify');
         if (tmpl.playlist[next]) {
           tmpl.playing = next;
@@ -190,7 +197,7 @@
             };
             xhr.send();
           } else {
-            document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
+            document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
           }
         } else {
           this.clearPlayer();
@@ -201,7 +208,6 @@
         var tmpl = document.querySelector('#tmpl'),
           next = tmpl.playing - 1,
           audio = document.querySelector('#audio'),
-          scroller = PolySonic.appScroller(),
           cover = document.querySelector('#playNotify');
         if (tmpl.playlist[next]) {
           tmpl.playing = next;
@@ -222,10 +228,10 @@
             xhr.send();
             document.querySelector("#playNotify").show();
           } else {
-            document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
+            document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
           }
         } else {
-
+          this.clearPlayer();
         }
       };
       
@@ -253,23 +259,18 @@
       this.clearPlayer = function () {
         tmpl.page = 0;
         this.src = '';
-        scroller.scrollTop = PolySonic.position;
         this.playlist = [];
       };
 
       this.back2List = function () {
-        var tmpl = document.querySelector('#tmpl'),
-          scroller = PolySonic.appScroller();
+        var tmpl = document.querySelector('#tmpl');
         tmpl.page = 0;
-        setTimeout(function () {
-          scroller.scrollTop = PolySonic.position;
-        }, 500);
       };
       
       this.nowPlaying = function () {
         var tmpl = document.querySelector('#tmpl');
         tmpl.page = 1;
-        PolySonic.sizePlayer();
+        this.sizePlayer();
       };
       
       this.playPause = function () {
@@ -318,23 +319,23 @@
         setTimeout(function () {
           document.querySelector("#wall").sort = tmpl.selected;
         }, 100);
-        PolySonic.closePanel();
+        this.closeDrawer();
       };
       
       this.getPodcast = function () {
-        PolySonic.closePanel();
+        this.closeDrawer();
         document.querySelector("#wall").clearData();
         document.querySelector("#wall").getPodcast();
       };
       
       this.getStarred = function () {
-        PolySonic.closePanel();
+        this.closeDrawer();
         document.querySelector("#wall").clearData();
         document.querySelector("#wall").getStarred();
       };
 
       this.getArtist = function () {
-        PolySonic.closePanel();
+        this.closeDrawer();
         document.querySelector("#wall").clearData();
         document.querySelector("#wall").getArtist();
       };
@@ -355,7 +356,7 @@
 
       this.gotoSettings = function () {
         this.page = 2;
-        PolySonic.closePanel();
+        this.closeDrawer();
       };
       
       this.volUp = function () {
@@ -372,8 +373,8 @@
         this.playlist = [];
       };
       
-      PolySonic.loadListeners();
-      PolySonic.loadData();
+      this.loadListeners();
+      this.loadData();
       setInterval(function () {
         var audio = document.querySelector('#audio'),
           button = document.querySelector('#avIcon');

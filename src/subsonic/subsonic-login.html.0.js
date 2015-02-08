@@ -98,7 +98,7 @@
           this.$.toast.show();
         }
         if (this.response['subsonic-response'].status === 'ok') {
-          document.querySelector('core-overlay-layer').classList.remove('core-opened');
+
           chrome.storage.sync.set({
             'url': this.post.url,
             'user': this.post.user,
@@ -113,12 +113,13 @@
           tmpl.pass = this.post.pass;
 
           tmpl.version = this.version;
-          this.$.toast.text = "Connection Successful Loading Data";
+          this.$.toast.text = "Loading Data";
           this.$.toast.show();
           setTimeout(function () {
-            //document.querySelector('core-overlay-layer').classList.remove('core-opened');
-          }, 3000);
-          wall.doAjax();
+            document.querySelector('core-overlay-layer').classList.remove('core-opened');
+            wall.doAjax();
+          }, 500);
+
         }
       },
       errorChanged: function () {

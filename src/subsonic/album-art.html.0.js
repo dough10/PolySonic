@@ -42,7 +42,7 @@
         method ran when cover attribute is changed
       */
       coverChanged: function () {
-        if (this.cover !== "") {
+        if (this.cover) {
           var xhr = new XMLHttpRequest();
           xhr.open('GET', this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&size=250&id=" + this.cover, true);
           xhr.responseType = 'blob';
@@ -107,7 +107,7 @@
           tmpl.currentPlaying = this.playlist[0].artist+ ' - ' + this.playlist[0].title;
           audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
           audio.play();
-          if (this.cover !== undefined) {
+          if (this.cover) {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover, true);
             xhr.responseType = 'blob';
@@ -120,7 +120,7 @@
             };
             xhr.send();
           } else {
-            document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
+            document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
           }
         }
         Array.prototype.forEach.call(this.playlist, function (e) {
@@ -137,13 +137,11 @@
       
       playAlbum: function () {
         var audio = document.querySelector("#audio"),
-          scroller = PolySonic.appScroller(),
           tmpl = document.querySelector("#tmpl");
 
-        PolySonic.position = scroller.scrollTop;
         tmpl.currentPlaying = this.playlist[0].artist + ' - ' + this.playlist[0].title;
         this.$.playNotify.title = 'Now Playing... ' + this.playlist[0].artist + ' - ' + this.playlist[0].title;
-        if (this.cover !== undefined) {
+        if (this.cover) {
           var xhr = new XMLHttpRequest();
           xhr.open('GET', this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover, true);
           xhr.responseType = 'blob';
@@ -154,7 +152,7 @@
           };
           xhr.send();
         } else {
-          document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
+          document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
         }
         audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
         audio.play();
@@ -167,12 +165,10 @@
 
       playTrack: function (event, detail, sender) {
         var audio = document.querySelector("#audio"),
-          scroller = PolySonic.appScroller(),
           tmpl = document.querySelector("#tmpl");
-        PolySonic.position = scroller.scrollTop;
         tmpl.currentPlaying = sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
         this.$.playNotify.title = 'Now Playing... ' + sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
-        if (this.cover !== undefined) {
+        if (this.cover) {
           var xhr = new XMLHttpRequest();
           xhr.open('GET', this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover, true);
           xhr.responseType = 'blob';
@@ -183,7 +179,7 @@
           };
           xhr.send();
         } else {
-          document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
+          document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
         }
         audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
         audio.play();
@@ -209,7 +205,7 @@
           tmpl.currentPlaying = sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
           audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
           audio.play();
-          if (this.cover !== undefined) {
+          if (this.cover) {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover, true);
             xhr.responseType = 'blob';
@@ -222,7 +218,7 @@
             };
             xhr.send();
           } else {
-            document.querySelector('#coverArt').style.backgroundImage =  "url('assets/default-cover-art.png')"
+            document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
           }
         }
       },
@@ -233,7 +229,6 @@
         xhr.open('GET', this.url + "/rest/star.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value, true);
         xhr.responseType = 'json';
         xhr.onload = function(e) {
-          console.log(this.response['subsonic-response'].status);
           if (this.response['subsonic-response'].status === 'ok') {
             fav.isFavorite = true;
           }
@@ -247,7 +242,6 @@
         xhr.open('GET', this.url + "/rest/unstar.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value, true);
         xhr.responseType = 'json';
         xhr.onload = function(e) {
-          console.log(this.response['subsonic-response'].status);
           if (this.response['subsonic-response'].status === 'ok') {
             fav.isFavorite = false;
           }

@@ -1,5 +1,4 @@
 <html><head><link href="../../bower_components/polymer/polymer.html" rel="import">
-<link rel="import" href="../../bower_components/font-roboto/roboto.html">
 <link href="../../bower_components/paper-input/paper-input.html" rel="import">
 <link href="../../bower_components/paper-button/paper-button.html" rel="import">
 <link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
@@ -9,7 +8,7 @@
 <link href="../../bower_components/core-menu/core-menu.html" rel="import">
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/paper-dropdown/paper-dropdown.html" rel="import">
-</head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate">
+</head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate querySize">
   <template>
     <style>
       :host {
@@ -62,7 +61,7 @@
       </paper-input-decorator>
       <br>
       <div id="showPass" on-tap="{{hidePass}}">Show Password</div>
-      Version:
+      Subsonic Version:
       <paper-dropdown-menu label="Select Version">
         <paper-dropdown layered class="dropdown">
           <core-menu class="menu" selected="{{post.version}}" valueattr="i">
@@ -73,11 +72,22 @@
         </paper-dropdown>
       </paper-dropdown-menu>
       <br>
-      kbps:
+      Bitrate:
       <paper-dropdown-menu label="Select bitrate">
         <paper-dropdown layered class="dropdown">
           <core-menu class="menu" selected="{{post.bitRate}}" valueattr="i">
             <template repeat="{{speeds}}">
+              <paper-item i="{{}}">{{}} kbps</paper-item>
+            </template>
+          </core-menu>
+        </paper-dropdown>
+      </paper-dropdown-menu>
+      <br>
+      Results to Query:
+      <paper-dropdown-menu label="Select bitrate">
+        <paper-dropdown layered class="dropdown">
+          <core-menu class="menu" selected="{{post.querySize}}" valueattr="i">
+            <template repeat="{{sizes}}">
               <paper-item i="{{}}">{{}}</paper-item>
             </template>
           </core-menu>
