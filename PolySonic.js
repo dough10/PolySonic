@@ -1,5 +1,4 @@
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
-  this.position = 0;
   this.playlist = [];
   this.page = this.page || 0;
   this.pageLimit = false;
