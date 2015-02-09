@@ -101,7 +101,6 @@
             tmpl.url = result.url;
           }
           tmpl.user = result.user;
-          console.log(result);
           tmpl.pass = result.pass;
           tmpl.version = result.version;
           if (typeof result.listMode === 'undefined') {
@@ -131,19 +130,18 @@
           }
           if (typeof result.querySize === 'undefined') {
             chrome.storage.sync.set({
-              'querySize': '40'
+              'querySize': 40
             });
             tmpl.querySize = 40;
           } else {
             tmpl.querySize = result.querySize;
           }
+          setTimeout(function () {
+            if (tmpl.url && tmpl.user && tmpl.pass && tmpl.version) {
+              document.querySelector('#wall').doAjax();
+            }
+          }, 100);
         });
-        setTimeout(function () {
-          if (tmpl.url && tmpl.user && tmpl.pass && tmpl.version) {
-            document.querySelector('#wall').doAjax();
-          }
-        }, 100);
-        this.sizePlayer();
       };
 
       this.playThis = function (event, detail, sender) {
@@ -375,6 +373,7 @@
       
       this.loadListeners();
       this.loadData();
+      this.sizePlayer();
       setInterval(function () {
         var audio = document.querySelector('#audio'),
           button = document.querySelector('#avIcon');
@@ -401,7 +400,7 @@
           tmpl.isNowPlaying = false;
           button.icon = "av:play-arrow";
         }
-      }, 100);
+      }, 50);
     });
     chrome.commands.onCommand.addListener(function(command) {
       var tmpl = document.querySelector("#tmpl"),

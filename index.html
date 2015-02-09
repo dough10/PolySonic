@@ -10,7 +10,6 @@
   <title>PolySonic</title>
   <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
   <script src="bower_components/x-notification/x-notification.js"></script>
-  <script type="text/javascript" src="cast_sender.js"></script>
   <link href="src/subsonic/album-art.html" rel="import">
   <link href="src/subsonic/album-wall.html" rel="import">
   <link href="bower_components/core-animated-pages/core-animated-pages.html" rel="import">
@@ -190,6 +189,9 @@
       display:block;
       background:#6e6d6d
     }
+    .alignLeft {
+      text-align: left;
+    }
   </style>
 </head>
 <body>
@@ -242,7 +244,7 @@
             <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
             <template if="{{page === 0}}">
               <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
-              <div flex style="text-align: left;" class="bottom">PolySonic</div>
+              <div flex  class="bottom alignLeft">PolySonic</div>
               <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="{{view}}" class="bottom"></paper-icon-button>
               <template if="{{isNowPlaying}}">
                 <paper-icon-button title="Now Playing" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>

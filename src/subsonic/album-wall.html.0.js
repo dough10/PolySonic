@@ -38,9 +38,7 @@
               obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version, bitRate:this.bitRate};
               wall.push(obj);
             }.bind(this));
-          }
-          if (response.albumlist2 && !response.albumList2.album[0]) {
-            console.log(this);
+          } else {
             tmpl.pageLimit = true;
           }
         }
@@ -111,14 +109,17 @@
         }
       },
       loadMore: function () {
-        if (!this.isLoading) {
+        if (!this.isLoading && this.request !== 'getStarred2') {
+          this.isLoading = true;
           var toast = this.$.toast;
           toast.text = 'Loading..';
           toast.show();
+          this.post.size = this.post.size / 2;
+          this.post.offset = this.post.offset + this.post.size;
           setTimeout(function () {
-            this.post.offset = this.post.offset + parseInt(this.post.size);
             this.$.ajax.go();
-          }.bind(this), 200);
+            this.post.size = this.post.size * 2;
+          }.bind(this), 500);
         }
       },
       querySizeChanged: function () {
