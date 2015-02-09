@@ -63,7 +63,6 @@
             this.$.toast.show();
           }
           if (!invalid1 && !invalid2 && !invalid3 && this.post.version !== undefined && this.post.bitRate !== undefined) {
-            console.log(this.post);
             this.$.ajax.go();
           }
         }.bind(this), 100);

@@ -58,7 +58,6 @@
             this.$.toast.text = "Version Required";
             this.$.toast.show();
           } else if (!invalid1 && !invalid2 && !invalid3 && this.version !== undefined) {
-            console.log(this.post);
             this.$.ajax.go();
           }
         }.bind(this), 100);

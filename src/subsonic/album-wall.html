@@ -23,6 +23,9 @@
       #more {
         margin-bottom:16px;
       }
+      .foot {
+        min-height:100px;
+      }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <template repeat="{{i in wall}}">
@@ -36,6 +39,7 @@
     <paper-toast id="toast">
       <paper-spinner active=""></paper-spinner>
     </paper-toast>
+    <div class="foot"></div>
   </template>
   <script src="album-wall.html.0.js"></script>
 </polymer-element>

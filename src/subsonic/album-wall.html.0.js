@@ -5,7 +5,7 @@
           f: 'json',
           c: 'PolySonic',
           type: 'newest',
-          size: 40,
+          size: 20,
           offset: 0
         };
         this.wall = [];
