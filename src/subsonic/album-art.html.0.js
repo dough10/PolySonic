@@ -93,17 +93,7 @@
           audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
           audio.play();
           if (this.cover) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover, true);
-            xhr.responseType = 'blob';
-            var card = document.querySelector('#coverArt');
-            var art = this.$.art;
-            xhr.onload = function(e) {
-              this.image = window.URL.createObjectURL(this.response);;
-              card.style.backgroundImage = "url('" + this.image + "')";
-              art.src = this.image;
-            };
-            xhr.send();
+            tmpl.getImageForPlayer(this.cover);
           } else {
             document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
           }
@@ -127,15 +117,7 @@
         tmpl.currentPlaying = this.playlist[0].artist + ' - ' + this.playlist[0].title;
         this.$.playNotify.title = 'Now Playing... ' + this.playlist[0].artist + ' - ' + this.playlist[0].title;
         if (this.cover) {
-          var xhr = new XMLHttpRequest();
-          xhr.open('GET', this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover, true);
-          xhr.responseType = 'blob';
-          var card = document.querySelector('#coverArt');
-          xhr.onload = function(e) {
-            this.image = window.URL.createObjectURL(this.response);;
-            card.style.backgroundImage = "url('" + this.image + "')";
-          };
-          xhr.send();
+          tmpl.getImageForPlayer(this.cover);
         } else {
           document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
         }
@@ -154,15 +136,7 @@
         tmpl.currentPlaying = sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
         this.$.playNotify.title = 'Now Playing... ' + sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
         if (this.cover) {
-          var xhr = new XMLHttpRequest();
-          xhr.open('GET', this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover, true);
-          xhr.responseType = 'blob';
-          var card = document.querySelector('#coverArt');
-          xhr.onload = function(e) {
-            this.image = window.URL.createObjectURL(this.response);;
-            card.style.backgroundImage = "url('" + this.image + "')";
-          };
-          xhr.send();
+          tmpl.getImageForPlayer(this.cover);
         } else {
           document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
         }
@@ -191,17 +165,7 @@
           audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
           audio.play();
           if (this.cover) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover, true);
-            xhr.responseType = 'blob';
-            var card = document.querySelector('#coverArt');
-            xhr.onload = function(e) {
-              this.image = window.URL.createObjectURL(this.response);;
-              card.style.backgroundImage = "url('" + this.image + "')";
-              note.icon = this.image;
-              note.show();
-            };
-            xhr.send();
+            tmpl.getImageForPlayer(this.cover);
           } else {
             document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
           }

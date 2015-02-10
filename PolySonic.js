@@ -54,21 +54,29 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     };
   };
   
-  this.getImageForPlayer = function (id) {};
+  this.getImageForPlayer = function (id) {
+    var tmpl = document.querySelector("#tmpl");
+    var transaction = db.transaction(["coverArt"], "readwrite");
+    transaction.objectStore("coverArt").get(id).onsuccess = function (event) {
+      var imgFile = event.target.result;
+      var imgURL = window.URL.createObjectURL(imgFile);
+      document.querySelector('#coverArt').style.backgroundImage = "url('" + imgURL + "')";
+    };
+  };
   
   this.checkEntry = function (url, image, art, note, id) {
     var transaction = db.transaction(["coverArt"], "readwrite"),
-      request = transaction.objectStore("coverArt").count(id);
+      request = transaction.objectStore("coverArt").count(id),
+      visible = document.querySelector("#loader").classList.contains("hide");
     request.onsuccess = function() {
+      if (!visible) {
+        document.querySelector('#loader').classList.add('hide');
+        document.querySelector(".box").classList.add('hide');
+      }
       if (request.result === 0) {
         tmpl.getImageFile(url, image, art, note, id);
       } else {
         tmpl.getImageFromDb(url, image, art, note, id);
-      }
-      var visible = document.querySelector("#loader").classList.contains("hide");
-      if (!visible) {
-        document.querySelector('#loader').classList.add('hide');
-        document.querySelector(".box").classList.add('hide');
       }
     };
   };
