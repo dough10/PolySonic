@@ -269,7 +269,7 @@
               <div id="coverArt"></div>
               <div class="controlsWrapper">
                 <paper-progress id="progress" on-tap="{{progressClick}}"></paper-progress>
-                <div id="time"></div>
+                <div id="time">{{playTime}}</div>
                 <template if="{{playlist && playing !== 0}}">
                   <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
                 </template>

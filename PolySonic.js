@@ -169,7 +169,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       };
       xhr.send();
     } else {
-      document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
+      card.style.backgroundImage =  "url('images/default-cover-art.png')"
     }
   };
 
@@ -270,7 +270,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.nowPlaying = function () {
     var tmpl = document.querySelector('#tmpl');
     tmpl.page = 1;
-    this.sizePlayer();
   };
 
   this.playPause = function () {
@@ -378,31 +377,28 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.sizePlayer();
   setInterval(function () {
     var audio = document.querySelector('#audio'),
-      button = document.querySelector('#avIcon');
+      button = document.querySelector('#avIcon'),
+        bar = document.querySelector('#progress');
     if (!audio.paused) {
       button.icon = "av:pause";
-      var progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
+      var progress = Math.round(audio.currentTime / audio.duration * 100),
         currentMins = Math.floor(audio.currentTime / 60),
         currentSecs = Math.round(audio.currentTime - currentMins * 60),
         totalMins = Math.floor(audio.duration / 60),
-        totalSecs = Math.round(audio.duration - totalMins * 60),
-        time = document.querySelector('#time');
-      tmpl.isNowPlaying = true;
+        totalSecs = Math.round(audio.duration - totalMins * 60);
+      this.isNowPlaying = true;
       if (!audio.duration) {
-        time.innerHTML = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
+        this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
+        bar.value = 0;
       } else {
-        time.innerHTML = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
-      }
-      if (!audio.duration) {
-        document.querySelector('#progress').value = 0;
-      } else {
-        document.querySelector('#progress').value = progress;
+        this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
+        bar.value = progress;
       }
     } else {
-      tmpl.isNowPlaying = false;
+      this.isNowPlaying = false;
       button.icon = "av:play-arrow";
     }
-  }, 50);
+  }.bind(this), 200);
 });
 chrome.commands.onCommand.addListener(function(command) {
   var tmpl = document.querySelector("#tmpl"),
