@@ -42,25 +42,10 @@
         method ran when cover attribute is changed
       */
       coverChanged: function () {
+        var tmpl = document.querySelector("#tmpl");
         if (this.cover) {
-          var xhr = new XMLHttpRequest();
-          xhr.open('GET', this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&size=250&id=" + this.cover, true);
-          xhr.responseType = 'blob';
-          var card = this.$.card;
-          var art = this.$.art;
-          var note = this.$.playNotify;
-          xhr.onload = function(e) {
-            this.image = window.URL.createObjectURL(this.response);;
-            card.style.backgroundImage = "url('" + this.image + "')";
-            art.src = this.image;
-            note.icon = this.image;
-            var visible = document.querySelector("#loader").classList.contains("hide");
-            if (!visible) {
-              document.querySelector('#loader').classList.add('hide');
-              document.querySelector(".box").classList.add('hide');
-            }
-          };
-          xhr.send();
+          var url = this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover;
+          tmpl.checkEntry(url, this.$.card, this.$.art, this.$.playNotify, this.cover);
         }
       },
 
