@@ -37,7 +37,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       image.style.backgroundImage = "url('" + imgURL + "')";
       art.src = imgURL;
       note.icon = imgURL;
-      console.log('server');
     };
   };
   
@@ -50,17 +49,31 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       image.style.backgroundImage = "url('" + imgURL + "')";
       art.src = imgURL;
       note.icon = imgURL;
-      console.log('db');
     };
   };
   
   this.getImageForPlayer = function (id) {
-    var tmpl = document.querySelector("#tmpl");
-    var transaction = db.transaction(["coverArt"], "readwrite");
+    var tmpl = document.querySelector("#tmpl"),
+      transaction = db.transaction(["coverArt"], "readwrite"),
+      art = document.querySelector('#coverArt');
     transaction.objectStore("coverArt").get(id).onsuccess = function (event) {
       var imgFile = event.target.result;
       var imgURL = window.URL.createObjectURL(imgFile);
-      document.querySelector('#coverArt').style.backgroundImage = "url('" + imgURL + "')";
+      art.style.backgroundImage = "url('" + imgURL + "')";
+    };
+  };
+
+  this.getImageForNextTrack = function (id) {
+    var tmpl = document.querySelector("#tmpl"),
+      transaction = db.transaction(["coverArt"], "readwrite"),
+      art = document.querySelector('#coverArt'),
+      note = document.querySelector('#playNotify');
+    transaction.objectStore("coverArt").get(id).onsuccess = function (event) {
+      var imgFile = event.target.result;
+      var imgURL = window.URL.createObjectURL(imgFile);
+      art.style.backgroundImage = "url('" + imgURL + "')";
+      note.icon = imgURL;
+      note.show();
     };
   };
   
@@ -79,6 +92,42 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         tmpl.getImageFromDb(url, image, art, note, id);
       }
     };
+  };
+
+  this.defaultPlayImage = function () {
+    document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')";
+    document.querySelector('#playNotify').icon = 'images/default-cover-art.png';
+    document.querySelector("#playNotify").show();
+  };
+
+  this.request.onerror = function (event) {
+      console.log("Error creating/accessing IndexedDB database");
+  };
+
+  this.request.onsuccess = function (event) {
+    var tmpl = document.querySelector("#tmpl");
+    console.log("Success creating/accessing IndexedDB database");
+    db = tmpl.request.result;
+
+    db.onerror = function (event) {
+      console.log("Error creating/accessing IndexedDB database");
+    };
+
+    // Interim solution for Google Chrome to create an objectStore. Will be deprecated
+    if (db.setVersion) {
+      if (db.version != dbVersion) {
+        var setVersion = db.setVersion(dbVersion);
+        setVersion.onsuccess = function () {
+          this.createObjectStore(db);
+        };
+      }
+    }
+  }
+
+  // For future use. Currently only in latest Firefox versions
+  this.request.onupgradeneeded = function (event) {
+    var tmpl = document.querySelector("#tmpl");
+    tmpl.createObjectStore(event.target.result);
   };
   
   this.playlist = [];
@@ -136,6 +185,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         e.icon = 'check-box-outline-blank';
       });
     }
+
     scroller.onscroll = function (e) {
       var precent = (scroller.scrollTop / (scroller.scrollHeight - scroller.offsetHeight)) * 100,
         tmpl = document.querySelector("#tmpl");
@@ -143,35 +193,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         document.querySelector("#wall").loadMore();
       }
     }
-    this.request.onerror = function (event) {
-        console.log("Error creating/accessing IndexedDB database");
-    };
- 
-    this.request.onsuccess = function (event) {
-      var tmpl = document.querySelector("#tmpl");
-      console.log("Success creating/accessing IndexedDB database");
-      db = tmpl.request.result;
-  
-      db.onerror = function (event) {
-        console.log("Error creating/accessing IndexedDB database");
-      };
-      
-      // Interim solution for Google Chrome to create an objectStore. Will be deprecated
-      if (db.setVersion) {
-        if (db.version != dbVersion) {
-          var setVersion = db.setVersion(dbVersion);
-          setVersion.onsuccess = function () {
-            this.createObjectStore(db);
-          };
-        }
-      }
-    }
-    
-    // For future use. Currently only in latest Firefox versions
-    this.request.onupgradeneeded = function (event) {
-      var tmpl = document.querySelector("#tmpl");
-      tmpl.createObjectStore(event.target.result);
-    };
     
     window.onresize = this.sizePlayer;
     audio.onended = function () {
@@ -183,19 +204,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         this.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + tmpl.bitRate + '&id=' + tmpl.playlist[next].id;
         this.play();
         if (tmpl.playlist[next].cover !== undefined) {
-          var xhr = new XMLHttpRequest();
-          xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + tmpl.user +"&p=" + tmpl.pass +"&f=json&v=" + tmpl.version + "&c=PolySonic&id=" + tmpl.playlist[next].cover, true);
-          xhr.responseType = 'blob';
-          var card = document.querySelector('#coverArt');
-          xhr.onload = function(e) {
-            this.image = window.URL.createObjectURL(this.response);
-            card.style.backgroundImage = "url('" + this.image + "')";
-            document.querySelector('#playNotify').icon = this.image;
-            document.querySelector("#playNotify").show();
-          };
-          xhr.send();
+          tmpl.getImageForNextTrack(tmpl.playlist[next].cover);
         } else {
-          document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
+          tmpl.defaultPlayImage();
         }
       } else {
         tmpl.page = 0;
@@ -272,19 +283,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     audio.play();
     cover.title = 'Now Playing... ' + sender.attributes.artist.value+ ' - ' + sender.attributes.title.value;
     if (sender.attributes.cover.value !== undefined) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + tmpl.user +"&p=" + tmpl.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.cover.value, true);
-      xhr.responseType = 'blob';
-      var card = document.querySelector('#coverArt');
-      xhr.onload = function(e) {
-        this.image = window.URL.createObjectURL(this.response);
-        card.style.backgroundImage = "url('" + this.image + "')";
-        cover.icon = this.image;
-        document.querySelector("#playNotify").show();
-      };
-      xhr.send();
+      tmpl.getImageForNextTrack(sender.attributes.cover.value);
     } else {
-      card.style.backgroundImage =  "url('images/default-cover-art.png')"
+      tmpl.defaultPlayImage();
     }
   };
 
@@ -300,19 +301,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       audio.play();
       cover.title = 'Now Playing... ' + tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
       if (tmpl.playlist[next].cover !== undefined) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + tmpl.playlist[next].cover, true);
-        xhr.responseType = 'blob';
-        var card = document.querySelector('#coverArt');
-        xhr.onload = function(e) {
-          this.image = window.URL.createObjectURL(this.response);
-          card.style.backgroundImage = "url('" + this.image + "')";
-          cover.icon = this.image;
-          document.querySelector("#playNotify").show();
-        };
-        xhr.send();
+        tmpl.getImageForNextTrack(tmpl.playlist[next].cover);
       } else {
-        document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
+        tmpl.defaultPlayImage();
       }
     } else {
       this.clearPlayer();
@@ -331,19 +322,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       audio.play();
       cover.title = 'Now Playing... ' + tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
       if (tmpl.playlist[next].cover !== undefined) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', tmpl.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + tmpl.playlist[next].cover, true);
-        xhr.responseType = 'blob';
-        var card = document.querySelector('#coverArt');
-        xhr.onload = function(e) {
-          this.image = window.URL.createObjectURL(this.response);
-          card.style.backgroundImage = "url('" + this.image + "')";
-          cover.icon = this.image;
-        };
-        xhr.send();
-        document.querySelector("#playNotify").show();
+        tmpl.getImageForNextTrack(tmpl.playlist[next].cover);
       } else {
-        document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
+        tmpl.defaultPlayImage();
       }
     } else {
       this.clearPlayer();
@@ -378,13 +359,16 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.back2List = function () {
-    var tmpl = document.querySelector('#tmpl');
+    var tmpl = document.querySelector('#tmpl'),
+      wall = document.querySelector("#wall");
     tmpl.page = 0;
+    wall.doAjax();
   };
 
   this.nowPlaying = function () {
     var tmpl = document.querySelector('#tmpl');
     tmpl.page = 1;
+    document.querySelector("#wall").clearData();
   };
 
   this.playPause = function () {

@@ -124,6 +124,7 @@
         audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
         audio.play();
         document.querySelector('#tmpl').page = 1;
+        document.querySelector("#wall").clearData();
         tmpl.playlist = this.playlist;
         document.querySelector('#tmpl').playing = 0;
         this.$.playNotify.show();
@@ -143,6 +144,7 @@
         audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
         audio.play();
         document.querySelector('#tmpl').page = 1;
+        document.querySelector("#wall").clearData();
         this.$.playNotify.show();
         document.querySelector('#tmpl').playlist = [{id:sender.attributes.ident.value, artist:sender.attributes.artist.value, title:sender.attributes.title.value, cover:sender.attributes.cover.value}];
       },

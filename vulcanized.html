@@ -3046,7 +3046,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         margin-bottom:16px;
       }
       .foot {
-        min-height:100px;
+        min-height:1;
       }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
@@ -4535,7 +4535,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         margin:auto;
       }
     </style>
-    <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v={{version}}&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
+    <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v={{post.version}}&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
     </core-ajax>
     <div id="validate">
       <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="URL Required" label="URL:Port">
@@ -4664,7 +4664,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
             </template>
           </core-toolbar>
-          <core-animated-pages selected="{{page}}" transitions="slide-from-right">
+          <core-animated-pages selected="{{page}}">
             <section>
               <album-wall id="wall" listmode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitrate="{{bitRate}}" querysize="{{querySize}}"></album-wall>
             </section>
