@@ -1,7 +1,92 @@
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
+  this.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
+  
+  this.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
+  
+  this.dbVersion = 1.0;
+  
+  this.request = this.indexedDB.open("coverArt", this.dbVersion);
+  
+  this.createObjectStore = function (dataBase) {
+    console.log("Creating objectStore")
+    dataBase.createObjectStore("coverArt");
+  };
+  
+  this.getImageFile = function (url, image, art, note, id) {
+    var xhr = new XMLHttpRequest(),
+      tmpl = document.querySelector("#tmpl"),
+      blob;
+    xhr.open("GET", url, true);
+    xhr.responseType = "blob";
+    xhr.onload = function (e) {
+      if (xhr.status === 200) {
+        blob = xhr.response;
+        tmpl.putImageInDb(blob, image, art, note, id);
+      }
+    };
+    xhr.send();
+  };
+  
+  this.putImageInDb = function (blob, image, art, note, id) {
+    var tmpl = document.querySelector("#tmpl");
+    var transaction = db.transaction(["coverArt"], "readwrite");
+    var put = transaction.objectStore("coverArt").put(blob, id);
+    transaction.objectStore("coverArt").get(id).onsuccess = function (event) {
+      var imgFile = event.target.result;
+      var imgURL = window.URL.createObjectURL(imgFile);
+      image.style.backgroundImage = "url('" + imgURL + "')";
+      art.src = imgURL;
+      note.icon = imgURL;
+      console.log('server');
+    };
+  };
+  
+  this.getImageFromDb = function (url, image, art, note, id) {
+    var transaction = db.transaction(["coverArt"], "readwrite"),
+      request = transaction.objectStore("coverArt").get(id);
+    request.onsuccess = function (event) {
+      var imgFile = event.target.result;
+      var imgURL = window.URL.createObjectURL(imgFile);
+      image.style.backgroundImage = "url('" + imgURL + "')";
+      art.src = imgURL;
+      note.icon = imgURL;
+      console.log('db');
+    };
+  };
+  
+  this.getImageForPlayer = function (id) {
+    var tmpl = document.querySelector("#tmpl");
+    var transaction = db.transaction(["coverArt"], "readwrite");
+    transaction.objectStore("coverArt").get(id).onsuccess = function (event) {
+      var imgFile = event.target.result;
+      var imgURL = window.URL.createObjectURL(imgFile);
+      document.querySelector('#coverArt').style.backgroundImage = "url('" + imgURL + "')";
+    };
+  };
+  
+  this.checkEntry = function (url, image, art, note, id) {
+    var transaction = db.transaction(["coverArt"], "readwrite"),
+      request = transaction.objectStore("coverArt").count(id),
+      visible = document.querySelector("#loader").classList.contains("hide");
+    request.onsuccess = function() {
+      if (!visible) {
+        document.querySelector('#loader').classList.add('hide');
+        document.querySelector(".box").classList.add('hide');
+      }
+      if (request.result === 0) {
+        tmpl.getImageFile(url, image, art, note, id);
+      } else {
+        tmpl.getImageFromDb(url, image, art, note, id);
+      }
+    };
+  };
+  
   this.playlist = [];
+  
   this.page = this.page || 0;
+  
   this.pageLimit = false;
+  
   this.sortTypes = [
     {sort:'newest', name:'Newest'},
     {sort:'frequent', name:'Frequent'},
@@ -58,6 +143,36 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         document.querySelector("#wall").loadMore();
       }
     }
+    this.request.onerror = function (event) {
+        console.log("Error creating/accessing IndexedDB database");
+    };
+ 
+    this.request.onsuccess = function (event) {
+      var tmpl = document.querySelector("#tmpl");
+      console.log("Success creating/accessing IndexedDB database");
+      db = tmpl.request.result;
+  
+      db.onerror = function (event) {
+        console.log("Error creating/accessing IndexedDB database");
+      };
+      
+      // Interim solution for Google Chrome to create an objectStore. Will be deprecated
+      if (db.setVersion) {
+        if (db.version != dbVersion) {
+          var setVersion = db.setVersion(dbVersion);
+          setVersion.onsuccess = function () {
+            this.createObjectStore(db);
+          };
+        }
+      }
+    }
+    
+    // For future use. Currently only in latest Firefox versions
+    this.request.onupgradeneeded = function (event) {
+      var tmpl = document.querySelector("#tmpl");
+      tmpl.createObjectStore(event.target.result);
+    };
+    
     window.onresize = this.sizePlayer;
     audio.onended = function () {
       var next = tmpl.playing + 1;

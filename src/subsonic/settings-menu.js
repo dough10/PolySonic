@@ -47,24 +47,28 @@
         setTimeout(function () {
           var invalid1 = this.$.input1.classList.contains("invalid"),
             invalid2 = this.$.input2.classList.contains("invalid"),
-            invalid3 = this.$.input3.classList.contains("invalid");
+            invalid3 = this.$.input3.classList.contains("invalid"),
+            wall = document.querySelector("#wall"),
+            toast = this.$.toast;
 
 
           if (invalid1 && invalid2 && this.post.version === undefined) {
-            this.$.toast.text = "URL, Username & Version Required";
-            this.$.toast.show();
+            toast.text = "URL, Username & Version Required";
+            toast.show();
           } else if (invalid1) {
-            this.$.toast.text = "URL Required";
-            this.$.toast.show();
+            toast.text = "URL Required";
+            toast.show();
           } else if (invalid2) {
-            this.$.toast.text = "Username Required";
-            this.$.toast.show();
+            toast.text = "Username Required";
+            toast.show();
           } else if (this.version === undefined) {
-            this.$.toast.text = "Version Required";
-            this.$.toast.show();
+            toast.text = "Version Required";
+            toast.show();
           }
           if (!invalid1 && !invalid2 && !invalid3 && this.post.version !== undefined && this.post.bitRate !== undefined) {
             this.$.ajax.go();
+            wall.wall = [];
+            wall.doAjax();
           }
         }.bind(this), 100);
       },
@@ -98,10 +102,6 @@
         /*
           will display server response in a toast
         */
-        if (!this.response) {
-          this.$.toast.text = "Error Connecting to Server. Check Settings";
-          this.$.toast.show();
-        }
         if (this.response) {
           if (this.response['subsonic-response'].status === 'ok') {
             chrome.storage.sync.set({
@@ -126,6 +126,12 @@
             tmpl.querySize = this.post.querySize;
 
             this.$.toast.text = "Settings Saved";
+            this.$.toast.show();
+          } else if (this.response['subsonic-response'].status === 'failed') {
+            this.$.toast.text = this.response['subsonic-response'].error.message;
+            this.$.toast.show();
+          } else  {
+            this.$.toast.text = "Error Connecting to Server. Check Settings";
             this.$.toast.show();
           }
         }
