@@ -480,7 +480,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         bar = document.querySelector('#progress');
     if (!audio.paused) {
       button.icon = "av:pause";
-      var progress = Math.round(audio.currentTime / audio.duration * 100),
+      var progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
         currentMins = Math.floor(audio.currentTime / 60),
         currentSecs = Math.round(audio.currentTime - currentMins * 60),
         totalMins = Math.floor(audio.duration / 60),
@@ -497,7 +497,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.isNowPlaying = false;
       button.icon = "av:play-arrow";
     }
-  }.bind(this), 200);
+  }.bind(this), 100);
 });
 chrome.commands.onCommand.addListener(function(command) {
   var tmpl = document.querySelector("#tmpl"),
