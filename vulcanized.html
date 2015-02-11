@@ -2373,7 +2373,7 @@ polyfill-next-selector { content: ':host > a'; }
     </paper-shadow>
     <paper-toast id="toast"></paper-toast>
     <x-notification id="playNotify" timeout="10000" tag="tag"></x-notification>
-    <core-ajax auto="" method="GET" id="track" url="{{url}}/rest/getAlbum.view" params="{&quot;u&quot;:&quot;{{user}}&quot;, &quot;p&quot;:&quot;{{pass}}&quot;, &quot;f&quot;:&quot;json&quot;, &quot;v&quot;:&quot;{{version}}&quot;, &quot;c&quot;:&quot;PolySonic&quot;, &quot;id&quot;:&quot;{{item}}&quot;}" handleas="json" response="{{trackResponse}}">
+    <core-ajax auto="false" method="GET" id="track" url="{{url}}/rest/getAlbum.view" params="{&quot;u&quot;:&quot;{{user}}&quot;, &quot;p&quot;:&quot;{{pass}}&quot;, &quot;f&quot;:&quot;json&quot;, &quot;v&quot;:&quot;{{version}}&quot;, &quot;c&quot;:&quot;PolySonic&quot;, &quot;id&quot;:&quot;{{item}}&quot;}" handleas="json" response="{{trackResponse}}">
     </core-ajax>
   </template>
   <script src="src/subsonic/album-art.html.0.js"></script>

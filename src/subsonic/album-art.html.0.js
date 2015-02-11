@@ -3,7 +3,7 @@
       /*
         method ran when element is created in dom
       */
-      created: function () {
+      ready: function () {
 
         /*
           default page
@@ -23,6 +23,11 @@
 
         this.playlist = [];
         
+        this.tracks = [];
+
+
+        this.checkJSONEntry(this.item);
+
       },
       
 
@@ -38,6 +43,30 @@
         }
       },
       
+
+      checkJSONEntry: function (id) {
+        var transaction = db.transaction(["albumInfo"], "readwrite"),
+          request = transaction.objectStore("albumInfo").count(id);
+        request.onsuccess = function() {
+          if (request.result === 0) {
+            this.new = true;
+            this.doAjax();
+          } else {
+            this.new = false;
+            this.getJSONFromDb(id);
+          }
+        }.bind(this);
+      },
+
+      getJSONFromDb: function (id) {
+        var transaction = db.transaction(["albumInfo"], "readwrite"),
+          request = transaction.objectStore("albumInfo").get(id);
+        request.onsuccess = function (event) {
+          var data = event.target.result;
+          this.trackResponse = data;
+        }.bind(this);
+      },
+
       /*
         method ran when cover attribute is changed
       */
@@ -66,44 +95,50 @@
       trackResponseChanged: function () {
         if (this.trackResponse) {
           this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
-          this.tracks = [];
           Array.prototype.forEach.call(this.trackResponse['subsonic-response'].album.song, function (e) {
             var obj = {id:e.id, artist:e.artist, title:e.title, cover:this.cover};
+            this.playlist.push(obj);
             this.tracks.push(obj);
           }.bind(this));
         }
-        this.playlist = this.tracks;
+        if (this.new) {
+          tmpl.putJSONInDb(this.trackResponse, this.item);
+        }
       },
 
       doDialog: function () {
         this.$.dialog.toggle();
       },
 
+      doAjax: function () {
+        this.$.track.go();
+      },
+
+      defaultPlayerImage: function () {
+        var art = document.querySelector('#coverArt');
+        art.style.backgroundImage =  "url('images/default-cover-art.png')"
+      },
+
       add2Playlist: function () {
         var audio = document.querySelector("#audio"),
           tmpl = document.querySelector("#tmpl"),
-          playlist = tmpl.playlist;
-        if (!playlist){
-          playlist = [];
-          tmpl.playlist = [];
-        }
-        this.$.playNotify.title = 'Added to Playlist';
+          note = this.$.playNotify;
+          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
+
         if (audio.paused) {
-          tmpl.currentPlaying = this.playlist[0].artist+ ' - ' + this.playlist[0].title;
-          audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
-          audio.play();
+          tmpl.playing = 0;
+          tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
           if (this.cover) {
             tmpl.getImageForPlayer(this.cover);
           } else {
-            document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
+            this.defaultPlayerImage();
           }
         }
         Array.prototype.forEach.call(this.playlist, function (e) {
-          var playlist = document.querySelector("#tmpl").playlist;
-          playlist.push(e);
+          tmpl.playlist.push(e);
         }.bind(this));
-        document.querySelector('#tmpl').playing = 0;
-        this.$.playNotify.show();
+        note.title = 'Added to Playlist';
+        note.show();
       },
 
       doDownload: function (event, detail, sender) {
@@ -112,66 +147,62 @@
       
       playAlbum: function () {
         var audio = document.querySelector("#audio"),
-          tmpl = document.querySelector("#tmpl");
+          tmpl = document.querySelector("#tmpl"),
+          note = this.$.playNotify,
+          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
 
-        tmpl.currentPlaying = this.playlist[0].artist + ' - ' + this.playlist[0].title;
-        this.$.playNotify.title = 'Now Playing... ' + this.playlist[0].artist + ' - ' + this.playlist[0].title;
         if (this.cover) {
           tmpl.getImageForPlayer(this.cover);
         } else {
-          document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
+          this.defaultPlayerImage();
         }
-        audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
-        audio.play();
-        document.querySelector('#tmpl').page = 1;
-        document.querySelector("#wall").clearData();
+        tmpl.page = 1;
         tmpl.playlist = this.playlist;
-        document.querySelector('#tmpl').playing = 0;
-        this.$.playNotify.show();
+        tmpl.playing = 0;
+        tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
+        note.title = this.playlist[0].artist + ' - ' + this.playlist[0].title;
+        note.show();
       },
 
 
       playTrack: function (event, detail, sender) {
         var audio = document.querySelector("#audio"),
-          tmpl = document.querySelector("#tmpl");
-        tmpl.currentPlaying = sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
-        this.$.playNotify.title = 'Now Playing... ' + sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
+          tmpl = document.querySelector("#tmpl"),
+          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
+
         if (this.cover) {
           tmpl.getImageForPlayer(this.cover);
         } else {
-          document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
+          this.defaultPlayerImage();
         }
-        audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
-        audio.play();
-        document.querySelector('#tmpl').page = 1;
-        document.querySelector("#wall").clearData();
+        tmpl.page = 1;
+        tmpl.playlist = this.playlist;
+        tmpl.playing = 0;
+        tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
+        this.$.playNotify.title = this.playlist[0].artist + ' - ' + this.playlist[0].title;
         this.$.playNotify.show();
-        document.querySelector('#tmpl').playlist = [{id:sender.attributes.ident.value, artist:sender.attributes.artist.value, title:sender.attributes.title.value, cover:sender.attributes.cover.value}];
       },
 
       addSingle2Playlist: function (event, detail, sender) {
-        var playlist = document.querySelector('#tmpl').playlist,
-          note = this.$.playNotify
-          tmpl = document.querySelector("#tmpl");
-        if (!playlist){
-          playlist = [];
-          document.querySelector('#tmpl').playlist = [];
-        }
-        note.title = 'Now Playing... ' + sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
-        this.$.toast.text = 'Added to Playlist';
-        this.$.toast.show();
-        var obj = {id:sender.attributes.ident.value, artist:sender.attributes.artist.value, title:sender.attributes.title.value, cover:sender.attributes.cover.value};
-        document.querySelector('#tmpl').playlist.push(obj);
+        var note = this.$.playNotify,
+          tmpl = document.querySelector("#tmpl"),
+          toast = this.$.toast,
+          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
+          obj = {id:sender.attributes.ident.value, artist:sender.attributes.artist.value, title:sender.attributes.title.value, cover:sender.attributes.cover.value};
+
+        tmpl.playlist.push(obj);
         if (audio.paused) {
-          tmpl.currentPlaying = sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
-          audio.src = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
-          audio.play();
+          tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
           if (this.cover) {
             tmpl.getImageForPlayer(this.cover);
           } else {
             document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')"
           }
         }
+        toast.text = 'Added to Playlist';
+        toast.show();
+        note.title = 'Now Playing... ' + sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
+        note.show();
       },
 
       addFavorite: function (event, detail, sender) {

@@ -5,11 +5,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.dbVersion = 1.0;
   
-  this.request = this.indexedDB.open("coverArt", this.dbVersion);
+  this.request = this.indexedDB.open("albumInfo", this.dbVersion);
   
   this.createObjectStore = function (dataBase) {
     console.log("Creating objectStore")
-    dataBase.createObjectStore("coverArt");
+    dataBase.createObjectStore("albumInfo");
   };
   
   this.getImageFile = function (url, image, art, note, id) {
@@ -29,20 +29,30 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.putImageInDb = function (blob, image, art, note, id) {
     var tmpl = document.querySelector("#tmpl");
-    var transaction = db.transaction(["coverArt"], "readwrite");
-    var put = transaction.objectStore("coverArt").put(blob, id);
-    transaction.objectStore("coverArt").get(id).onsuccess = function (event) {
+    var transaction = db.transaction(["albumInfo"], "readwrite");
+    var put = transaction.objectStore("albumInfo").put(blob, id);
+    transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
       var imgFile = event.target.result;
       var imgURL = window.URL.createObjectURL(imgFile);
       image.style.backgroundImage = "url('" + imgURL + "')";
       art.src = imgURL;
       note.icon = imgURL;
+      console.log('New Item Added to indexedDB ' + id);
+    };
+  };
+
+  this.putJSONInDb = function (data, id) {
+    var tmpl = document.querySelector("#tmpl");
+    var transaction = db.transaction(["albumInfo"], "readwrite");
+    var put = transaction.objectStore("albumInfo").put(data, id);
+    transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
+      console.log('New Item Added to indexedDB ' + id);
     };
   };
   
   this.getImageFromDb = function (url, image, art, note, id) {
-    var transaction = db.transaction(["coverArt"], "readwrite"),
-      request = transaction.objectStore("coverArt").get(id);
+    var transaction = db.transaction(["albumInfo"], "readwrite"),
+      request = transaction.objectStore("albumInfo").get(id);
     request.onsuccess = function (event) {
       var imgFile = event.target.result;
       var imgURL = window.URL.createObjectURL(imgFile);
@@ -54,9 +64,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.getImageForPlayer = function (id) {
     var tmpl = document.querySelector("#tmpl"),
-      transaction = db.transaction(["coverArt"], "readwrite"),
+      transaction = db.transaction(["albumInfo"], "readwrite"),
       art = document.querySelector('#coverArt');
-    transaction.objectStore("coverArt").get(id).onsuccess = function (event) {
+    transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
       var imgFile = event.target.result;
       var imgURL = window.URL.createObjectURL(imgFile);
       art.style.backgroundImage = "url('" + imgURL + "')";
@@ -65,10 +75,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.getImageForNextTrack = function (id) {
     var tmpl = document.querySelector("#tmpl"),
-      transaction = db.transaction(["coverArt"], "readwrite"),
+      transaction = db.transaction(["albumInfo"], "readwrite"),
       art = document.querySelector('#coverArt'),
       note = document.querySelector('#playNotify');
-    transaction.objectStore("coverArt").get(id).onsuccess = function (event) {
+    transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
       var imgFile = event.target.result;
       var imgURL = window.URL.createObjectURL(imgFile);
       art.style.backgroundImage = "url('" + imgURL + "')";
@@ -78,8 +88,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
   
   this.checkEntry = function (url, image, art, note, id) {
-    var transaction = db.transaction(["coverArt"], "readwrite"),
-      request = transaction.objectStore("coverArt").count(id),
+    var transaction = db.transaction(["albumInfo"], "readwrite"),
+      request = transaction.objectStore("albumInfo").count(id),
       visible = document.querySelector("#loader").classList.contains("hide");
     request.onsuccess = function() {
       if (!visible) {
@@ -255,9 +265,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         }
         if (typeof result.querySize === 'undefined') {
           chrome.storage.sync.set({
-            'querySize': 40
+            'querySize': 20
           });
-          tmpl.querySize = 40;
+          tmpl.querySize = 20;
         } else {
           tmpl.querySize = result.querySize;
         }
@@ -272,16 +282,22 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
   };
 
-  this.playThis = function (event, detail, sender) {
+  this.playAudio = function (artist, title, src) {
     var tmpl = document.querySelector('#tmpl'),
       url = tmpl.url,
       user = tmpl.user,
       pass = tmpl.pass,
-      cover = document.querySelector('#playNotify');
-    tmpl.currentPlaying = sender.attributes.artist.value+ ' - ' + sender.attributes.title.value;
-    audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + tmpl.bitRate + '&id=' + sender.attributes.ident.value;
+      note = document.querySelector('#playNotify');
+    tmpl.currentPlaying = artist + ' - ' + title;
+    audio.src = src;
     audio.play();
-    cover.title = 'Now Playing... ' + sender.attributes.artist.value+ ' - ' + sender.attributes.title.value;
+    note.title = 'Now Playing... ' + artist + ' - ' + title;
+  };
+
+  this.playThis = function (event, detail, sender) {
+    var tmpl = document.querySelector('#tmpl'),
+      url = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + tmpl.bitRate + '&id=' + sender.attributes.ident.value;
+    tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
     if (sender.attributes.cover.value !== undefined) {
       tmpl.getImageForNextTrack(sender.attributes.cover.value);
     } else {
@@ -295,11 +311,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       audio = document.querySelector('#audio'),
       cover = document.querySelector('#playNotify');
     if (tmpl.playlist[next]) {
+      var url = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + tmpl.bitRate + '&id=' + tmpl.playlist[next].id;
       tmpl.playing = next;
-      tmpl.currentPlaying = tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
-      audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + tmpl.bitRate + '&id=' + tmpl.playlist[next].id;
-      audio.play();
-      cover.title = 'Now Playing... ' + tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
+      tmpl.playAudio(tmpl.playlist[next].artist, tmpl.playlist[next].title, url);
       if (tmpl.playlist[next].cover !== undefined) {
         tmpl.getImageForNextTrack(tmpl.playlist[next].cover);
       } else {
@@ -316,11 +330,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       audio = document.querySelector('#audio'),
       cover = document.querySelector('#playNotify');
     if (tmpl.playlist[next]) {
+      var url = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + tmpl.bitRate + '&id=' + tmpl.playlist[next].id;
       tmpl.playing = next;
-      tmpl.currentPlaying = tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
-      audio.src = tmpl.url + '/rest/stream.view?u=' + tmpl.user + '&p=' + tmpl.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + tmpl.bitRate + '&id=' + tmpl.playlist[next].id;
-      audio.play();
-      cover.title = 'Now Playing... ' + tmpl.playlist[next].artist+ ' - ' + tmpl.playlist[next].title;
+      tmpl.playAudio(tmpl.playlist[next].artist, tmpl.playlist[next].title, url);
       if (tmpl.playlist[next].cover !== undefined) {
         tmpl.getImageForNextTrack(tmpl.playlist[next].cover);
       } else {
@@ -362,13 +374,13 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     var tmpl = document.querySelector('#tmpl'),
       wall = document.querySelector("#wall");
     tmpl.page = 0;
-    wall.doAjax();
+    //wall.doAjax();
   };
 
   this.nowPlaying = function () {
     var tmpl = document.querySelector('#tmpl');
     tmpl.page = 1;
-    document.querySelector("#wall").clearData();
+    //document.querySelector("#wall").clearData();
   };
 
   this.playPause = function () {
@@ -477,7 +489,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   setInterval(function () {
     var audio = document.querySelector('#audio'),
       button = document.querySelector('#avIcon'),
-        bar = document.querySelector('#progress');
+      bar = document.querySelector('#progress');
     if (!audio.paused) {
       button.icon = "av:pause";
       var progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
@@ -497,7 +509,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.isNowPlaying = false;
       button.icon = "av:play-arrow";
     }
-  }.bind(this), 100);
+  }.bind(this), 200);
 });
 chrome.commands.onCommand.addListener(function(command) {
   var tmpl = document.querySelector("#tmpl"),
