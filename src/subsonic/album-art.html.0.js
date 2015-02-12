@@ -3,6 +3,10 @@
       /*
         method ran when element is created in dom
       */
+      created: function () {
+        this.imgURL = '../../images/default-cover-art.png';
+      },
+      
       ready: function () {
 
         this.page = this.page || "cover";
@@ -30,7 +34,27 @@
           this.height = "250px";
         }
       },
-
+      
+      dbErrorHandler: function (e) {
+        console.log(e);
+      },
+      
+      getDbItem: function (id, callback) {
+        var tmpl = document.querySelector('#tmpl'),
+          transaction = tmpl.db.transaction(["albumInfo"], "readwrite"),
+          request = transaction.objectStore("albumInfo").get(id);
+        request.onsuccess = callback;
+        request.onerror = this.dbErrorHandler;
+      },
+      
+      checkForImage: function (id, callback) {
+        var tmpl = document.querySelector('#tmpl'),
+          transaction = tmpl.db.transaction(["albumInfo"], "readwrite"),
+          request = transaction.objectStore("albumInfo").count(id)
+        request.onsuccess = callback;
+        request.onerror = this.dbErrorHandler;
+      },
+      
       checkJSONEntry: function (id) {
         var tmpl = document.querySelector('#tmpl'),
           transaction = tmpl.db.transaction(["albumInfo"], "readwrite"),
@@ -47,15 +71,42 @@
       },
 
       getJSONFromDb: function (id) {
-        var tmpl = document.querySelector('#tmpl'),
-          transaction = tmpl.db.transaction(["albumInfo"], "readwrite"),
-          request = transaction.objectStore("albumInfo").get(id);
-        request.onsuccess = function (event) {
+        this.getDbItem(id, function (event) {
           var data = event.target.result;
           this.trackResponse = data;
-        }.bind(this);
+        }.bind(this));
       },
-
+      
+      setImage: function (event) {
+        var imgFile = event.target.result,
+          imgURL = window.URL.createObjectURL(imgFile);
+  
+        this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+        this.imgURL = imgURL;
+      },
+      
+      putInDb: function (data, id, callback) {
+        var tmpl = document.querySelector("#tmpl"),
+          transaction = tmpl.db.transaction(["albumInfo"], "readwrite");
+        transaction.objectStore("albumInfo").put(data, id);
+        transaction.objectStore("albumInfo").get(id).onsuccess = callback;
+      },
+      
+      getFromServer: function (url, id, callback) {
+        var xhr = new XMLHttpRequest(),
+          blob;
+        xhr.open("GET", url, true);
+        xhr.responseType = "blob";
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            blob = xhr.response;
+            this.putInDb(blob, id, callback);
+          }
+        }.bind(this);
+        xhr.send();
+        console.log('New Image Added to indexedDB ' + id);
+      },
+      
       /*
         method ran when cover attribute is changed
       */
@@ -63,7 +114,20 @@
         var tmpl = document.querySelector("#tmpl");
         if (this.cover) {
           var url = this.url + "/rest/getCoverArt.view?u=" + this.user +"&p=" + this.pass +"&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover;
-          tmpl.checkEntry(url, this.$.card, this.$.art, this.$.playNotify, this.cover);
+          this.checkForImage(this.cover, function (e) {
+            var visible = document.querySelector("#loader").classList.contains("hide"),
+              loader = document.querySelector('#loader'),
+              box = document.querySelector(".box");
+            if (!visible) {
+              loader.classList.add('hide');
+              box.classList.add('hide');
+            }
+            if (e.target.result === 0) {
+              this.getFromServer(url, this.cover, this.setImage.bind(this));
+            } else {
+              this.getDbItem(this.cover, this.setImage.bind(this));
+            }
+          }.bind(this));
         }
       },
 
@@ -91,7 +155,9 @@
           }.bind(this));
         }
         if (this.new) {
-          tmpl.putJSONInDb(this.trackResponse, this.item);
+          this.putInDb(this.trackResponse, this.item, function (e) {
+            console.log('New JSON Data Added to indexedDB ' + this.item);
+          }.bind(this));
         }
       },
 
@@ -111,7 +177,7 @@
       add2Playlist: function () {
         var audio = document.querySelector("#audio"),
           tmpl = document.querySelector("#tmpl"),
-          note = this.$.playNotify;
+          note = document.querySelector("#playNotify");
           url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
 
         if (audio.paused) {
@@ -126,7 +192,8 @@
         Array.prototype.forEach.call(this.playlist, function (e) {
           tmpl.playlist.push(e);
         }.bind(this));
-        note.title = 'Added to Playlist';
+        note.title = this.artist + ' - ' + this.album +' Added to Playlist';
+        note.icon = this.imgURL;
         note.show();
       },
 
@@ -137,7 +204,28 @@
       playAlbum: function () {
         var audio = document.querySelector("#audio"),
           tmpl = document.querySelector("#tmpl"),
-          note = this.$.playNotify,
+          note = document.querySelector("#playNotify"),
+          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
+
+        if (this.cover) {
+          tmpl.getImageForPlayer(this.cover);
+        } else {
+          this.defaultPlayerImage();
+        }
+        tmpl.page = 1;
+        tmpl.playlist = this.playlist;
+        tmpl.playing = 0;
+        tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
+        document.title = this.playlist[0].artist + ' - ' + this.playlist[0].title;
+        note.icon = this.imgURL;
+        note.show();
+      },
+
+
+      playTrack: function (event, detail, sender) {
+        var audio = document.querySelector("#audio"),
+          tmpl = document.querySelector("#tmpl"),
+          note = document.querySelector("#playNotify"),
           url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
 
         if (this.cover) {
@@ -150,30 +238,12 @@
         tmpl.playing = 0;
         tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
         note.title = this.playlist[0].artist + ' - ' + this.playlist[0].title;
+        note.icon = this.imgURL;
         note.show();
       },
 
-
-      playTrack: function (event, detail, sender) {
-        var audio = document.querySelector("#audio"),
-          tmpl = document.querySelector("#tmpl"),
-          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
-
-        if (this.cover) {
-          tmpl.getImageForPlayer(this.cover);
-        } else {
-          this.defaultPlayerImage();
-        }
-        tmpl.page = 1;
-        tmpl.playlist = this.playlist;
-        tmpl.playing = 0;
-        tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
-        this.$.playNotify.title = this.playlist[0].artist + ' - ' + this.playlist[0].title;
-        this.$.playNotify.show();
-      },
-
       addSingle2Playlist: function (event, detail, sender) {
-        var note = this.$.playNotify,
+        var note = document.querySelector("#playNotify"),
           tmpl = document.querySelector("#tmpl"),
           toast = this.$.toast,
           url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
@@ -191,6 +261,7 @@
         toast.text = 'Added to Playlist';
         toast.show();
         note.title = 'Now Playing... ' + sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
+        note.icon = this.imgURL;
         note.show();
       },
 
