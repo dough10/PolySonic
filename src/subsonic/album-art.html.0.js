@@ -3,6 +3,10 @@
       /*
         method ran when element is created in dom
       */
+      created: function () {
+        this.imgURL = '../../images/default-cover-art.png';
+      },
+      
       ready: function () {
 
         this.page = this.page || "cover";
@@ -73,7 +77,7 @@
         }.bind(this));
       },
       
-      setImage: function () {
+      setImage: function (event) {
         var imgFile = event.target.result,
           imgURL = window.URL.createObjectURL(imgFile);
   
@@ -173,7 +177,7 @@
       add2Playlist: function () {
         var audio = document.querySelector("#audio"),
           tmpl = document.querySelector("#tmpl"),
-          note = this.$.playNotify;
+          note = document.querySelector("#playNotify");
           url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
 
         if (audio.paused) {
@@ -188,7 +192,8 @@
         Array.prototype.forEach.call(this.playlist, function (e) {
           tmpl.playlist.push(e);
         }.bind(this));
-        note.title = this.artist + this.album +' Added to Playlist';
+        note.title = this.artist + ' - ' + this.album +' Added to Playlist';
+        note.icon = this.imgURL;
         note.show();
       },
 
@@ -199,7 +204,28 @@
       playAlbum: function () {
         var audio = document.querySelector("#audio"),
           tmpl = document.querySelector("#tmpl"),
-          note = this.$.playNotify,
+          note = document.querySelector("#playNotify"),
+          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
+
+        if (this.cover) {
+          tmpl.getImageForPlayer(this.cover);
+        } else {
+          this.defaultPlayerImage();
+        }
+        tmpl.page = 1;
+        tmpl.playlist = this.playlist;
+        tmpl.playing = 0;
+        tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
+        document.title = this.playlist[0].artist + ' - ' + this.playlist[0].title;
+        note.icon = this.imgURL;
+        note.show();
+      },
+
+
+      playTrack: function (event, detail, sender) {
+        var audio = document.querySelector("#audio"),
+          tmpl = document.querySelector("#tmpl"),
+          note = document.querySelector("#playNotify"),
           url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
 
         if (this.cover) {
@@ -212,30 +238,12 @@
         tmpl.playing = 0;
         tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
         note.title = this.playlist[0].artist + ' - ' + this.playlist[0].title;
+        note.icon = this.imgURL;
         note.show();
       },
 
-
-      playTrack: function (event, detail, sender) {
-        var audio = document.querySelector("#audio"),
-          tmpl = document.querySelector("#tmpl"),
-          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
-
-        if (this.cover) {
-          tmpl.getImageForPlayer(this.cover);
-        } else {
-          this.defaultPlayerImage();
-        }
-        tmpl.page = 1;
-        tmpl.playlist = this.playlist;
-        tmpl.playing = 0;
-        tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
-        this.$.playNotify.title = this.playlist[0].artist + ' - ' + this.playlist[0].title;
-        this.$.playNotify.show();
-      },
-
       addSingle2Playlist: function (event, detail, sender) {
-        var note = this.$.playNotify,
+        var note = document.querySelector("#playNotify"),
           tmpl = document.querySelector("#tmpl"),
           toast = this.$.toast,
           url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
@@ -253,6 +261,7 @@
         toast.text = 'Added to Playlist';
         toast.show();
         note.title = 'Now Playing... ' + sender.attributes.artist.value + ' - ' + sender.attributes.title.value;
+        note.icon = this.imgURL;
         note.show();
       },
 

@@ -53,13 +53,15 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.getImageForPlayer = function (id) {
     var transaction = this.db.transaction(["albumInfo"], "readwrite"),
-      art = document.querySelector('#coverArt');
+      art = document.querySelector('#coverArt'),
+      note = document.querySelector('#playNotify');
       
     transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
       var imgFile = event.target.result,
         imgURL = window.URL.createObjectURL(imgFile);
         
       art.style.backgroundImage = "url('" + imgURL + "')";
+      note.icon = imgURL;
     };
   };
   
@@ -231,8 +233,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.currentPlaying = artist + ' - ' + title;
     audio.src = src;
     audio.play();
-    note.title = 'Now Playing... ' + artist + ' - ' + title;
-    note.show();
   };
 
   /*jslint unparam: true*/
