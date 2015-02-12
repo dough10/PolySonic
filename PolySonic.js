@@ -1,23 +1,48 @@
+/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setTimeout, setInterval */
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
+  'use strict';
   this.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
-  
+
   this.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
-  
+
   this.dbVersion = 1.0;
-  
+
   this.request = this.indexedDB.open("albumInfo", this.dbVersion);
-  
+
+  this.request.onerror = function () {
+    console.log("Error creating/accessing IndexedDB database");
+  };
+
+  this.request.onsuccess = function () {
+    console.log("Success creating/accessing IndexedDB database");
+    this.db = this.request.result;
+
+    // Interim solution for Google Chrome to create an objectStore. Will be deprecated
+    if (this.db.setVersion) {
+      if (this.db.version !== this.dbVersion) {
+        var setVersion = this.db.setVersion(this.dbVersion);
+        setVersion.onsuccess = function () {
+          this.createObjectStore(this.db);
+        };
+      }
+    }
+  }.bind(this);
+
+  this.request.onupgradeneeded = function (event) {
+    this.createObjectStore(event.target.result);
+  }.bind(this);
+
   this.createObjectStore = function (dataBase) {
-    console.log("Creating objectStore")
+    console.log("Creating objectStore");
     dataBase.createObjectStore("albumInfo");
   };
-  
+
   this.getImageFile = function (url, image, art, note, id) {
     var xhr = new XMLHttpRequest(),
       blob;
     xhr.open("GET", url, true);
     xhr.responseType = "blob";
-    xhr.onload = function (e) {
+    xhr.onload = function () {
       if (xhr.status === 200) {
         blob = xhr.response;
         this.putImageInDb(blob, image, art, note, id);
@@ -25,11 +50,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }.bind(this);
     xhr.send();
   };
-  
-  this.putImageInDb = function (blob, image, art, note, id) {
-    var transaction = db.transaction(["albumInfo"], "readwrite"),
-      put = transaction.objectStore("albumInfo").put(blob, id);
 
+  this.putImageInDb = function (blob, image, art, note, id) {
+    var transaction = this.db.transaction(["albumInfo"], "readwrite");
+    transaction.objectStore("albumInfo").put(blob, id);
     transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
       var imgFile = event.target.result,
         imgURL = window.URL.createObjectURL(imgFile);
@@ -42,16 +66,15 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.putJSONInDb = function (data, id) {
-    var transaction = db.transaction(["albumInfo"], "readwrite"),
-      put = transaction.objectStore("albumInfo").put(data, id);
-
-    transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
+    var transaction = this.db.transaction(["albumInfo"], "readwrite");
+    transaction.objectStore("albumInfo").put(data, id);
+    transaction.objectStore("albumInfo").get(id).onsuccess = function () {
       console.log('New Item Added to indexedDB ' + id);
     };
   };
-  
-  this.getImageFromDb = function (url, image, art, note, id) {
-    var transaction = db.transaction(["albumInfo"], "readwrite"),
+
+  this.getImageFromDb = function (image, art, note, id) {
+    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
       request = transaction.objectStore("albumInfo").get(id);
 
     request.onsuccess = function (event) {
@@ -63,9 +86,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       note.icon = imgURL;
     };
   };
-  
+
   this.getImageForPlayer = function (id) {
-    var transaction = db.transaction(["albumInfo"], "readwrite"),
+    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
       art = document.querySelector('#coverArt');
 
     transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
@@ -77,7 +100,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.getImageForNextTrack = function (id) {
-    var transaction = db.transaction(["albumInfo"], "readwrite"),
+    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
       art = document.querySelector('#coverArt'),
       note = document.querySelector('#playNotify');
 
@@ -89,15 +112,15 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       note.icon = imgURL;
     };
   };
-  
+
   this.checkEntry = function (url, image, art, note, id) {
-    var transaction = db.transaction(["albumInfo"], "readwrite"),
+    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
       request = transaction.objectStore("albumInfo").count(id),
       visible = document.querySelector("#loader").classList.contains("hide"),
       loader = document.querySelector('#loader'),
       box = document.querySelector(".box");
 
-    request.onsuccess = function() {
+    request.onsuccess = function () {
       if (!visible) {
         loader.classList.add('hide');
         box.classList.add('hide');
@@ -105,7 +128,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (request.result === 0) {
         this.getImageFile(url, image, art, note, id);
       } else {
-        this.getImageFromDb(url, image, art, note, id);
+        this.getImageFromDb(image, art, note, id);
       }
     }.bind(this);
   };
@@ -119,45 +142,18 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     note.show();
   };
 
-  this.request.onerror = function (event) {
-      console.log("Error creating/accessing IndexedDB database");
-  };
-
-  this.request.onsuccess = function (event) {
-    console.log("Success creating/accessing IndexedDB database");
-    db = this.request.result;
-
-    db.onerror = function (event) {
-      console.log("Error creating/accessing IndexedDB database");
-    };
-
-    // Interim solution for Google Chrome to create an objectStore. Will be deprecated
-    if (db.setVersion) {
-      if (db.version != dbVersion) {
-        var setVersion = db.setVersion(dbVersion);
-        setVersion.onsuccess = function () {
-          this.createObjectStore(db);
-        };
-      }
-    }
-  }.bind(this);
-
-  this.request.onupgradeneeded = function (event) {
-    this.createObjectStore(event.target.result);
-  }.bind(this);
-  
   this.playlist = [];
-  
+
   this.page = this.page || 0;
-  
+
   this.pageLimit = false;
-  
+
   this.sortTypes = [
-    {sort:'newest', name:'Newest'},
-    {sort:'frequent', name:'Frequent'},
-    {sort:'alphabeticalByName', name:'By Title'},
-    {sort:'alphabeticalByArtist', name:'By Artist'},
-    {sort:'recent', name:'Recently Played'}
+    {sort: 'newest', name: 'Newest'},
+    {sort: 'frequent', name: 'Frequent'},
+    {sort: 'alphabeticalByName', name: 'By Title'},
+    {sort: 'alphabeticalByArtist', name: 'By Artist'},
+    {sort: 'recent', name: 'Recently Played'}
   ];
 
   this.closeDrawer = function () {
@@ -188,8 +184,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.loadListeners = function () {
-    var menuButton = document.querySelector("#menuButton"),
-      scroller = this.appScroller(),
+    var scroller = this.appScroller(),
       audio = document.querySelector('#audio'),
       maximized = chrome.app.window.current().isMaximized(),
       buttons = document.querySelectorAll('.max'),
@@ -207,9 +202,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
     this.position = scroller.scrollTop;
 
-    scroller.onscroll = function (e) {
+    scroller.onscroll = function () {
       var precent = (scroller.scrollTop / (scroller.scrollHeight - scroller.offsetHeight)) * 100,
-        wall = document.querySelector("#wall")
         fab = document.querySelector('animated-fab');
 
       if (precent >= 5 && fab.state !== 'bottom') {
@@ -227,8 +221,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         wall.loadMore();
       }
 
-    }.bind(this)
-    
+    }.bind(this);
+
     window.onresize = this.sizePlayer;
 
     audio.onended = this.nextTrack;
@@ -238,7 +232,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.loadData = function () {
     if (chrome.app) {
       chrome.storage.sync.get(function (result) {
-        if (typeof result.url === 'undefined') {
+        if (result.url === undefined) {
           document.querySelector('#firstRun').toggle();
         } else {
           this.url = result.url;
@@ -246,7 +240,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         this.user = result.user;
         this.pass = result.pass;
         this.version = result.version;
-        if (typeof result.listMode === 'undefined') {
+        if (result.listMode === undefined) {
           chrome.storage.sync.set({
             'listMode': 'cover'
           });
@@ -260,7 +254,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
             this.view = 'view-module';
           }
         }
-        if (typeof result.bitRate === 'undefined') {
+        if (result.bitRate === undefined) {
           chrome.storage.sync.set({
             'bitRate': '320'
           });
@@ -268,10 +262,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         } else {
           this.bitRate = result.bitRate;
         }
-        if (typeof result.sort === 'undefined') {
+        if (result.sort === undefined) {
           this.selected = '';
         }
-        if (typeof result.querySize === 'undefined') {
+        if (result.querySize === undefined) {
           chrome.storage.sync.set({
             'querySize': 20
           });
@@ -292,32 +286,30 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.playAudio = function (artist, title, src) {
-    var url = tmpl.url,
-      user = tmpl.user,
-      pass = tmpl.pass,
-      note = document.querySelector('#playNotify');
+    var note = document.querySelector('#playNotify'),
+      audio = document.querySelector("#audio");
     this.currentPlaying = artist + ' - ' + title;
     audio.src = src;
     audio.play();
     note.title = 'Now Playing... ' + artist + ' - ' + title;
   };
 
+  /*jslint unparam: true*/
   this.playThis = function (event, detail, sender) {
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
-    tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
+    this.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
     if (sender.attributes.cover.value !== undefined) {
       this.getImageForNextTrack(sender.attributes.cover.value);
     } else {
       this.defaultPlayImage();
     }
   };
+  /*jslint unparam: false*/
 
   this.nextTrack = function () {
     var next = this.playing + 1,
-      audio = document.querySelector('#audio'),
-      cover = document.querySelector('#playNotify');
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
     if (this.playlist[next]) {
-      var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
       this.playing = next;
       this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
       if (this.playlist[next].cover !== undefined) {
@@ -332,12 +324,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.lastTrack = function () {
     var next = this.playing - 1,
-      audio = document.querySelector('#audio'),
-      cover = document.querySelector('#playNotify');
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
     if (this.playlist[next]) {
-      var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
-      tmpl.playing = next;
-      tmpl.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
+      this.playing = next;
+      this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
       if (this.playlist[next].cover !== undefined) {
         this.getImageForNextTrack(this.playlist[next].cover);
       } else {
@@ -352,34 +342,28 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     var wall = document.querySelector("#wall");
     if (wall.listMode === 'cover') {
       wall.listMode = 'list';
-      tmpl.view = 'view-module';
+      this.view = 'view-module';
       chrome.storage.sync.set({
         'listMode': 'list'
       });
     } else {
       wall.listMode = 'cover';
-      tmpl.view = 'view-stream';
+      this.view = 'view-stream';
       chrome.storage.sync.set({
         'listMode': 'cover'
       });
     }
-  },
-
-  this.playlistChanged = function () {
-    tmpl.playlist = this.playlist;
   };
 
   this.clearPlayer = function () {
-    tmpl.page = 0;
+    this.page = 0;
     this.src = '';
     this.playlist = [];
   };
 
   this.back2List = function () {
-    var tmpl = document.querySelector('#tmpl'),
-      wall = document.querySelector("#wall");
+    var tmpl = document.querySelector('#tmpl');
     tmpl.page = 0;
-    //wall.doAjax();
   };
 
   this.nowPlaying = function () {
@@ -475,12 +459,12 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.volUp = function () {
     var audio = document.querySelector('#audio');
-    audio.volume = audio.volume + .1;
+    audio.volume = audio.volume + 0.1;
   };
 
   this.volDown = function () {
     var audio = document.querySelector('#audio');
-    audio.volume = audio.volume - .1;
+    audio.volume = audio.volume - 0.1;
   };
 
   this.clearPlaylist = function () {
@@ -493,14 +477,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   setInterval(function () {
     var audio = document.querySelector('#audio'),
       button = document.querySelector('#avIcon'),
-      bar = document.querySelector('#progress');
+      bar = document.querySelector('#progress'),
+      progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
+      currentMins = Math.floor(audio.currentTime / 60),
+      currentSecs = Math.round(audio.currentTime - currentMins * 60),
+      totalMins = Math.floor(audio.duration / 60),
+      totalSecs = Math.round(audio.duration - totalMins * 60);
     if (!audio.paused) {
       button.icon = "av:pause";
-      var progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
-        currentMins = Math.floor(audio.currentTime / 60),
-        currentSecs = Math.round(audio.currentTime - currentMins * 60),
-        totalMins = Math.floor(audio.duration / 60),
-        totalSecs = Math.round(audio.duration - totalMins * 60);
       this.isNowPlaying = true;
       if (!audio.duration) {
         this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
@@ -514,25 +498,26 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       button.icon = "av:play-arrow";
     }
   }.bind(this), 200);
-});
-chrome.commands.onCommand.addListener(function(command) {
-  var tmpl = document.querySelector("#tmpl"),
-    audio = document.querySelector('#audio');
-  if (command === "playPauseMediaKey") {
-    tmpl.playPause();
-  } else if (!audio.paused && command === "nextTrackMediaKey") {
-    tmpl.nextTrack();
-  } else if (!audio.paused && command === "lastTrackMediaKey") {
-    tmpl.lastTrack();
-  } else if (!audio.paused && command === "nextTrack") {
-    tmpl.nextTrack();
-  } else if (!audio.paused && command === "lastTrack") {
-    tmpl.lastTrack();
-  } else if (command === "playPause") {
-    tmpl.playPause();
-  } else if (command === "volUp") {
-    tmpl.volUp();
-  } else if (command === "volDown") {
-    tmpl.volDown();
-  }
+
+  chrome.commands.onCommand.addListener(function (command) {
+    var audio = document.querySelector('#audio');
+    if (command === "playPauseMediaKey") {
+      this.playPause();
+    } else if (!audio.paused && command === "nextTrackMediaKey") {
+      this.nextTrack();
+    } else if (!audio.paused && command === "lastTrackMediaKey") {
+      this.lastTrack();
+    } else if (!audio.paused && command === "nextTrack") {
+      this.nextTrack();
+    } else if (!audio.paused && command === "lastTrack") {
+      this.lastTrack();
+    } else if (command === "playPause") {
+      this.playPause();
+    } else if (command === "volUp") {
+      this.volUp();
+    } else if (command === "volDown") {
+      this.volDown();
+    }
+  }.bind(this));
+
 });

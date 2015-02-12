@@ -32,7 +32,8 @@
       },
 
       checkJSONEntry: function (id) {
-        var transaction = db.transaction(["albumInfo"], "readwrite"),
+        var tmpl = document.querySelector('#tmpl'),
+          transaction = tmpl.db.transaction(["albumInfo"], "readwrite"),
           request = transaction.objectStore("albumInfo").count(id);
         request.onsuccess = function() {
           if (request.result === 0) {
@@ -46,7 +47,8 @@
       },
 
       getJSONFromDb: function (id) {
-        var transaction = db.transaction(["albumInfo"], "readwrite"),
+        var tmpl = document.querySelector('#tmpl'),
+          transaction = tmpl.db.transaction(["albumInfo"], "readwrite"),
           request = transaction.objectStore("albumInfo").get(id);
         request.onsuccess = function (event) {
           var data = event.target.result;
