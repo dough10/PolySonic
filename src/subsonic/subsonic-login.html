@@ -57,16 +57,18 @@
       </paper-input-decorator>
       <br>
       <div id="showPass" on-tap="{{hidePass}}">Show Password</div>
-      Version:
-      <paper-dropdown-menu label="Select Version">
-        <paper-dropdown layered class="dropdown">
-          <core-menu class="menu" selected="{{version}}" valueattr="i">
-            <template repeat="{{versions}}">
-              <paper-item i="{{api}}">{{sub}}</paper-item>
-            </template>
-          </core-menu>
-        </paper-dropdown>
-      </paper-dropdown-menu>
+      <core-label>
+        Version:
+        <paper-dropdown-menu label="Select Version">
+          <paper-dropdown layered class="dropdown">
+            <core-menu class="menu" selected="{{version}}" valueattr="i">
+              <template repeat="{{versions}}">
+                <paper-item i="{{api}}">{{sub}}</paper-item>
+              </template>
+            </core-menu>
+          </paper-dropdown>
+        </paper-dropdown-menu>
+      </core-label>
       <br>
       <paper-button on-tap="{{submit}}">
         <template if="{{isLoading}}">

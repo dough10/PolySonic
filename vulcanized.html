@@ -886,6 +886,11 @@ object like this: `{v: 'top', h: 'right'}`.
 
 
 
+
+
+
+
+
 <!--
 Warning: This transition does not work well in combination with other transitions, because
 it operates on the page rather than the page's children.
@@ -1025,6 +1030,16 @@ html /deep/ .core-collapse-closed {
 
 
 
+<!-- Native <label> has cursor: default -->
+<style>
+  html /deep/ core-label {
+    cursor: default;
+  }
+</style>
+
+
+
+
 
 
 
@@ -1056,6 +1071,18 @@ html /deep/ .core-collapse-closed {
     max-width: 100%;
   }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1223,11 +1250,6 @@ html /deep/ .core-collapse-closed {
       text-align:center;
       font-size:10pt;
       position:relative;
-    }
-    .sysBar {
-      min-height:128px;
-      display:block;
-      background:#6e6d6d
     }
     .alignLeft {
       text-align: left;
@@ -3025,6 +3047,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </template>
 
 </polymer-element>
+
+<polymer-element name="core-list" tabindex="-1" assetpath="bower_components/core-list/">
+<template>
+  <core-selection id="selection" multi="{{multi}}" on-core-select="{{selectedHandler}}"></core-selection>
+  <style>:host {
+  display: block;
+  outline: none;
+  position: relative;
+}
+
+polyfill-next-selector { content: '.core-list-viewport > *'; }
+::content > * {
+  position: absolute;
+  top: 0;
+  box-sizing: border-box;
+  opacity: 0;
+}
+
+polyfill-next-selector { content: ':host(:not([grid])) .core-list-viewport > *'; }
+:host(:not([grid])) ::content > * {
+  width: 100%;
+}
+
+.core-list-items.horizontal {
+  height: 100%;
+  white-space: nowrap;
+}
+
+.core-list-items.horizontal > * {
+  display: inline-block;
+}
+</style>
+  <div id="viewport" class="core-list-viewport"><content></content></div>
+</template>
+
+</polymer-element>
 <polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize" assetpath="src/subsonic/">
   <template>
     <style>
@@ -4367,6 +4425,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 </polymer-element>
 
+<polymer-element name="core-label" assetpath="bower_components/core-label/">
+
+</polymer-element>
+
 <polymer-element name="volume-slider" attributes="volume" assetpath="src/subsonic/">
   <template>
     <style>
@@ -4473,16 +4535,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-input-decorator>
       <br>
       <div id="showPass" on-tap="{{hidePass}}">Show Password</div>
-      Version:
-      <paper-dropdown-menu label="Select Version">
-        <paper-dropdown layered="" class="dropdown">
-          <core-menu class="menu" selected="{{version}}" valueattr="i">
-            <template repeat="{{versions}}">
-              <paper-item i="{{api}}">{{sub}}</paper-item>
-            </template>
-          </core-menu>
-        </paper-dropdown>
-      </paper-dropdown-menu>
+      <core-label>
+        Version:
+        <paper-dropdown-menu label="Select Version">
+          <paper-dropdown layered="" class="dropdown">
+            <core-menu class="menu" selected="{{version}}" valueattr="i">
+              <template repeat="{{versions}}">
+                <paper-item i="{{api}}">{{sub}}</paper-item>
+              </template>
+            </core-menu>
+          </paper-dropdown>
+        </paper-dropdown-menu>
+      </core-label>
       <br>
       <paper-button on-tap="{{submit}}">
         <template if="{{isLoading}}">
@@ -4551,38 +4615,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-input-decorator>
       <br>
       <div id="showPass" on-tap="{{hidePass}}">Show Password</div>
-      Subsonic Version:
-      <paper-dropdown-menu label="Select Version">
-        <paper-dropdown layered="" class="dropdown">
-          <core-menu class="menu" selected="{{post.version}}" valueattr="i">
-            <template repeat="{{versions}}">
-              <paper-item i="{{api}}">{{sub}}</paper-item>
-            </template>
-          </core-menu>
-        </paper-dropdown>
-      </paper-dropdown-menu>
+      <core-label>
+        Subsonic Version:
+        <paper-dropdown-menu label="Select Version">
+          <paper-dropdown layered="" class="dropdown">
+            <core-menu class="menu" selected="{{post.version}}" valueattr="i">
+              <template repeat="{{versions}}">
+                <paper-item i="{{api}}">{{sub}}</paper-item>
+              </template>
+            </core-menu>
+          </paper-dropdown>
+        </paper-dropdown-menu>
+      </core-label>
       <br>
-      Bitrate:
-      <paper-dropdown-menu label="Select bitrate">
-        <paper-dropdown layered="" class="dropdown">
-          <core-menu class="menu" selected="{{post.bitRate}}" valueattr="i">
-            <template repeat="{{speeds}}">
-              <paper-item i="{{}}">{{}} kbps</paper-item>
-            </template>
-          </core-menu>
-        </paper-dropdown>
-      </paper-dropdown-menu>
+      <core-label>
+        Bitrate:
+        <paper-dropdown-menu label="Select bitrate">
+          <paper-dropdown layered="" class="dropdown">
+            <core-menu class="menu" selected="{{post.bitRate}}" valueattr="i">
+              <template repeat="{{speeds}}">
+                <paper-item i="{{}}">{{}} kbps</paper-item>
+              </template>
+            </core-menu>
+          </paper-dropdown>
+        </paper-dropdown-menu>
+      </core-label>
       <br>
-      Results to Query:
-      <paper-dropdown-menu label="Select bitrate">
-        <paper-dropdown layered="" class="dropdown">
-          <core-menu class="menu" selected="{{post.querySize}}" valueattr="i">
-            <template repeat="{{sizes}}">
-              <paper-item i="{{}}">{{}}</paper-item>
-            </template>
-          </core-menu>
-        </paper-dropdown>
-      </paper-dropdown-menu>
+      <core-label>
+        Results to Query:
+        <paper-dropdown-menu label="Select bitrate">
+          <paper-dropdown layered="" class="dropdown">
+            <core-menu class="menu" selected="{{post.querySize}}" valueattr="i">
+              <template repeat="{{sizes}}">
+                <paper-item i="{{}}">{{}}</paper-item>
+              </template>
+            </core-menu>
+          </paper-dropdown>
+        </paper-dropdown-menu>
+      </core-label>
       <br>
       <paper-button on-tap="{{submit}}">
         <template if="{{isLoading}}">
@@ -4597,6 +4667,112 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
   <script src="src/subsonic/settings-menu.js"></script>
 </polymer-element>
+
+<polymer-element name="paper-fab" extends="paper-button-base" attributes="src icon mini" role="button" assetpath="bower_components/paper-fab/">
+
+  <template>
+
+    <style>
+      :host {
+        display: inline-block;
+        position: relative;
+        outline: none;
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: pointer;
+        z-index: 0;
+
+        box-sizing: border-box;
+        width: 56px;
+        height: 56px;
+        background: #d23f31;
+        color: #fff;
+        border-radius: 50%;
+        padding: 16px;
+      }
+
+      :host([mini]) {
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+      }
+
+      :host([disabled]) {
+        color: #c9c9c9;
+        pointer-events: none;
+        cursor: auto;
+      }
+
+      #ripple {
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      #shadow {
+        border-radius: inherit;
+        pointer-events: none;
+      }
+
+      #icon {
+        display: block;
+        pointer-events: none;
+      }
+    </style>
+
+    <template if="{{raised}}">
+      <paper-shadow id="shadow" fit="" animated=""></paper-shadow>
+    </template>
+
+    <!-- to position to ripple behind the icon -->
+    <core-icon relative="" id="icon" src="{{src}}" icon="{{icon}}"></core-icon>
+
+  </template>
+
+
+</polymer-element>
+<polymer-element name="animated-fab" attributes="state fabTimer" assetpath="src/animated-fab/">
+  <template>
+    <style>
+      :host {
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        right:0;
+        pointer-events:none;
+      }
+      paper-fab {
+        pointer-events:auto;
+        right:16px;
+        z-index:5;
+        position:fixed !important;
+        background: #6e6d6d;
+      }
+      core-animated-pages {
+        height:100%;
+      }
+      .page {
+        height:100%;
+      }
+      .bottom {
+        bottom:16px;
+      }
+      .off {
+        bottom:-80px;
+      }
+    </style>
+    <core-media-query query="max-width:480px" querymatches="{{phoneSize}}"></core-media-query>
+    <core-animated-pages selected="{{state}}" valueattr="page" transitions="hero-transition">
+      <div class="page" page="off">
+        <paper-fab class="off" icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
+      </div>
+      <div class="page" page="bottom">
+        <paper-fab class="bottom" icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
+      </div>
+    </core-animated-pages>
+  </template>
+  <script src="src/animated-fab/animated-fab.html.0.js"></script>
+</polymer-element>
 </div>
   <div id="loader">
     <div class="box">
@@ -4608,6 +4784,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </div>
   <div unresolved="">
     <template is="auto-binding" id="tmpl">
+      <template if="{{page === 0}}">
+        <animated-fab on-tap="{{topOfPage}}"></animated-fab>
+      </template>
       <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px">
         <!-- menu -->
         <core-scroll-header-panel drawer="" flex="" mode="seamed">
@@ -4624,10 +4803,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 {{type.name}}
               </paper-item>
             </template>
-            <!--<paper-item on-tap="{{getPodcast}}">
+            <paper-item on-tap="{{getPodcast}}">
               <core-icon icon="sort"></core-icon>
               Podcast
-            </paper-item>-->
+            </paper-item>
             <paper-item on-tap="{{getStarred}}">
               <core-icon icon="favorite"></core-icon>
               Favorites
@@ -4664,7 +4843,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
             </template>
           </core-toolbar>
-          <core-animated-pages selected="{{page}}">
+          <core-animated-pages selected="{{page}}" transitions="slide-from-right">
             <section>
               <album-wall id="wall" listmode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitrate="{{bitRate}}" querysize="{{querySize}}"></album-wall>
             </section>
@@ -4714,7 +4893,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <subsonic-login></subsonic-login>
       </paper-dialog>
       <x-notification id="playNotify" timeout="5000"></x-notification>
-      <audio preload="" src="" id="audio" style="display:none"></audio>
+      <audio id="audio" style="display:none"></audio>
     </template>
   </div>
   <script src="PolySonic.js"></script>

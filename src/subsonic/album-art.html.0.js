@@ -5,31 +5,19 @@
       */
       ready: function () {
 
-        /*
-          default page
-        */
         this.page = this.page || "cover";
 
-        /*
-          Artist name
-        */
         this.artist = this.artist || "Artist Name";
 
-        /*
-          Album name
-        */
         this.album = this.album || "Album Title";
-
 
         this.playlist = [];
         
         this.tracks = [];
 
-
         this.checkJSONEntry(this.item);
 
       },
-      
 
       listModeChanged: function () {
         if (this.listMode === 'list') {
@@ -42,7 +30,6 @@
           this.height = "250px";
         }
       },
-      
 
       checkJSONEntry: function (id) {
         var transaction = db.transaction(["albumInfo"], "readwrite"),

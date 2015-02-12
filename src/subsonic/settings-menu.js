@@ -104,6 +104,21 @@
         */
         if (this.response) {
           if (this.response['subsonic-response'].status === 'ok') {
+
+            if (this.post.url !== this.url) {
+              var req = indexedDB.deleteDatabase('albumInfo');
+              req.onsuccess = function () {
+                console.log("Deleted database successfully");
+                tmpl.createObjectStore();
+              };
+              req.onerror = function () {
+                console.log("Error deleting database");
+              };
+              req.onblocked = function () {
+                console.log("Couldn't delete database due to the operation being blocked");
+              };
+            }
+
             chrome.storage.sync.set({
               'url': this.post.url,
               'user': this.post.user,

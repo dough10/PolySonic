@@ -30,9 +30,11 @@
   <link href="bower_components/core-collapse/core-collapse.html" rel="import">
   <link href="bower_components/paper-shadow/paper-shadow.html" rel="import">
   <link href="bower_components/paper-input/paper-input.html" rel="import">
+  <link href="bower_components/core-label/core-label.html" rel="import">
   <link href="src/subsonic/volume-slider.html" rel="import">
   <link href="src/subsonic/subsonic-login.html" rel="import">
   <link href="src/subsonic/settings-menu.html" rel="import">
+  <link href="src/animated-fab/animated-fab.html" rel="import">
   <style>
     body {
       margin:0;
@@ -184,11 +186,6 @@
       font-size:10pt;
       position:relative;
     }
-    .sysBar {
-      min-height:128px;
-      display:block;
-      background:#6e6d6d
-    }
     .alignLeft {
       text-align: left;
     }
@@ -205,6 +202,9 @@
   </div>
   <div unresolved>
     <template is="auto-binding" id="tmpl">
+      <template if="{{page === 0}}">
+        <animated-fab on-tap="{{topOfPage}}"></animated-fab>
+      </template>
       <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px">
         <!-- menu -->
         <core-scroll-header-panel drawer flex mode="seamed">
@@ -221,10 +221,10 @@
                 {{type.name}}
               </paper-item>
             </template>
-            <!--<paper-item on-tap="{{getPodcast}}">
+            <paper-item on-tap="{{getPodcast}}">
               <core-icon icon="sort"></core-icon>
               Podcast
-            </paper-item>-->
+            </paper-item>
             <paper-item on-tap="{{getStarred}}">
               <core-icon icon="favorite"></core-icon>
               Favorites
@@ -261,7 +261,7 @@
               <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
             </template>
           </core-toolbar>
-          <core-animated-pages selected="{{page}}">
+          <core-animated-pages selected="{{page}}" transitions="slide-from-right">
             <section>
               <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}"></album-wall>
             </section>
@@ -313,7 +313,7 @@
       <x-notification
         id="playNotify"
         timeout='5000'></x-notification>
-      <audio preload src="" id="audio" style="display:none"></audio>
+      <audio id="audio" style="display:none"></audio>
     </template>
   </div>
   <script src="PolySonic.js"></script>

@@ -38,6 +38,10 @@
               obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version, bitRate:this.bitRate};
               wall.push(obj);
             }.bind(this));
+          } else if (response.podcasts && response.podcasts.channel) {
+            Array.prototype.forEach.call(this.response['subsonic-response'].podcasts.channel, function (e) {
+              console.log(e);
+            }.bind(this));
           } else {
             tmpl.pageLimit = true;
           }

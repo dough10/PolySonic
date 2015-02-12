@@ -7,11 +7,12 @@
   "author": "",
   "private": true,
   "dependencies": {
-    "polymer": "Polymer/polymer#latest",
+    "polymer": "Polymer/polymer",
     "paper-elements": "Polymer/paper-elements",
-    "x-notification": "1000ch/x-notification#latest",
-    "core-ajax" : "Polymer/core-ajax#latest",
-    "core-animated-pages" : "Polymer/core-animated-pages#latest",
-    "web-animations-js": "web-animations/web-animations-js#latest"
+    "x-notification": "1000ch/x-notification",
+    "core-ajax" : "Polymer/core-ajax",
+    "core-animated-pages" : "Polymer/core-animated-pages",
+    "web-animations-js": "web-animations/web-animations-js",
+    "core-list": "Polymer/core-list"
   }
 }
