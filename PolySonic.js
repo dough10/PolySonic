@@ -37,68 +37,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     dataBase.createObjectStore("albumInfo");
   };
 
-  this.getImageFile = function (url, image, art, note, id) {
-    var xhr = new XMLHttpRequest(),
-      blob;
-    xhr.open("GET", url, true);
-    xhr.responseType = "blob";
-    xhr.onload = function () {
-      if (xhr.status === 200) {
-        blob = xhr.response;
-        this.putImageInDb(blob, image, art, note, id);
-      }
-    }.bind(this);
-    xhr.send();
-  };
-
-  this.putImageInDb = function (blob, image, art, note, id) {
-    var transaction = this.db.transaction(["albumInfo"], "readwrite");
-    transaction.objectStore("albumInfo").put(blob, id);
-    transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
-      var imgFile = event.target.result,
-        imgURL = window.URL.createObjectURL(imgFile);
-
-      image.style.backgroundImage = "url('" + imgURL + "')";
-      art.src = imgURL;
-      note.icon = imgURL;
-      console.log('New Item Added to indexedDB ' + id);
-    };
-  };
-
-  this.putJSONInDb = function (data, id) {
-    var transaction = this.db.transaction(["albumInfo"], "readwrite");
-    transaction.objectStore("albumInfo").put(data, id);
-    transaction.objectStore("albumInfo").get(id).onsuccess = function () {
-      console.log('New Item Added to indexedDB ' + id);
-    };
-  };
-
-  this.getImageFromDb = function (image, art, note, id) {
-    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
-      request = transaction.objectStore("albumInfo").get(id);
-
-    request.onsuccess = function (event) {
-      var imgFile = event.target.result,
-        imgURL = window.URL.createObjectURL(imgFile);
-
-      image.style.backgroundImage = "url('" + imgURL + "')";
-      art.src = imgURL;
-      note.icon = imgURL;
-    };
-  };
-
-  this.getImageForPlayer = function (id) {
-    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
-      art = document.querySelector('#coverArt');
-
-    transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
-      var imgFile = event.target.result,
-        imgURL = window.URL.createObjectURL(imgFile);
-
-      art.style.backgroundImage = "url('" + imgURL + "')";
-    };
-  };
-
   this.getImageForNextTrack = function (id) {
     var transaction = this.db.transaction(["albumInfo"], "readwrite"),
       art = document.querySelector('#coverArt'),
@@ -112,34 +50,25 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       note.icon = imgURL;
     };
   };
-
-  this.checkEntry = function (url, image, art, note, id) {
+  
+  this.getImageForPlayer = function (id) {
     var transaction = this.db.transaction(["albumInfo"], "readwrite"),
-      request = transaction.objectStore("albumInfo").count(id),
-      visible = document.querySelector("#loader").classList.contains("hide"),
-      loader = document.querySelector('#loader'),
-      box = document.querySelector(".box");
-
-    request.onsuccess = function () {
-      if (!visible) {
-        loader.classList.add('hide');
-        box.classList.add('hide');
-      }
-      if (request.result === 0) {
-        this.getImageFile(url, image, art, note, id);
-      } else {
-        this.getImageFromDb(image, art, note, id);
-      }
-    }.bind(this);
+      art = document.querySelector('#coverArt');
+      
+    transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
+      var imgFile = event.target.result,
+        imgURL = window.URL.createObjectURL(imgFile);
+        
+      art.style.backgroundImage = "url('" + imgURL + "')";
+    };
   };
-
+  
   this.defaultPlayImage = function () {
     var art = document.querySelector('#coverArt'),
       note = document.querySelector('#playNotify');
 
     art.style.backgroundImage =  "url('images/default-cover-art.png')";
     note.icon = 'images/default-cover-art.png';
-    note.show();
   };
 
   this.playlist = [];
@@ -217,7 +146,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.position = scroller.scrollTop;
 
 
-      if (this.page === 0 && precent > 95 && !this.pageLimit) {
+      if (this.page === 0 && precent > 98 && !this.pageLimit) {
         wall.loadMore();
       }
 
@@ -225,7 +154,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
     window.onresize = this.sizePlayer;
 
-    audio.onended = this.nextTrack;
+    audio.onended = this.nextTrack.bind(this);
 
   };
 
@@ -266,12 +195,23 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           this.selected = '';
         }
         if (result.querySize === undefined) {
+          var screenSize = screen.width + 'x' + screen.height,
+            defaultQuery;
+          if (screenSize === '1920x1080') {
+            defaultQuery = 40;
+          } else {
+            defaultQuery = 20;
+          }
           chrome.storage.sync.set({
-            'querySize': 20
+            'querySize': defaultQuery
           });
-          this.querySize = 20;
+          this.querySize = defaultQuery;
         } else {
           this.querySize = result.querySize;
+        }
+        console.log('Query Size = ' + this.querySize);
+        if (result.volume !== undefined) {
+          this.volume = result.volume;
         }
         setTimeout(function () {
           if (this.url && this.user && this.pass && this.version) {
@@ -292,6 +232,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     audio.src = src;
     audio.play();
     note.title = 'Now Playing... ' + artist + ' - ' + title;
+    note.show();
   };
 
   /*jslint unparam: true*/
@@ -307,9 +248,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   /*jslint unparam: false*/
 
   this.nextTrack = function () {
-    var next = this.playing + 1,
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
+    var next = this.playing + 1;
     if (this.playlist[next]) {
+      var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
       this.playing = next;
       this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
       if (this.playlist[next].cover !== undefined) {
@@ -323,9 +264,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.lastTrack = function () {
-    var next = this.playing - 1,
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
+    var next = this.playing - 1;
     if (this.playlist[next]) {
+      var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
       this.playing = next;
       this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
       if (this.playlist[next].cover !== undefined) {
@@ -362,13 +303,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.back2List = function () {
-    var tmpl = document.querySelector('#tmpl');
-    tmpl.page = 0;
+    this.page = 0;
   };
 
   this.nowPlaying = function () {
-    var tmpl = document.querySelector('#tmpl');
-    tmpl.page = 1;
+    this.page = 1;
   };
 
   this.playPause = function () {
@@ -412,30 +351,33 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.selectAction = function () {
-    var tmpl = document.querySelector('#tmpl');
-    document.querySelector("#wall").clearData();
+    var wall = document.querySelector("#wall");
+    wall.clearData();
     setTimeout(function () {
-      document.querySelector("#wall").sort = tmpl.selected;
-    }, 100);
+      wall.sort = this.selected;
+    }.bind(this), 100);
     this.closeDrawer();
   };
 
   this.getPodcast = function () {
+    var wall = document.querySelector("#wall");
     this.closeDrawer();
-    document.querySelector("#wall").clearData();
-    document.querySelector("#wall").getPodcast();
+    wall.clearData();
+    wall.getPodcast();
   };
 
   this.getStarred = function () {
+    var wall = document.querySelector("#wall");
     this.closeDrawer();
-    document.querySelector("#wall").clearData();
-    document.querySelector("#wall").getStarred();
+    wall.clearData();
+    wall.getStarred();
   };
 
   this.getArtist = function () {
+    var wall = document.querySelector("#wall");
     this.closeDrawer();
-    document.querySelector("#wall").clearData();
-    document.querySelector("#wall").getArtist();
+    wall.clearData();
+    wall.getArtist();
   };
 
   this.toggleVolume = function () {
@@ -444,7 +386,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.showPlaylist = function () {
-    document.querySelector('#playlistDialog').toggle();
+    var dialog = document.querySelector('#playlistDialog');
+    dialog.toggle();
   };
 
   this.openPanel = function () {
@@ -458,13 +401,17 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.volUp = function () {
-    var audio = document.querySelector('#audio');
-    audio.volume = audio.volume + 0.1;
+    if (this.volume < 100) {
+      this.volume = this.volume + 10;
+    }
+    return this.volume;
   };
 
   this.volDown = function () {
-    var audio = document.querySelector('#audio');
-    audio.volume = audio.volume - 0.1;
+    if (this.volume > 0) {
+      this.volume = this.volume - 10;  
+    }
+    return this.volume;
   };
 
   this.clearPlaylist = function () {

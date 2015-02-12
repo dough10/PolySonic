@@ -159,10 +159,10 @@
       <div style="font-size:10pt;">
         <div flex style="text-align:center; margin:auto;">
           <template if="{{cover}}">
-            <img id="art" height="250" width="250">
+            <img src="{{imgURL}}" height="250" width="250">
           </template>
           <template if="{{!cover}}">
-            <img id="img" src="../../images/default-cover-art.png" height="250" width="250">
+            <img src="../../images/default-cover-art.png" height="250" width="250">
           </template>
         </div>
         <br>
@@ -262,6 +262,7 @@
     </paper-shadow>
     <paper-toast id="toast"></paper-toast>
     <x-notification
+      icon="{{imgURL}}"
       id="playNotify"
       timeout='10000'
       tag='tag'></x-notification>
