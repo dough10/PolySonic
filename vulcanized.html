@@ -2311,6 +2311,15 @@ polyfill-next-selector { content: ':host > a'; }
         <div style="font-size:14pt; margin:8px">
           {{artist}} / {{album}}
         </div>
+        <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
+        <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
+        <template if="{{!isFavorite}}">
+          <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
+        </template>
+        <template if="{{isFavorite}}">
+          <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
+        </template>
+        <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
         <template repeat="{{track in tracks}}">
           <core-item style="border-top:1px solid #CECECE;">
             <div flex="" style="margin-right:8px">
@@ -4773,6 +4782,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
   <script src="src/animated-fab/animated-fab.html.0.js"></script>
 </polymer-element>
+
 </div>
   <div id="loader">
     <div class="box">
