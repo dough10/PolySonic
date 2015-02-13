@@ -305,7 +305,9 @@ Polymer('album-art', {
   },
 
   itemChanged: function () {
-    this.checkJSONEntry(this.item);
+    if (this.item) {
+      this.checkJSONEntry(this.item);
+    }
   }
 });
 
