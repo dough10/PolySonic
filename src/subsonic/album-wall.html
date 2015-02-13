@@ -3,10 +3,14 @@
 <link href="../../bower_components/paper-spinner/paper-spinner.html" rel="import">
 <link href="../../bower_components/paper-button/paper-button.html" rel="import">
 <link href="../../bower_components/paper-toast/paper-toast.html" rel="import">
-<link href="../../bower_components/core-list/core-list.html" rel="import">
 </head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize">
   <template>
     <style>
+      :host {
+        height:100%;
+        overflow:auto;
+        width:100%:
+      }
       paper-item {
         text-align:center;
       }
@@ -27,12 +31,23 @@
       .foot {
         min-height:1;
       }
+      core=list {
+        height:100%;
+      }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <template repeat="{{i in wall}}">
       <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{i.id}}" cover="{{i.coverArt}}" artist="{{i.artist}}" album="{{i.name}}" url="{{i.url}}" user="{{i.user}}" pass="{{i.pass}}" version="{{i.version}}" isFavorite="{{i.starred}}">
       </album-art>
     </template>
+    <!--<core-list id="list" data="{{wall}}" flex runwayFactor="20" grid?="{{listMode === 'cover'}}">
+      <template>
+        <div>
+          <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}">
+      </album-art>
+        </div>
+      </template>
+    </core-list>-->
     <br>
     <template if="{{isLoading}}">
       <paper-spinner id="spinner" active=""></paper-spinner>

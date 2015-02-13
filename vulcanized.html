@@ -886,11 +886,6 @@ object like this: `{v: 'top', h: 'right'}`.
 
 
 
-
-
-
-
-
 <!--
 Warning: This transition does not work well in combination with other transitions, because
 it operates on the page rather than the page's children.
@@ -1071,6 +1066,11 @@ html /deep/ .core-collapse-closed {
     max-width: 100%;
   }
 </style>
+
+
+
+
+
 
 
 
@@ -2301,10 +2301,10 @@ polyfill-next-selector { content: ':host > a'; }
       <div style="font-size:10pt;">
         <div flex="" style="text-align:center; margin:auto;">
           <template if="{{cover}}">
-            <img id="art" height="250" width="250">
+            <img src="{{imgURL}}" height="250" width="250">
           </template>
           <template if="{{!cover}}">
-            <img id="img" src="images/default-cover-art.png" height="250" width="250">
+            <img src="images/default-cover-art.png" height="250" width="250">
           </template>
         </div>
         <br>
@@ -2403,7 +2403,6 @@ polyfill-next-selector { content: ':host > a'; }
       </core-animated-pages>
     </paper-shadow>
     <paper-toast id="toast"></paper-toast>
-    <x-notification id="playNotify" timeout="10000" tag="tag"></x-notification>
     <core-ajax auto="false" method="GET" id="track" url="{{url}}/rest/getAlbum.view" params="{&quot;u&quot;:&quot;{{user}}&quot;, &quot;p&quot;:&quot;{{pass}}&quot;, &quot;f&quot;:&quot;json&quot;, &quot;v&quot;:&quot;{{version}}&quot;, &quot;c&quot;:&quot;PolySonic&quot;, &quot;id&quot;:&quot;{{item}}&quot;}" handleas="json" response="{{trackResponse}}">
     </core-ajax>
   </template>
@@ -3056,45 +3055,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </template>
 
 </polymer-element>
-
-<polymer-element name="core-list" tabindex="-1" assetpath="bower_components/core-list/">
-<template>
-  <core-selection id="selection" multi="{{multi}}" on-core-select="{{selectedHandler}}"></core-selection>
-  <style>:host {
-  display: block;
-  outline: none;
-  position: relative;
-}
-
-polyfill-next-selector { content: '.core-list-viewport > *'; }
-::content > * {
-  position: absolute;
-  top: 0;
-  box-sizing: border-box;
-  opacity: 0;
-}
-
-polyfill-next-selector { content: ':host(:not([grid])) .core-list-viewport > *'; }
-:host(:not([grid])) ::content > * {
-  width: 100%;
-}
-
-.core-list-items.horizontal {
-  height: 100%;
-  white-space: nowrap;
-}
-
-.core-list-items.horizontal > * {
-  display: inline-block;
-}
-</style>
-  <div id="viewport" class="core-list-viewport"><content></content></div>
-</template>
-
-</polymer-element>
 <polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize" assetpath="src/subsonic/">
   <template>
     <style>
+      :host {
+        height:100%;
+        overflow:auto;
+        width:100%:
+      }
       paper-item {
         text-align:center;
       }
@@ -3115,12 +3083,23 @@ polyfill-next-selector { content: ':host(:not([grid])) .core-list-viewport > *';
       .foot {
         min-height:1;
       }
+      core=list {
+        height:100%;
+      }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <template repeat="{{i in wall}}">
       <album-art listmode="{{listMode}}" bitrate="{{bitRate}}" item="{{i.id}}" cover="{{i.coverArt}}" artist="{{i.artist}}" album="{{i.name}}" url="{{i.url}}" user="{{i.user}}" pass="{{i.pass}}" version="{{i.version}}" isfavorite="{{i.starred}}">
       </album-art>
     </template>
+    <!--<core-list id="list" data="{{wall}}" flex runwayFactor="20" grid?="{{listMode === 'cover'}}">
+      <template>
+        <div>
+          <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}">
+      </album-art>
+        </div>
+      </template>
+    </core-list>-->
     <br>
     <template if="{{isLoading}}">
       <paper-spinner id="spinner" active=""></paper-spinner>
@@ -4783,6 +4762,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="src/animated-fab/animated-fab.html.0.js"></script>
 </polymer-element>
 
+
+<polymer-element name="core-list" tabindex="-1" assetpath="bower_components/core-list/">
+<template>
+  <core-selection id="selection" multi="{{multi}}" on-core-select="{{selectedHandler}}"></core-selection>
+  <style>:host {
+  display: block;
+  outline: none;
+  position: relative;
+}
+
+polyfill-next-selector { content: '.core-list-viewport > *'; }
+::content > * {
+  position: absolute;
+  top: 0;
+  box-sizing: border-box;
+  opacity: 0;
+}
+
+polyfill-next-selector { content: ':host(:not([grid])) .core-list-viewport > *'; }
+:host(:not([grid])) ::content > * {
+  width: 100%;
+}
+
+.core-list-items.horizontal {
+  height: 100%;
+  white-space: nowrap;
+}
+
+.core-list-items.horizontal > * {
+  display: inline-block;
+}
+</style>
+  <div id="viewport" class="core-list-viewport"><content></content></div>
+</template>
+
+</polymer-element>
 </div>
   <div id="loader">
     <div class="box">
@@ -4797,7 +4812,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <template if="{{page === 0}}">
         <animated-fab on-tap="{{topOfPage}}"></animated-fab>
       </template>
-      <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px">
+      <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px" disableswipe?="{{page !== 0}}">
         <!-- menu -->
         <core-scroll-header-panel drawer="" flex="" mode="seamed">
           <core-menu id="menu" selected="{{selected}}" valueattr="i">

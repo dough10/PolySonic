@@ -11,6 +11,9 @@
         this.wall = [];
         this.request = this.request || 'getAlbumList2';
       },
+      domReady: function () {
+        //this.$.list.scrollTarget = document.querySelector("#tmpl").appScroller();
+      },
       userChanged: function () {
         this.post.u = this.user;
       },
@@ -128,5 +131,13 @@
       },
       querySizeChanged: function () {
         this.post.size = this.querySize;
+      },
+      listModeChanged: function () {
+        /*this.$.list.updateSize();
+        if (this.listMode === 'cover') {
+          this.$.list.width = '270';
+        } else {
+          this.$.list.width = false;
+        }*/
       }
     });

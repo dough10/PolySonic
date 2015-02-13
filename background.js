@@ -1,8 +1,8 @@
 chrome.app.runtime.onLaunched.addListener(function() {
-  chrome.app.window.create('index.html', {
+  chrome.app.window.create('vulcanized.html', {
     'id': 'PolySonic',
     'frame': {
-      'type':'none'
+      'type': 'none'
     },
     'bounds': {
       'width': 605,

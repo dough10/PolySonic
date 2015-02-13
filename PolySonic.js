@@ -1,4 +1,4 @@
-/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setTimeout, setInterval */
+/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setTimeout, setInterval, screen */
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
   'use strict';
   this.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
@@ -50,21 +50,21 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       note.icon = imgURL;
     };
   };
-  
+
   this.getImageForPlayer = function (id) {
     var transaction = this.db.transaction(["albumInfo"], "readwrite"),
       art = document.querySelector('#coverArt'),
       note = document.querySelector('#playNotify');
-      
+
     transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
       var imgFile = event.target.result,
         imgURL = window.URL.createObjectURL(imgFile);
-        
+
       art.style.backgroundImage = "url('" + imgURL + "')";
       note.icon = imgURL;
     };
   };
-  
+
   this.defaultPlayImage = function () {
     var art = document.querySelector('#coverArt'),
       note = document.querySelector('#playNotify');
@@ -227,9 +227,15 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
   };
 
+  this.systemNotify = function (artist, title, image) {
+    var note = document.querySelector("#playNotify");
+    note.title = artist + ' - ' + title;
+    note.icon = image;
+    note.show();
+  };
+
   this.playAudio = function (artist, title, src) {
-    var note = document.querySelector('#playNotify'),
-      audio = document.querySelector("#audio");
+    var audio = document.querySelector("#audio");
     this.currentPlaying = artist + ' - ' + title;
     audio.src = src;
     audio.play();
@@ -248,9 +254,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   /*jslint unparam: false*/
 
   this.nextTrack = function () {
-    var next = this.playing + 1;
+    var next = this.playing + 1,
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
     if (this.playlist[next]) {
-      var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
       this.playing = next;
       this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
       if (this.playlist[next].cover !== undefined) {
@@ -264,9 +270,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.lastTrack = function () {
-    var next = this.playing - 1;
+    var next = this.playing - 1,
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
     if (this.playlist[next]) {
-      var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
       this.playing = next;
       this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
       if (this.playlist[next].cover !== undefined) {
@@ -304,6 +310,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.back2List = function () {
     this.page = 0;
+    document.querySelector("#wall").listModeChanged();
   };
 
   this.nowPlaying = function () {
@@ -409,7 +416,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.volDown = function () {
     if (this.volume > 0) {
-      this.volume = this.volume - 10;  
+      this.volume = this.volume - 10;
     }
     return this.volume;
   };
