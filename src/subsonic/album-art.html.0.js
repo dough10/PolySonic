@@ -162,7 +162,7 @@ Polymer('album-art', {
     if (this.trackResponse) {
       this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
       Array.prototype.forEach.call(this.trackResponse['subsonic-response'].album.song, function (e) {
-        var obj = {id: e.id, artist: e.artist, title: e.title, cover: this.cover};
+        var obj = {id: e.id, artist: e.artist, title: e.title, cover: this.imgURL};
         this.playlist.push(obj);
         this.tracks.push(obj);
       }.bind(this));
@@ -176,12 +176,19 @@ Polymer('album-art', {
 
   doDialog: function () {
     'use strict';
-    this.$.dialog.toggle();
+    var data = {artist: this.artist, album: this.album, id: this.item, coverid: this.cover, cover: this.imgURL, tracks: this.tracks, favorite: this.isFavorite, parent: this.albumID},
+      details = document.querySelector("#details"),
+      tmpl = document.querySelector("#tmpl"),
+      scroller = tmpl.appScroller();
+    scroller.scrollTop = 0;
+    details.data = data;
+    tmpl.page = 3;
   },
 
   doAjax: function () {
     'use strict';
-    this.$.track.go();
+    var tracks = this.$.track;
+    tracks.go();
   },
 
   defaultPlayerImage: function () {
@@ -193,7 +200,7 @@ Polymer('album-art', {
   add2Playlist: function () {
     'use strict';
     var audio = document.querySelector("#audio"),
-      toast = this.$.toast,
+      toast = document.querySelector("#toast"),
       tmpl = document.querySelector("#tmpl"),
       url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
 
@@ -201,7 +208,7 @@ Polymer('album-art', {
       tmpl.playing = 0;
       tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
       if (this.cover) {
-        tmpl.getImageForPlayer(this.cover);
+        tmpl.getImageForPlayer(this.imgURL);
       } else {
         this.defaultPlayerImage();
       }
@@ -224,7 +231,7 @@ Polymer('album-art', {
       url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
 
     if (this.cover) {
-      tmpl.getImageForPlayer(this.cover);
+      tmpl.getImageForPlayer(this.imgURL);
     } else {
       this.defaultPlayerImage();
     }
@@ -242,7 +249,7 @@ Polymer('album-art', {
       url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
 
     if (this.cover) {
-      tmpl.getImageForPlayer(this.cover);
+      tmpl.getImageForPlayer(this.imgURL);
     } else {
       this.defaultPlayerImage();
     }
@@ -258,7 +265,7 @@ Polymer('album-art', {
     var audio = document.querySelector("#audio"),
       note = document.querySelector("#playNotify"),
       tmpl = document.querySelector("#tmpl"),
-      toast = this.$.toast,
+      toast = document.querySelector("#toast"),
       url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
       obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value, cover: sender.attributes.cover.value};
 
@@ -266,7 +273,7 @@ Polymer('album-art', {
     if (audio.paused) {
       tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
       if (this.cover) {
-        tmpl.getImageForPlayer(this.cover);
+        tmpl.getImageForPlayer(this.imgURL);
       } else {
         document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')";
       }
@@ -282,7 +289,7 @@ Polymer('album-art', {
       fav = this;
     xhr.open('GET', this.url + "/rest/star.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value, true);
     xhr.responseType = 'json';
-    xhr.onload = function (e) {
+    xhr.onload = function () {
       if (this.response['subsonic-response'].status === 'ok') {
         fav.isFavorite = true;
       }
@@ -296,7 +303,7 @@ Polymer('album-art', {
       fav = this;
     xhr.open('GET', this.url + "/rest/unstar.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value, true);
     xhr.responseType = 'json';
-    xhr.onload = function (e) {
+    xhr.onload = function () {
       if (this.response['subsonic-response'].status === 'ok') {
         fav.isFavorite = false;
       }
@@ -305,6 +312,7 @@ Polymer('album-art', {
   },
 
   itemChanged: function () {
+    'use strict';
     if (this.item) {
       this.checkJSONEntry(this.item);
     }

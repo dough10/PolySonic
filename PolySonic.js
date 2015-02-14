@@ -37,32 +37,12 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     dataBase.createObjectStore("albumInfo");
   };
 
-  this.getImageForNextTrack = function (id) {
-    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
-      art = document.querySelector('#coverArt'),
+  this.getImageForPlayer = function (url) {
+    var art = document.querySelector('#coverArt'),
       note = document.querySelector('#playNotify');
 
-    transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
-      var imgFile = event.target.result,
-        imgURL = window.URL.createObjectURL(imgFile);
-
-      art.style.backgroundImage = "url('" + imgURL + "')";
-      note.icon = imgURL;
-    };
-  };
-
-  this.getImageForPlayer = function (id) {
-    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
-      art = document.querySelector('#coverArt'),
-      note = document.querySelector('#playNotify');
-
-    transaction.objectStore("albumInfo").get(id).onsuccess = function (event) {
-      var imgFile = event.target.result,
-        imgURL = window.URL.createObjectURL(imgFile);
-
-      art.style.backgroundImage = "url('" + imgURL + "')";
-      note.icon = imgURL;
-    };
+    art.style.backgroundImage = "url('" + url + "')";
+    note.icon = url;
   };
 
   this.defaultPlayImage = function () {
@@ -137,9 +117,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       var precent = (scroller.scrollTop / (scroller.scrollHeight - scroller.offsetHeight)) * 100,
         fab = document.querySelector('animated-fab');
 
-      if (precent >= 5 && fab.state !== 'bottom') {
+      if (this.page === 0 && precent >= 5 && fab.state !== 'bottom') {
         fab.state = 'bottom';
-      } else if (precent <= 4 && fab.state !== 'off') {
+      } else if (this.page === 0 && precent <= 4 && fab.state !== 'off') {
         fab.state = 'off';
       }
       if (this.page === 0 && fab.state !== 'off' && scroller.scrollTop < this.position) {
@@ -246,7 +226,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
     this.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
     if (sender.attributes.cover.value !== undefined) {
-      this.getImageForNextTrack(sender.attributes.cover.value);
+      this.getImageForPlayer(sender.attributes.cover.value);
     } else {
       this.defaultPlayImage();
     }
@@ -260,7 +240,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.playing = next;
       this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
       if (this.playlist[next].cover !== undefined) {
-        this.getImageForNextTrack(this.playlist[next].cover);
+        this.getImageForPlayer(this.playlist[next].cover);
       } else {
         this.defaultPlayImage();
       }
@@ -276,7 +256,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.playing = next;
       this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
       if (this.playlist[next].cover !== undefined) {
-        this.getImageForNextTrack(this.playlist[next].cover);
+        this.getImageForPlayer(this.playlist[next].cover);
       } else {
         this.defaultPlayImage();
       }

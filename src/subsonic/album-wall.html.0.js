@@ -135,9 +135,9 @@
       listModeChanged: function () {
         this.$.list.updateSize();
         if (this.listMode === 'cover') {
-          this.$.list.width = '270';
+          this.$.list.width = '260';
         } else {
-          this.$.list.width = false;
+          this.$.list.width = '580';
         }
       }
     });

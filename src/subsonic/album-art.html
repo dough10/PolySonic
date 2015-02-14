@@ -154,46 +154,22 @@
       .bumpMargin {
         margin-right:16px;
       }
+      paper-icon-button.huge::shadow #icon {
+        width: 95px;
+        height: 95px;
+      }
+      .huge {
+        color:rgba(255,255,255,0.8);
+        position:absolute;
+        top: 70px;
+        left: 70px;
+      }
     </style>
-    <paper-action-dialog id="dialog" class="dialog" transition="paper-dialog-transition-center">
-      <div style="font-size:10pt;">
-        <div flex style="text-align:center; margin:auto;">
-          <template if="{{cover}}">
-            <img src="{{imgURL}}" height="250" width="250">
-          </template>
-          <template if="{{!cover}}">
-            <img src="../../images/default-cover-art.png" height="250" width="250">
-          </template>
-        </div>
-        <br>
-        <div style="font-size:14pt; margin:8px">
-          {{artist}} / {{album}}
-        </div>
-        <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
-        <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
-        <template if="{{!isFavorite}}">
-          <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
-        </template>
-        <template if="{{isFavorite}}">
-          <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
-        </template>
-        <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
-        <template repeat="{{track in tracks}}">
-          <core-item style="border-top:1px solid #CECECE;">
-            <div flex style="margin-right:8px">
-              {{track.title}}
-            </div>
-            <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
-            <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
-            <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
-          </core-item>
-        </template>
-      </div>
-    </paper-action-dialog>
     <paper-shadow z="1" id="card">
       <core-animated-pages selected="{{page}}" valueattr="page" transitions="crossfade hero-transition">
         <div page="cover">
           <div class="wrapper">
+            <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{playAlbum}}"></paper-icon-button>
             <div id="overlay-low" hero-id="hero" hero="">
               <paper-icon-button id="icon" on-tap="{{slideUp}}" class="left-icon" icon="more-vert"></paper-icon-button>
               <div class="artist">{{artist}}</div>
@@ -209,10 +185,6 @@
               <div class="artist">{{artist}}</div>
               <br>
               <div class="album">{{album}}</div>
-              <core-item>
-                <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
-                Play Album
-              </core-item>
               <core-item>
                 <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
                 Add to Playlist
@@ -260,7 +232,6 @@
         </div>
       </core-animated-pages>
     </paper-shadow>
-    <paper-toast id="toast"></paper-toast>
     <core-ajax auto="false" method="GET" id="track" url="{{url}}/rest/getAlbum.view" params="{&quot;u&quot;:&quot;{{user}}&quot;, &quot;p&quot;:&quot;{{pass}}&quot;, &quot;f&quot;:&quot;json&quot;, &quot;v&quot;:&quot;{{version}}&quot;, &quot;c&quot;:&quot;PolySonic&quot;, &quot;id&quot;:&quot;{{item}}&quot;}" handleas="json" response="{{trackResponse}}">
     </core-ajax>
   </template>

@@ -1100,6 +1100,16 @@ html /deep/ .core-collapse-closed {
 
 
 
+
+
+
+
+
+
+
+
+
+
   <style>
     body {
       margin:0;
@@ -2296,46 +2306,22 @@ polyfill-next-selector { content: ':host > a'; }
       .bumpMargin {
         margin-right:16px;
       }
+      paper-icon-button.huge::shadow #icon {
+        width: 95px;
+        height: 95px;
+      }
+      .huge {
+        color:rgba(255,255,255,0.8);
+        position:absolute;
+        top: 70px;
+        left: 70px;
+      }
     </style>
-    <paper-action-dialog id="dialog" class="dialog" transition="paper-dialog-transition-center">
-      <div style="font-size:10pt;">
-        <div flex="" style="text-align:center; margin:auto;">
-          <template if="{{cover}}">
-            <img src="{{imgURL}}" height="250" width="250">
-          </template>
-          <template if="{{!cover}}">
-            <img src="images/default-cover-art.png" height="250" width="250">
-          </template>
-        </div>
-        <br>
-        <div style="font-size:14pt; margin:8px">
-          {{artist}} / {{album}}
-        </div>
-        <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
-        <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
-        <template if="{{!isFavorite}}">
-          <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
-        </template>
-        <template if="{{isFavorite}}">
-          <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
-        </template>
-        <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
-        <template repeat="{{track in tracks}}">
-          <core-item style="border-top:1px solid #CECECE;">
-            <div flex="" style="margin-right:8px">
-              {{track.title}}
-            </div>
-            <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
-            <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
-            <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}" icon="file-download"></paper-icon-button>
-          </core-item>
-        </template>
-      </div>
-    </paper-action-dialog>
     <paper-shadow z="1" id="card">
       <core-animated-pages selected="{{page}}" valueattr="page" transitions="crossfade hero-transition">
         <div page="cover">
           <div class="wrapper">
+            <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{playAlbum}}"></paper-icon-button>
             <div id="overlay-low" hero-id="hero" hero="">
               <paper-icon-button id="icon" on-tap="{{slideUp}}" class="left-icon" icon="more-vert"></paper-icon-button>
               <div class="artist">{{artist}}</div>
@@ -2351,10 +2337,6 @@ polyfill-next-selector { content: ':host > a'; }
               <div class="artist">{{artist}}</div>
               <br>
               <div class="album">{{album}}</div>
-              <core-item>
-                <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
-                Play Album
-              </core-item>
               <core-item>
                 <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
                 Add to Playlist
@@ -2402,7 +2384,6 @@ polyfill-next-selector { content: ':host > a'; }
         </div>
       </core-animated-pages>
     </paper-shadow>
-    <paper-toast id="toast"></paper-toast>
     <core-ajax auto="false" method="GET" id="track" url="{{url}}/rest/getAlbum.view" params="{&quot;u&quot;:&quot;{{user}}&quot;, &quot;p&quot;:&quot;{{pass}}&quot;, &quot;f&quot;:&quot;json&quot;, &quot;v&quot;:&quot;{{version}}&quot;, &quot;c&quot;:&quot;PolySonic&quot;, &quot;id&quot;:&quot;{{item}}&quot;}" handleas="json" response="{{trackResponse}}">
     </core-ajax>
   </template>
@@ -3083,23 +3064,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .foot {
         min-height:1;
       }
-      core=list {
-        height:100%;
-      }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
-    <template repeat="{{i in wall}}">
-      <album-art listmode="{{listMode}}" bitrate="{{bitRate}}" item="{{i.id}}" cover="{{i.coverArt}}" artist="{{i.artist}}" album="{{i.name}}" url="{{i.url}}" user="{{i.user}}" pass="{{i.pass}}" version="{{i.version}}" isfavorite="{{i.starred}}">
-      </album-art>
-    </template>
-    <!--<core-list id="list" data="{{wall}}" flex runwayFactor="20" grid?="{{listMode === 'cover'}}">
-      <template>
-        <div>
-          <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}">
-      </album-art>
-        </div>
-      </template>
-    </core-list>-->
+    <div id="container">
+      <core-list id="list" data="{{wall}}" flex="" runwayfactor="6" grid="" width="580">
+        <template>
+          <div>
+            <album-art listmode="{{listMode}}" bitrate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isfavorite="{{model.starred}}">
+        </album-art>
+          </div>
+        </template>
+      </core-list>
+    </div>
     <br>
     <template if="{{isLoading}}">
       <paper-spinner id="spinner" active=""></paper-spinner>
@@ -4763,6 +4739,85 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </polymer-element>
 
 
+<polymer-element name="album-details" attributes="url user pass data version bitRate" assetpath="src/subsonic/">
+  <template>
+    <style>
+      :host {
+        display:inline-block;
+        width:98%;
+      }
+      .card {
+        display:block;
+        background-color:#FFFFFF;
+        border-radius:2px;
+        color:#000000;
+        border:1px solid #d8d8d8;
+        padding:10px;
+        font-size:10pt;
+        position:relative;
+        text-align:left;
+      }
+      #play {
+        position:absolute;
+        bottom:40px;
+        left:5px;
+      }
+      .tracks {
+        border-top:1px solid #CECECE;
+        position:absolute;
+        top:50px;
+        bottom:0px;
+        left:0px;
+        right:0px;
+        overflow:scroll;
+      }
+      paper-item {
+        font-size: 10pt;
+      }
+      paper-icon-button: {
+        color:#000000;
+      }
+      #head {
+        height:256px;
+        background-image:url("images/default-cover-art.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:100%;
+      }
+    </style>
+    <div id="head"></div>
+    <paper-shadow z="1" class="card">
+      <div style="font-size:10pt;">
+        <div style="font-size:14pt; margin:8px">
+          {{data.artist}} / {{data.album}}
+        </div>
+        <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
+        <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
+        <template if="{{!data.favorite}}">
+          <paper-icon-button on-tap="{{addFavorite}}" ident="{{data.id}}" icon="favorite-outline"></paper-icon-button>
+        </template>
+        <template if="{{data.favorite}}">
+          <paper-icon-button on-tap="{{removeFavorite}}" ident="{{data.id}}" icon="favorite"></paper-icon-button>
+        </template>
+        <paper-icon-button on-tap="{{doDownload}}" ident="{{data.parent}}" icon="file-download"></paper-icon-button>
+        <template repeat="{{track in data.tracks}}">
+          <core-item style="border-top:1px solid #CECECE;">
+            <div flex="" style="margin-right:8px">
+              {{track.title}}
+            </div>
+            <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
+            <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
+            <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}" icon="file-download"></paper-icon-button>
+          </core-item>
+        </template>
+      </div>
+    </paper-shadow>
+  </template>
+  <script src="src/subsonic/album-details.js"></script>
+</polymer-element>
+
+
 <polymer-element name="core-list" tabindex="-1" assetpath="bower_components/core-list/">
 <template>
   <core-selection id="selection" multi="{{multi}}" on-core-select="{{selectedHandler}}"></core-selection>
@@ -4853,19 +4908,26 @@ polyfill-next-selector { content: ':host(:not([grid])) .core-list-viewport > *';
               <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
               <div flex="" class="bottom alignLeft">PolySonic</div>
               <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="{{view}}" class="bottom"></paper-icon-button>
-              <template if="{{isNowPlaying}}">
-                <paper-icon-button title="Now Playing" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
-              </template>
+            </template>
+            <template if="{{page !== 0}}">
+              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
             </template>
             <template if="{{page === 1}}">
-              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
               <div class="bottom" flex="">{{currentPlaying}}</div>
               <template if="{{playlist}}">
                 <paper-icon-button title="Playlist" class="bottom" on-tap="{{showPlaylist}}" icon="more-vert"></paper-icon-button>
               </template>
             </template>
-            <template if="{{page === 2}}">
-              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
+            <template if="{{page === 3}}">
+              <div flex="" class="bottom"></div>
+            </template>
+           <template if="{{page === 2}}">
+              <div flex="" class="bottom"></div>
+            </template>
+            <template if="{{page !== 1}}">
+              <template if="{{isNowPlaying}}">
+                <paper-icon-button title="Now Playing" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
+              </template>
             </template>
           </core-toolbar>
           <core-animated-pages selected="{{page}}" transitions="slide-from-right">
@@ -4895,6 +4957,9 @@ polyfill-next-selector { content: ':host(:not([grid])) .core-list-viewport > *';
                 <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitrate="{{bitRate}}" querysize="{{querySize}}"></settings-menu>
               </paper-shadow>
             </section>
+            <section>
+              <album-details url="{{url}}" user="{{user}}" pass="{{pass}}" id="details" version="{{version}}" bitrate="{{bitRate}}"></album-details>
+            </section>
           </core-animated-pages>
         </core-header-panel>
       </core-drawer-panel>
@@ -4909,6 +4974,7 @@ polyfill-next-selector { content: ':host(:not([grid])) .core-list-viewport > *';
           </template>
         </core-menu>
       </paper-dialog>
+      <paper-toast id="toast"></paper-toast>
       <paper-dialog id="volumeDialog" transition="paper-dialog-transition-center">
         Volume
         <br>

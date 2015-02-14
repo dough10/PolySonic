@@ -35,6 +35,7 @@
   <link href="src/subsonic/subsonic-login.html" rel="import">
   <link href="src/subsonic/settings-menu.html" rel="import">
   <link href="src/animated-fab/animated-fab.html" rel="import">
+  <link href="src/subsonic/album-details.html" rel="import">
   <link href="bower_components/core-list/core-list.html" rel="import">
   <style>
     body {
@@ -247,19 +248,26 @@
               <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
               <div flex  class="bottom alignLeft">PolySonic</div>
               <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="{{view}}" class="bottom"></paper-icon-button>
-              <template if="{{isNowPlaying}}">
-                <paper-icon-button title="Now Playing" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
-              </template>
+            </template>
+            <template if="{{page !== 0}}">
+              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
             </template>
             <template if="{{page === 1}}">
-              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
               <div class="bottom" flex>{{currentPlaying}}</div>
               <template if="{{playlist}}">
                 <paper-icon-button title="Playlist" class="bottom" on-tap="{{showPlaylist}}" icon="more-vert"></paper-icon-button>
               </template>
             </template>
-            <template if="{{page === 2}}">
-              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
+            <template if="{{page === 3}}">
+              <div flex class="bottom"></div>
+            </template>
+           <template if="{{page === 2}}">
+              <div flex class="bottom"></div>
+            </template>
+            <template if="{{page !== 1}}">
+              <template if="{{isNowPlaying}}">
+                <paper-icon-button title="Now Playing" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
+              </template>
             </template>
           </core-toolbar>
           <core-animated-pages selected="{{page}}" transitions="slide-from-right">
@@ -289,6 +297,9 @@
                 <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}"></settings-menu>
               </paper-shadow>
             </section>
+            <section>
+              <album-details url="{{url}}" user="{{user}}" pass="{{pass}}" id="details" version="{{version}}" bitRate="{{bitRate}}"></album-details>
+            </section>
           </core-animated-pages>
         </core-header-panel>
       </core-drawer-panel>
@@ -303,6 +314,7 @@
           </template>
         </core-menu>
       </paper-dialog>
+      <paper-toast id="toast"></paper-toast>
       <paper-dialog id="volumeDialog" transition="paper-dialog-transition-center">
         Volume
         <br>
