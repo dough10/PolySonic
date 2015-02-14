@@ -24,6 +24,7 @@
         this.post.v = this.version;
       },
       clearData: function () {
+        this.wall = false;
         this.wall = [];
       },
       responseChanged: function () {
@@ -56,6 +57,7 @@
       getPodcast: function () {
         var toast = this.$.toast,
           tmpl = document.querySelector("#tmpl");
+        this.clearData();
         toast.text = 'Loading..';
         toast.show();
         tmpl.pageLimit = false;
@@ -69,6 +71,7 @@
       getStarred: function () {
         var toast = this.$.toast,
           tmpl = document.querySelector("#tmpl");
+        this.clearData();
         toast.text = 'Loading..';
         toast.show();
         tmpl.pageLimit = false;
@@ -82,6 +85,7 @@
       getArtist: function () {
         var toast = this.$.toast,
           tmpl = document.querySelector("#tmpl");
+        this.clearData();
         toast.text = 'Loading..';
         toast.show();
         tmpl.pageLimit = false;
@@ -95,6 +99,7 @@
       sortChanged: function () {
         var toast = this.$.toast,
           tmpl = document.querySelector("#tmpl");
+        this.clearData();
         toast.text = 'Loading..';
         toast.show();
         tmpl.pageLimit = false;
@@ -104,9 +109,6 @@
           this.post.offset = 0;
           this.$.ajax.go();
         }.bind(this), 200);
-      },
-      getTracks: function (event, detail, sender) {
-        this.$.tracks.go();
       },
       errorChanged: function () {
         if (this.error) {
@@ -136,8 +138,10 @@
         this.$.list.updateSize();
         if (this.listMode === 'cover') {
           this.$.list.width = '260';
+          this.$.list.height = '260';
         } else {
           this.$.list.width = '580';
+          this.$.list.heioght = '65';
         }
       }
     });

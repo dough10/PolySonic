@@ -339,7 +339,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.selectAction = function () {
     var wall = document.querySelector("#wall");
-    wall.clearData();
     setTimeout(function () {
       wall.sort = this.selected;
     }.bind(this), 100);
@@ -349,21 +348,18 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.getPodcast = function () {
     var wall = document.querySelector("#wall");
     this.closeDrawer();
-    wall.clearData();
     wall.getPodcast();
   };
 
   this.getStarred = function () {
     var wall = document.querySelector("#wall");
     this.closeDrawer();
-    wall.clearData();
     wall.getStarred();
   };
 
   this.getArtist = function () {
     var wall = document.querySelector("#wall");
     this.closeDrawer();
-    wall.clearData();
     wall.getArtist();
   };
 
