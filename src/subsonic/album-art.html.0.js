@@ -19,6 +19,12 @@ Polymer('album-art', {
     this.tracks = [];
 
     this.defaultImgURL = '../../images/default-cover-art.png';
+    
+    this.tmpl = document.querySelector("#tmpl");
+    
+    this.audio = document.querySelector("#audio");
+    
+    this.toast = document.querySelector("#toast");
   },
 
   listModeChanged: function () {
@@ -41,8 +47,7 @@ Polymer('album-art', {
 
   getDbItem: function (id, callback) {
     'use strict';
-    var tmpl = document.querySelector('#tmpl'),
-      transaction = tmpl.db.transaction(["albumInfo"], "readwrite"),
+    var transaction = this.tmpl.db.transaction(["albumInfo"], "readwrite"),
       request = transaction.objectStore("albumInfo").get(id);
     request.onsuccess = callback;
     request.onerror = this.dbErrorHandler;
@@ -50,8 +55,7 @@ Polymer('album-art', {
 
   checkForImage: function (id, callback) {
     'use strict';
-    var tmpl = document.querySelector('#tmpl'),
-      transaction = tmpl.db.transaction(["albumInfo"], "readwrite"),
+    var transaction = this.tmpl.db.transaction(["albumInfo"], "readwrite"),
       request = transaction.objectStore("albumInfo").count(id);
     request.onsuccess = callback;
     request.onerror = this.dbErrorHandler;
@@ -59,8 +63,7 @@ Polymer('album-art', {
 
   checkJSONEntry: function (id) {
     'use strict';
-    var tmpl = document.querySelector('#tmpl'),
-      transaction = tmpl.db.transaction(["albumInfo"], "readwrite"),
+    var transaction = this.tmpl.db.transaction(["albumInfo"], "readwrite"),
       request = transaction.objectStore("albumInfo").count(id);
     request.onsuccess = function () {
       if (request.result === 0) {
@@ -92,8 +95,7 @@ Polymer('album-art', {
 
   putInDb: function (data, id, callback) {
     'use strict';
-    var tmpl = document.querySelector("#tmpl"),
-      transaction = tmpl.db.transaction(["albumInfo"], "readwrite");
+    var transaction = this.tmpl.db.transaction(["albumInfo"], "readwrite");
     if (id) {
       transaction.objectStore("albumInfo").put(data, id);
       transaction.objectStore("albumInfo").get(id).onsuccess = callback;
@@ -121,16 +123,16 @@ Polymer('album-art', {
   */
   coverChanged: function () {
     'use strict';
+    var visible = document.querySelector("#loader").classList.contains("hide"),
+      loader = document.querySelector('#loader'),
+      box = document.querySelector(".box");
+    if (!visible) {
+      loader.classList.add('hide');
+      box.classList.add('hide');
+    }
     if (this.cover) {
       var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover;
       this.checkForImage(this.cover, function (e) {
-        var visible = document.querySelector("#loader").classList.contains("hide"),
-          loader = document.querySelector('#loader'),
-          box = document.querySelector(".box");
-        if (!visible) {
-          loader.classList.add('hide');
-          box.classList.add('hide');
-        }
         if (e.target.result === 0) {
           this.getFromServer(url, this.cover, this.setImage.bind(this));
         } else {
@@ -182,12 +184,11 @@ Polymer('album-art', {
     'use strict';
     var data = {artist: this.artist, album: this.album, id: this.item, coverid: this.cover, cover: this.imgURL, tracks: this.tracks, favorite: this.isFavorite, parent: this.albumID},
       details = document.querySelector("#details"),
-      tmpl = document.querySelector("#tmpl"),
-      scroller = tmpl.appScroller();
+      scroller = this.tmpl.appScroller();
     console.log(data);
     scroller.scrollTop = 0;
     details.data = data;
-    tmpl.page = 3;
+    this.tmpl.page = 3;
   },
 
   doAjax: function () {
@@ -204,25 +205,22 @@ Polymer('album-art', {
 
   add2Playlist: function () {
     'use strict';
-    var audio = document.querySelector("#audio"),
-      toast = document.querySelector("#toast"),
-      tmpl = document.querySelector("#tmpl"),
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.tracks[0].id;
+    var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.tracks[0].id;
 
-    if (audio.paused) {
-      tmpl.playing = 0;
-      tmpl.playAudio(this.tracks[0].artist, this.tracks[0].title, url);
+    if (this.audio.paused) {
+      this.tmpl.playing = 0;
+      this.tmpl.playAudio(this.tracks[0].artist, this.tracks[0].title, url);
       if (this.cover) {
-        tmpl.getImageForPlayer(this.imgURL);
+        this.tmpl.getImageForPlayer(this.imgURL);
       } else {
         this.defaultPlayerImage();
       }
     }
     Array.prototype.forEach.call(this.tracks, function (e) {
-      tmpl.playlist.push(e);
+      this.tmpl.playlist.push(e);
     }.bind(this));
-    toast.text = 'Added to Playlist';
-    toast.show();
+    this.toast.text = 'Added to Playlist';
+    this.toast.show();
   },
 
   doDownload: function (event, detail, sender) {
@@ -232,20 +230,19 @@ Polymer('album-art', {
 
   playAlbum: function () {
     'use strict';
-    var tmpl = document.querySelector("#tmpl"),
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.tracks[0].id;
+    var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.tracks[0].id;
 
     if (this.cover) {
-      tmpl.getImageForPlayer(this.imgURL);
+      this.tmpl.getImageForPlayer(this.imgURL);
     } else {
       this.defaultPlayerImage();
     }
-    tmpl.page = 1;
+    this.tmpl.page = 1;
     console.log(this.tracks);
-    tmpl.playlist = this.tracks;
-    tmpl.playing = 0;
-    tmpl.playAudio(this.tracks[0].artist, this.tracks[0].title, url);
-    tmpl.systemNotify(this.tracks[0].artist, this.tracks[0].title, this.imgURL);
+    this.tmpl.playlist = this.tracks;
+    this.tmpl.playing = 0;
+    this.tmpl.playAudio(this.tracks[0].artist, this.tracks[0].title, url);
+    this.tmpl.systemNotify(this.tracks[0].artist, this.tracks[0].title, this.imgURL);
   },
 
   addFavorite: function (event, detail, sender) {
