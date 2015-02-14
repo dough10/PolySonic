@@ -16,10 +16,9 @@ Polymer('album-art', {
 
     this.album = this.album || "Album Title";
 
-    this.playlist = [];
-
     this.tracks = [];
 
+    this.defaultImgURL = '../../images/default-cover-art.png';
   },
 
   listModeChanged: function () {
@@ -138,6 +137,9 @@ Polymer('album-art', {
           this.getDbItem(this.cover, this.setImage.bind(this));
         }
       }.bind(this));
+    } else {
+      this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      this.imgURL = this.defaultImgURL;
     }
   },
 
@@ -159,19 +161,21 @@ Polymer('album-art', {
 
   trackResponseChanged: function () {
     'use strict';
-    if (this.trackResponse) {
-      this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
-      Array.prototype.forEach.call(this.trackResponse['subsonic-response'].album.song, function (e) {
-        var obj = {id: e.id, artist: e.artist, title: e.title, cover: this.imgURL};
-        this.playlist.push(obj);
-        this.tracks.push(obj);
-      }.bind(this));
-    }
-    if (this.new) {
-      this.putInDb(this.trackResponse, this.item, function () {
-        console.log('New JSON Data Added to indexedDB ' + this.item);
-      }.bind(this));
-    }
+    this.tracks.splice(0,this.tracks.length);
+    setTimeout(function () {
+      if (this.trackResponse) {
+        this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
+        Array.prototype.forEach.call(this.trackResponse['subsonic-response'].album.song, function (e) {
+          var obj = {id: e.id, artist: e.artist, title: e.title, cover: this.imgURL};
+          this.tracks.push(obj);
+        }.bind(this));
+      }
+      if (this.new) {
+        this.putInDb(this.trackResponse, this.item, function () {
+          console.log('New JSON Data Added to indexedDB ' + this.item);
+        }.bind(this));
+      }
+    }.bind(this), 100);
   },
 
   doDialog: function () {
@@ -180,6 +184,7 @@ Polymer('album-art', {
       details = document.querySelector("#details"),
       tmpl = document.querySelector("#tmpl"),
       scroller = tmpl.appScroller();
+    console.log(data);
     scroller.scrollTop = 0;
     details.data = data;
     tmpl.page = 3;
@@ -202,18 +207,18 @@ Polymer('album-art', {
     var audio = document.querySelector("#audio"),
       toast = document.querySelector("#toast"),
       tmpl = document.querySelector("#tmpl"),
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.tracks[0].id;
 
     if (audio.paused) {
       tmpl.playing = 0;
-      tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
+      tmpl.playAudio(this.tracks[0].artist, this.tracks[0].title, url);
       if (this.cover) {
         tmpl.getImageForPlayer(this.imgURL);
       } else {
         this.defaultPlayerImage();
       }
     }
-    Array.prototype.forEach.call(this.playlist, function (e) {
+    Array.prototype.forEach.call(this.tracks, function (e) {
       tmpl.playlist.push(e);
     }.bind(this));
     toast.text = 'Added to Playlist';
@@ -228,7 +233,7 @@ Polymer('album-art', {
   playAlbum: function () {
     'use strict';
     var tmpl = document.querySelector("#tmpl"),
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.tracks[0].id;
 
     if (this.cover) {
       tmpl.getImageForPlayer(this.imgURL);
@@ -236,51 +241,11 @@ Polymer('album-art', {
       this.defaultPlayerImage();
     }
     tmpl.page = 1;
-    tmpl.playlist = this.playlist;
+    console.log(this.tracks);
+    tmpl.playlist = this.tracks;
     tmpl.playing = 0;
-    tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
-    tmpl.systemNotify(this.playlist[0].artist, this.playlist[0].title, this.imgURL);
-  },
-
-
-  playTrack: function (event, detail, sender) {
-    'use strict';
-    var tmpl = document.querySelector("#tmpl"),
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
-
-    if (this.cover) {
-      tmpl.getImageForPlayer(this.imgURL);
-    } else {
-      this.defaultPlayerImage();
-    }
-    tmpl.page = 1;
-    tmpl.playlist = this.playlist;
-    tmpl.playing = 0;
-    tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
-    tmpl.systemNotify(sender.attributes.artist.value, sender.attributes.title.value, this.imgURL);
-  },
-
-  addSingle2Playlist: function (event, detail, sender) {
-    'use strict';
-    var audio = document.querySelector("#audio"),
-      note = document.querySelector("#playNotify"),
-      tmpl = document.querySelector("#tmpl"),
-      toast = document.querySelector("#toast"),
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
-      obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value, cover: sender.attributes.cover.value};
-
-    tmpl.playlist.push(obj);
-    if (audio.paused) {
-      tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
-      if (this.cover) {
-        tmpl.getImageForPlayer(this.imgURL);
-      } else {
-        document.querySelector('#coverArt').style.backgroundImage =  "url('images/default-cover-art.png')";
-      }
-    }
-    toast.text = 'Added to Playlist';
-    toast.show();
-    tmpl.systemNotify(sender.attributes.artist.value, sender.attributes.title.value, this.imgURL);
+    tmpl.playAudio(this.tracks[0].artist, this.tracks[0].title, url);
+    tmpl.systemNotify(this.tracks[0].artist, this.tracks[0].title, this.imgURL);
   },
 
   addFavorite: function (event, detail, sender) {

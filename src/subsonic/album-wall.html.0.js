@@ -24,14 +24,14 @@
         this.post.v = this.version;
       },
       clearData: function () {
-        this.wall = false;
-        this.wall = [];
+        this.wall.splice(0,this.wall.length);
       },
       responseChanged: function () {
         if (this.response) {
           var wall = this.wall,
             response = this.response['subsonic-response'],
             tmpl = document.querySelector("#tmpl");
+
           if (response.albumList2 && response.albumList2.album) {
             Array.prototype.forEach.call(response.albumList2.album, function (e) {
               obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version, bitRate:this.bitRate};
@@ -40,7 +40,7 @@
           } else if (response.starred2 && response.starred2.album) {
             Array.prototype.forEach.call(response.starred2.album, function (e) {
               obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version, bitRate:this.bitRate};
-              wall.push(obj.id);
+              wall.push(obj);
             }.bind(this));
           } else if (response.podcasts && response.podcasts.channel) {
             Array.prototype.forEach.call(response.podcasts.channel, function (e) {
@@ -123,11 +123,9 @@
           var toast = this.$.toast;
           toast.text = 'Loading..';
           toast.show();
-          this.post.size = this.post.size / 2;
           this.post.offset = this.post.offset + this.post.size;
           setTimeout(function () {
             this.$.ajax.go();
-            this.post.size = this.post.size * 2;
           }.bind(this), 500);
         }
       },
