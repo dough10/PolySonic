@@ -12,7 +12,7 @@
         this.request = this.request || 'getAlbumList2';
       },
       domReady: function () {
-        //this.$.list.scrollTarget = document.querySelector("#tmpl").appScroller();
+        this.$.list.scrollTarget = document.querySelector("#tmpl").appScroller();
       },
       userChanged: function () {
         this.post.u = this.user;
@@ -32,17 +32,17 @@
             response = this.response['subsonic-response'],
             tmpl = document.querySelector("#tmpl");
           if (response.albumList2 && response.albumList2.album) {
-            Array.prototype.forEach.call(this.response['subsonic-response'].albumList2.album, function (e) {
+            Array.prototype.forEach.call(response.albumList2.album, function (e) {
               obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version, bitRate:this.bitRate};
               wall.push(obj);
             }.bind(this));
           } else if (response.starred2 && response.starred2.album) {
-            Array.prototype.forEach.call(this.response['subsonic-response'].starred2.album, function (e) {
+            Array.prototype.forEach.call(response.starred2.album, function (e) {
               obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version, bitRate:this.bitRate};
-              wall.push(obj);
+              wall.push(obj.id);
             }.bind(this));
           } else if (response.podcasts && response.podcasts.channel) {
-            Array.prototype.forEach.call(this.response['subsonic-response'].podcasts.channel, function (e) {
+            Array.prototype.forEach.call(response.podcasts.channel, function (e) {
               console.log(e);
             }.bind(this));
           } else {
@@ -133,11 +133,11 @@
         this.post.size = this.querySize;
       },
       listModeChanged: function () {
-        /*this.$.list.updateSize();
+        this.$.list.updateSize();
         if (this.listMode === 'cover') {
           this.$.list.width = '270';
         } else {
           this.$.list.width = false;
-        }*/
+        }
       }
     });
