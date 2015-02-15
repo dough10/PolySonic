@@ -117,13 +117,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       var precent = (scroller.scrollTop / (scroller.scrollHeight - scroller.offsetHeight)) * 100,
         fab = document.querySelector('animated-fab');
 
-      if (this.page === 0 && precent >= 5 && fab.state !== 'bottom') {
-        fab.state = 'bottom';
-      } else if (this.page === 0 && precent <= 4 && fab.state !== 'off') {
-        fab.state = 'off';
-      }
       if (this.page === 0 && fab.state !== 'off' && scroller.scrollTop < this.position) {
         fab.state = 'off';
+      } else if (this.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > this.position) {
+        fab.state = 'bottom';
       }
       this.position = scroller.scrollTop;
 

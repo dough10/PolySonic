@@ -19,21 +19,33 @@ Polymer('album-details', {
 
   },
 
+  domReady: function () {
+    this.audio = document.querySelector("#audio");
+
+    this.playerArt = document.querySelector("#coverArt");
+
+  },
+
   setImage: function (img) {
     'use strict';
     this.$.head.style.backgroundImage = "url('" + img + "')";
   },
 
   dataChanged: function () {
-    if (this.data) {
-      if (this.data.cover) {
-        this.setImage(this.data.cover);
+    this.playlist.splice(0,this.playlist.length);
+    this.tracks.splice(0,this.tracks.length);
+    console.log(this.tracks + ' - ' + this.playlist);
+    setTimeout(function () {
+      if (this.data) {
+        if (this.data.cover) {
+          this.setImage(this.data.cover);
+        }
+        Array.prototype.forEach.call(this.data.tracks, function (e) {
+          var obj = {id: e.id, artist: e.artist, title: e.title, cover: this.data.cover};
+          this.playlist.push(obj);
+        }.bind(this));
       }
-      Array.prototype.forEach.call(this.data.tracks, function (e) {
-        var obj = {id: e.id, artist: e.artist, title: e.title, cover: this.data.cover};
-        this.playlist.push(obj);
-      }.bind(this));
-    }
+    }.bind(this), 100)
   },
 
   add2Playlist: function () {
@@ -46,7 +58,7 @@ Polymer('album-details', {
     }
     Array.prototype.forEach.call(this.playlist, function (e) {
       this.tmpl.playlist.push(e);
-    });
+    }.bind(this));
     this.tmpl.doToast('Added to Playlist');
   },
 

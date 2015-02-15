@@ -3064,7 +3064,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         margin-bottom:16px;
       }
       .foot {
-        min-height:1;
+        min-height:60px;
       }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
@@ -3072,8 +3072,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <core-list id="list" data="{{wall}}" flex="" runwayfactor="5" grid="" width="580">
         <template>
           <div>
-            <album-art listmode="{{listMode}}" bitrate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isfavorite="{{model.starred}}">
-        </album-art>
+            <album-art listmode="{{listMode}}" bitrate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isfavorite="{{model.starred}}"></album-art>
           </div>
         </template>
       </core-list>
@@ -4789,6 +4788,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         background-origin: content-box;
         background-size:100%;
       }
+      .foot {
+        min-height:100px;
+      }
     </style>
     <div id="head"></div>
     <paper-shadow z="1" class="card">
@@ -4817,6 +4819,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </template>
       </div>
     </paper-shadow>
+    <div class="foot"></div>
   </template>
   <script src="src/subsonic/album-details.js"></script>
 </polymer-element>

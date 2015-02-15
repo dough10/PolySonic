@@ -13,6 +13,8 @@
       },
       domReady: function () {
         this.$.list.scrollTarget = document.querySelector("#tmpl").appScroller();
+
+        this.tmpl = document.querySelector("#tmpl");
       },
       userChanged: function () {
         this.post.u = this.user;
@@ -55,12 +57,9 @@
         this.$.ajax.go();
       },
       getPodcast: function () {
-        var toast = this.$.toast,
-          tmpl = document.querySelector("#tmpl");
         this.clearData();
-        toast.text = 'Loading..';
-        toast.show();
-        tmpl.pageLimit = false;
+        this.tmpl.doToast('Loading..');
+        this.tmpl.pageLimit = false;
         setTimeout(function () {
           this.request = 'getPodcasts';
           this.post.type = '';
@@ -69,12 +68,9 @@
         }.bind(this), 200);
       },
       getStarred: function () {
-        var toast = this.$.toast,
-          tmpl = document.querySelector("#tmpl");
         this.clearData();
-        toast.text = 'Loading..';
-        toast.show();
-        tmpl.pageLimit = false;
+        this.tmpl.doToast('Loading..');
+        this.tmpl.pageLimit = false;
         setTimeout(function () {
           this.request = 'getStarred2';
           this.post.type = '';
@@ -83,12 +79,9 @@
         }.bind(this), 200);
       },
       getArtist: function () {
-        var toast = this.$.toast,
-          tmpl = document.querySelector("#tmpl");
         this.clearData();
-        toast.text = 'Loading..';
-        toast.show();
-        tmpl.pageLimit = false;
+        this.tmpl.doToast('Loading..');
+        this.tmpl.pageLimit = false;
         setTimeout(function () {
           this.request = 'getArtists';
           this.post.type = '';
@@ -97,12 +90,9 @@
         }.bind(this), 200);
       },
       sortChanged: function () {
-        var toast = this.$.toast,
-          tmpl = document.querySelector("#tmpl");
         this.clearData();
-        toast.text = 'Loading..';
-        toast.show();
-        tmpl.pageLimit = false;
+        this.tmpl.doToast('Loading..');
+        this.tmpl.pageLimit = false;
         setTimeout(function () {
           this.request = 'getAlbumList2';
           this.post.type = this.sort;
@@ -112,18 +102,14 @@
       },
       errorChanged: function () {
         if (this.error) {
-          var toast = this.$.toast;
-          toast.text = this.error;
-          toast.show();
+          this.tmpl.doToast(this.error);
         }
       },
       loadMore: function () {
         if (!this.isLoading && this.request !== 'getStarred2') {
           this.isLoading = true;
-          var toast = this.$.toast;
-          toast.text = 'Loading..';
-          toast.show();
-          this.post.offset = this.post.offset + this.post.size;
+          this.tmpl.doToast('Loading..');
+          this.post.offset = parseInt(this.post.offset) + parseInt(this.post.size);
           setTimeout(function () {
             this.$.ajax.go();
           }.bind(this), 500);
