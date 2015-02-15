@@ -21,6 +21,8 @@
         50,
         60
       ],
+      tmpl: document.querySelector("#tmpl"),
+      wall: document.querySelector("#wall"),
       timer: 0,
       ready: function () {
         'use strict';
@@ -47,28 +49,24 @@
         setTimeout(function () {
           var invalid1 = this.$.input1.classList.contains("invalid"),
             invalid2 = this.$.input2.classList.contains("invalid"),
-            invalid3 = this.$.input3.classList.contains("invalid"),
-            wall = document.querySelector("#wall"),
-            toast = this.$.toast;
+            invalid3 = this.$.input3.classList.contains("invalid");
 
 
           if (invalid1 && invalid2 && this.post.version === undefined) {
-            toast.text = "URL, Username & Version Required";
-            toast.show();
+            tmpl.doToast("URL, Username & Version Required");
           } else if (invalid1) {
-            toast.text = "URL Required";
-            toast.show();
+            tmpl.doToast("URL Required");
           } else if (invalid2) {
-            toast.text = "Username Required";
-            toast.show();
+            tmpl.doToast("Username Required");
           } else if (this.version === undefined) {
-            toast.text = "Version Required";
-            toast.show();
+            tmpl.doToast("Version Required");
           }
           if (!invalid1 && !invalid2 && !invalid3 && this.post.version !== undefined && this.post.bitRate !== undefined) {
             this.$.ajax.go();
-            wall.wall = [];
-            wall.doAjax();
+            wall.clearData();
+            setTimeout(function () {
+              wall.doAjax();
+            }, 100);
           }
         }.bind(this), 100);
       },
@@ -96,15 +94,12 @@
         }
       },
       responseChanged: function () {
-        var tmpl = document.querySelector("#tmpl"),
-          wall = document.querySelector('#wall');
         'use strict';
         /*
           will display server response in a toast
         */
         if (this.response) {
           if (this.response['subsonic-response'].status === 'ok') {
-
             if (this.post.url !== this.url) {
               var req = indexedDB.deleteDatabase('albumInfo');
               req.onsuccess = function () {
@@ -140,14 +135,11 @@
 
             tmpl.querySize = this.post.querySize;
 
-            this.$.toast.text = "Settings Saved";
-            this.$.toast.show();
+            tmpl.doToast("Settings Saved");
           } else if (this.response['subsonic-response'].status === 'failed') {
-            this.$.toast.text = this.response['subsonic-response'].error.message;
-            this.$.toast.show();
+            tmpl.doToast(this.response['subsonic-response'].error.message);
           } else  {
-            this.$.toast.text = "Error Connecting to Server. Check Settings";
-            this.$.toast.show();
+            tmpl.doToast("Error Connecting to Server. Check Settings");
           }
         }
       },
@@ -157,8 +149,7 @@
           will display any ajax error in a toast
         */
         if (this.error) {
-          this.$.toast.text = this.error;
-          this.$.toast.show();
+          tmpl.doToast(this.error);
         }
       },
 

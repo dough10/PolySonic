@@ -16,12 +16,7 @@ Polymer('album-details', {
     this.tracks = [];
     
     this.tmpl = document.querySelector("#tmpl");
-    
-    this.toast = document.querySelector("#toast");
-    
-    this.audio = document.querySelector("#audio");
 
-    this.playerArt = document.querySelector('#coverArt');
   },
 
   setImage: function (img) {
@@ -52,8 +47,7 @@ Polymer('album-details', {
     Array.prototype.forEach.call(this.playlist, function (e) {
       this.tmpl.playlist.push(e);
     });
-    this.toast.text = 'Added to Playlist';
-    this.toast.show();
+    this.tmpl.doToast('Added to Playlist');
   },
 
   doDownload: function (event, detail, sender) {
@@ -100,8 +94,7 @@ Polymer('album-details', {
         this.playerArt.style.backgroundImage =  "url('images/default-cover-art.png')";
       }
     }
-    this.toast.text = 'Added to Playlist';
-    this.toast.show();
+    this.tmpl.doToast('Added to Playlist');
     this.tmpl.systemNotify(sender.attributes.artist.value, sender.attributes.title.value, this.data.cover);
   },
 

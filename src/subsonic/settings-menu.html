@@ -8,6 +8,7 @@
 <link href="../../bower_components/core-menu/core-menu.html" rel="import">
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/paper-dropdown/paper-dropdown.html" rel="import">
+<link href="../../bower_components/core-label/core-label.html" rel="import">
 </head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate querySize">
   <template>
     <style>
@@ -48,67 +49,69 @@
     <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v={{post.version}}&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
     </core-ajax>
     <div id="validate">
-      <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="URL Required" label="URL:Port">
-        <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
-      </paper-input-decorator>
-      <br>
-      <paper-input-decorator id="input2" labelvisible="" floatinglabel="" error="Username Required" label="Username">
-        <input is="core-input" type="text" value="{{post.user}}" required="">
-      </paper-input-decorator>
-      <br>
-      <paper-input-decorator id="input3" labelvisible="" floatinglabel="" error="Password Required" label="Password">
-        <input is="core-input" id="password" type="password" value="{{post.pass}}">
-      </paper-input-decorator>
-      <br>
-      <div id="showPass" on-tap="{{hidePass}}">Show Password</div>
       <core-label>
-        Subsonic Version:
-        <paper-dropdown-menu label="Select Version">
-          <paper-dropdown layered class="dropdown">
-            <core-menu class="menu" selected="{{post.version}}" valueattr="i">
-              <template repeat="{{versions}}">
-                <paper-item i="{{api}}">{{sub}}</paper-item>
-              </template>
-            </core-menu>
-          </paper-dropdown>
-        </paper-dropdown-menu>
+        <h4>Server Settings</h4>
+        <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="URL Required" label="URL:Port">
+          <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
+        </paper-input-decorator>
+        <br>
+        <paper-input-decorator id="input2" labelvisible="" floatinglabel="" error="Username Required" label="Username">
+          <input is="core-input" type="text" value="{{post.user}}" required="">
+        </paper-input-decorator>
+        <br>
+        <paper-input-decorator id="input3" labelvisible="" floatinglabel="" error="Password Required" label="Password">
+          <input is="core-input" id="password" type="password" value="{{post.pass}}">
+        </paper-input-decorator>
+        <br>
+        <div id="showPass" on-tap="{{hidePass}}">Show Password</div>
+        <core-label>
+          Subsonic Version:
+          <paper-dropdown-menu label="Select Version">
+            <paper-dropdown layered class="dropdown">
+              <core-menu class="menu" selected="{{post.version}}" valueattr="i">
+                <template repeat="{{versions}}">
+                  <paper-item i="{{api}}">{{sub}}</paper-item>
+                </template>
+              </core-menu>
+            </paper-dropdown>
+          </paper-dropdown-menu>
+        </core-label>
+        <br>
+        <core-label>
+          Bitrate:
+          <paper-dropdown-menu label="Select bitrate">
+            <paper-dropdown layered class="dropdown">
+              <core-menu class="menu" selected="{{post.bitRate}}" valueattr="i">
+                <template repeat="{{speeds}}">
+                  <paper-item i="{{}}">{{}} kbps</paper-item>
+                </template>
+              </core-menu>
+            </paper-dropdown>
+          </paper-dropdown-menu>
+        </core-label>
+        <br>
+        <core-label>
+          Results to Query:
+          <paper-dropdown-menu label="Select bitrate">
+            <paper-dropdown layered class="dropdown">
+              <core-menu class="menu" selected="{{post.querySize}}" valueattr="i">
+                <template repeat="{{sizes}}">
+                  <paper-item i="{{}}">{{}}</paper-item>
+                </template>
+              </core-menu>
+            </paper-dropdown>
+          </paper-dropdown-menu>
+        </core-label>
+        <br>
+        <paper-button on-tap="{{submit}}">
+          <template if="{{isLoading}}">
+            <div id="load">
+              <paper-spinner active=""></paper-spinner>
+            </div>
+          </template>
+          Submit
+        </paper-button>
       </core-label>
-      <br>
-      <core-label>
-        Bitrate:
-        <paper-dropdown-menu label="Select bitrate">
-          <paper-dropdown layered class="dropdown">
-            <core-menu class="menu" selected="{{post.bitRate}}" valueattr="i">
-              <template repeat="{{speeds}}">
-                <paper-item i="{{}}">{{}} kbps</paper-item>
-              </template>
-            </core-menu>
-          </paper-dropdown>
-        </paper-dropdown-menu>
-      </core-label>
-      <br>
-      <core-label>
-        Results to Query:
-        <paper-dropdown-menu label="Select bitrate">
-          <paper-dropdown layered class="dropdown">
-            <core-menu class="menu" selected="{{post.querySize}}" valueattr="i">
-              <template repeat="{{sizes}}">
-                <paper-item i="{{}}">{{}}</paper-item>
-              </template>
-            </core-menu>
-          </paper-dropdown>
-        </paper-dropdown-menu>
-      </core-label>
-      <br>
-      <paper-button on-tap="{{submit}}">
-        <template if="{{isLoading}}">
-          <div id="load">
-            <paper-spinner active=""></paper-spinner>
-          </div>
-        </template>
-        Submit
-      </paper-button>
-      <paper-toast id="toast"></paper-toast>
     </div>
   </template>
   <script src="settings-menu.js"></script>
