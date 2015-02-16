@@ -125,7 +125,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.position = scroller.scrollTop;
 
 
-      if (this.page === 0 && precent > 98 && !this.pageLimit) {
+      if (this.page === 0 && precent > 80 && !this.pageLimit) {
         wall.loadMore();
       }
 

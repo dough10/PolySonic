@@ -18,8 +18,6 @@ Polymer('album-art', {
 
     this.playlist = [];
 
-    this.tracks = [];
-
     this.defaultImgURL = '../../images/default-cover-art.png';
     
     this.tmpl = document.querySelector("#tmpl");
@@ -175,22 +173,31 @@ Polymer('album-art', {
   trackResponseChanged: function () {
     'use strict';
     if (this.trackResponse) {
-      this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
-      this.tracks = this.trackResponse['subsonic-response'].album.song;
-      Array.prototype.forEach.call(this.tracks, function (e) {
+      Array.prototype.forEach.call(this.trackResponse['subsonic-response'].album.song, function (e) {
         var obj = {id: e.id, artist: e.artist, title: e.title, cover: this.imgURL};
         this.playlist.push(obj);
       }.bind(this));
+      this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
+      this.tracks = this.trackResponse['subsonic-response'].album.song;
     }
-    if (this.new && this.trackResponse !== null) {
+    if (this.new && this.trackResponse) {
       this.putInDb(this.trackResponse, this.item, function () {
         console.log('New JSON Data Added to indexedDB ' + this.item);
       }.bind(this));
     }
   },
 
+  tracksChanged: function () {
+    if (this.playlist.length !== this.tracks.length) {
+      console.log(this.playlist);
+    }
+  },
+
+
   doDialog: function () {
     'use strict';
+    console.log(this.playlist);
+    console.log(this.tracks);
     var data = {artist: this.artist, album: this.album, id: this.item, coverid: this.cover, cover: this.imgURL, tracks: this.tracks, favorite: this.isFavorite, parent: this.albumID},
       details = document.querySelector("#details"),
       scroller = this.tmpl.appScroller();
@@ -238,7 +245,8 @@ Polymer('album-art', {
   playAlbum: function () {
     'use strict';
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
-
+    console.log(this.playlist[0]);
+    console.log(this.playlist);
     if (this.cover) {
       this.tmpl.getImageForPlayer(this.imgURL);
     } else {

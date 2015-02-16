@@ -37,6 +37,7 @@
   <link href="src/animated-fab/animated-fab.html" rel="import">
   <link href="src/subsonic/album-details.html" rel="import">
   <link href="bower_components/core-list/core-list.html" rel="import">
+  <link href="bower_components/core-a11y-keys/core-a11y-keys.html" rel="import">
   <style shim-shadowdom>
     body {
       margin:0;
@@ -324,6 +325,11 @@
       <paper-dialog id="firstRun" autoclosedisabled transition="paper-dialog-transition-center">
         <subsonic-login></subsonic-login>
       </paper-dialog>
+      <core-a11y-keys keys="space" on-keys-pressed="{{playPause}}"></core-a11y-keys>
+      <core-a11y-keys keys="left" on-keys-pressed="{{lastTrack}}"></core-a11y-keys>
+      <core-a11y-keys keys="right" on-keys-pressed="{{nextTrack}}"></core-a11y-keys>
+      <core-a11y-keys keys="up" on-keys-pressed="{{volUp}}"></core-a11y-keys>
+      <core-a11y-keys keys="down" on-keys-pressed="{{volDown}}"></core-a11y-keys>
       <x-notification
         id="playNotify"
         timeout='5000'></x-notification>

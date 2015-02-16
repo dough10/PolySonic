@@ -1111,6 +1111,7 @@ html /deep/ .core-collapse-closed {
 
 
 
+
   <style shim-shadowdom="">
     body {
       margin:0;
@@ -4990,6 +4991,13 @@ polyfill-next-selector { content: ':host(:not([grid])) .core-list-viewport > *';
       <paper-dialog id="firstRun" autoclosedisabled="" transition="paper-dialog-transition-center">
         <subsonic-login></subsonic-login>
       </paper-dialog>
+      <template if="{{page === 1}}">
+        <core-a11y-keys keys="space" on-keys-pressed="{{playPause}}"></core-a11y-keys>
+        <core-a11y-keys keys="left" on-keys-pressed="{{lastTrack}}"></core-a11y-keys>
+        <core-a11y-keys keys="right" on-keys-pressed="{{nextTrack}}"></core-a11y-keys>
+        <core-a11y-keys keys="up" on-keys-pressed="{{volUp}}"></core-a11y-keys>
+        <core-a11y-keys keys="down" on-keys-pressed="{{volDown}}"></core-a11y-keys>
+      </template>
       <x-notification id="playNotify" timeout="5000"></x-notification>
       <audio id="audio" style="display:none"></audio>
     </template>
