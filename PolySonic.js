@@ -343,33 +343,41 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.selectAction = function () {
     var scroller = this.appScroller(),
       wall = document.querySelector("#wall");
-    scroler.scrollTop = 0;
     wall.sort = this.selected;
     this.closeDrawer();
+    setTimeout(function () {
+      scroller.scrollTop = 0;
+    }, 500);
   };
 
   this.getPodcast = function () {
     var scroller = this.appScroller(),
       wall = document.querySelector("#wall");
-    scroler.scrollTop = 0;
     this.closeDrawer();
     wall.getPodcast();
+    setTimeout(function () {
+      scroller.scrollTop = 0;
+    }, 500);
   };
 
   this.getStarred = function () {
     var scroller = this.appScroller(),
       wall = document.querySelector("#wall");
-    scroler.scrollTop = 0;
     this.closeDrawer();
     wall.getStarred();
+    setTimeout(function () {
+      scroller.scrollTop = 0;
+    }, 500);
   };
 
   this.getArtist = function () {
     var scroller = this.appScroller(),
       wall = document.querySelector("#wall");
-    scroler.scrollTop = 0;
     this.closeDrawer();
     wall.getArtist();
+    setTimeout(function () {
+      scroller.scrollTop = 0;
+    }, 500);
   };
 
   this.toggleVolume = function () {

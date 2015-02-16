@@ -6,6 +6,7 @@ module.exports = function(grunt) {
     vulcanize: {
       default: {
         options: {
+          inline:true,
           csp: true,
           strip: true
         },
@@ -22,22 +23,10 @@ module.exports = function(grunt) {
         src: '<%= pkg.name %>.js',
         dest: '<%= pkg.name %>.min.js'
       }
-    },
-    htmlmin: {                                     // Task
-      PolySonic: {                                      // Target
-        options: {                                 // Target options
-          removeComments: true,
-          collapseWhitespace: true
-        },
-        files: {                                   // Dictionary of files
-          'build/vulcanized.html': 'vulcanized.html'     // 'destination': 'source'
-        }
-      }
     }
   });
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
   grunt.loadNpmTasks('grunt-vulcanize');
-  // Load the plugin that provides the "uglify" task.
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
   // Default task(s).
