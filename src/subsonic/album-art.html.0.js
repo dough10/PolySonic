@@ -188,8 +188,6 @@ Polymer('album-art', {
 
   doDialog: function () {
     'use strict';
-    console.log(this.playlist);
-    console.log(this.tracks);
     var data = {artist: this.artist, album: this.album, id: this.item, coverid: this.cover, cover: this.imgURL, tracks: this.tracks, favorite: this.isFavorite, parent: this.albumID},
       details = document.querySelector("#details"),
       scroller = this.tmpl.appScroller();

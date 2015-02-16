@@ -277,7 +277,17 @@
           </core-toolbar>
           <core-animated-pages selected="{{page}}" transitions="slide-from-right">
             <section>
-              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}"></album-wall>
+              <album-wall
+                id="wall"
+                listMode="{{listMode}}"
+                url="{{url}}"
+                user="{{user}}"
+                pass="{{pass}}"
+                version="{{version}}"
+                bitRate="{{bitRate}}"
+                querySize="{{querySize}}"
+                isLoading="{{isLoading}}">
+              </album-wall>
             </section>
             <section>
               <div id="coverArt"></div>
@@ -299,11 +309,25 @@
             </section>
             <section>
               <paper-shadow z='1' class='card'>
-                <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}"></settings-menu>
+                <settings-menu
+                  url="{{url}}"
+                  user="{{user}}"
+                  pass="{{pass}}"
+                  version="{{version}}"
+                  bitRate="{{bitRate}}"
+                  querySize="{{querySize}}">
+                </settings-menu>
               </paper-shadow>
             </section>
             <section>
-              <album-details url="{{url}}" user="{{user}}" pass="{{pass}}" id="details" version="{{version}}" bitRate="{{bitRate}}"></album-details>
+              <album-details
+                url="{{url}}"
+                user="{{user}}"
+                pass="{{pass}}"
+                id="details"
+                version="{{version}}"
+                bitRate="{{bitRate}}">
+              </album-details>
             </section>
           </core-animated-pages>
         </core-header-panel>
@@ -315,7 +339,16 @@
         </paper-item>
         <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
           <template repeat="{{playlist}}">
-            <paper-item on-tap="{{playThis}}" ident="{{id}}" cover="{{cover}}" artist="{{artist}}" title="{{title}}" style="color:#000000" ident="{{id}}">{{artist}} - {{title}}</paper-item>
+            <paper-item
+              on-tap="{{playThis}}"
+              ident="{{id}}"
+              cover="{{cover}}"
+              artist="{{artist}}"
+              title="{{title}}"
+              style="color:#000000"
+              ident="{{id}}">
+              {{artist}} - {{title}}
+            </paper-item>
           </template>
         </core-menu>
       </paper-dialog>
@@ -343,5 +376,5 @@
       <audio id="audio" style="display:none"></audio>
     </template>
   </div>
-  <script src="PolySonic.js"></script>
+  <script src="PolySonic.min.js"></script>
 </body>
