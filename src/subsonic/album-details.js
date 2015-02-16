@@ -34,7 +34,6 @@ Polymer('album-details', {
   dataChanged: function () {
     this.playlist.splice(0,this.playlist.length);
     this.tracks.splice(0,this.tracks.length);
-    console.log(this.tracks + ' - ' + this.playlist);
     setTimeout(function () {
       if (this.data) {
         if (this.data.cover) {

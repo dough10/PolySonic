@@ -3,7 +3,7 @@
 <link href="../../bower_components/paper-spinner/paper-spinner.html" rel="import">
 <link href="../../bower_components/paper-button/paper-button.html" rel="import">
 <link href="../../bower_components/paper-toast/paper-toast.html" rel="import">
-</head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize">
+</head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize isLoading">
   <template>
     <style>
       :host {
@@ -46,9 +46,6 @@
     <template if="{{isLoading}}">
       <paper-spinner id="spinner" active=""></paper-spinner>
     </template>
-    <paper-toast id="toast">
-      <paper-spinner active=""></paper-spinner>
-    </paper-toast>
     <div class="foot"></div>
   </template>
   <script src="album-wall.html.0.js"></script>

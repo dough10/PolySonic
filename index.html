@@ -193,6 +193,9 @@
     .alignLeft {
       text-align: left;
     }
+    paper-spinner.white::shadow .circle {
+      border-color: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -274,7 +277,7 @@
           </core-toolbar>
           <core-animated-pages selected="{{page}}" transitions="slide-from-right">
             <section>
-              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}"></album-wall>
+              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}"></album-wall>
             </section>
             <section>
               <div id="coverArt"></div>
@@ -316,7 +319,11 @@
           </template>
         </core-menu>
       </paper-dialog>
-      <paper-toast id="toast"></paper-toast>
+      <paper-toast id="toast">
+        <template if="{{isLoading}}">
+          <paper-spinner active="" class="white"></paper-spinner>
+        </template>
+      </paper-toast>
       <paper-dialog id="volumeDialog" transition="paper-dialog-transition-center">
         Volume
         <br>
