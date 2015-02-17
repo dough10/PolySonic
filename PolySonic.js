@@ -217,6 +217,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     toast.show();
   };
 
+  this.dismissToast = function () {
+    var toast = document.querySelector("#toast");
+    toast.dismiss();
+  };
+
   this.playAudio = function (artist, title, src) {
     var audio = document.querySelector("#audio");
     this.currentPlaying = artist + ' - ' + title;

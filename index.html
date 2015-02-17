@@ -196,23 +196,40 @@
     paper-spinner.white::shadow .circle {
       border-color: #ffffff;
     }
+    #toast {
+      font-size: 13pt;
+    }
   </style>
 </head>
 <body>
   <div id="loader">
     <div class="box">
-      <img src="images/icon_128.png" height="128" width="128" alt="Icon">
-      <div style="height:30px">
-        <paper-spinner id="spinner" active=""></paper-spinner>
+      <img
+        src="images/icon_128.png"
+        height="128"
+        width="128"
+        alt="Icon">
+      <div
+        style="height:30px">
+        <paper-spinner
+          id="spinner"
+          active="">
+        </paper-spinner>
       </div>
     </div>
   </div>
   <div unresolved>
     <template is="auto-binding" id="tmpl">
       <template if="{{page === 0}}">
-        <animated-fab on-tap="{{topOfPage}}"></animated-fab>
+        <animated-fab
+          on-tap="{{topOfPage}}">
+        </animated-fab>
       </template>
-      <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px" disableSwipe?="{{page !== 0}}">
+      <core-drawer-panel
+        id="panel"
+        narrow="{{narrow}}"
+        responsivewidth="191900px"
+        disableSwipe?="{{page !== 0}}">
         <!-- menu -->
         <core-scroll-header-panel drawer flex mode="seamed">
           <core-menu id="menu" selected="{{selected}}" valueattr="i">
@@ -243,24 +260,53 @@
           </core-menu>
         </core-scroll-header-panel>
         <!-- body -->
-        <core-header-panel id="headerPanel" main flex mode="seamed">
+        <core-header-panel
+          id="headerPanel"
+          main flex mode="seamed">
           <core-toolbar id="toolbar1" class="medium-tall">
             <div flex></div>
-            <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-            <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
-            <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
+            <paper-icon-button
+              icon="remove"
+              on-tap="{{minimize}}">
+            </paper-icon-button>
+            <paper-icon-button
+              class="max"
+              on-tap="{{maximize}}">
+            </paper-icon-button>
+            <paper-icon-button
+              icon="close"
+              on-tap="{{close}}">
+            </paper-icon-button>
             <template if="{{page === 0}}">
-              <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
+              <paper-icon-button
+                icon="menu"
+                on-tap="{{openPanel}}"
+                class="bottom">
+              </paper-icon-button>
               <div flex  class="bottom alignLeft">PolySonic</div>
-              <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="{{view}}" class="bottom"></paper-icon-button>
+              <paper-icon-button
+                title="Change View"
+                on-tap="{{toggleWall}}"
+                icon="{{view}}"
+                class="bottom">
+              </paper-icon-button>
             </template>
             <template if="{{page !== 0}}">
-              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
+              <paper-icon-button
+                class="bottom"
+                icon="arrow-back"
+                on-tap="{{back2List}}">
+              </paper-icon-button>
             </template>
             <template if="{{page === 1}}">
               <div class="bottom" flex>{{currentPlaying}}</div>
               <template if="{{playlist}}">
-                <paper-icon-button title="Playlist" class="bottom" on-tap="{{showPlaylist}}" icon="more-vert"></paper-icon-button>
+                <paper-icon-button
+                  title="Playlist"
+                  class="bottom"
+                  on-tap="{{showPlaylist}}"
+                  icon="more-vert">
+                </paper-icon-button>
               </template>
             </template>
             <template if="{{page === 3}}">
@@ -271,11 +317,18 @@
             </template>
             <template if="{{page !== 1}}">
               <template if="{{isNowPlaying}}">
-                <paper-icon-button title="Now Playing" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
+                <paper-icon-button
+                  title="Now Playing"
+                  on-tap="{{nowPlaying}}"
+                  icon="av:hearing"
+                  class="bottom">
+                </paper-icon-button>
               </template>
             </template>
           </core-toolbar>
-          <core-animated-pages selected="{{page}}" transitions="slide-from-right">
+          <core-animated-pages
+            selected="{{page}}"
+            transitions="slide-from-right">
             <section>
               <album-wall
                 id="wall"
@@ -292,19 +345,40 @@
             <section>
               <div id="coverArt"></div>
               <div class="controlsWrapper">
-                <paper-progress id="progress" on-tap="{{progressClick}}"></paper-progress>
+                <paper-progress
+                  id="progress"
+                  on-tap="{{progressClick}}">
+                </paper-progress>
                 <div id="time">{{playTime}}</div>
                 <template if="{{playlist && playing !== 0}}">
-                  <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
+                  <paper-icon-button
+                    icon="av:skip-previous"
+                    on-tap="{{lastTrack}}"
+                    class="big">
+                  </paper-icon-button>
                 </template>
                 <template if="{{playlist && playing === 0}}">
                   <paper-icon-button class="big"></paper-icon-button>
                 </template>
-                <paper-icon-button id="avIcon" class="huge" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
+                <paper-icon-button
+                  id="avIcon"
+                  class="huge"
+                  icon="av:pause"
+                  on-tap="{{playPause}}">
+                </paper-icon-button>
                 <template if="{{playlist}}">
-                  <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
+                  <paper-icon-button
+                    icon="av:skip-next"
+                    on-tap="{{nextTrack}}"
+                    id="nextTrack"
+                    class="big">
+                  </paper-icon-button>
                 </template>
-                <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
+                <paper-icon-button
+                  id="volume"
+                  icon="av:volume-up"
+                  on-tap="{{toggleVolume}}">
+                </paper-icon-button>
               </div>
             </section>
             <section>
@@ -332,12 +406,18 @@
           </core-animated-pages>
         </core-header-panel>
       </core-drawer-panel>
-      <paper-dialog id="playlistDialog" transition="paper-dialog-transition-center" heading="Playlist">
+      <paper-dialog
+        id="playlistDialog"
+        transition="paper-dialog-transition-center"
+        heading="Playlist">
         <paper-item on-tap="{{clearPlaylist}}">
           <core-icon icon="close"></core-icon>
           Clear Playlist
         </paper-item>
-        <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
+        <core-menu
+          class="menu"
+          id="playlistMenu"
+          selected="{{playing}}">
           <template repeat="{{playlist}}">
             <paper-item
               on-tap="{{playThis}}"
@@ -365,14 +445,30 @@
       <paper-dialog id="firstRun" autoclosedisabled transition="paper-dialog-transition-center">
         <subsonic-login></subsonic-login>
       </paper-dialog>
-      <core-a11y-keys keys="space" on-keys-pressed="{{playPause}}"></core-a11y-keys>
-      <core-a11y-keys keys="left" on-keys-pressed="{{lastTrack}}"></core-a11y-keys>
-      <core-a11y-keys keys="right" on-keys-pressed="{{nextTrack}}"></core-a11y-keys>
-      <core-a11y-keys keys="up" on-keys-pressed="{{volUp}}"></core-a11y-keys>
-      <core-a11y-keys keys="down" on-keys-pressed="{{volDown}}"></core-a11y-keys>
+      <core-a11y-keys
+        keys="space"
+        on-keys-pressed="{{playPause}}">
+      </core-a11y-keys>
+      <core-a11y-keys
+        keys="left"
+        on-keys-pressed="{{lastTrack}}">
+      </core-a11y-keys>
+      <core-a11y-keys
+        keys="right"
+        on-keys-pressed="{{nextTrack}}">
+      </core-a11y-keys>
+      <core-a11y-keys
+        keys="up"
+        on-keys-pressed="{{volUp}}">
+      </core-a11y-keys>
+      <core-a11y-keys
+        keys="down"
+        on-keys-pressed="{{volDown}}">
+      </core-a11y-keys>
       <x-notification
         id="playNotify"
-        timeout='5000'></x-notification>
+        timeout='5000'>
+      </x-notification>
       <audio id="audio" style="display:none"></audio>
     </template>
   </div>

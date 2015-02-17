@@ -15,6 +15,7 @@
         this.$.list.scrollTarget = document.querySelector("#tmpl").appScroller();
 
         this.tmpl = document.querySelector("#tmpl");
+
       },
       userChanged: function () {
         this.post.u = this.user;
@@ -113,6 +114,11 @@
           setTimeout(function () {
             this.$.ajax.go();
           }.bind(this), 500);
+        }
+      },
+      isLoadingChanged: function () {
+        if (!this.isLoading) {
+          this.tmpl.dismissToast();
         }
       },
       querySizeChanged: function () {
