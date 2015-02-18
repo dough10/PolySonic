@@ -81,9 +81,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.setScrollerPos = function () {
     var scrollbar = this.appScroller();
     this.scrollerPos = scrollbar.scrollTop;
-  },
+  };
 
-  this.$.main.addEventListener('core-animated-pages-transition-end', function () {
+  this.fixScroller = function () {
     var scrollbar = this.appScroller();
     if (this.scrollerPos !== 0 && this.page === 0) {
       scrollbar.scrollTop = this.scrollerPos;
@@ -91,7 +91,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     if (this.page === 3) {
       scrollbar.scrollTop = 0;
     }
-  }.bind(this));
+  };
 
   this.topOfPage = function () {
     var scroller = this.appScroller();
@@ -447,6 +447,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.loadListeners();
   this.loadData();
   this.sizePlayer();
+
   setInterval(function () {
     var audio = document.querySelector('#audio'),
       button = document.querySelector('#avIcon'),

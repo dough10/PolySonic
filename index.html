@@ -233,8 +233,7 @@
         <!-- menu -->
         <core-scroll-header-panel drawer flex mode="seamed">
           <core-menu id="menu" selected="{{selected}}" valueattr="i">
-            <core-toolbar class="medium-tall">
-            </core-toolbar>
+            <core-toolbar class="medium-tall"></core-toolbar>
             <paper-item on-tap="{{getArtist}}">
               <core-icon icon="perm-identity"></core-icon>
               Artists List
@@ -327,7 +326,8 @@
             </template>
           </core-toolbar>
           <core-animated-pages
-            if="main"
+            id="main"
+            on-core-animated-pages-transition-end="{{fixScroller}}"
             selected="{{page}}"
             transitions="slide-from-right">
             <section>
