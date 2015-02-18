@@ -76,6 +76,23 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     return document.querySelector('#headerPanel').scroller;
   };
 
+  this.scrollerPos = 0;
+
+  this.setScrollerPos = function () {
+    var scrollbar = this.appScroller();
+    this.scrollerPos = scrollbar.scrollTop;
+  },
+
+  this.$.main.addEventListener('core-animated-pages-transition-end', function () {
+    var scrollbar = this.appScroller();
+    if (this.scrollerPos !== 0 && this.page === 0) {
+      scrollbar.scrollTop = this.scrollerPos;
+    }
+    if (this.page === 3) {
+      scrollbar.scrollTop = 0;
+    }
+  }.bind(this));
+
   this.topOfPage = function () {
     var scroller = this.appScroller();
 
@@ -138,7 +155,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.loadData = function () {
-    if (chrome.app) {
+    if (chrome.storage) {
       chrome.storage.sync.get(function (result) {
         if (result.url === undefined) {
           document.querySelector('#firstRun').toggle();
@@ -200,7 +217,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         }.bind(this), 100);
       }.bind(this));
     } else {
-      console.log('huh');
+      console.log('no chrome storage');
     }
   };
 
@@ -231,7 +248,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   /*jslint unparam: true*/
   this.playThis = function (event, detail, sender) {
-    var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
+    var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&f=json&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
+    this.systemNotify(sender.attributes.artist.value, sender.attributes.title.value, sender.attributes.cover.value);
     this.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
     if (sender.attributes.cover.value !== undefined) {
       this.getImageForPlayer(sender.attributes.cover.value);
@@ -243,9 +261,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.nextTrack = function () {
     var next = this.playing + 1,
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&f=json&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
     if (this.playlist[next]) {
       this.playing = next;
+      this.systemNotify(this.playlist[next].artist, this.playlist[next].title, this.playlist[next].cover);
       this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
       if (this.playlist[next].cover !== undefined) {
         this.getImageForPlayer(this.playlist[next].cover);
@@ -259,9 +278,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.lastTrack = function () {
     var next = this.playing - 1,
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&f=json&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
     if (this.playlist[next]) {
       this.playing = next;
+      this.systemNotify(this.playlist[next].artist, this.playlist[next].title, this.playlist[next].cover);
       this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
       if (this.playlist[next].cover !== undefined) {
         this.getImageForPlayer(this.playlist[next].cover);
@@ -302,6 +322,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.nowPlaying = function () {
+    this.setScrollerPos();
     this.page = 1;
   };
 

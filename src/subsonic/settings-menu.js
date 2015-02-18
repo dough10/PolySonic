@@ -14,7 +14,6 @@
         320
       ],
       sizes: [
-        10,
         20,
         30,
         40,
@@ -94,6 +93,19 @@
             timer = 0;
           }.bind(this), 15000);
         }
+      },
+      clearCache: function () {
+        var req = indexedDB.deleteDatabase('albumInfo');
+        req.onsuccess = function () {
+          console.log("Deleted database successfully");
+          this.tmpl.createObjectStore();
+        };
+        req.onerror = function () {
+          console.log("Error deleting database");
+        };
+        req.onblocked = function () {
+          console.log("Couldn't delete database due to the operation being blocked");
+        };
       },
       responseChanged: function () {
         'use strict';

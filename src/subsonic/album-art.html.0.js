@@ -188,10 +188,9 @@ Polymer('album-art', {
 
   doDialog: function () {
     'use strict';
+    this.tmpl.setScrollerPos();
     var data = {artist: this.artist, album: this.album, id: this.item, coverid: this.cover, cover: this.imgURL, tracks: this.tracks, favorite: this.isFavorite, parent: this.albumID},
-      details = document.querySelector("#details"),
-      scroller = this.tmpl.appScroller();
-    scroller.scrollTop = 0;
+      details = document.querySelector("#details");
     details.data = data;
     this.tmpl.page = 3;
   },
@@ -213,6 +212,7 @@ Polymer('album-art', {
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
     if (this.audio.paused) {
       this.tmpl.playing = 0;
+      this.tmpl.systemNotify(this.playlist[0].artist, this.playlist[0].title, this.imgURL);
       this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
       if (this.cover) {
         this.tmpl.getImageForPlayer(this.imgURL);
@@ -233,6 +233,7 @@ Polymer('album-art', {
 
   playAlbum: function () {
     'use strict';
+    this.tmpl.setScrollerPos();
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
     if (this.cover) {
       this.tmpl.getImageForPlayer(this.imgURL);
