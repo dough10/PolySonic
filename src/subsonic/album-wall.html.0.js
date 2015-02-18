@@ -12,6 +12,8 @@
         this.request = this.request || 'getAlbumList2';
       },
       domReady: function () {
+
+        this.$.artists.scrollTarget = document.querySelector("#tmpl").appScroller();
         this.$.list.scrollTarget = document.querySelector("#tmpl").appScroller();
 
         this.tmpl = document.querySelector("#tmpl");
@@ -27,6 +29,7 @@
         this.post.v = this.version;
       },
       clearData: function () {
+        this.artists = null;
         this.wall.splice(0,this.wall.length);
       },
       responseChanged: function () {
@@ -51,6 +54,9 @@
             }.bind(this));
           } else {
             tmpl.pageLimit = true;
+          }
+          if (response.artists) {
+            this.aData = response.artists;
           }
         }
       },

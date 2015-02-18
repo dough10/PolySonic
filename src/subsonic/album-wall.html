@@ -3,6 +3,7 @@
 <link href="../../bower_components/paper-spinner/paper-spinner.html" rel="import">
 <link href="../../bower_components/paper-button/paper-button.html" rel="import">
 <link href="../../bower_components/paper-toast/paper-toast.html" rel="import">
+<link href="../../bower_components/core-menu/core-submenu.html" rel="import">
 </head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize isLoading">
   <template>
     <style>
@@ -38,6 +39,18 @@
         <template>
           <div>
             <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}"></album-art>
+          </div>
+        </template>
+      </core-list>
+      <core-list id="artists" data="{{aData}}" flex>
+        <template>
+          <div>
+            {{model.name}}
+            <core-submenu label="{{model.name}}">
+              <template repeat="{{model.artist}}">
+                <paper-item>{{name}}</paper-item>
+              </template>
+            </core-submenu>
           </div>
         </template>
       </core-list>
