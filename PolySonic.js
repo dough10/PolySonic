@@ -1,58 +1,4 @@
 /*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setTimeout, setInterval, screen */
-function sessionListener(e) {
-  session = e;
-  if (session.media.length != 0) {
-    onMediaDiscovered('onRequestSessionSuccess', session.media[0]);
-  }
-}
-
-function receiverListener(e) {
-  if( e === chrome.cast.ReceiverAvailability.AVAILABLE) {
-    console.log(e);
-  }
-}
-
-function onInitSuccess(e) {
-  console.log('chromecast sender Init Successful');
-}
-
-function onError(e) {
-  console.log(e);
-}
-
-function onLaunchError(e) {
-  console.log(e)
-}
-
-function onRequestSessionSuccess(e) {
-  session = e;
-}
-
-function onMediaDiscovered(e) {
-  console.log(e);
-}
-
-function onMediaDiscovered(how, media) {
-   currentMedia = media;
-}
-
-initializeCastApi = function() {
-  var sessionRequest = new chrome.cast.SessionRequest(
-                     chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID);
-  var apiConfig = new chrome.cast.ApiConfig(sessionRequest,
-    sessionListener,
-    receiverListener);
-  chrome.cast.initialize(apiConfig, onInitSuccess, onError);
-};
-
-window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
-  if (loaded) {
-    initializeCastApi();
-  } else {
-    console.log(errorInfo);
-  }
-}
-
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
   'use strict';
   this.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
@@ -81,15 +27,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       }
     }
   }.bind(this);
-
-  this.chromecastSend = function () {
-    var currentMediaURL = this.$.audio.src;
-    var mediaInfo = new chrome.cast.media.MediaInfo(currentMediaURL);
-    var request = new chrome.cast.media.LoadRequest(mediaInfo);
-    session.loadMedia(request,
-       onMediaDiscovered.bind(this, 'loadMedia'),
-       onMediaError);
-  };
 
   this.request.onupgradeneeded = function (event) {
     this.createObjectStore(event.target.result);
@@ -268,7 +205,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         } else {
           this.querySize = result.querySize;
         }
-        console.log('Query Size = ' + this.querySize);
         if (result.volume !== undefined) {
           this.volume = result.volume;
         }
@@ -429,10 +365,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     audio.currentTime = sum;
   };
 
-  this.selectAction = function () {
+  this.selectAction = function (event, detail, sender) {
     var scroller = this.appScroller(),
       wall = document.querySelector("#wall");
-    wall.sort = this.selected;
+    wall.sort = sender.attributes.i.value;
     this.closeDrawer();
     setTimeout(function () {
       scroller.scrollTop = 0;

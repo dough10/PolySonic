@@ -116,7 +116,7 @@
         if (!this.isLoading && this.request !== 'getStarred2') {
           this.isLoading = true;
           this.tmpl.doToast('Loading..');
-          this.post.offset = parseInt(this.post.offset) + parseInt(this.post.size);
+          this.post.offset = parseInt(this.post.offset) + 20;
           setTimeout(function () {
             this.$.ajax.go();
           }.bind(this), 500);

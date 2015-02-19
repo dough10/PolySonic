@@ -238,10 +238,10 @@
               <core-icon icon="perm-identity"></core-icon>
               Artists List
             </paper-item>
-            <template repeat="{{type in sortTypes}}">
-              <paper-item on-tap="{{selectAction}}" i="{{type.sort}}">
+            <template repeat="{{sortTypes}}">
+              <paper-item on-tap="{{selectAction}}" i="{{sort}}">
                 <core-icon icon="sort"></core-icon>
-                {{type.name}}
+                {{name}}
               </paper-item>
             </template>
             <paper-item on-tap="{{getPodcast}}">
@@ -474,5 +474,4 @@
     </template>
   </div>
   <script src="PolySonic.min.js"></script>
-  <script src="cast_sender.js"></script>
 </body>
