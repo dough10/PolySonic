@@ -83,9 +83,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.scrollerPos = scrollbar.scrollTop;
   };
 
-  this.fixScroller = function () {
+  this.fixScroller = function (event, detail, sender) {
     var scrollbar = this.appScroller();
-    if (this.scrollerPos !== 0 && this.page === 0) {
+    if (event.target.id === 'main' && this.scrollerPos !== 0 && this.page === 0) {
       scrollbar.scrollTop = this.scrollerPos;
     }
     if (this.page === 3) {
