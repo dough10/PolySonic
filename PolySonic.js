@@ -235,7 +235,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.dismissToast = function () {
     var toast = document.querySelector("#toast");
-    toast.dismiss();
+    //toast.dismiss();
   };
 
   this.playAudio = function (artist, title, src) {

@@ -35,22 +35,10 @@
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <div id="container">
-      <core-list id="list" data="{{wall}}" flex grid width="580">
+      <core-list id="list" data="{{wall}}" flex grid width="580" runwayFactor="3">
         <template>
           <div>
             <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}"></album-art>
-          </div>
-        </template>
-      </core-list>
-      <core-list id="artists" data="{{aData}}" flex>
-        <template>
-          <div>
-            {{model.name}}
-            <core-submenu label="{{model.name}}">
-              <template repeat="{{model.artist}}">
-                <paper-item>{{name}}</paper-item>
-              </template>
-            </core-submenu>
           </div>
         </template>
       </core-list>

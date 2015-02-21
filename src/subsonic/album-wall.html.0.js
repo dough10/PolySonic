@@ -12,12 +12,8 @@
         this.request = this.request || 'getAlbumList2';
       },
       domReady: function () {
-
-        this.$.artists.scrollTarget = document.querySelector("#tmpl").appScroller();
-        this.$.list.scrollTarget = document.querySelector("#tmpl").appScroller();
-
         this.tmpl = document.querySelector("#tmpl");
-
+        this.$.list.scrollTarget = document.querySelector("#tmpl").appScroller();
       },
       userChanged: function () {
         this.post.u = this.user;
@@ -116,7 +112,7 @@
         if (!this.isLoading && this.request !== 'getStarred2') {
           this.isLoading = true;
           this.tmpl.doToast('Loading..');
-          this.post.offset = parseInt(this.post.offset) + 20;
+          this.post.offset = parseInt(this.post.offset) + this.post.size;
           setTimeout(function () {
             this.$.ajax.go();
           }.bind(this), 500);
@@ -124,7 +120,7 @@
       },
       isLoadingChanged: function () {
         if (!this.isLoading) {
-          this.tmpl.dismissToast();
+          //this.tmpl.dismissToast();
         }
       },
       querySizeChanged: function () {

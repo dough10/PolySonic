@@ -1,6 +1,7 @@
 
     Polymer('settings-menu',{
       versions: [
+        {sub:'5.2', api:'1.12.0'},
         {sub:'5.1', api:'1.11.0'},
         {sub:'4.9', api:'1.10.2'},
         {sub:'4.8', api:'1.9.0'},

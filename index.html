@@ -193,9 +193,6 @@
     .alignLeft {
       text-align: left;
     }
-    paper-spinner.white::shadow .circle {
-      border-color: #ffffff;
-    }
     #toast {
       font-size: 13pt;
     }
@@ -268,10 +265,10 @@
               icon="remove"
               on-tap="{{minimize}}">
             </paper-icon-button>
-            <paper-icon-button
+            <!--<paper-icon-button
               class="max"
               on-tap="{{maximize}}">
-            </paper-icon-button>
+            </paper-icon-button>-->
             <paper-icon-button
               icon="close"
               on-tap="{{close}}">
@@ -433,11 +430,7 @@
           </template>
         </core-menu>
       </paper-dialog>
-      <paper-toast id="toast">
-        <template if="{{isLoading}}">
-          <paper-spinner active="" class="white"></paper-spinner>
-        </template>
-      </paper-toast>
+      <paper-toast id="toast"></paper-toast>
       <paper-dialog id="volumeDialog" transition="paper-dialog-transition-center">
         Volume
         <br>

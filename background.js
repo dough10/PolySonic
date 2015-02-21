@@ -6,13 +6,15 @@ chrome.app.runtime.onLaunched.addListener(function() {
     },
     'bounds': {
       'width': 605,
-      'height': 861
+      'height': 761
     },
     'innerBounds': {
       'width': 605,
-      'height': 861,
+      'height': 761,
       'minWidth': 605,
-      'minHeight': 861
+      'minHeight': 761,
+      'maxWidth': 605,
+      'maxHeight': 761
     }
   });
 });
