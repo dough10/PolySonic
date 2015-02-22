@@ -195,6 +195,9 @@
     #toast {
       font-size: 13pt;
     }
+    paper-input /deep/ .focused-underline  {
+      background-color:#6e6d6d;
+    }
   </style>
 </head>
 <body>
@@ -247,6 +250,10 @@
             <paper-item on-tap="{{getStarred}}">
               <core-icon icon="favorite"></core-icon>
               Favorites
+            </paper-item>
+            <paper-item on-tap="{{openSearch}}">
+              <core-icon icon="search"></core-icon>
+              Search
             </paper-item>
             <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
@@ -317,7 +324,7 @@
             id="main"
             on-core-animated-pages-transition-end="{{fixScroller}}"
             selected="{{page}}"
-            transitions="slide-from-right">
+            transitions="cross-fade-all">
             <section>
               <album-wall
                 id="wall"
@@ -430,6 +437,12 @@
       </paper-dialog>
       <paper-dialog id="firstRun" autoclosedisabled transition="core-transition-center">
         <subsonic-login></subsonic-login>
+      </paper-dialog>
+      <paper-dialog id="searchDialog" header="Search" transition="core-transition-center">
+        <paper-input></paper-input>
+        <paper-button style="background:#cccccc; color:#ffffff;">
+          <core-icon icon="search"></core-icon>
+        </paper-button>
       </paper-dialog>
       <core-a11y-keys
         keys="space"

@@ -73,7 +73,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.appScroller = function () {
-    return document.querySelector('#headerPanel').scroller;
+    return this.$.headerPanel.scroller;
   };
 
   this.scrollerPos = 0;
@@ -91,6 +91,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     if (this.page === 3) {
       scrollbar.scrollTop = 0;
     }
+  };
+
+  this.openSearch = function () {
+    this.closeDrawer();
+    this.$.searchDialog.toggle();
   };
 
   this.doAction = function () {
