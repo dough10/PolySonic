@@ -11,10 +11,10 @@
   <template>
     <style>
       :host {
-        display:inline-block;
-        width:98%;
       }
       .card {
+        position:relative;
+        top:240px;
         display:block;
         background-color:#FFFFFF;
         border-radius:2px;
@@ -24,6 +24,7 @@
         font-size:10pt;
         position:relative;
         text-align:left;
+        margin:1%;
       }
       #play {
         position:absolute;
@@ -46,7 +47,11 @@
         color:#000000;
       }
       #head {
-        height:256px;
+        position:absolute;
+        top:0;
+        left:0;
+        right:0;
+        height:400px;
         background-image:url("../../images/default-cover-art.png");
         background-repeat: no-repeat;
         background-position: center;
@@ -56,6 +61,11 @@
       .foot {
         min-height:100px;
       }
+      .wrapper {
+        min-height: 150px;
+        max-height:255px;
+        overflow-y: scroll;
+      }
     </style>
     <div id="head"></div>
     <paper-shadow z="1" class="card">
@@ -63,25 +73,26 @@
         <div style="font-size:14pt; margin:8px">
           {{data.artist}} / {{data.album}}
         </div>
-        <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
-        <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
+        <paper-icon-button on-tap="{{add2Playlist}}" title="Add to Playlist" icon="av:playlist-add"></paper-icon-button>
         <template if="{{!data.favorite}}">
-          <paper-icon-button on-tap="{{addFavorite}}" ident="{{data.id}}" icon="favorite-outline"></paper-icon-button>
+          <paper-icon-button on-tap="{{addFavorite}}" title="Add as Favorite" ident="{{data.id}}" icon="favorite-outline"></paper-icon-button>
         </template>
         <template if="{{data.favorite}}">
-          <paper-icon-button on-tap="{{removeFavorite}}" ident="{{data.id}}" icon="favorite"></paper-icon-button>
+          <paper-icon-button on-tap="{{removeFavorite}}" title="Remove as Favorite" ident="{{data.id}}" icon="favorite"></paper-icon-button>
         </template>
-        <paper-icon-button on-tap="{{doDownload}}" ident="{{data.parent}}" icon="file-download"></paper-icon-button>
-        <template repeat="{{track in data.tracks}}">
-          <core-item style="border-top:1px solid #CECECE;">
-            <div flex style="margin-right:8px">
-              {{track.title}}
-            </div>
-            <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
-            <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
-            <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
-          </core-item>
-        </template>
+        <paper-icon-button on-tap="{{doDownload}}" title="Download Album" ident="{{data.parent}}" icon="file-download"></paper-icon-button>
+        <div class="wrapper">
+          <template repeat="{{track in data.tracks}}">
+            <core-item style="border-top:1px solid #CECECE;">
+              <div flex style="margin-right:8px">
+                {{track.title}}
+              </div>
+              <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
+              <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
+              <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
+            </core-item>
+          </template>
+        </div>
       </div>
     </paper-shadow>
     <div class="foot"></div>

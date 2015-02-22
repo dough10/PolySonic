@@ -186,7 +186,7 @@
               <br>
               <div class="album">{{album}}</div>
               <core-item>
-                <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
+                <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add"></paper-icon-button>
                 Add to Playlist
               </core-item>
               <core-item>
@@ -217,7 +217,7 @@
                   {{artist}} - {{album}}
                 </div>
                 <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
-                <paper-icon-button on-tap="{{add2Playlist}}" icon="add"></paper-icon-button>
+                <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add"></paper-icon-button>
                 <template if="{{!isFavorite}}">
                   <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
                 </template>

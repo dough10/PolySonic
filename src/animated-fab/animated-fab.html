@@ -3,7 +3,8 @@
 <link href="../../bower_components/core-icons/core-icons.html" rel="import">
 <link href="../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
 <link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
-</head><body><polymer-element name="animated-fab" attributes="state fabTimer">
+<link href="../../bower_components/core-icons/av-icons.html" rel="import">
+</head><body><polymer-element name="animated-fab" attributes="state fabTimer page">
   <template>
     <style>
       :host {
@@ -19,7 +20,7 @@
         right:16px;
         z-index:5;
         position:fixed !important;
-        background: #6e6d6d;
+        background: #AB1111;
       }
       core-animated-pages {
         height:100%;
@@ -33,6 +34,12 @@
       .off {
         bottom:-80px;
       }
+      .top {
+        top:95px;
+      }
+      .mid {
+        top:356px;
+      }
     </style>
     <core-media-query query="max-width:480px" querymatches="{{phoneSize}}"></core-media-query>
     <core-animated-pages selected="{{state}}" valueattr="page" transitions="hero-transition">
@@ -41,6 +48,12 @@
       </div>
       <div class="page" page="bottom">
         <paper-fab class="bottom" icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
+      </div>
+      <div class="page" page="top">
+        <paper-fab class="top" icon="list" hero-id="foo" hero layered></paper-fab>
+      </div>
+      <div page="mid">
+        <paper-fab class="mid" icon="av:play-arrow" hero-id="foo" hero layered></paper-fab>
       </div>
     </core-animated-pages>
   </template>

@@ -93,11 +93,17 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
   };
 
-  this.topOfPage = function () {
+  this.doAction = function () {
     var scroller = this.appScroller();
 
-    if (scroller.scrollTop !== 0) {
+    if (this.page === 0 && scroller.scrollTop !== 0) {
       scroller.scrollTop = 0;
+    }
+    if (this.page === 1) {
+      this.showPlaylist();
+    }
+    if (this.page === 3) {
+      this.$.details.playAlbum();
     }
   };
 

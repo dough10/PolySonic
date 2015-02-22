@@ -164,18 +164,14 @@
       opacity:0;
       visibility: hidden;
     }
-    #toolbar1 {
-      -webkit-app-region: drag;
-    }
-    #toolbar2 {
+    #toolbar {
       -webkit-app-region: drag;
     }
     paper-icon-button {
       -webkit-app-region: no-drag;
     }
-    icon-transition {
+    #fab {
       -webkit-app-region: no-drag;
-      color:#ffffff;
     }
     .card {
       margin:1%;
@@ -217,11 +213,11 @@
   </div>
   <div unresolved>
     <template is="auto-binding" id="tmpl">
-      <template if="{{page === 0}}">
-        <animated-fab
-          on-tap="{{topOfPage}}">
-        </animated-fab>
-      </template>
+      <animated-fab
+        id="fab"
+        page="{{page}}"
+        on-tap="{{doAction}}">
+      </animated-fab>
       <core-drawer-panel
         id="panel"
         narrow="{{narrow}}"
@@ -259,7 +255,7 @@
         <core-header-panel
           id="headerPanel"
           main flex mode="seamed">
-          <core-toolbar id="toolbar1" class="medium-tall">
+          <core-toolbar id="toolbar" class="medium-tall">
             <div flex></div>
             <paper-icon-button
               icon="remove"
@@ -296,14 +292,6 @@
             </template>
             <template if="{{page === 1}}">
               <div class="bottom" flex>{{currentPlaying}}</div>
-              <template if="{{playlist}}">
-                <paper-icon-button
-                  title="Playlist"
-                  class="bottom"
-                  on-tap="{{showPlaylist}}"
-                  icon="more-vert">
-                </paper-icon-button>
-              </template>
             </template>
             <template if="{{page === 3}}">
               <div flex class="bottom"></div>
@@ -393,6 +381,7 @@
             </section>
             <section>
               <album-details
+                id="details"
                 url="{{url}}"
                 user="{{user}}"
                 pass="{{pass}}"
@@ -406,7 +395,7 @@
       </core-drawer-panel>
       <paper-dialog
         id="playlistDialog"
-        transition="paper-dialog-transition-center"
+        transition="core-transition-top"
         heading="Playlist">
         <paper-item on-tap="{{clearPlaylist}}">
           <core-icon icon="close"></core-icon>
@@ -431,12 +420,12 @@
         </core-menu>
       </paper-dialog>
       <paper-toast id="toast"></paper-toast>
-      <paper-dialog id="volumeDialog" transition="paper-dialog-transition-center">
+      <paper-dialog id="volumeDialog" transition="core-transition-bottom">
         Volume
         <br>
         <volume-slider volume="{{volume}}"></volume-slider>
       </paper-dialog>
-      <paper-dialog id="firstRun" autoclosedisabled transition="paper-dialog-transition-center">
+      <paper-dialog id="firstRun" autoclosedisabled transition="core-transition-center">
         <subsonic-login></subsonic-login>
       </paper-dialog>
       <core-a11y-keys
