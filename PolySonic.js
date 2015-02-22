@@ -98,6 +98,22 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.$.searchDialog.toggle();
   };
 
+  this.doSearch = function () {
+    if (this.searchQuery) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", this.url + '/rest/search3.view?u=' + this.user + '&p=' + this.pass + '&v=1.10.2&c=PolySonic&f=json&query=' + encodeURIComponent(this.searchQuery), true);
+      xhr.responseType = "json";
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          this.searchResults = xhr.response['subsonic-response'].searchResult3;
+        }
+      }.bind(this);
+      xhr.send();
+    } else {
+      console.log('No Query to Saearch');
+    }
+  };
+
   this.doAction = function () {
     var scroller = this.appScroller();
 

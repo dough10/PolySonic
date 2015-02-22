@@ -324,7 +324,7 @@
             id="main"
             on-core-animated-pages-transition-end="{{fixScroller}}"
             selected="{{page}}"
-            transitions="cross-fade-all">
+            transitions="tile-cascade">
             <section>
               <album-wall
                 id="wall"
@@ -439,10 +439,32 @@
         <subsonic-login></subsonic-login>
       </paper-dialog>
       <paper-dialog id="searchDialog" header="Search" transition="core-transition-center">
-        <paper-input></paper-input>
-        <paper-button style="background:#cccccc; color:#ffffff;">
-          <core-icon icon="search"></core-icon>
-        </paper-button>
+        <div style="margin:auto; text-align: center;">
+          <paper-input value="{{searchQuery}}"></paper-input>
+          <paper-button on-tap="{{doSearch}}" style="background:#cccccc; color:#ffffff;">
+            <core-icon icon="search"></core-icon>
+          </paper-button>
+        </div>
+        <div style="height:400px; width:400px; overflow-y:scroll; text-align: center;">
+          <template if="{{searchResults.artist}}">
+            <h3>Artists</h3>
+            <template repeat="{{searchResults.artist}}">
+              <core-item>{{name}}</core-item>
+            </template>
+          </template>
+          <template if="{{searchResults.album}}">
+            <h3>Albums</h3>
+            <template repeat="{{searchResults.album}}">
+              <core-item>{{name}}</core-item>
+            </template>
+          </template>
+          <template if="{{searchResults.song}}">
+            <h3>Songs</h3>
+            <template repeat="{{searchResults.song}}">
+              <core-item>{{title}}</core-item>
+            </template>
+          </template>
+        </div>
       </paper-dialog>
       <core-a11y-keys
         keys="space"
