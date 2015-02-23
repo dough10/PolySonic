@@ -386,6 +386,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.clearPlayer = function () {
+    console.log('playlist cleared')
     this.page = 0;
     this.src = '';
     this.playlist = [];
@@ -402,7 +403,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.playPause = function () {
-    var audio = document.querySelector('#audio');
+    var audio = this.$.audio;
     if (!audio.paused) {
       audio.pause();
     } else {
@@ -524,9 +525,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.sizePlayer();
 
   setInterval(function () {
-    var audio = document.querySelector('#audio'),
+    var audio = this.$.audio,
       button = document.querySelector('#avIcon'),
-      bar = document.querySelector('#progress'),
+      bar = this.$.progress,
       progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
       currentMins = Math.floor(audio.currentTime / 60),
       currentSecs = Math.round(audio.currentTime - currentMins * 60),
