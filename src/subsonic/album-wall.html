@@ -4,6 +4,7 @@
 <link href="../../bower_components/paper-button/paper-button.html" rel="import">
 <link href="../../bower_components/paper-toast/paper-toast.html" rel="import">
 <link href="../../bower_components/core-menu/core-submenu.html" rel="import">
+<link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 </head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize isLoading">
   <template>
     <style>
@@ -32,13 +33,53 @@
       .foot {
         min-height:60px;
       }
+      .card {
+        margin:1%;
+        margin-top:5px;
+        display:block;
+        background-color:#FFFFFF;
+        border-radius:2px;
+        color:#000000;
+        border:1px solid #d8d8d8;
+        padding:10px;
+        text-align:left;
+        font-size:10pt;
+        position:relative;
+      }
+      .heading {
+        font-size: 22px;
+      }
+      .title {
+        text-align:left;
+        font-size: 18px;
+      }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <div id="container">
-      <core-list id="list" data="{{wall}}" flex grid width="580">
+      <core-list id="list" data="{{wall}}" flex grid width="580" scrollTarget="{{scrollTarget}}">
         <template>
           <div>
             <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}"></album-art>
+          </div>
+        </template>
+      </core-list>
+      <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
+        <template>
+          <div>
+            <div class="card">
+              <core-item class="heading">{{model.title}}</core-item>
+              <template repeat="{{model.episode}}">
+                <template if="{{streamId}}">
+                  <core-item>
+                    <div flex class="title">
+                      {{title}}
+                    </div>
+                    <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
+                  </core-item>
+                  {{description}}
+                </template>
+              </template>
+            </div>
           </div>
         </template>
       </core-list>

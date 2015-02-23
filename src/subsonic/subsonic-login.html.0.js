@@ -1,5 +1,8 @@
 
     Polymer('subsonic-login',{
+      domReady: function () {
+        this.toast = document.querySelector("#toast");
+      },
       versions: [
         {sub:'5.2', api:'1.12.0'},
         {sub:'5.1', api:'1.11.0'},
@@ -47,17 +50,17 @@
 
 
           if (invalid1 && invalid2 && this.version === undefined) {
-            this.$.toast.text = "URL, Username & Version Required";
-            this.$.toast.show();
+            this.toast.text = "URL, Username & Version Required";
+            this.toast.show();
           } else if (invalid1) {
-            this.$.toast.text = "URL Required";
-            this.$.toast.show();
+            this.toast.text = "URL Required";
+            this.toast.show();
           } else if (invalid2) {
-            this.$.toast.text = "Username Required";
-            this.$.toast.show();
+            this.toast.text = "Username Required";
+            this.toast.show();
           } else if (this.version === undefined) {
-            this.$.toast.text = "Version Required";
-            this.$.toast.show();
+            this.toast.text = "Version Required";
+            this.toast.show();
           } else if (!invalid1 && !invalid2 && !invalid3 && this.version !== undefined) {
             this.$.ajax.go();
           }
@@ -94,8 +97,8 @@
           will display server response in a toast
         */
         if (!this.response) {
-          this.$.toast.text = "Error Connecting to Server. Check Settings";
-          this.$.toast.show();
+          this.toast.text = "Error Connecting to Server. Check Settings";
+          this.toast.show();
         }
         if (this.response['subsonic-response'].status === 'ok') {
 
@@ -113,8 +116,8 @@
           tmpl.pass = this.post.pass;
 
           tmpl.version = this.version;
-          this.$.toast.text = "Loading Data";
-          this.$.toast.show();
+          this.toast.text = "Loading Data";
+          this.toast.show();
           setTimeout(function () {
             document.querySelector('core-overlay-layer').classList.remove('core-opened');
             wall.doAjax();
@@ -128,8 +131,8 @@
           will display any ajax error in a toast
         */
         if (this.error) {
-          this.$.toast.text = this.error;
-          this.$.toast.show();
+          this.toast.text = this.error;
+          this.toast.show();
         }
       },
       
@@ -143,5 +146,9 @@
       
       passChanged: function () {
         this.post.pass = this.pass;
+      },
+
+      versionChanged: function () {
+        this.post.version = this.version;
       }
     });

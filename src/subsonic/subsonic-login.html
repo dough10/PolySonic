@@ -8,7 +8,7 @@
 <link href="../../bower_components/core-menu/core-menu.html" rel="import">
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/paper-dropdown/paper-dropdown.html" rel="import">
-</head><body><polymer-element name="subsonic-login" attributes="url user pass">
+</head><body><polymer-element name="subsonic-login" attributes="url user pass version">
   <template>
     <style>
       :host {
@@ -63,7 +63,7 @@
           Version:
           <paper-dropdown-menu label="Select Version" layered>
             <paper-dropdown layered class="dropdown">
-              <core-menu class="menu" selected="{{version}}" valueattr="i">
+              <core-menu class="menu" selected="{{post.version}}" valueattr="i">
                 <template repeat="{{versions}}">
                   <paper-item i="{{api}}">{{sub}}</paper-item>
                 </template>
@@ -80,7 +80,6 @@
           </template>
           Submit
         </paper-button>
-        <paper-toast id="toast"></paper-toast>
       </div>
     <core-label>
     </core-label>

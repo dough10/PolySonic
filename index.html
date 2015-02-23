@@ -436,7 +436,12 @@
         <volume-slider volume="{{volume}}"></volume-slider>
       </paper-dialog>
       <paper-dialog id="firstRun" autoclosedisabled transition="core-transition-center">
-        <subsonic-login></subsonic-login>
+        <subsonic-login
+          url="{{url}}"
+          user="{{user}}"
+          pass="{{pass}}"
+          version="{{version}}">
+        </subsonic-login>
       </paper-dialog>
       <paper-dialog id="searchDialog" header="Search" transition="core-transition-center">
         <div style="margin:auto; text-align: center;">
@@ -455,13 +460,32 @@
           <template if="{{searchResults.album}}">
             <h3>Albums</h3>
             <template repeat="{{searchResults.album}}">
-              <core-item>{{name}}</core-item>
+              <album-art
+                listMode="{{listMode}}"
+                bitRate="{{bitRate}}"
+                item="{{id}}"
+                cover="{{coverArt}}"
+                artist="{{artist}}"
+                album="{{name}}"
+                url="{{url}}"
+                user="{{user}}"
+                pass="{{pass}}"
+                version="{{version}}"
+                isFavorite="{{starred}}">
+              </album-art>
             </template>
           </template>
           <template if="{{searchResults.song}}">
             <h3>Songs</h3>
             <template repeat="{{searchResults.song}}">
-              <core-item>{{title}}</core-item>
+              <core-item>
+                <div flex style="text-align:left; overflow:hidden;">
+                  {{title}}
+                </div>
+                <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{title}}" artist="{{artist}}" ident="{{id}}" cover="{{cover}}"></paper-icon-button>
+                <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" title="{{title}}" artist="{{artist}}" ident="{{id}}" cover="{{cover}}"></paper-icon-button>
+                <paper-icon-button on-tap="{{doDownload}}" ident="{{id}}"  icon="file-download"></paper-icon-button>
+              </core-item>
             </template>
           </template>
         </div>
@@ -488,9 +512,10 @@
       </core-a11y-keys>
       <x-notification
         id="playNotify"
-        timeout='5000'>
+        timeout='5000'
+        tag="tag">
       </x-notification>
-      <audio id="audio" style="display:none"></audio>
+      <audio id="audio"></audio>
     </template>
   </div>
   <script src="PolySonic.min.js"></script>

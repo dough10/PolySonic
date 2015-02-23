@@ -66,6 +66,12 @@
         max-height:255px;
         overflow-y: scroll;
       }
+      core-item:first-or-type {
+        border-top:0px;
+      }
+      core-item {
+        border-top:1px solid #CECECE;
+      }
     </style>
     <div id="head"></div>
     <paper-shadow z="1" class="card">
@@ -83,12 +89,12 @@
         <paper-icon-button on-tap="{{doDownload}}" title="Download Album" ident="{{data.parent}}" icon="file-download"></paper-icon-button>
         <div class="wrapper">
           <template repeat="{{track in data.tracks}}">
-            <core-item style="border-top:1px solid #CECECE;">
+            <core-item>
               <div flex style="margin-right:8px">
                 {{track.title}}
               </div>
               <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
-              <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
+              <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
               <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
             </core-item>
           </template>
