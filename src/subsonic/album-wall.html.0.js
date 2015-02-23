@@ -29,6 +29,7 @@
       clearData: function () {
         this.scrollTarget.scrollTop = 0;
         this.artists = null;
+        this.artist = [];
         this.wall = null;
         this.wall = [];
         this.podcast = null;
