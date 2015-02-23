@@ -29,8 +29,13 @@
       clearData: function () {
         this.scrollTarget.scrollTop = 0;
         this.artists = null;
-        this.wall.splice(0,this.wall.length);
-        this.podcast.splice(0,this.podcast.length);
+        this.artist = [];
+        this.wall = null;
+        this.wall = [];
+        this.podcast = null;
+        this.podcast = [];
+        //this.wall.splice(0,this.wall.length);
+        //this.podcast.splice(0,this.podcast.length);
       },
       responseChanged: function () {
         if (this.response) {
@@ -53,11 +58,10 @@
               var obj = {title: e.title, episode: e.episode};
               this.podcast.push(obj);
             }.bind(this));
+          } else if (response.artists) {
+            console.log(response.artists);
           } else {
             tmpl.pageLimit = true;
-          }
-          if (response.artists) {
-            this.aData = response.artists;
           }
         }
       },
@@ -114,13 +118,12 @@
         }
       },
       loadMore: function () {
-        if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts') {
+        if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && !this.pageLimit) {
+          this.$.threshold.clearLower();
           this.isLoading = true;
           this.tmpl.doToast('Loading..');
           this.post.offset = parseInt(this.post.offset) + this.post.size;
-          setTimeout(function () {
-            this.$.ajax.go();
-          }.bind(this), 500);
+          this.$.ajax.go();
         }
       },
       isLoadingChanged: function () {
@@ -148,6 +151,7 @@
         this.tmpl.playlist = [obj];
         this.tmpl.playing = 0;
         this.tmpl.page = 1;
+        this.tmpl.defaultPlayImage();
         this.tmpl.playAudio(undefined, sender.attributes.title.value, url);
         this.systemNotify(undefined, sender.attributes.title.value, imgURL);
       },
@@ -159,6 +163,7 @@
           this.tmpl.playlist = [obj];
           this.tmpl.playing = 0;
           this.tmpl.page = 1;
+          this.tmpl.defaultPlayImage();
           this.tmpl.playAudio(undefined, sender.attributes.title.value, url);
           this.systemNotify(undefined, sender.attributes.title.value, imgURL);
         } else {

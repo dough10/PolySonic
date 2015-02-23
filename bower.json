@@ -13,6 +13,7 @@
     "core-ajax" : "Polymer/core-ajax",
     "core-animated-pages" : "Polymer/core-animated-pages",
     "web-animations-js": "web-animations/web-animations-js",
-    "core-list": "Polymer/core-list"
+    "core-list": "Polymer/core-list",
+    "core-scroll-threshold": "Polymer/core-scroll-threshold"
   }
 }

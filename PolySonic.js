@@ -166,8 +166,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.position = scroller.scrollTop;
 
     scroller.onscroll = function () {
-      var precent = (scroller.scrollTop / (scroller.scrollHeight - scroller.offsetHeight)) * 100,
-        fab = document.querySelector('animated-fab');
+      var precent = fab = document.querySelector('animated-fab');
 
       if (this.page === 0 && fab.state !== 'off' && scroller.scrollTop < this.position) {
         fab.state = 'off';
@@ -175,11 +174,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         fab.state = 'bottom';
       }
       this.position = scroller.scrollTop;
-
-
-      if (this.page === 0 && precent > 80 && !this.pageLimit) {
-        wall.loadMore();
-      }
 
     }.bind(this);
 
@@ -262,8 +256,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
               }
             }.bind(this);
             xhr.onerror = function (e) {
+              console.log(e);
               this.$.firstRun.toggle();
-              this.doToast('Error Connecting to Server');
+              this.doToast(e);
             }.bind(this);
             xhr.send();
           }

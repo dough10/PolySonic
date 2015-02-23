@@ -5,6 +5,7 @@
 <link href="../../bower_components/paper-toast/paper-toast.html" rel="import">
 <link href="../../bower_components/core-menu/core-submenu.html" rel="import">
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
+<link href="../../bower_components/core-scroll-threshold/core-scroll-threshold.html" rel="import">
 </head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize isLoading">
   <template>
     <style>
@@ -56,6 +57,8 @@
       }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
+    <core-scroll-threshold id="threshold" lowerThreshold="500" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
+    </core-scroll-threshold>
     <div id="container">
       <core-list id="list" data="{{wall}}" flex grid width="580" scrollTarget="{{scrollTarget}}">
         <template>
