@@ -353,7 +353,7 @@
                     class="big">
                   </paper-icon-button>
                 </template>
-                <template if="{{playlist && playing === 0}}">
+                <template if="{{playlist[0] && playing === 0}}">
                   <paper-icon-button class="big"></paper-icon-button>
                 </template>
                 <paper-icon-button
@@ -362,7 +362,7 @@
                   icon="av:pause"
                   on-tap="{{playPause}}">
                 </paper-icon-button>
-                <template if="{{playlist}}">
+                <template if="{{playlist[0]}}">
                   <paper-icon-button
                     icon="av:skip-next"
                     on-tap="{{nextTrack}}"
