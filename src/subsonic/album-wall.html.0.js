@@ -118,6 +118,7 @@
         }
       },
       loadMore: function () {
+        this.$.threshold.clearLower();
         if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && !this.pageLimit) {
           this.isLoading = true;
           this.tmpl.doToast('Loading..');
