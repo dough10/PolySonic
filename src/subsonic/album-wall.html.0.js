@@ -142,9 +142,29 @@
         }
       },
       playPodcast: function (event, detial, sender) {
-        var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value;
-        this.tmpl.currentPlaying = sender.attributes.title.value;
-        this.audio.src = url;
-        this.audio.play();
+        var imgURL = 'images/default-cover-art.png',
+          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value,
+          obj = {id: sender.attributes.streamId.value, artist: undefined, title: sender.attributes.title.value, cover: imgURL};
+        this.tmpl.playlist = [obj];
+        this.tmpl.playing = 0;
+        this.tmpl.page = 1;
+        this.tmpl.playAudio(undefined, sender.attributes.title.value, url);
+        this.systemNotify(undefined, sender.attributes.title.value, imgURL);
+      },
+      add2Playlist: function (event, detial, sender) {
+        if (this.audio.paused) {
+          var imgURL = 'images/default-cover-art.png',
+            url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value,
+            obj = {id: sender.attributes.streamId.value, artist: undefined, title: sender.attributes.title.value, cover: imgURL};
+          this.tmpl.playlist = [obj];
+          this.tmpl.playing = 0;
+          this.tmpl.page = 1;
+          this.tmpl.playAudio(undefined, sender.attributes.title.value, url);
+          this.systemNotify(undefined, sender.attributes.title.value, imgURL);
+        } else {
+          var imgURL = 'images/default-cover-art.png',
+            obj = {id: sender.attributes.streamId.value, artist: undefined, title: sender.attributes.title.value, cover: imgURL};
+          this.tmpl.playlist.push(obj);
+        }
       }
     });

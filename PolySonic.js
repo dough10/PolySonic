@@ -276,7 +276,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.systemNotify = function (artist, title, image) {
     var note = document.querySelector("#playNotify");
-    note.title = artist + ' - ' + title;
+    if (artist === undefined) {
+      note.title = title;
+    } else {
+      note.title = artist + ' - ' + title;
+    }
     note.icon = image;
     note.show();
   };
@@ -294,14 +298,24 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.playAudio = function (artist, title, src) {
     var audio = document.querySelector("#audio");
-    this.currentPlaying = artist + ' - ' + title;
+    if (artist === undefined) {
+      this.currentPlaying = title;
+    } else {
+      this.currentPlaying = artist + ' - ' + title;
+    }
     audio.src = src;
     audio.play();
   };
 
   /*jslint unparam: true*/
   this.playThis = function (event, detail, sender) {
-    var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
+    if (sender.attributes.artist.value === undefined) {
+      // is a podcast
+      var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value;
+    } else {
+      // normal trascoded file type
+      var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;  
+    }
     this.systemNotify(sender.attributes.artist.value, sender.attributes.title.value, sender.attributes.cover.value);
     this.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
     if (sender.attributes.cover.value !== undefined) {
@@ -313,9 +327,13 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   /*jslint unparam: false*/
 
   this.nextTrack = function () {
-    var next = this.playing + 1,
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
+    var next = this.playing + 1;
     if (this.playlist[next]) {
+      if (this.playlist[next].artist === undefined) {
+        var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + this.playlist[next].id;
+      } else {
+        var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
+      }
       this.playing = next;
       this.systemNotify(this.playlist[next].artist, this.playlist[next].title, this.playlist[next].cover);
       this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
@@ -330,9 +348,13 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.lastTrack = function () {
-    var next = this.playing - 1,
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
+    var next = this.playing - 1;
     if (this.playlist[next]) {
+      if (this.playlist[next].artist === undefined) {
+        var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + this.playlist[next].id;
+      } else {
+        var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
+      }
       this.playing = next;
       this.systemNotify(this.playlist[next].artist, this.playlist[next].title, this.playlist[next].cover);
       this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);

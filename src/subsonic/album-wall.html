@@ -52,6 +52,7 @@
       .title {
         text-align:left;
         font-size: 18px;
+        overflow:hidden;
       }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
@@ -66,7 +67,7 @@
       <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
         <template>
           <div>
-            <div class="card">
+            <paper-shadow class="card">
               <core-item class="heading">{{model.title}}</core-item>
               <template repeat="{{model.episode}}">
                 <template if="{{streamId}}">
@@ -75,11 +76,14 @@
                       {{title}}
                     </div>
                     <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
+                    <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
                   </core-item>
-                  {{description}}
+                  <core-collapse>
+                    {{description}}
+                  </core-collapse>
                 </template>
               </template>
-            </div>
+            </paper-shadow>
           </div>
         </template>
       </core-list>
