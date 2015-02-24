@@ -41,6 +41,7 @@ Polymer('album-art', {
   /* error handler for indexeddb calls */
   dbErrorHandler: function (e) {
     'use strict';
+    this.tmpl.doToast(e);
     console.log(e);
   },
 
@@ -110,18 +111,11 @@ Polymer('album-art', {
   /* pull image from server */
   getImageFile: function (url, id, callback) {
     'use strict';
-    var xhr = new XMLHttpRequest(),
-      blob;
-    xhr.open("GET", url, true);
-    xhr.responseType = "blob";
-    xhr.onload = function () {
-      if (xhr.status === 200) {
-        blob = xhr.response;
-        this.putInDb(blob, id, callback);
-      }
-    }.bind(this);
-    xhr.send();
-    console.log('New Image Added to indexedDB ' + id);
+    this.tmpl.doXhr(url, 'blob', function (e) {
+      var blob = e.target.response;
+      this.putInDb(blob, id, callback);
+      console.log('New Image Added to indexedDB ' + id);
+    }.bind(this));
   },
 
   /*
@@ -129,14 +123,7 @@ Polymer('album-art', {
   */
   coverChanged: function () {
     'use strict';
-    var visible = document.querySelector("#loader").classList.contains("hide"),
-      loader = document.querySelector('#loader'),
-      box = document.querySelector(".box");
-
-    if (!visible) {
-      loader.classList.add('hide');
-      box.classList.add('hide');
-    }
+    this.tmpl.showApp();
     if (this.cover) {
       var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover;
       this.checkForImage(this.cover, function (e) {
@@ -249,30 +236,22 @@ Polymer('album-art', {
 
   addFavorite: function (event, detail, sender) {
     'use strict';
-    var xhr = new XMLHttpRequest(),
-      fav = this;
-    xhr.open('GET', this.url + "/rest/star.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value, true);
-    xhr.responseType = 'json';
-    xhr.onload = function () {
-      if (this.response['subsonic-response'].status === 'ok') {
-        fav.isFavorite = true;
+    ver url = this.url + "/rest/star.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
+    this.tmpl.doXhr(url, 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        this.isFavorite = true;
       }
-    };
-    xhr.send();
+    }.bind(this));
   },
 
   removeFavorite: function (event, detail, sender) {
     'use strict';
-    var xhr = new XMLHttpRequest(),
-      fav = this;
-    xhr.open('GET', this.url + "/rest/unstar.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value, true);
-    xhr.responseType = 'json';
-    xhr.onload = function () {
-      if (this.response['subsonic-response'].status === 'ok') {
-        fav.isFavorite = false;
+    var url = this.url + "/rest/unstar.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
+    this.tmpl.doXhr(url, 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        this.isFavorite = false;
       }
-    };
-    xhr.send();
+    }.bind(this));
   },
 
   itemChanged: function () {

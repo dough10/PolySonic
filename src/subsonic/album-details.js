@@ -104,33 +104,26 @@ Polymer('album-details', {
       }
     }
     this.tmpl.doToast('Added to Playlist');
-    this.tmpl.systemNotify(sender.attributes.artist.value, sender.attributes.title.value, this.data.cover);
   },
 
   addFavorite: function (event, detail, sender) {
     'use strict';
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', this.url + "/rest/star.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value, true);
-    xhr.responseType = 'json';
-    xhr.onload = function (e) {
-      if (xhr.response['subsonic-response'].status === 'ok') {
+    var url = this.url + "/rest/star.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
+    this.tmpl.doXhr(url, 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
         this.data.favorite = true;
       }
-    }.bind(this);
-    xhr.send();
+    }.bind(this));
   },
 
   removeFavorite: function (event, detail, sender) {
     'use strict';
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', this.url + "/rest/unstar.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value, true);
-    xhr.responseType = 'json';
-    xhr.onload = function (e) {
-      if (xhr.response['subsonic-response'].status === 'ok') {
+    var url = this.url + "/rest/unstar.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
+    this.tmpl.doXhr(url, 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
         this.data.favorite = false;
       }
-    }.bind(this);
-    xhr.send();
+    }.bind(this));
   }
 });
 
