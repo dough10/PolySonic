@@ -1,4 +1,4 @@
-/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setTimeout, setInterval, screen */
+/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen */
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
   'use strict';
   this.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
@@ -177,7 +177,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
     }.bind(this);
 
-    window.onresize = this.sizePlayer;
+    /* no longer needed untill resizing is reactivated */
+    //window.onresize = this.sizePlayer;
 
     audio.onended = this.nextTrack.bind(this);
 
@@ -240,29 +241,28 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         if (result.volume !== undefined) {
           this.volume = result.volume;
         }
-        setTimeout(function () {
-          if (this.url && this.user && this.pass && this.version) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json', true);
-            xhr.responseType = "json";
-            xhr.onload = function () {
-              if (xhr.status === 200) {
-                var response = xhr.response['subsonic-response'];
-                if (response.status === 'ok') {
-                  this.$.wall.doAjax();
-                } else {
-                  this.doToast('Error Connecting to Server');
-                }
+        if (this.url && this.user && this.pass && this.version) {
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json', true);
+          xhr.responseType = "json";
+          xhr.onload = function () {
+            if (xhr.status === 200) {
+              var response = xhr.response['subsonic-response'];
+              if (response.status === 'ok') {
+                this.$.wall.doAjax();
+              } else {
+                this.doToast('Error Connecting to Server');
               }
-            }.bind(this);
-            xhr.onerror = function (e) {
-              console.log(e);
-              this.$.firstRun.toggle();
-              this.doToast(e);
-            }.bind(this);
-            xhr.send();
-          }
-        }.bind(this), 100);
+            }
+          }.bind(this);
+          xhr.onerror = function (e) {
+            this.$.firstRun.toggle();
+            this.doToast(e);
+          }.bind(this);
+          xhr.send();
+        } else {
+          console.log('connection details not set');
+        }
       }.bind(this));
     } else {
       console.log('no chrome storage');
@@ -431,50 +431,36 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.progressClick = function (event) {
-    var audio = document.querySelector("#audio"),
+    var audio = this.$.audio,
       clicked = (event.x / window.innerWidth),
-      sum = audio.duration - (audio.duration - (audio.duration * clicked));
+      sum = audio.duration - (audio.duration - (audio.duration * clicked)),
+      bar = this.$.progress;
+    bar.value = clicked * 100;
     audio.currentTime = sum;
   };
 
   this.selectAction = function (event, detail, sender) {
-    var scroller = this.appScroller(),
-      wall = document.querySelector("#wall");
+    var wall = this.$.wall;
     wall.sort = sender.attributes.i.value;
     this.closeDrawer();
-    setTimeout(function () {
-      scroller.scrollTop = 0;
-    }, 500);
   };
 
   this.getPodcast = function () {
-    var scroller = this.appScroller(),
-      wall = document.querySelector("#wall");
+    var var wall = this.$.wall;
     this.closeDrawer();
     wall.getPodcast();
-    setTimeout(function () {
-      scroller.scrollTop = 0;
-    }, 500);
   };
 
   this.getStarred = function () {
-    var scroller = this.appScroller(),
-      wall = document.querySelector("#wall");
+    var wall = this.$.wall;
     this.closeDrawer();
     wall.getStarred();
-    setTimeout(function () {
-      scroller.scrollTop = 0;
-    }, 500);
   };
 
   this.getArtist = function () {
-    var scroller = this.appScroller(),
-      wall = document.querySelector("#wall");
+    var wall = this.$.wall;
     this.closeDrawer();
     wall.getArtist();
-    setTimeout(function () {
-      scroller.scrollTop = 0;
-    }, 500);
   };
 
   this.toggleVolume = function () {
@@ -512,6 +498,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.clearPlaylist = function () {
+    this.playlist = null;
     this.playlist = [];
   };
 
