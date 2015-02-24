@@ -10,6 +10,7 @@
         };
         this.wall = [];
         this.podcast = [];
+        this.artists = [];
         this.request = this.request || 'getAlbumList2';
       },
       domReady: function () {
@@ -29,7 +30,7 @@
       clearData: function () {
         this.scrollTarget.scrollTop = 0;
         this.artists = null;
-        this.artist = [];
+        this.artists = [];
         this.wall = null;
         this.wall = [];
         this.podcast = null;
@@ -42,7 +43,7 @@
           var wall = this.wall,
             response = this.response['subsonic-response'],
             tmpl = document.querySelector("#tmpl");
-          //console.log(response);
+
           if (response.albumList2 && response.albumList2.album) {
             Array.prototype.forEach.call(response.albumList2.album, function (e) {
               var obj = {id:e.id, coverArt:e.coverArt, artist:e.artist, name:e.name, starred:e.starred, url:this.url, user:this.user, pass:this.pass, version:this.version, bitRate:this.bitRate};
@@ -59,7 +60,10 @@
               this.podcast.push(obj);
             }.bind(this));
           } else if (response.artists) {
-            console.log(response.artists);
+            Array.prototype.forEach.call(response.artists.index, function (e) {
+              var obj = {name: e.name, artist: e.artist};
+              this.artists.push(obj);
+            }.bind(this));
           } else {
             tmpl.pageLimit = true;
           }
@@ -70,7 +74,6 @@
       },
       getPodcast: function () {
         this.clearData();
-        this.tmpl.doToast('Loading..');
         this.tmpl.pageLimit = false;
         setTimeout(function () {
           this.request = 'getPodcasts';
@@ -81,7 +84,6 @@
       },
       getStarred: function () {
         this.clearData();
-        this.tmpl.doToast('Loading..');
         this.tmpl.pageLimit = false;
         setTimeout(function () {
           this.request = 'getStarred2';
@@ -92,7 +94,6 @@
       },
       getArtist: function () {
         this.clearData();
-        this.tmpl.doToast('Loading..');
         this.tmpl.pageLimit = false;
         setTimeout(function () {
           this.request = 'getArtists';
@@ -103,7 +104,6 @@
       },
       sortChanged: function () {
         this.clearData();
-        this.tmpl.doToast('Loading..');
         this.tmpl.pageLimit = false;
         setTimeout(function () {
           this.request = 'getAlbumList2';
@@ -118,8 +118,8 @@
         }
       },
       loadMore: function () {
-        if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && !this.pageLimit) {
-          this.$.threshold.clearLower();
+        this.$.threshold.clearLower();
+        if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.tmpl.pageLimit && this.tmpl.page === 0) {
           this.isLoading = true;
           this.tmpl.doToast('Loading..');
           this.post.offset = parseInt(this.post.offset) + this.post.size;
@@ -153,7 +153,7 @@
         this.tmpl.page = 1;
         this.tmpl.defaultPlayImage();
         this.tmpl.playAudio(undefined, sender.attributes.title.value, url);
-        this.systemNotify(undefined, sender.attributes.title.value, imgURL);
+        this.tmpl.systemNotify(undefined, sender.attributes.title.value, imgURL);
       },
       add2Playlist: function (event, detial, sender) {
         if (this.audio.paused) {
@@ -162,10 +162,9 @@
             obj = {id: sender.attributes.streamId.value, artist: undefined, title: sender.attributes.title.value, cover: imgURL};
           this.tmpl.playlist = [obj];
           this.tmpl.playing = 0;
-          this.tmpl.page = 1;
           this.tmpl.defaultPlayImage();
           this.tmpl.playAudio(undefined, sender.attributes.title.value, url);
-          this.systemNotify(undefined, sender.attributes.title.value, imgURL);
+          this.tmpl.systemNotify(undefined, sender.attributes.title.value, imgURL);
         } else {
           var imgURL = 'images/default-cover-art.png',
             obj = {id: sender.attributes.streamId.value, artist: undefined, title: sender.attributes.title.value, cover: imgURL};

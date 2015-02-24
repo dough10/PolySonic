@@ -49,6 +49,7 @@
       }
       .heading {
         font-size: 22px;
+        text-align:center;
       }
       .title {
         text-align:left;
@@ -85,6 +86,21 @@
                     {{description}}
                   </core-collapse>
                 </template>
+              </template>
+            </paper-shadow>
+          </div>
+        </template>
+      </core-list>
+      <core-list id="artists" data="{{artists}}" flex scrollTarget="{{scrollTarget}}">
+        <template>
+          <div>
+            <paper-shadow class="card">
+              <div class="heading">{{model.name}}</div>
+              <template repeat="{{model.artist}}">
+                <paper-item>
+                  <div flex style="text-align:left">{{name}}</div>
+                  <div>{{albumCount}}</div>
+                </paper-item>
               </template>
             </paper-shadow>
           </div>

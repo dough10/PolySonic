@@ -166,7 +166,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.position = scroller.scrollTop;
 
     scroller.onscroll = function () {
-      var precent = fab = document.querySelector('animated-fab');
+      var fab = document.querySelector('animated-fab');
 
       if (this.page === 0 && fab.state !== 'off' && scroller.scrollTop < this.position) {
         fab.state = 'off';
