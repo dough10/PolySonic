@@ -8,6 +8,7 @@ Polymer('album-wall', {
       size: 20,
       offset: 0
     };
+    this.showing = this.showing || 'cover';
     this.wall = [];
     this.podcast = [];
     this.artists = [];
@@ -88,6 +89,7 @@ Polymer('album-wall', {
       this.post.type = '';
       this.post.offset = 0;
       this.$.ajax.go();
+      this.showing = 'podcast';
     }.bind(this));
   },
   getStarred: function () {
@@ -98,6 +100,7 @@ Polymer('album-wall', {
       this.post.type = '';
       this.post.offset = 0;
       this.$.ajax.go();
+      this.showing = 'cover';
     }.bind(this));
   },
   getArtist: function () {
@@ -108,6 +111,7 @@ Polymer('album-wall', {
       this.post.type = '';
       this.post.offset = 0;
       this.$.ajax.go();
+      this.showing = 'artists';
     }.bind(this));
   },
   sortChanged: function () {
@@ -118,6 +122,7 @@ Polymer('album-wall', {
       this.post.type = this.sort;
       this.post.offset = 0;
       this.$.ajax.go();
+      this.showing = 'cover';
     }.bind(this));
   },
   resizeLists: function () {

@@ -167,9 +167,6 @@
     paper-icon-button {
       -webkit-app-region: no-drag;
     }
-    #fab {
-      -webkit-app-region: no-drag;
-    }
     paper-dialog {
       -webkit-app-region: no-drag;
     }
@@ -220,7 +217,7 @@
   <div unresolved>
     <template is="auto-binding" id="tmpl">
       <animated-fab
-        id="fab"
+        style="-webkit-app-region: no-drag"
         page="{{page}}"
         on-tap="{{doAction}}">
       </animated-fab>
@@ -322,6 +319,7 @@
           </core-toolbar>
           <core-animated-pages
             id="main"
+            on-core-animated-pages-transition-prepare="{{fixScroller}}"
             on-core-animated-pages-transition-end="{{fixScroller}}"
             selected="{{page}}"
             transitions="slide-from-right">

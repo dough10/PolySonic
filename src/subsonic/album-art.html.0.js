@@ -1,4 +1,4 @@
-/*global Polymer, console, document */
+/*global Polymer, console, document, Blob, window */
 Polymer('album-art', {
   /*
     method ran when element is created in dom
@@ -70,13 +70,14 @@ Polymer('album-art', {
       request = transaction.objectStore("albumInfo").count(id);
     request.onsuccess = function () {
       if (request.result === 0) {
-        this.new = true;
         var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + id;
         this.tmpl.doXhr(url, 'json', function (e) {
           this.trackResponse = e.target.response;
+          this.putInDb(this.trackResponse, id, function () {
+            console.log('New JSON Data Added to indexedDB ' + id);
+          });
         }.bind(this));
       } else {
-        this.new = false;
         this.getDbItem(id, function (event) {
           var data = event.target.result;
           this.trackResponse = data;
@@ -109,7 +110,7 @@ Polymer('album-art', {
   getImageFile: function (url, id, callback) {
     'use strict';
     this.tmpl.doXhr(url, 'blob', function (e) {
-      var blob = e.target.response;
+      var blob = new Blob([e.target.response], {type: 'image/jpeg'});
       this.putInDb(blob, id, callback);
       console.log('New Image Added to indexedDB ' + id);
     }.bind(this));
@@ -161,11 +162,6 @@ Polymer('album-art', {
       Array.prototype.forEach.call(this.trackResponse['subsonic-response'].album.song, function (e) {
         var obj = {id: e.id, artist: e.artist, title: e.title, cover: this.imgURL};
         this.playlist.push(obj);
-      }.bind(this));
-    }
-    if (this.new && this.trackResponse) {
-      this.putInDb(this.trackResponse, this.item, function () {
-        console.log('New JSON Data Added to indexedDB ' + this.item);
       }.bind(this));
     }
   },

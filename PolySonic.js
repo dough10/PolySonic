@@ -86,10 +86,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   /*jslint unparam: true*/
   this.fixScroller = function (event, detail, sender) {
     var scrollbar = this.appScroller();
-    if (event.target.id === 'main' && this.scrollerPos !== 0 && this.page === 0) {
+    if (event.type === 'core-animated-pages-transition-end' && event.target.id === 'main' && this.scrollerPos !== 0 && this.page === 0) {
       scrollbar.scrollTop = this.scrollerPos;
-    }
-    if (this.page === 3) {
+    } else if (event.type === 'core-animated-pages-transition-prepare' && event.target.id === 'main' && scrollbar.scrollTop !== 0) {
       scrollbar.scrollTop = 0;
     }
   };

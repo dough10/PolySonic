@@ -61,58 +61,71 @@
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <core-scroll-threshold id="threshold" lowerThreshold="500" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
-    <div id="container">
-      <core-list id="list" data="{{wall}}" flex grid width="580" scrollTarget="{{scrollTarget}}">
-        <template>
-          <div>
-            <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}"></album-art>
-          </div>
+    <core-animated-pages selected="{{showing}}" valueattr="view" transitions="slide-from-right">
+      <div view="cover">
+        <core-list id="list" data="{{wall}}" flex grid width="580" scrollTarget="{{scrollTarget}}">
+          <template>
+            <div>
+              <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}"></album-art>
+            </div>
+          </template>
+        </core-list>
+        <template if="{{isLoading}}">
+          <paper-spinner id="spinner" active=""></paper-spinner>
         </template>
-      </core-list>
-      <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
-        <template>
-          <div>
-            <paper-shadow class="card">
-              <core-item class="heading">{{model.title}}</core-item>
-              <template repeat="{{model.episode}}">
-                <template if="{{streamId}}">
-                  <core-item>
-                    <div flex class="title">
-                      {{title}}
-                    </div>
-                    <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
-                    <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
-                  </core-item>
-                  <core-collapse>
-                    {{description}}
-                  </core-collapse>
+        <div class="foot"></div>
+      </div>
+      <div view="podcast">
+        <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
+          <template>
+            <div>
+              <paper-shadow class="card">
+                <core-item class="heading">{{model.title}}</core-item>
+                <template repeat="{{model.episode}}">
+                  <template if="{{streamId}}">
+                    <core-item>
+                      <div flex class="title">
+                        {{title}}
+                      </div>
+                      <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
+                      <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
+                    </core-item>
+                    <core-collapse>
+                      {{description}}
+                    </core-collapse>
+                  </template>
                 </template>
-              </template>
-            </paper-shadow>
-          </div>
+              </paper-shadow>
+            </div>
+          </template>
+        </core-list>
+        <template if="{{isLoading}}">
+          <paper-spinner id="spinner" active=""></paper-spinner>
         </template>
-      </core-list>
-      <core-list id="artists" data="{{artists}}" flex scrollTarget="{{scrollTarget}}">
-        <template>
-          <div>
-            <paper-shadow class="card">
-              <div class="heading">{{model.name}}</div>
-              <template repeat="{{model.artist}}">
-                <paper-item>
-                  <div flex style="text-align:left">{{name}}</div>
-                  <div>{{albumCount}}</div>
-                </paper-item>
-              </template>
-            </paper-shadow>
-          </div>
+        <div class="foot"></div>
+      </div>
+      <div view="artists">
+        <core-list id="artists" data="{{artists}}" flex scrollTarget="{{scrollTarget}}">
+          <template>
+            <div>
+              <paper-shadow class="card">
+                <div class="heading">{{model.name}}</div>
+                <template repeat="{{model.artist}}">
+                  <paper-item>
+                    <div flex style="text-align:left">{{name}}</div>
+                    <div>{{albumCount}} Albums</div>
+                  </paper-item>
+                </template>
+              </paper-shadow>
+            </div>
+          </template>
+        </core-list>
+        <template if="{{isLoading}}">
+          <paper-spinner id="spinner" active=""></paper-spinner>
         </template>
-      </core-list>
-    </div>
-    <br>
-    <template if="{{isLoading}}">
-      <paper-spinner id="spinner" active=""></paper-spinner>
-    </template>
-    <div class="foot"></div>
+        <div class="foot"></div>
+      </div>
+    </core-animated-pages>
   </template>
   <script src="album-wall.html.0.js"></script>
 </polymer-element>
