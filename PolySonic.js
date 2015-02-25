@@ -1,4 +1,4 @@
-/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setTimeout, setInterval, screen */
+/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen */
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
   'use strict';
   this.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
@@ -68,7 +68,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   ];
 
   this.closeDrawer = function () {
-    var panel = document.querySelector('#panel');
+    var panel = this.$.panel;
     panel.closeDrawer();
   };
 
@@ -97,15 +97,37 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.closeDrawer();
     this.$.searchDialog.toggle();
   };
+  
+  this.xhrError = function (e) {
+    this.doToast(e);
+  };
+  
+  this.doXhr = function (url, dataType, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.responseType = dataType;
+    xhr.onload = callback;
+    xhr.onerror = this.xhrError;
+    xhr.send();
+  };
+  
+  this.showApp = function () {
+    var visible = document.querySelector("#loader").classList.contains("hide"),
+      loader = document.querySelector('#loader'),
+      box = document.querySelector(".box");
+
+    if (!visible) {
+      loader.classList.add('hide');
+      box.classList.add('hide');
+    }
+  };
 
   this.doSearch = function () {
     if (this.searchQuery) {
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", this.url + '/rest/search3.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&query=' + encodeURIComponent(this.searchQuery), true);
-      xhr.responseType = "json";
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          var response = xhr.response['subsonic-response'];
+      var url = this.url + '/rest/search3.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&query=' + encodeURIComponent(this.searchQuery);
+      this.doXhr(url, 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 200) {
+          var response = e.target.response['subsonic-response'];
           this.searchResults = [];
           this.searchResults.artist = response.searchResult3.artist;
           this.searchResults.album = [];
@@ -115,8 +137,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
             this.searchResults.album.push(data);
           }.bind(this));
         }
-      }.bind(this);
-      xhr.send();
+      }.bind(this));
     } else {
       console.log('No Query to Saearch');
     }
@@ -139,7 +160,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.sizePlayer = function () {
     var height = (window.innerHeight - 256) + 'px',
       width = window.innerWidth + 'px',
-      art = document.querySelector('#coverArt');
+      art = this.$.coverArt;
 
     art.style.width = width;
     art.style.height = height;
@@ -148,10 +169,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.loadListeners = function () {
     var scroller = this.appScroller(),
-      audio = document.querySelector('#audio'),
+      audio = this.$.audio,
       maximized = chrome.app.window.current().isMaximized(),
-      buttons = document.querySelectorAll('.max'),
-      wall = document.querySelector("#wall");
+      buttons = document.querySelectorAll('.max');
 
     if (maximized) {
       Array.prototype.forEach.call(buttons, function (e) {
@@ -177,7 +197,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
     }.bind(this);
 
-    window.onresize = this.sizePlayer;
+    /* no longer needed untill resizing is reactivated */
+    //window.onresize = this.sizePlayer;
 
     audio.onended = this.nextTrack.bind(this);
 
@@ -223,46 +244,39 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           this.selected = '';
         }
         if (result.querySize === undefined) {
-          var screenSize = screen.width + 'x' + screen.height,
-            defaultQuery;
-          if (screenSize === '1920x1080') {
-            defaultQuery = 40;
-          } else {
-            defaultQuery = 20;
-          }
           chrome.storage.sync.set({
-            'querySize': defaultQuery
+            'querySize': 40
           });
-          this.querySize = defaultQuery;
+          this.querySize = 40;
         } else {
           this.querySize = result.querySize;
         }
         if (result.volume !== undefined) {
           this.volume = result.volume;
         }
-        setTimeout(function () {
-          if (this.url && this.user && this.pass && this.version) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json', true);
-            xhr.responseType = "json";
-            xhr.onload = function () {
-              if (xhr.status === 200) {
-                var response = xhr.response['subsonic-response'];
-                if (response.status === 'ok') {
-                  this.$.wall.doAjax();
-                } else {
-                  this.doToast('Error Connecting to Server');
-                }
+        if (this.url && this.user && this.pass && this.version) {
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json', true);
+          xhr.responseType = "json";
+          xhr.onload = function () {
+            if (xhr.status === 200) {
+              var response = xhr.response['subsonic-response'];
+              if (response.status === 'ok') {
+                this.$.wall.doAjax();
+              } else {
+                this.doToast('Error Connecting to Subsonic');
               }
-            }.bind(this);
-            xhr.onerror = function (e) {
-              console.log(e);
-              this.$.firstRun.toggle();
-              this.doToast(e);
-            }.bind(this);
-            xhr.send();
-          }
-        }.bind(this), 100);
+            }
+          }.bind(this);
+          xhr.onerror = function (e) {
+            this.$.firstRun.toggle();
+            this.doToast(e);
+          }.bind(this);
+          xhr.send();
+        } else {
+          this.$.firstRun.toggle();
+          this.doToast('Error Connecting to Subsonic');
+        }
       }.bind(this));
     } else {
       console.log('no chrome storage');
@@ -364,7 +378,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.toggleWall = function () {
-    var wall = document.querySelector("#wall");
+    var wall = this.$.wall;
     if (wall.listMode === 'cover') {
       wall.listMode = 'list';
       this.view = 'view-module';
@@ -389,7 +403,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.back2List = function () {
     this.page = 0;
-    document.querySelector("#wall").listModeChanged();
+    this.$.wall.listModeChanged();
   };
 
   this.nowPlaying = function () {
@@ -431,64 +445,50 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.progressClick = function (event) {
-    var audio = document.querySelector("#audio"),
+    var audio = this.$.audio,
       clicked = (event.x / window.innerWidth),
-      sum = audio.duration - (audio.duration - (audio.duration * clicked));
+      sum = audio.duration - (audio.duration - (audio.duration * clicked)),
+      bar = this.$.progress;
+    bar.value = clicked * 100;
     audio.currentTime = sum;
   };
 
   this.selectAction = function (event, detail, sender) {
-    var scroller = this.appScroller(),
-      wall = document.querySelector("#wall");
+    var wall = this.$.wall;
     wall.sort = sender.attributes.i.value;
     this.closeDrawer();
-    setTimeout(function () {
-      scroller.scrollTop = 0;
-    }, 500);
   };
 
   this.getPodcast = function () {
-    var scroller = this.appScroller(),
-      wall = document.querySelector("#wall");
+    var var wall = this.$.wall;
     this.closeDrawer();
     wall.getPodcast();
-    setTimeout(function () {
-      scroller.scrollTop = 0;
-    }, 500);
   };
 
   this.getStarred = function () {
-    var scroller = this.appScroller(),
-      wall = document.querySelector("#wall");
+    var wall = this.$.wall;
     this.closeDrawer();
     wall.getStarred();
-    setTimeout(function () {
-      scroller.scrollTop = 0;
-    }, 500);
   };
 
   this.getArtist = function () {
-    var scroller = this.appScroller(),
-      wall = document.querySelector("#wall");
+    var wall = this.$.wall;
     this.closeDrawer();
     wall.getArtist();
-    setTimeout(function () {
-      scroller.scrollTop = 0;
-    }, 500);
   };
 
   this.toggleVolume = function () {
-    var dialog = document.querySelector("#volumeDialog");
+    var dialog = this.$.volumeDialog;
     dialog.toggle();
   };
 
   this.showPlaylist = function () {
-    var dialog = document.querySelector('#playlistDialog');
+    var dialog = this.$.playlistDialog;
     dialog.toggle();
   };
 
   this.openPanel = function () {
-    var panel = document.querySelector('#panel');
+    var panel = this.$.panel;
     panel.openDrawer();
   };
 
@@ -512,6 +512,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.clearPlaylist = function () {
+    this.playlist = null;
     this.playlist = [];
   };
 
@@ -521,7 +522,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   setInterval(function () {
     var audio = this.$.audio,
-      button = document.querySelector('#avIcon'),
+      button = this.$.avIcon,
       bar = this.$.progress,
       progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
       currentMins = Math.floor(audio.currentTime / 60),
