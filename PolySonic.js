@@ -83,6 +83,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.scrollerPos = scrollbar.scrollTop;
   };
 
+  /*jslint unparam: true*/
   this.fixScroller = function (event, detail, sender) {
     var scrollbar = this.appScroller();
     if (event.target.id === 'main' && this.scrollerPos !== 0 && this.page === 0) {
@@ -92,16 +93,19 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       scrollbar.scrollTop = 0;
     }
   };
+  /*jslint unparam: false*/
 
   this.openSearch = function () {
     this.closeDrawer();
     this.$.searchDialog.toggle();
   };
-  
+
   this.xhrError = function (e) {
-    this.doToast(e);
-  };
-  
+    this.$.firstRun.toggle();
+    this.doToast('Error connecting to Subsonic');
+    console.log(e);
+  }.bind(this);
+
   this.doXhr = function (url, dataType, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
@@ -110,7 +114,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     xhr.onerror = this.xhrError;
     xhr.send();
   };
-  
+
   this.showApp = function () {
     var visible = document.querySelector("#loader").classList.contains("hide"),
       loader = document.querySelector('#loader'),
@@ -126,14 +130,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     if (this.searchQuery) {
       var url = this.url + '/rest/search3.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&query=' + encodeURIComponent(this.searchQuery);
       this.doXhr(url, 'json', function (e) {
-        if (e.target.response['subsonic-response'].status === 200) {
+        if (e.target.response['subsonic-response'].status === 'ok') {
           var response = e.target.response['subsonic-response'];
           this.searchResults = [];
           this.searchResults.artist = response.searchResult3.artist;
           this.searchResults.album = [];
           this.searchResults.song = response.searchResult3.song;
           Array.prototype.forEach.call(response.searchResult3.album, function (e) {
-            var data = {artist: e.artist, coverArt: e.coverArt, id: e.id, name: e.name, url:this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate, listMode: 'cover'};
+            var data = {artist: e.artist, coverArt: e.coverArt, id: e.id, name: e.name, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate, listMode: 'cover'};
             this.searchResults.album.push(data);
           }.bind(this));
         }
@@ -255,24 +259,18 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           this.volume = result.volume;
         }
         if (this.url && this.user && this.pass && this.version) {
-          var xhr = new XMLHttpRequest();
-          xhr.open("GET", this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json', true);
-          xhr.responseType = "json";
-          xhr.onload = function () {
-            if (xhr.status === 200) {
-              var response = xhr.response['subsonic-response'];
+          var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
+          this.doXhr(url, 'json', function (e) {
+            if (e.target.status === 200) {
+              var response = e.target.response['subsonic-response'];
               if (response.status === 'ok') {
                 this.$.wall.doAjax();
               } else {
+                this.$.firstRun.toggle();
                 this.doToast('Error Connecting to Subsonic');
               }
             }
-          }.bind(this);
-          xhr.onerror = function (e) {
-            this.$.firstRun.toggle();
-            this.doToast(e);
-          }.bind(this);
-          xhr.send();
+          }.bind(this));
         } else {
           this.$.firstRun.toggle();
           this.doToast('Error Connecting to Subsonic');
@@ -283,51 +281,40 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
   };
 
-  this.systemNotify = function (artist, title, image) {
-    var note = document.querySelector("#playNotify");
-    if (artist === undefined) {
-      note.title = title;
-    } else {
-      note.title = artist + ' - ' + title;
-    }
-    note.icon = image;
-    note.show();
-  };
-
   this.doToast = function (text) {
     var toast = document.querySelector("#toast");
     toast.text = text;
     toast.show();
   };
 
-  this.dismissToast = function () {
-    var toast = document.querySelector("#toast");
-    //toast.dismiss();
-  };
-
-  this.playAudio = function (artist, title, src) {
-    var audio = document.querySelector("#audio");
-    if (artist === undefined) {
+  this.playAudio = function (artist, title, src, image) {
+    var audio = document.querySelector("#audio"),
+      note = document.querySelector("#playNotify");
+    if (artist === '') {
       this.currentPlaying = title;
+      note.title = title;
     } else {
       this.currentPlaying = artist + ' - ' + title;
+      note.title = artist + ' - ' + title;
     }
     audio.src = src;
     audio.play();
+    note.icon = image;
+    note.show();
   };
 
   /*jslint unparam: true*/
   this.playThis = function (event, detail, sender) {
-    if (sender.attributes.artist.value === undefined) {
+    var url;
+    if (sender.attributes.artist.value === '') {
       // is a podcast
-      var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value;
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.ident.value;
     } else {
       // normal trascoded file type
-      var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;  
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
     }
-    this.systemNotify(sender.attributes.artist.value, sender.attributes.title.value, sender.attributes.cover.value);
-    this.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
-    if (sender.attributes.cover.value !== undefined) {
+    this.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, sender.attributes.cover.value);
+    if (sender.attributes.cover.value) {
       this.getImageForPlayer(sender.attributes.cover.value);
     } else {
       this.defaultPlayImage();
@@ -336,17 +323,17 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   /*jslint unparam: false*/
 
   this.nextTrack = function () {
-    var next = this.playing + 1;
+    var next = this.playing + 1,
+      url;
     if (this.playlist[next]) {
-      if (this.playlist[next].artist === undefined) {
-        var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + this.playlist[next].id;
+      if (this.playlist[next].artist === '') {
+        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + this.playlist[next].id;
       } else {
-        var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
+        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
       }
+      this.playAudio(this.playlist[next].artist, this.playlist[next].title, url, this.playlist[next].cover);
       this.playing = next;
-      this.systemNotify(this.playlist[next].artist, this.playlist[next].title, this.playlist[next].cover);
-      this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
-      if (this.playlist[next].cover !== undefined) {
+      if (this.playlist[next].cover) {
         this.getImageForPlayer(this.playlist[next].cover);
       } else {
         this.defaultPlayImage();
@@ -357,17 +344,17 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.lastTrack = function () {
-    var next = this.playing - 1;
+    var next = this.playing - 1,
+      url;
     if (this.playlist[next]) {
-      if (this.playlist[next].artist === undefined) {
-        var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + this.playlist[next].id;
+      if (this.playlist[next].artist === '') {
+        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + this.playlist[next].id;
       } else {
-        var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
+        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
       }
+      this.playAudio(this.playlist[next].artist, this.playlist[next].title, url, this.playlist[next].cover);
       this.playing = next;
-      this.systemNotify(this.playlist[next].artist, this.playlist[next].title, this.playlist[next].cover);
-      this.playAudio(this.playlist[next].artist, this.playlist[next].title, url);
-      if (this.playlist[next].cover !== undefined) {
+      if (this.playlist[next].cover) {
         this.getImageForPlayer(this.playlist[next].cover);
       } else {
         this.defaultPlayImage();
@@ -395,7 +382,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.clearPlayer = function () {
-    console.log('playlist cleared')
+    console.log('playlist cleared');
     this.page = 0;
     this.src = '';
     this.playlist = [];
@@ -453,14 +440,16 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     audio.currentTime = sum;
   };
 
+  /*jslint unparam: true*/
   this.selectAction = function (event, detail, sender) {
     var wall = this.$.wall;
     wall.sort = sender.attributes.i.value;
     this.closeDrawer();
   };
+  /*jslint unparam: false*/
 
   this.getPodcast = function () {
-    var var wall = this.$.wall;
+    var wall = this.$.wall;
     this.closeDrawer();
     wall.getPodcast();
   };

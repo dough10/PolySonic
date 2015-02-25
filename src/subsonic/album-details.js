@@ -12,7 +12,7 @@ Polymer('album-details', {
     'use strict';
 
     this.playlist = [];
-    
+
     this.tmpl = document.querySelector("#tmpl");
 
   },
@@ -71,8 +71,7 @@ Polymer('album-details', {
     this.tmpl.page = 1;
     this.tmpl.playlist = this.playlist;
     this.tmpl.playing = 0;
-    this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
-    this.tmpl.systemNotify(this.playlist[0].artist, this.playlist[0].title, this.data.cover);
+    this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.data.cover);
   },
 
 
@@ -84,8 +83,7 @@ Polymer('album-details', {
     this.tmpl.page = 1;
     this.tmpl.playlist = [{artist: sender.attributes.artist.value, title: sender.attributes.title.value, cover: this.data.cover, id: sender.attributes.ident.value}];
     this.tmpl.playing = 0;
-    this.tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
-    this.tmpl.systemNotify(sender.attributes.artist.value, sender.attributes.title.value, this.data.cover);
+    this.tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, this.data.cover);
   },
 
   addSingle2Playlist: function (event, detail, sender) {
@@ -95,7 +93,7 @@ Polymer('album-details', {
 
     this.tmpl.playlist.push(obj);
     if (this.audio.paused) {
-      this.tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url);
+      this.tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, this.data.cover);
       this.tmpl.playing = 0;
       if (this.data.cover) {
         this.playerArt.style.backgroundImage = "url('" + this.data.cover + "')";

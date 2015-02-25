@@ -71,21 +71,18 @@ Polymer('album-art', {
     request.onsuccess = function () {
       if (request.result === 0) {
         this.new = true;
-        this.doAjax();
+        var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + id;
+        this.tmpl.doXhr(url, 'json', function (e) {
+          this.trackResponse = e.target.response;
+        }.bind(this));
       } else {
         this.new = false;
-        this.getJSONFromDb(id);
+        this.getDbItem(id, function (event) {
+          var data = event.target.result;
+          this.trackResponse = data;
+        }.bind(this));
       }
     }.bind(this);
-  },
-
-  /* pulls json content from indexeddb */
-  getJSONFromDb: function (id) {
-    'use strict';
-    this.getDbItem(id, function (event) {
-      var data = event.target.result;
-      this.trackResponse = data;
-    }.bind(this));
   },
 
   /* setup image  */
@@ -123,9 +120,9 @@ Polymer('album-art', {
   */
   coverChanged: function () {
     'use strict';
-    this.tmpl.showApp();
+    document.querySelector("#tmpl").showApp();
     if (this.cover) {
-      var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.cover;
+      var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + this.cover;
       this.checkForImage(this.cover, function (e) {
         if (e.target.result === 0) {
           this.getImageFile(url, this.cover, this.setImage.bind(this));
@@ -148,7 +145,7 @@ Polymer('album-art', {
   },
 
   /*
-    slide box box to normal position
+    slide box to normal position
   */
   closeSlide: function () {
     'use strict';
@@ -182,12 +179,6 @@ Polymer('album-art', {
     this.tmpl.page = 3;
   },
 
-  doAjax: function () {
-    'use strict';
-    var tracks = this.$.track;
-    tracks.go();
-  },
-
   defaultPlayerImage: function () {
     'use strict';
     var art = document.querySelector('#coverArt');
@@ -199,8 +190,7 @@ Polymer('album-art', {
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
     if (this.audio.paused) {
       this.tmpl.playing = 0;
-      this.tmpl.systemNotify(this.playlist[0].artist, this.playlist[0].title, this.imgURL);
-      this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
+      this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL);
       if (this.cover) {
         this.tmpl.getImageForPlayer(this.imgURL);
       } else {
@@ -230,13 +220,12 @@ Polymer('album-art', {
     this.tmpl.page = 1;
     this.tmpl.playlist = this.playlist;
     this.tmpl.playing = 0;
-    this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url);
-    this.tmpl.systemNotify(this.playlist[0].artist, this.playlist[0].title, this.imgURL);
+    this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL);
   },
 
   addFavorite: function (event, detail, sender) {
     'use strict';
-    ver url = this.url + "/rest/star.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
+    var url = this.url + "/rest/star.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
     this.tmpl.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.isFavorite = true;
