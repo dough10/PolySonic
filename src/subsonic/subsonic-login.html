@@ -41,7 +41,7 @@
         cursor:pointer;
       }
     </style>
-    <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v={{version}}&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
+    <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v={{post.version}}&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
     </core-ajax>
       <h3>PolySonic</h3>
       A Subconic streaming app made with Polymer..
@@ -72,7 +72,7 @@
           </paper-dropdown-menu>
         </core-label>
         <br>
-        <paper-button on-tap="{{submit}}">
+        <paper-button on-tap="{{submit}}" affirmative>
           <template if="{{isLoading}}">
             <div id="load">
               <paper-spinner active=""></paper-spinner>

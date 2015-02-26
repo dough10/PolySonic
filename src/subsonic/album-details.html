@@ -93,8 +93,8 @@
               <div flex style="margin-right:8px">
                 {{track.title}}
               </div>
-              <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
-              <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}"></paper-icon-button>
+              <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
+              <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
               <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
             </core-item>
           </template>

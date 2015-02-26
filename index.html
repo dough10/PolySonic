@@ -36,6 +36,7 @@
   <link href="src/subsonic/settings-menu.html" rel="import">
   <link href="src/animated-fab/animated-fab.html" rel="import">
   <link href="src/subsonic/album-details.html" rel="import">
+  <link href="src/subsonic/artist-details.html" rel="import">
   <link href="bower_components/core-list/core-list.html" rel="import">
   <link href="bower_components/core-a11y-keys/core-a11y-keys.html" rel="import">
   <style shim-shadowdom>
@@ -111,6 +112,9 @@
     }
     paper-progress::shadow #activeProgress {
       background-color:#db4437;
+    }
+    paper-progress::shadow #secondaryProgress {
+      background-color:#d99797;
     }
     #avIcon {
       padding:0px;
@@ -306,6 +310,9 @@
            <template if="{{page === 2}}">
               <div flex class="bottom"></div>
             </template>
+           <template if="{{page === 4}}">
+              <div flex class="bottom"></div>
+            </template>
             <template if="{{page !== 1}}">
               <template if="{{isNowPlaying}}">
                 <paper-icon-button
@@ -341,6 +348,8 @@
               <div class="controlsWrapper">
                 <paper-progress
                   id="progress"
+                  value="{{progress}}"
+                  secondaryProgress="{{buffer}}"
                   on-tap="{{progressClick}}">
                 </paper-progress>
                 <div id="time">{{playTime}}</div>
@@ -393,10 +402,20 @@
                 url="{{url}}"
                 user="{{user}}"
                 pass="{{pass}}"
-                id="details"
                 version="{{version}}"
                 bitRate="{{bitRate}}">
               </album-details>
+            </section>
+            <section>
+              <artist-details
+                id="aDetails"
+                listMode="{{listMode}}"
+                url="{{url}}"
+                user="{{user}}"
+                pass="{{pass}}"
+                version="{{version}}"
+                bitRate="{{bitRate}}">
+              </artist-details>
             </section>
           </core-animated-pages>
         </core-header-panel>
@@ -422,7 +441,10 @@
               title="{{title}}"
               style="color:#000000"
               ident="{{id}}">
-              {{artist}} - {{title}}
+              <div flex style="overflow:hidden">
+                {{artist}} - {{title}}
+              </div>
+              {{duration}}
             </paper-item>
           </template>
         </core-menu>
@@ -441,6 +463,11 @@
           version="{{version}}">
         </subsonic-login>
       </paper-dialog>
+      <paper-action-dialog id='analistics' backdrop autoclosedisabled transition="core-transition-center" layered>
+        <h4>Allow anonymous usage tracking?</h4>
+        <paper-button affirmative on-tap="{{disAllowAnalistics}}">Decline</paper-button>
+        <paper-button affirmative on-tap="{{allowAnalistics}}">Accept</paper-button>
+      </paper-action-dialog>
       <paper-dialog id="searchDialog" header="Search" transition="core-transition-center">
         <div style="margin:auto; text-align: center;">
           <paper-input value="{{searchQuery}}"></paper-input>
@@ -459,7 +486,7 @@
             <h3>Albums</h3>
             <template repeat="{{searchResults.album}}">
               <album-art
-                listMode="{{listMode}}"
+                listMode="search"
                 bitRate="{{bitRate}}"
                 item="{{id}}"
                 cover="{{coverArt}}"
@@ -513,8 +540,9 @@
         timeout='5000'
         tag="tag">
       </x-notification>
-      <audio id="audio"></audio>
+      <audio id="audio" preload="auto"></audio>
     </template>
   </div>
   <script src="PolySonic.min.js"></script>
+  <script src="google-analytics-bundle.js"></script>
 </body>

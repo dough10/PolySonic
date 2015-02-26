@@ -49,7 +49,7 @@
             invalid3 = this.$.input3.classList.contains("invalid");
 
 
-          if (invalid1 && invalid2 && this.version === undefined) {
+          if (invalid1 && invalid2 && this.post.version === undefined) {
             this.toast.text = "URL, Username & Version Required";
             this.toast.show();
           } else if (invalid1) {
@@ -58,10 +58,11 @@
           } else if (invalid2) {
             this.toast.text = "Username Required";
             this.toast.show();
-          } else if (this.version === undefined) {
+          } else if (this.post.version === undefined) {
             this.toast.text = "Version Required";
             this.toast.show();
-          } else if (!invalid1 && !invalid2 && !invalid3 && this.version !== undefined) {
+          } else if (!invalid1 && !invalid2 && !invalid3 && this.post.version !== undefined) {
+            console.log(this.post);
             this.$.ajax.go();
           }
         }.bind(this), 100);
@@ -106,7 +107,7 @@
             'url': this.post.url,
             'user': this.post.user,
             'pass': this.post.pass,
-            'version': this.version
+            'version': this.post.version
           });
 
           tmpl.url = this.post.url;
@@ -115,7 +116,7 @@
 
           tmpl.pass = this.post.pass;
 
-          tmpl.version = this.version;
+          tmpl.version = this.post.version;
           this.toast.text = "Loading Data";
           this.toast.show();
           setTimeout(function () {

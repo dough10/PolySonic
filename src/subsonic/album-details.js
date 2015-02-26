@@ -39,7 +39,10 @@ Polymer('album-details', {
         this.setImage(this.data.cover);
       }
       Array.prototype.forEach.call(this.data.tracks, function (e) {
-        var obj = {id: e.id, artist: e.artist, title: e.title, cover: this.data.cover};
+        var mins = Math.floor(e.duration / 60),
+          seconds = Math.floor(e.duration - (mins * 60)),
+          timeString = mins + ':' + ('0' + seconds).slice(-2),
+          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.data.cover};
         this.playlist.push(obj);
       }.bind(this));
     }
@@ -77,19 +80,25 @@ Polymer('album-details', {
 
   playTrack: function (event, detail, sender) {
     'use strict';
-    var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
+    var mins = Math.floor(sender.attributes.duration.value / 60),
+      seconds = Math.floor(sender.attributes.duration.value - (mins * 60)),
+      timeString = mins + ':' + ('0' + seconds).slice(-2),
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
       playerArt = document.querySelector('#coverArt');
     playerArt.style.backgroundImage = "url('" + this.data.cover + "')";
     this.tmpl.page = 1;
-    this.tmpl.playlist = [{artist: sender.attributes.artist.value, title: sender.attributes.title.value, cover: this.data.cover, id: sender.attributes.ident.value}];
+    this.tmpl.playlist = [{artist: sender.attributes.artist.value, title: sender.attributes.title.value, cover: this.data.cover, duration: timeString, id: sender.attributes.ident.value}];
     this.tmpl.playing = 0;
     this.tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, this.data.cover);
   },
 
   addSingle2Playlist: function (event, detail, sender) {
     'use strict';
-    var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
-      obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value, cover: sender.attributes.cover.value};
+    var mins = Math.floor(sender.attributes.duration.value / 60),
+      seconds = Math.floor(sender.attributes.duration.value - (mins * 60)),
+      timeString = mins + ':' + ('0' + seconds).slice(-2),
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
+      obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value,  duration: timeString , cover: sender.attributes.cover.value};
 
     this.tmpl.playlist.push(obj);
     if (this.audio.paused) {

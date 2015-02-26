@@ -230,6 +230,19 @@
             </div>
           </div>
         </div>
+        <div page="search">
+          <div class="wrapper">
+            <div id="overlay-high-small" hero-id="hero" hero="">
+              <core-item>
+                <div flex style="overflow:hidden">
+                  {{artist}} - {{album}}
+                </div>
+                <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
+                <paper-icon-button class="bumpMargin" on-tap="{{doDialog}}" icon="reorder"></paper-icon-button>
+              </core-item>
+            </div>
+          </div>
+        </div>
       </core-animated-pages>
     </paper-shadow>
   </template>

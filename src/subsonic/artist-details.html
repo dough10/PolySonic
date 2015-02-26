@@ -1,0 +1,19 @@
+<html><head><link href="../../bower_components/polymer/polymer.html" rel="import">
+<link href="../../bower_components/paper-shadow/paper-shadow.html" rel="import">
+<link href="../../bower_components/paper-icon-button/paper-icon-button.html" rel="import">
+<link href="../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
+<link href="../../bower_components/core-icons/av-icons.html" rel="import">
+<link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
+<link href="../../bower_components/paper-item/paper-item.html" rel="import">
+<link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
+<link href="../../bower_components/core-item/core-item.html" rel="import">
+  <link href="../../bower_components/core-list/core-list.html" rel="import">
+</head><body><polymer-element name="artist-details" attributes="url user pass artistId version bitRate listMode">
+  <template>
+    <template repeat="{{data}}">
+      <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" isFavorite="{{starred}}"></album-art>
+    </template>
+  </template>
+  <script src="artist-details.js"></script>
+</polymer-element>
+</body></html>

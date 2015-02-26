@@ -1,6 +1,15 @@
-/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen */
+/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics */
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
   'use strict';
+
+  // You'll usually only ever have to create one service instance.
+  this.service = analytics.getService('ice_cream_app');
+
+
+  // You can create as many trackers as you want. Each tracker has its own state
+  // independent of other tracker instances.
+  this.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
+
   this.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
 
   this.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
@@ -122,7 +131,12 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     if (!visible) {
       loader.classList.add('hide');
       box.classList.add('hide');
+      this.fire('loaded');
     }
+  };
+
+  this.askUser = function () {
+    this.$.analistics.toggle();
   };
 
   this.doSearch = function () {
@@ -135,14 +149,16 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           this.searchResults.artist = response.searchResult3.artist;
           this.searchResults.album = [];
           this.searchResults.song = response.searchResult3.song;
-          Array.prototype.forEach.call(response.searchResult3.album, function (e) {
-            var data = {artist: e.artist, coverArt: e.coverArt, id: e.id, name: e.name, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate, listMode: 'cover'};
-            this.searchResults.album.push(data);
-          }.bind(this));
+          if (response.searchResult3.album !== null) {
+            Array.prototype.forEach.call(response.searchResult3.album, function (e) {
+              var data = {artist: e.artist, coverArt: e.coverArt, id: e.id, name: e.name, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate, listMode: 'cover'};
+              this.searchResults.album.push(data);
+            }.bind(this));
+          }
         }
       }.bind(this));
     } else {
-      console.log('No Query to Saearch');
+      this.doToast('No Query to Search');
     }
   };
 
@@ -186,6 +202,34 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       });
     }
 
+    this.addEventListener('loaded', function () {
+      chrome.storage.sync.get(function (result) {
+        this.service.getConfig().addCallback(
+          /** @param {!analytics.Config} config */
+          function (config) {
+            if (result.analistics === undefined) {
+              this.askUser();
+            } else {
+              config.setTrackingPermitted(result.analistics);
+            }
+            this.allowAnalistics = function () {
+              config.setTrackingPermitted(true);
+              chrome.storage.sync.set({
+                'analistics': true
+              });
+            };
+
+            this.disAllowAnalistics = function () {
+              config.setTrackingPermitted(false);
+              chrome.storage.sync.set({
+                'analistics': false
+              });
+            };
+          }.bind(this)
+        );
+      }.bind(this));
+    }.bind(this));
+
     this.position = scroller.scrollTop;
 
     scroller.onscroll = function () {
@@ -207,6 +251,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
     audio.onerror = function (e) {
       console.log(e);
+      this.tracker.sendEvent('Audio Playback Error', e);
     };
   };
 
@@ -268,15 +313,15 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
                 this.$.firstRun.toggle();
                 this.doToast('Error Connecting to Subsonic');
               }
+            } else {
+              this.$.firstRun.toggle();
+              this.doToast('Error Connecting to Subsonic');
             }
           }.bind(this));
-        } else {
-          this.$.firstRun.toggle();
-          this.doToast('Error Connecting to Subsonic');
         }
       }.bind(this));
     } else {
-      console.log('no chrome storage');
+      this.tracker.sendEvent('Error', 'Failed to load Storage');
     }
   };
 
@@ -321,9 +366,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
   /*jslint unparam: false*/
 
-  this.nextTrack = function () {
-    var next = this.playing + 1,
-      url;
+  this.playNext = function (next) {
+    var url;
     if (this.playlist[next]) {
       if (this.playlist[next].artist === '') {
         url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + this.playlist[next].id;
@@ -342,25 +386,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
   };
 
+  this.nextTrack = function () {
+    var next = this.playing + 1;
+    this.playNext(next);
+  };
+
   this.lastTrack = function () {
-    var next = this.playing - 1,
-      url;
-    if (this.playlist[next]) {
-      if (this.playlist[next].artist === '') {
-        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + this.playlist[next].id;
-      } else {
-        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
-      }
-      this.playAudio(this.playlist[next].artist, this.playlist[next].title, url, this.playlist[next].cover);
-      this.playing = next;
-      if (this.playlist[next].cover) {
-        this.getImageForPlayer(this.playlist[next].cover);
-      } else {
-        this.defaultPlayImage();
-      }
-    } else {
-      this.clearPlayer();
-    }
+    var next = this.playing - 1;
+    this.playNext(next);
   };
 
   this.toggleWall = function () {
@@ -511,21 +544,25 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   setInterval(function () {
     var audio = this.$.audio,
       button = this.$.avIcon,
-      bar = this.$.progress,
       progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
       currentMins = Math.floor(audio.currentTime / 60),
-      currentSecs = Math.round(audio.currentTime - currentMins * 60),
+      currentSecs = Math.round(audio.currentTime - (currentMins * 60)),
       totalMins = Math.floor(audio.duration / 60),
-      totalSecs = Math.round(audio.duration - totalMins * 60);
+      totalSecs = Math.round(audio.duration - (totalMins * 60)),
+      buffer;
+
     if (!audio.paused) {
       button.icon = "av:pause";
       this.isNowPlaying = true;
       if (!audio.duration) {
         this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
-        bar.value = 0;
+        this.progress = 0;
+        this.buffer = 0;
       } else {
         this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
-        bar.value = progress;
+        buffer = (audio.buffered.end(0) / audio.duration) * 100;
+        this.progress = progress;
+        this.buffer = buffer;
       }
     } else {
       this.isNowPlaying = false;

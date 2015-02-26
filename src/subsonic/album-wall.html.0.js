@@ -162,6 +162,13 @@ Polymer('album-wall', {
       this.$.list.heioght = '65';
     }
   },
+  artistDetails: function (event, detail, sender) {
+    var artist = document.querySelector("#aDetails");
+    this.tmpl.setScrollerPos();
+    artist.artistId = sender.attributes.ident.value;
+    artist.queryData();
+    this.tmpl.page = 4;
+  },
   playPodcast: function (event, detial, sender) {
     'use strict';
     var imgURL = 'images/default-cover-art.png',

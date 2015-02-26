@@ -31,6 +31,10 @@ Polymer('album-art', {
       this.page = "small";
       this.width = '556px';
       this.height = "60px";
+    } else if (this.listMode === 'search') {
+      this.page = 'search';
+      this.width = '370px';
+      this.height = '60px';
     } else {
       this.page = "cover";
       this.width = "250px";
@@ -160,7 +164,10 @@ Polymer('album-art', {
       this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
       this.tracks = this.trackResponse['subsonic-response'].album.song;
       Array.prototype.forEach.call(this.trackResponse['subsonic-response'].album.song, function (e) {
-        var obj = {id: e.id, artist: e.artist, title: e.title, cover: this.imgURL};
+        var mins = Math.floor(e.duration / 60),
+          seconds = Math.floor(e.duration - (mins * 60)),
+          timeString = mins + ':' + ('0' + seconds).slice(-2),
+          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL};
         this.playlist.push(obj);
       }.bind(this));
     }

@@ -54,7 +54,7 @@
       }
       .title {
         text-align:left;
-        font-size: 18px;
+        font-size: 14px;
         overflow:hidden;
       }
     </style>
@@ -111,7 +111,7 @@
               <paper-shadow class="card">
                 <div class="heading">{{model.name}}</div>
                 <template repeat="{{model.artist}}">
-                  <paper-item>
+                  <paper-item class='title' on-tap="{{artistDetails}}" ident="{{id}}">
                     <div flex style="text-align:left">{{name}}</div>
                     <div>{{albumCount}} Albums</div>
                   </paper-item>
