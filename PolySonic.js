@@ -3,7 +3,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   'use strict';
 
   // You'll usually only ever have to create one service instance.
-  this.service = analytics.getService('ice_cream_app');
+  this.service = analytics.getService('PolySonic');
 
 
   // You can create as many trackers as you want. Each tracker has its own state
