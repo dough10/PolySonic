@@ -106,7 +106,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.xhrError = function (e) {
     this.doToast('Error connecting to Subsonic');
-    //console.log(e);
   }.bind(this);
 
   this.doXhr = function (url, dataType, callback) {
