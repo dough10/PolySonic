@@ -266,6 +266,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         this.user = result.user;
         this.pass = result.pass;
         this.version = result.version;
+        if (result.version !== undefined) {
+          this.tracker.sendEvent('Loaded API Version', result.version);
+        }
         if (result.listMode === undefined) {
           chrome.storage.sync.set({
             'listMode': 'cover'

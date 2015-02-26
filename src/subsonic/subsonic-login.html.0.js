@@ -117,8 +117,8 @@
           tmpl.pass = this.post.pass;
 
           tmpl.version = this.post.version;
-          this.toast.text = "Loading Data";
-          this.toast.show();
+          tmpl.doToast("Loading Data");
+          this.tracker.sendEvent('API Version', 'Loaded', this.post.version);
           setTimeout(function () {
             document.querySelector('core-overlay-layer').classList.remove('core-opened');
             wall.doAjax();
