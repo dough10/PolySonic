@@ -2,12 +2,8 @@
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
   'use strict';
 
-  // You'll usually only ever have to create one service instance.
   this.service = analytics.getService('PolySonic');
 
-
-  // You can create as many trackers as you want. Each tracker has its own state
-  // independent of other tracker instances.
   this.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
 
   this.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
@@ -251,81 +247,82 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
     audio.onerror = function (e) {
       console.log(e);
-      this.tracker.sendEvent('Audio Playback Error', e);
+      this.tracker.sendEvent('Audio Playback Error', e.target);
     };
   };
 
   this.loadData = function () {
-    if (chrome.storage) {
-      chrome.storage.sync.get(function (result) {
-        if (result.url === undefined) {
-          document.querySelector('#firstRun').toggle();
-        } else {
-          this.url = result.url;
-        }
-        this.user = result.user;
-        this.pass = result.pass;
-        this.version = result.version;
-        if (result.version !== undefined) {
-          this.tracker.sendEvent('Loaded API Version', result.version);
-        }
-        if (result.listMode === undefined) {
-          chrome.storage.sync.set({
-            'listMode': 'cover'
-          });
-          this.listMode = 'cover';
+    chrome.storage.sync.get(function (result) {
+      if (result.url === undefined) {
+        document.querySelector('#firstRun').toggle();
+      } else {
+        this.url = result.url;
+      }
+      this.user = result.user;
+      this.pass = result.pass;
+      this.version = result.version;
+      if (result.version !== undefined) {
+        this.tracker.sendEvent('Loaded API Version', result.version);
+      }
+      if (result.listMode === undefined) {
+        chrome.storage.sync.set({
+          'listMode': 'cover'
+        });
+        this.listMode = 'cover';
+        this.view = 'view-stream';
+      } else {
+        this.tracker.sendEvent('ListMode', result.listMode);
+        this.listMode = result.listMode;
+        if (result.listMode === 'cover') {
           this.view = 'view-stream';
         } else {
-          this.listMode = result.listMode;
-          if (result.listMode === 'cover') {
-            this.view = 'view-stream';
-          } else {
-            this.view = 'view-module';
-          }
+          this.view = 'view-module';
         }
-        if (result.bitRate === undefined) {
-          chrome.storage.sync.set({
-            'bitRate': '320'
-          });
-          this.bitRate = '320';
-        } else {
-          this.bitRate = result.bitRate;
-        }
-        if (result.sort === undefined) {
-          this.selected = '';
-        }
-        if (result.querySize === undefined) {
-          chrome.storage.sync.set({
-            'querySize': 40
-          });
-          this.querySize = 40;
-        } else {
-          this.querySize = result.querySize;
-        }
-        if (result.volume !== undefined) {
-          this.volume = result.volume;
-        }
-        if (this.url && this.user && this.pass && this.version) {
-          var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
-          this.doXhr(url, 'json', function (e) {
-            if (e.target.status === 200) {
-              var response = e.target.response['subsonic-response'];
-              if (response.status === 'ok') {
-                this.$.wall.doAjax();
-              } else {
-                this.$.firstRun.toggle();
-                this.doToast('Error Connecting to Subsonic');
-              }
+      }
+      if (result.bitRate === undefined) {
+        chrome.storage.sync.set({
+          'bitRate': '320'
+        });
+        this.bitRate = '320';
+      } else {
+        this.tracker.sendEvent('bitRate', result.bitRate);
+        this.bitRate = result.bitRate;
+      }
+      if (result.sort === undefined) {
+        this.selected = '';
+      }
+      if (result.querySize === undefined) {
+        chrome.storage.sync.set({
+          'querySize': 40
+        });
+        this.querySize = 40;
+      } else {
+        this.querySize = result.querySize;
+      }
+      if (result.volume !== undefined) {
+        this.volume = result.volume;
+      }
+      if (this.url && this.user && this.pass && this.version) {
+        var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
+        this.doXhr(url, 'json', function (e) {
+          if (e.target.status === 200) {
+            var response = e.target.response['subsonic-response'];
+            if (response.status === 'ok') {
+              console.log('Connection OK');
+              this.$.wall.doAjax();
             } else {
+              this.tracker.sendEvent('Connection Error', response.error.meessage);
               this.$.firstRun.toggle();
-              this.doToast('Error Connecting to Subsonic');
+              this.doToast(response.error.meessage);
             }
-          }.bind(this));
-        }
-      }.bind(this));
-    } else {
-      this.tracker.sendEvent('Error', 'Failed to load Storage');
-    }
+          } else {
+            this.tracker.sendEvent('Connection Error', response.error.meessage);
+            this.$.firstRun.toggle();
+            this.doToast(response.error.meessage);
+          }
+        }.bind(this));
+      }
+    }.bind(this));
   };
 
   this.doToast = function (text) {
@@ -348,6 +345,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     audio.play();
     note.icon = image;
     note.show();
+    this.tracker.sendEvent('Audio', 'Started Playing');
   };
 
   /*jslint unparam: true*/
@@ -414,12 +412,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         'listMode': 'cover'
       });
     }
+    this.tracker.sendEvent('ListMode Changed', wall.listMode);
   };
 
   this.clearPlayer = function () {
-    console.log('playlist cleared');
+    console.log('Playlist Cleared');
     this.page = 0;
     this.src = '';
+    this.playlist = null;
     this.playlist = [];
   };
 
@@ -480,6 +480,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     var wall = this.$.wall;
     wall.sort = sender.attributes.i.value;
     this.closeDrawer();
+    this.tracker.sendEvent('Sort By', sender.attributes.i.value);
   };
   /*jslint unparam: false*/
 
@@ -487,18 +488,21 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     var wall = this.$.wall;
     this.closeDrawer();
     wall.getPodcast();
+    this.tracker.sendEvent('Sort By', 'Podcast');
   };
 
   this.getStarred = function () {
     var wall = this.$.wall;
     this.closeDrawer();
     wall.getStarred();
+    this.tracker.sendEvent('Sort By', 'Favorites');
   };
 
   this.getArtist = function () {
     var wall = this.$.wall;
     this.closeDrawer();
     wall.getArtist();
+    this.tracker.sendEvent('Sort By', 'Artist');
   };
 
   this.toggleVolume = function () {
