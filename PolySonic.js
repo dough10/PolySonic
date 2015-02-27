@@ -306,7 +306,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           if (e.target.status === 200) {
             var response = e.target.response['subsonic-response'];
             if (response.status === 'ok') {
-              console.log('Connection OK');
+              console.log('Connected to Subconic loading data');
               this.$.wall.doAjax();
             } else {
               this.tracker.sendEvent('Connection Error', response.error.meessage);
