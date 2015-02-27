@@ -455,15 +455,15 @@
         <br>
         <volume-slider volume="{{volume}}"></volume-slider>
       </paper-dialog>
-      <paper-dialog id="firstRun" autoclosedisabled transition="core-transition-center">
+      <paper-action-dialog id="firstRun" autoclosedisabled transition="core-transition-center">
         <subsonic-login
           url="{{url}}"
           user="{{user}}"
           pass="{{pass}}"
           version="{{version}}">
         </subsonic-login>
-      </paper-dialog>
-      <paper-action-dialog id='analistics' backdrop autoclosedisabled transition="core-transition-center" layered>
+      </paper-action-dialog>
+      <paper-action-dialog id='analistics' autoclosedisabled transition="core-transition-center" layered>
         <h4>Allow anonymous usage tracking?</h4>
         <paper-button affirmative on-tap="{{disAllowAnalistics}}">Decline</paper-button>
         <paper-button affirmative on-tap="{{allowAnalistics}}">Accept</paper-button>
@@ -543,6 +543,7 @@
       <audio id="audio" preload="auto"></audio>
     </template>
   </div>
-  <script src="PolySonic.min.js"></script>
+  <script src="cast_sender.js"></script>
+  <script src="PolySonic.js"></script>
   <script src="google-analytics-bundle.js"></script>
 </body>

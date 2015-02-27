@@ -2,10 +2,12 @@
     Polymer('settings-menu',{
       versions: [
         {sub:'5.2', api:'1.12.0'},
-        {sub:'5.1', api:'1.11.0'},
-        {sub:'4.9', api:'1.10.2'},
+        {sub:'5.1', api:'1.11.0'}
+        
+        /* versions not supported due to access-control-allow-origin header*/
+      /*{sub:'4.9', api:'1.10.2'},
         {sub:'4.8', api:'1.9.0'},
-        {sub:'4.7', api:'1.8.0'}
+        {sub:'4.7', api:'1.8.0'}*/
       ],
       speeds: [
         96,
@@ -30,7 +32,7 @@
         this.tmpl = document.querySelector("#tmpl");
         this.wall = document.querySelector("#wall");
       },
-      validate: function () {
+      validate: function (callback) {
         'use strict';
 
         /*
@@ -40,15 +42,14 @@
         Array.prototype.forEach.call($d, function(d) {
           d.isInvalid = !d.querySelector('input').validity.valid;
         });
+        callback();
       },
       submit: function () {
         'use strict';
         /*
           preforms the validation
         */
-        this.validate();
-
-        setTimeout(function () {
+        this.validate(function () {
           var invalid1 = this.$.input1.classList.contains("invalid"),
             invalid2 = this.$.input2.classList.contains("invalid"),
             invalid3 = this.$.input3.classList.contains("invalid");
@@ -65,12 +66,11 @@
           }
           if (!invalid1 && !invalid2 && !invalid3 && this.post.version !== undefined && this.post.bitRate !== undefined) {
             this.$.ajax.go();
-            this.wall.clearData();
-            setTimeout(function () {
+            this.wall.clearData(function () {
               this.wall.doAjax();
-            }.bind(this), 100);
+            }.bind(this));
           }
-        }.bind(this), 100);
+        }.bind(this));
       },
       hidePass: function (event, detail, sender) {
         'use strict';
