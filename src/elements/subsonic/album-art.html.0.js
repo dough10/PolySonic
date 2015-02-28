@@ -131,10 +131,10 @@ Polymer('album-art', {
     'use strict';
     document.querySelector("#tmpl").showApp();
     if (this.cover) {
+      this.isLoading = true;
       var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + this.cover;
       this.checkForImage(this.cover, function (e) {
         if (e.target.result === 0) {
-          this.isLoading = true;
           this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
           this.imgURL = this.defaultImgURL;
           this.getImageFile(url, this.cover, this.setImage.bind(this));
