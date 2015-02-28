@@ -96,6 +96,9 @@ Polymer('album-art', {
     var imgFile = event.target.result,
       imgURL = window.URL.createObjectURL(imgFile);
 
+    if (imgURL === null) {
+      console.log(this.cover + ' = null');
+    }
     this.$.card.style.backgroundImage = "url('" + imgURL + "')";
     this.imgURL = imgURL;
     Array.prototype.forEach.call(this.playlist, function (e) {

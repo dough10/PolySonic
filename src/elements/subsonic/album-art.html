@@ -200,7 +200,9 @@
                 <paper-spinner class="spinner" active></paper-spinner>
               </div>
             </template>
-            <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{playAlbum}}"></paper-icon-button>
+            <template if="{{playlist[0]}}">
+              <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{playAlbum}}"></paper-icon-button>
+            </template>
             <div id="overlay-low" hero-id="hero" hero="">
               <paper-icon-button id="icon" on-tap="{{slideUp}}" class="left-icon" icon="more-vert"></paper-icon-button>
               <div class="artist">{{artist}}</div>
