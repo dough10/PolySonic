@@ -107,6 +107,13 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.xhrError = function (e) {
     this.doToast('Error connecting to Subsonic');
   }.bind(this);
+  
+  this.xhrProgress = function (e) {
+    if (e.lengthComputable) {
+      var precent = Math.round(e.loaded / e.total) * 100;
+      console.log(precent);
+    }
+  };
 
   this.doXhr = function (url, dataType, callback) {
     var xhr = new XMLHttpRequest();
@@ -114,6 +121,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     xhr.responseType = dataType;
     xhr.onload = callback;
     xhr.onerror = this.xhrError;
+    xhr.onprogress = this.xhrProgress;
     xhr.send();
   };
 
@@ -260,7 +268,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.pass = result.pass;
       this.version = result.version;
       if (result.version !== undefined) {
-        this.tracker.sendEvent('Loaded API Version', result.version);
+        this.tracker.sendEvent('API Version', result.version);
       }
       if (result.listMode === undefined) {
         chrome.storage.sync.set({
@@ -283,8 +291,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         });
         this.bitRate = '320';
       } else {
-        this.tracker.sendEvent('bitRate', result.bitRate);
         this.bitRate = result.bitRate;
+        this.tracker.sendEvent('Playback Bitrate', result.bitRate);
       }
       if (result.sort === undefined) {
         this.selected = '';
@@ -585,16 +593,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.nextTrack();
     } else if (!audio.paused && command === "lastTrackMediaKey") {
       this.lastTrack();
-    } else if (!audio.paused && command === "nextTrack") {
-      this.nextTrack();
-    } else if (!audio.paused && command === "lastTrack") {
-      this.lastTrack();
-    } else if (command === "playPause") {
+    } else if (!audio.paused && command === "MediaPlayPause") {
       this.playPause();
-    } else if (command === "volUp") {
-      this.volUp();
-    } else if (command === "volDown") {
-      this.volDown();
     }
   }.bind(this));
 

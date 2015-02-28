@@ -45,28 +45,6 @@
         "default": "MediaPrevTrack"
       },
       "description": "Skip to Last Track"
-    },
-    
-    "nextTrack": {
-      "suggested_key": {
-        "default": "Ctrl+Right"
-      },
-      "description": "Skip to Next Track"
-    },
-    
-    "lastTrack": {
-      "suggested_key": {
-        "default": "Ctrl+Left"
-      },
-      "description": "Skip to Previous Track"
-    },
-    
-    "playPause": {
-      "suggested_key": {
-        "default": "Ctrl+P"
-      },
-      "description": "Play / Pause Current Track"
     }
-    
   }
 }

@@ -98,6 +98,10 @@ Polymer('album-art', {
 
     this.$.card.style.backgroundImage = "url('" + imgURL + "')";
     this.imgURL = imgURL;
+    Array.prototype.forEach.call(this.playlist, function (e) {
+      e.cover = imgURL;
+    }.bind(this));
+    this.isLoading = false;
   },
 
   /* save content to indexeddb */
@@ -130,6 +134,9 @@ Polymer('album-art', {
       var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + this.cover;
       this.checkForImage(this.cover, function (e) {
         if (e.target.result === 0) {
+          this.isLoading = true;
+          this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+          this.imgURL = this.defaultImgURL;
           this.getImageFile(url, this.cover, this.setImage.bind(this));
         } else {
           this.getDbItem(this.cover, this.setImage.bind(this));
