@@ -162,10 +162,12 @@ Polymer('album-wall', {
     'use strict';
     this.$.list.updateSize();
     if (this.listMode === 'cover') {
+      this.$.list.grid = true;
       this.$.list.width = '260';
       this.$.list.height = '260';
     } else {
-      this.$.list.width = '580';
+      this.$.list.grid = false;
+      this.$.list.width = false;
       this.$.list.heioght = '65';
     }
   },

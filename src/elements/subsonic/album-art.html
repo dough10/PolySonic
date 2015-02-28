@@ -12,7 +12,6 @@
     <style shim-shadowdom>
       :host {
         display:inline-block;
-        margin:0.5%;
       }
       #card {
         border-radius:2px;
@@ -191,9 +190,9 @@
         border-color: #000;
       }
     </style>
-    <paper-shadow z="1" id="card">
+    <div id="card">
       <core-animated-pages selected="{{page}}" valueattr="page" transitions="crossfade hero-transition">
-        <div page="cover">
+        <paper-shadow page="cover">
           <div class="wrapper">
             <template if="{{isLoading}}">
               <div class="spinWrapper">
@@ -210,8 +209,8 @@
               <div class="album">{{album}}</div>
             </div>
           </div>
-        </div>
-        <div page="info">
+        </paper-shadow>
+        <paper-shadow z="1" page="info">
           <div class="wrapper">
             <div id="overlay-high" hero-id="hero" hero="">
               <paper-icon-button id="icon" on-tap="{{closeSlide}}" class="left-icon" icon="close"></paper-icon-button>
@@ -241,7 +240,7 @@
               </core-item>
             </div>
           </div>
-        </div>
+        </paper-shadow>
         <div page="small">
           <div class="wrapper">
             <div id="overlay-high-small" hero-id="hero" hero="">
@@ -277,7 +276,7 @@
           </div>
         </div>
       </core-animated-pages>
-    </paper-shadow>
+    </div>
   </template>
   <script src="album-art.html.0.js"></script>
 </polymer-element>
