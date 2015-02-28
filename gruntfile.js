@@ -14,22 +14,11 @@ module.exports = function(grunt) {
           'build/vulcanized.html': 'src/index.html'
         },
       },
-    },
-    uglify: {
-      options: {
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
-      },
-      default: {
-        src: 'src/<%= pkg.name %>.js',
-        dest: 'src/<%= pkg.name %>.min.js'
-      }
     }
   });
-  grunt.loadNpmTasks('grunt-contrib-htmlmin');
   grunt.loadNpmTasks('grunt-vulcanize');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
 
   // Default task(s).
-  grunt.registerTask('default', ['uglify', 'vulcanize']);
+  grunt.registerTask('default', [vulcanize']);
 
 };
