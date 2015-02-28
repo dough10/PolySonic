@@ -207,32 +207,16 @@
 <body>
   <div id="loader">
     <div class="box">
-      <img
-        src="images/icon_128.png"
-        height="128"
-        width="128"
-        alt="Icon">
-      <div
-        style="height:30px">
-        <paper-spinner
-          id="spinner"
-          active="">
-        </paper-spinner>
+      <img src="images/icon_128.png" height="128" width="128" alt="Icon">
+      <div tyle="height:30px">
+        <paper-spinner id="spinner" active=""></paper-spinner>
       </div>
     </div>
   </div>
   <div unresolved>
     <template is="auto-binding" id="tmpl">
-      <animated-fab
-        style="-webkit-app-region: no-drag"
-        page="{{page}}"
-        on-tap="{{doAction}}">
-      </animated-fab>
-      <core-drawer-panel
-        id="panel"
-        narrow="{{narrow}}"
-        responsivewidth="191900px"
-        disableSwipe?="{{page !== 0}}">
+      <animated-fab style="-webkit-app-region: no-drag" page="{{page}}" on-tap="{{doAction}}"></animated-fab>
+      <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px" disableSwipe?="{{page !== 0}}">
         <!-- menu -->
         <core-scroll-header-panel drawer flex mode="seamed">
           <core-menu id="menu" selected="{{selected}}" valueattr="i">
@@ -266,43 +250,19 @@
           </core-menu>
         </core-scroll-header-panel>
         <!-- body -->
-        <core-header-panel
-          id="headerPanel"
-          main flex mode="seamed">
+        <core-header-panel id="headerPanel" main flex mode="seamed">
           <core-toolbar id="toolbar" class="medium-tall">
             <div flex></div>
-            <paper-icon-button
-              icon="remove"
-              on-tap="{{minimize}}">
-            </paper-icon-button>
-            <!--<paper-icon-button
-              class="max"
-              on-tap="{{maximize}}">
-            </paper-icon-button>-->
-            <paper-icon-button
-              icon="close"
-              on-tap="{{close}}">
-            </paper-icon-button>
+            <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
+            <!--<paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>-->
+            <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
             <template if="{{page === 0}}">
-              <paper-icon-button
-                icon="menu"
-                on-tap="{{openPanel}}"
-                class="bottom">
-              </paper-icon-button>
+              <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
               <div flex  class="bottom alignLeft">PolySonic</div>
-              <paper-icon-button
-                title="Change View"
-                on-tap="{{toggleWall}}"
-                icon="{{view}}"
-                class="bottom">
-              </paper-icon-button>
+              <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="{{view}}" class="bottom"></paper-icon-button>
             </template>
             <template if="{{page !== 0}}">
-              <paper-icon-button
-                class="bottom"
-                icon="arrow-back"
-                on-tap="{{back2List}}">
-              </paper-icon-button>
+              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
             </template>
             <template if="{{page === 1}}">
               <div class="bottom" flex>{{currentPlaying}}</div>
@@ -318,43 +278,18 @@
             </template>
             <template if="{{page !== 1}}">
               <template if="{{isNowPlaying}}">
-                <paper-icon-button
-                  title="Now Playing"
-                  on-tap="{{nowPlaying}}"
-                  icon="av:hearing"
-                  class="bottom">
-                </paper-icon-button>
+                <paper-icon-button title="Now Playing" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
               </template>
             </template>
           </core-toolbar>
-          <core-animated-pages
-            id="main"
-            on-core-animated-pages-transition-prepare="{{fixScroller}}"
-            on-core-animated-pages-transition-end="{{fixScroller}}"
-            selected="{{page}}"
-            transitions="slide-from-right">
+          <core-animated-pages id="main" on-core-animated-pages-transition-prepare="{{fixScroller}}" on-core-animated-pages-transition-end="{{fixScroller}}" selected="{{page}}" transitions="slide-from-right">
             <section>
-              <album-wall
-                id="wall"
-                listMode="{{listMode}}"
-                url="{{url}}"
-                user="{{user}}"
-                pass="{{pass}}"
-                version="{{version}}"
-                bitRate="{{bitRate}}"
-                querySize="{{querySize}}"
-                isLoading="{{isLoading}}">
-              </album-wall>
+              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}"></album-wall>
             </section>
             <section>
               <div id="coverArt"></div>
               <div class="controlsWrapper">
-                <paper-progress
-                  id="progress"
-                  value="{{progress}}"
-                  secondaryProgress="{{buffer}}"
-                  on-tap="{{progressClick}}">
-                </paper-progress>
+                <paper-progress id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
                 <div id="time">{{playTime}}</div>
                 <template if="{{playlist && playing !== 0}}">
                   <paper-icon-button
