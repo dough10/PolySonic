@@ -555,6 +555,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       totalMins = Math.floor(audio.duration / 60),
       totalSecs = Math.round(audio.duration - (totalMins * 60)),
       buffer;
+      
+    if (audio.duration) {
+      buffer = (audio.buffered.end(0) / audio.duration) * 100;
+      this.buffer = buffer;
+    }
 
     if (!audio.paused) {
       button.icon = "av:pause";
@@ -562,12 +567,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (!audio.duration) {
         this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
         this.progress = 0;
-        this.buffer = 0;
       } else {
         this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
-        buffer = (audio.buffered.end(0) / audio.duration) * 100;
         this.progress = progress;
-        this.buffer = buffer;
       }
     } else {
       this.isNowPlaying = false;
