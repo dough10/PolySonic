@@ -10,8 +10,8 @@
   <title>PolySonic</title>
   <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
   <script src="bower_components/x-notification/x-notification.js"></script>
-  <link href="src/subsonic/album-art.html" rel="import">
-  <link href="src/subsonic/album-wall.html" rel="import">
+  <link href="elements/subsonic/album-art.html" rel="import">
+  <link href="elements/subsonic/album-wall.html" rel="import">
   <link href="bower_components/core-animated-pages/core-animated-pages.html" rel="import">
   <link href="bower_components/core-animated-pages/transitions/slide-from-right.html" rel="import">
   <link href="bower_components/core-toolbar/core-toolbar.html" rel="import">
@@ -31,12 +31,12 @@
   <link href="bower_components/paper-shadow/paper-shadow.html" rel="import">
   <link href="bower_components/paper-input/paper-input.html" rel="import">
   <link href="bower_components/core-label/core-label.html" rel="import">
-  <link href="src/subsonic/volume-slider.html" rel="import">
-  <link href="src/subsonic/subsonic-login.html" rel="import">
-  <link href="src/subsonic/settings-menu.html" rel="import">
-  <link href="src/animated-fab/animated-fab.html" rel="import">
-  <link href="src/subsonic/album-details.html" rel="import">
-  <link href="src/subsonic/artist-details.html" rel="import">
+  <link href="elements/subsonic/volume-slider.html" rel="import">
+  <link href="elements/subsonic/subsonic-login.html" rel="import">
+  <link href="elements/subsonic/settings-menu.html" rel="import">
+  <link href="elements/animated-fab/animated-fab.html" rel="import">
+  <link href="elements/subsonic/album-details.html" rel="import">
+  <link href="elements/subsonic/artist-details.html" rel="import">
   <link href="bower_components/core-list/core-list.html" rel="import">
   <link href="bower_components/core-a11y-keys/core-a11y-keys.html" rel="import">
   <style shim-shadowdom>
@@ -292,93 +292,40 @@
                 <paper-progress id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
                 <div id="time">{{playTime}}</div>
                 <template if="{{playlist && playing !== 0}}">
-                  <paper-icon-button
-                    icon="av:skip-previous"
-                    on-tap="{{lastTrack}}"
-                    class="big">
-                  </paper-icon-button>
+                  <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
                 </template>
                 <template if="{{playlist[0] && playing === 0}}">
                   <paper-icon-button class="big"></paper-icon-button>
                 </template>
-                <paper-icon-button
-                  id="avIcon"
-                  class="huge"
-                  icon="av:pause"
-                  on-tap="{{playPause}}">
-                </paper-icon-button>
+                <paper-icon-button id="avIcon" class="huge" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
                 <template if="{{playlist[0]}}">
-                  <paper-icon-button
-                    icon="av:skip-next"
-                    on-tap="{{nextTrack}}"
-                    id="nextTrack"
-                    class="big">
-                  </paper-icon-button>
+                  <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
                 </template>
-                <paper-icon-button
-                  id="volume"
-                  icon="av:volume-up"
-                  on-tap="{{toggleVolume}}">
-                </paper-icon-button>
+                <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
               </div>
             </section>
             <section>
               <paper-shadow z='1' class='card'>
-                <settings-menu
-                  url="{{url}}"
-                  user="{{user}}"
-                  pass="{{pass}}"
-                  version="{{version}}"
-                  bitRate="{{bitRate}}"
-                  querySize="{{querySize}}">
-                </settings-menu>
+                <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}"></settings-menu>
               </paper-shadow>
             </section>
             <section>
-              <album-details
-                id="details"
-                url="{{url}}"
-                user="{{user}}"
-                pass="{{pass}}"
-                version="{{version}}"
-                bitRate="{{bitRate}}">
-              </album-details>
+              <album-details id="details" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}"></album-details>
             </section>
             <section>
-              <artist-details
-                id="aDetails"
-                listMode="{{listMode}}"
-                url="{{url}}"
-                user="{{user}}"
-                pass="{{pass}}"
-                version="{{version}}"
-                bitRate="{{bitRate}}">
-              </artist-details>
+              <artist-details id="aDetails" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}"></artist-details>
             </section>
           </core-animated-pages>
         </core-header-panel>
       </core-drawer-panel>
-      <paper-dialog
-        id="playlistDialog"
-        transition="core-transition-top"
-        heading="Playlist">
+      <paper-dialog id="playlistDialog" transition="core-transition-top" heading="Playlist">
         <paper-item on-tap="{{clearPlaylist}}">
           <core-icon icon="close"></core-icon>
           Clear Playlist
         </paper-item>
-        <core-menu
-          class="menu"
-          id="playlistMenu"
-          selected="{{playing}}">
+        <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
           <template repeat="{{playlist}}">
-            <paper-item
-              on-tap="{{playThis}}"
-              ident="{{id}}"
-              cover="{{cover}}"
-              artist="{{artist}}"
-              title="{{title}}"
-              style="color:#000000"
-              ident="{{id}}">
+            <paper-item on-tap="{{playThis}}" ident="{{id}}" cover="{{cover}}" artist="{{artist}}" title="{{title}}" style="color:#000000" ident="{{id}}">
               <div flex style="overflow:hidden">
                 {{artist}} - {{title}}
               </div>
@@ -394,11 +341,7 @@
         <volume-slider volume="{{volume}}"></volume-slider>
       </paper-dialog>
       <paper-action-dialog id="firstRun" autoclosedisabled transition="core-transition-center">
-        <subsonic-login
-          url="{{url}}"
-          user="{{user}}"
-          pass="{{pass}}"
-          version="{{version}}">
+        <subsonic-login url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}">
         </subsonic-login>
       </paper-action-dialog>
       <paper-action-dialog id='analistics' autoclosedisabled transition="core-transition-center" layered>
@@ -423,19 +366,7 @@
           <template if="{{searchResults.album}}">
             <h3>Albums</h3>
             <template repeat="{{searchResults.album}}">
-              <album-art
-                listMode="search"
-                bitRate="{{bitRate}}"
-                item="{{id}}"
-                cover="{{coverArt}}"
-                artist="{{artist}}"
-                album="{{name}}"
-                url="{{url}}"
-                user="{{user}}"
-                pass="{{pass}}"
-                version="{{version}}"
-                isFavorite="{{starred}}">
-              </album-art>
+              <album-art listMode="search" bitRate="{{bitRate}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" isFavorite="{{starred}}"></album-art>
             </template>
           </template>
           <template if="{{searchResults.song}}">
@@ -453,35 +384,16 @@
           </template>
         </div>
       </paper-dialog>
-      <core-a11y-keys
-        keys="space"
-        on-keys-pressed="{{playPause}}">
-      </core-a11y-keys>
-      <core-a11y-keys
-        keys="left"
-        on-keys-pressed="{{lastTrack}}">
-      </core-a11y-keys>
-      <core-a11y-keys
-        keys="right"
-        on-keys-pressed="{{nextTrack}}">
-      </core-a11y-keys>
-      <core-a11y-keys
-        keys="up"
-        on-keys-pressed="{{volUp}}">
-      </core-a11y-keys>
-      <core-a11y-keys
-        keys="down"
-        on-keys-pressed="{{volDown}}">
-      </core-a11y-keys>
-      <x-notification
-        id="playNotify"
-        timeout='5000'
-        tag="tag">
-      </x-notification>
-      <audio id="audio" preload="auto"></audio>
+      <core-a11y-keys keys="space" on-keys-pressed="{{playPause}}"></core-a11y-keys>
+      <core-a11y-keys keys="left" on-keys-pressed="{{lastTrack}}"></core-a11y-keys>
+      <core-a11y-keys keys="right"on-keys-pressed="{{nextTrack}}"></core-a11y-keys>
+      <core-a11y-keys keys="up" on-keys-pressed="{{volUp}}"></core-a11y-keys>
+      <core-a11y-keys keys="down" on-keys-pressed="{{volDown}}"></core-a11y-keys>
+      <x-notification id="playNotify" timeout='5000' tag="tag"></x-notification>
+      <audio id="audio" preload></audio>
     </template>
   </div>
   <script src="cast_sender.js"></script>
-  <script src="PolySonic.min.js"></script>
+  <script src="PolySonic.js"></script>
   <script src="google-analytics-bundle.js"></script>
 </body>

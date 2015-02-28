@@ -30,7 +30,9 @@ Polymer('album-wall', {
   },
   versionChanged: function () {
     'use strict';
-    this.post.v = this.version;
+    if (this.version) {
+      this.post.v = this.version;
+    }
   },
   clearData: function (callback) {
     'use strict';
@@ -74,6 +76,10 @@ Polymer('album-wall', {
         }.bind(this));
       } else {
         tmpl.pageLimit = true;
+      }
+      if (response.status === 'failed') {
+        console.log(response.error.message);
+        this.tmpl.doToast(response.error.message);
       }
     }
   },
@@ -134,6 +140,7 @@ Polymer('album-wall', {
   errorChanged: function () {
     'use strict';
     if (this.error) {
+      console.log(this.error);
       this.tmpl.doToast(this.error);
     }
   },

@@ -15,6 +15,7 @@
         text-align:center;
         margin:auto;
         font-family: 'RobotoDraft', sans-serif;
+        min-width:300px;
       }
       #load {
         position:absolute;
@@ -44,7 +45,7 @@
     <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v={{post.version}}&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
     </core-ajax>
       <h3>PolySonic</h3>
-      A Subconic streaming app made with Polymer..
+      A Subconic streaming app built with Polymer.
       <div id="validate">
         <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="URL Required" label="http://yourname.subsonic.org:4040">
           <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
