@@ -1,0 +1,72 @@
+{
+  "manifest_version": 2,
+  "name": "PolySonic",
+  "short_name": "PolySonic",
+  "description": "",
+  "version": "0.0.2",
+  "minimum_chrome_version": "38",
+
+  "icons": {
+    "16": "images/icon_16.png",
+    "128": "images/icon_128.png"
+  },
+
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },
+
+  "permissions": [
+    "https://www.google-analytics.com/",
+    "storage",
+    "notifications",
+    "fileSystem"
+  ],
+
+  "commands": {
+    
+    "playPauseMediaKey": {
+      "suggested_key": {
+        "default": "MediaPlayPause"
+      },
+      "description": "Play / Pause Music"
+    },
+    
+    "nextTrackMediaKey": {
+      "suggested_key": {
+        "default": "MediaNextTrack"
+      },
+      "description": "Skip to Next Track"
+    },
+    
+    "lastTrackMediaKey": {
+      "suggested_key": {
+        "default": "MediaPrevTrack"
+      },
+      "description": "Skip to Last Track"
+    },
+    
+    "nextTrack": {
+      "suggested_key": {
+        "default": "Ctrl+Right"
+      },
+      "description": "Skip to Next Track"
+    },
+    
+    "lastTrack": {
+      "suggested_key": {
+        "default": "Ctrl+Left"
+      },
+      "description": "Skip to Previous Track"
+    },
+    
+    "playPause": {
+      "suggested_key": {
+        "default": "Ctrl+P"
+      },
+      "description": "Play / Pause Current Track"
+    }
+    
+  }
+}

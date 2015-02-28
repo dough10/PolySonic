@@ -92,7 +92,10 @@
             tmpl.doToast("Loading Data");
             tmpl.tracker.sendEvent('API Version', 'Loaded', this.post.version);
             tmpl.$.firstRun.close();
-            wall.doAjax();
+            console.log(tmpl.version);
+            setTimeout(function () {
+              wall.doAjax();
+            }, 100);
           } else {
             this.tmpl.doToast(this.response['subsonic-response'].error.message);
           }

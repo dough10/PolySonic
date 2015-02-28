@@ -11,7 +11,7 @@ module.exports = function(grunt) {
           strip: true
         },
         files: {
-          'vulcanized.html': 'index.html'
+          'build/vulcanized.html': 'src/index.html'
         },
       },
     },
@@ -20,8 +20,8 @@ module.exports = function(grunt) {
         banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       },
       default: {
-        src: '<%= pkg.name %>.js',
-        dest: '<%= pkg.name %>.min.js'
+        src: 'src/<%= pkg.name %>.js',
+        dest: 'src/<%= pkg.name %>.min.js'
       }
     }
   });
