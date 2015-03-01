@@ -90,9 +90,8 @@
             tmpl.pass = this.post.pass;
             tmpl.version = this.post.version;
             tmpl.doToast("Loading Data");
-            tmpl.tracker.sendEvent('API Version', 'Loaded', this.post.version);
+            tmpl.tracker.sendEvent('API Version', this.post.version);
             tmpl.$.firstRun.close();
-            console.log(tmpl.version);
             setTimeout(function () {
               wall.doAjax();
             }, 100);

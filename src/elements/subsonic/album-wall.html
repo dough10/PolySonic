@@ -9,11 +9,6 @@
 </head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize isLoading">
   <template>
     <style>
-      :host {
-        height:100%;
-        overflow:auto;
-        width:100%:
-      }
       paper-item {
         text-align:center;
       }
@@ -63,7 +58,7 @@
     </core-scroll-threshold>
     <core-animated-pages selected="{{showing}}" valueattr="view" transitions="slide-from-right">
       <div view="cover">
-        <core-list id="list" data="{{wall}}" flex grid width="580" scrollTarget="{{scrollTarget}}">
+        <core-list id="list" data="{{wall}}" flex grid='false' scrollTarget="{{scrollTarget}}">
           <template>
             <div>
               <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}"></album-art>

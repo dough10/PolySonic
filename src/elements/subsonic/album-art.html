@@ -9,10 +9,9 @@
 <link href="../../bower_components/core-item/core-item.html" rel="import">
 </head><body><polymer-element name="album-art" attributes="artist album cover item user pass url version isFavorite listMode bitRate">
   <template>
-    <style>
+    <style shim-shadowdom>
       :host {
         display:inline-block;
-        margin:0.5%;
       }
       #card {
         border-radius:2px;
@@ -164,12 +163,45 @@
         top: 70px;
         left: 70px;
       }
+      .spinWrapper {
+        background:rgba(255,255,255,0.6);
+        overflow:hidden;
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        right:0;
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
+        pinter-events:none;
+      }
+      .spinner {
+        z-index:2;
+        pointer-events:none;
+      }
+      .spinner::shadow .circle {
+        border-color: #000;
+      }
     </style>
-    <paper-shadow z="1" id="card">
+    <div id="card">
       <core-animated-pages selected="{{page}}" valueattr="page" transitions="crossfade hero-transition">
-        <div page="cover">
+        <paper-shadow page="cover">
           <div class="wrapper">
-            <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{playAlbum}}"></paper-icon-button>
+            <template if="{{isLoading}}">
+              <div class="spinWrapper">
+                <paper-spinner class="spinner" active></paper-spinner>
+              </div>
+            </template>
+            <template if="{{playlist[0]}}">
+              <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{playAlbum}}"></paper-icon-button>
+            </template>
             <div id="overlay-low" hero-id="hero" hero="">
               <paper-icon-button id="icon" on-tap="{{slideUp}}" class="left-icon" icon="more-vert"></paper-icon-button>
               <div class="artist">{{artist}}</div>
@@ -177,8 +209,8 @@
               <div class="album">{{album}}</div>
             </div>
           </div>
-        </div>
-        <div page="info">
+        </paper-shadow>
+        <paper-shadow z="1" page="info">
           <div class="wrapper">
             <div id="overlay-high" hero-id="hero" hero="">
               <paper-icon-button id="icon" on-tap="{{closeSlide}}" class="left-icon" icon="close"></paper-icon-button>
@@ -208,7 +240,7 @@
               </core-item>
             </div>
           </div>
-        </div>
+        </paper-shadow>
         <div page="small">
           <div class="wrapper">
             <div id="overlay-high-small" hero-id="hero" hero="">
@@ -244,7 +276,7 @@
           </div>
         </div>
       </core-animated-pages>
-    </paper-shadow>
+    </div>
   </template>
   <script src="album-art.html.0.js"></script>
 </polymer-element>
