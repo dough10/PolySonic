@@ -167,7 +167,7 @@ Polymer('album-wall', {
       this.$.list.height = '260';
     } else {
       this.$.list.grid = false;
-      this.$.list.width = false;
+      this.$.list.width = '605';
       this.$.list.heioght = '65';
     }
   },

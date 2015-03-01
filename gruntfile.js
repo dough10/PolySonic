@@ -19,6 +19,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-vulcanize');
 
   // Default task(s).
-  grunt.registerTask('default', [vulcanize']);
+  grunt.registerTask('default', ['vulcanize']);
 
 };
