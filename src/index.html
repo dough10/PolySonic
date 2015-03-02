@@ -1,6 +1,5 @@
 <!doctype html>
 <html>
-
 <head>
   <meta charset="utf-8">
   <meta name="mobile-web-app-capable" content="yes">
@@ -16,7 +15,7 @@
 <body>
   <div id="loader">
     <div class="box">
-      <img src="images/icon_128.png" height="128" width="128" alt="Icon">
+      <img src="../images/icon_128.png" height="128" width="128" alt="Icon">
       <div tyle="height:30px">
         <paper-spinner id="spinner" active=""></paper-spinner>
       </div>
@@ -159,11 +158,14 @@
         <paper-button affirmative on-tap="{{allowAnalistics}}">Accept</paper-button>
       </paper-action-dialog>
       <paper-dialog id="searchDialog" header="Search" transition="core-transition-center">
-        <div style="margin:auto; text-align: center;">
+        <div flex style="text-align: center;">
           <paper-input value="{{searchQuery}}"></paper-input>
           <paper-button on-tap="{{doSearch}}" style="background:#cccccc; color:#ffffff;">
             <core-icon icon="search"></core-icon>
           </paper-button>
+        </div>
+        <div>
+          <paper-icon-button icon="close"></paper-icon-button>
         </div>
         <div style="height:400px; width:400px; overflow-y:scroll; text-align: center;">
           <template if="{{searchResults.artist}}">
@@ -199,7 +201,7 @@
       <core-a11y-keys keys="up" on-keys-pressed="{{volUp}}"></core-a11y-keys>
       <core-a11y-keys keys="down" on-keys-pressed="{{volDown}}"></core-a11y-keys>
       <x-notification id="playNotify" timeout='5000' tag="tag"></x-notification>
-      <audio id="audio" preload></audio>
+      <audio id="audio"></audio>
     </template>
   </div>
   <script src="js/cast_sender.js"></script>

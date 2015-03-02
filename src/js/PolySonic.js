@@ -322,9 +322,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
               this.doToast(response.error.meessage);
             }
           } else {
-            this.tracker.sendEvent('Connection Error', response.error.meessage);
+            this.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
             this.$.firstRun.toggle();
-            this.doToast(response.error.meessage);
+            this.doToast(e.target.response['subsonic-response'].error.meessage);
           }
         }.bind(this));
       }

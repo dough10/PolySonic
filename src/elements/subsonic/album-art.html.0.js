@@ -5,7 +5,7 @@ Polymer('album-art', {
   */
   created: function () {
     'use strict';
-    this.imgURL = 'images/default-cover-art.png';
+    this.imgURL = '../../../images/default-cover-art.png';
   },
 
   ready: function () {
@@ -74,7 +74,7 @@ Polymer('album-art', {
       request = transaction.objectStore("albumInfo").count(id);
     request.onsuccess = function () {
       if (request.result === 0) {
-        var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + id;
+        var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&size=600&id=" + id;
         this.tmpl.doXhr(url, 'json', function (e) {
           this.trackResponse = e.target.response;
           this.putInDb(this.trackResponse, id, function () {

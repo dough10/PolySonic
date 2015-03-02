@@ -5,7 +5,7 @@ Polymer('album-details', {
   */
   created: function () {
     'use strict';
-    this.imgURL = this.imgURL || 'images/default-cover-art.png';
+    this.imgURL = this.imgURL || '../../../images/default-cover-art.png';
   },
 
   ready: function () {
