@@ -6,11 +6,9 @@ Polymer('artist-details', {
     this.tmpl = document.querySelector("#tmpl");
     this.scrollTarget = this.tmpl.appScroller();
   },
-  artistIdChanged: function () {
+  queryData: function () {
     this.data = null;
     this.data = [];
-  },
-  queryData: function () {
     var url = this.url + "/rest/getArtist.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.artistId;
     this.tmpl.doXhr(url, 'json', function (event) {
       var response = event.target.response['subsonic-response'];

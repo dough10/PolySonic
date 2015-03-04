@@ -252,9 +252,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     audio.onended = this.nextTrack.bind(this);
 
     audio.onerror = function (e) {
-      console.log(e);
       this.tracker.sendEvent('Audio Playback Error', e.target);
-    };
+    }.bind(this);
   };
 
   this.loadData = function () {
