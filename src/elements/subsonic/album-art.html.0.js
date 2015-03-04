@@ -29,7 +29,7 @@ Polymer('album-art', {
     'use strict';
     if (this.listMode === 'list') {
       this.page = "small";
-      this.width = '605px';
+      this.width = '589px';
       this.height = "60px";
     } else if (this.listMode === 'search') {
       this.page = 'search';
