@@ -23,7 +23,7 @@
   </div>
   <div unresolved>
     <template is="auto-binding" id="tmpl">
-      <animated-fab style="-webkit-app-region: no-drag" page="{{page}}" on-tap="{{doAction}}"></animated-fab>
+      <animated-fab page="{{page}}" on-tap="{{doAction}}"></animated-fab>
       <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px" disableSwipe?="{{page !== 0}}">
         <!-- menu -->
         <core-scroll-header-panel drawer flex mode="seamed">
@@ -47,10 +47,10 @@
               <core-icon icon="favorite"></core-icon>
               Favorites
             </paper-item>
-            <paper-item on-tap="{{openSearch}}">
+            <!--<paper-item on-tap="{{openSearch}}">
               <core-icon icon="search"></core-icon>
               Search
-            </paper-item>
+            </paper-item>-->
             <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
               Settings
@@ -126,9 +126,14 @@
           </core-animated-pages>
         </core-header-panel>
       </core-drawer-panel>
-      <paper-dialog id="playlistDialog" transition="core-transition-top" heading="Playlist">
-        <paper-item on-tap="{{clearPlaylist}}">
-          <core-icon icon="close"></core-icon>
+      <paper-dialog id="playlistDialog" transition="core-transition-top">
+        <div horizontal layout>
+          <div flex></div>
+          <div>
+            <paper-icon-button style='-webkit-app-region: no-drag; color:#db4437;' icon="close" title="Close" on-tap="{{closePlaylist}}"></paper-icon-button>
+          </div>
+        </div>
+        <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
           Clear Playlist
         </paper-item>
         <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
@@ -160,14 +165,16 @@
         <paper-button affirmative on-tap="{{allowAnalistics}}">Accept</paper-button>
       </paper-action-dialog>
       <paper-dialog id="searchDialog" header="Search" transition="core-transition-center">
-        <div flex style="text-align: center;">
-          <paper-input value="{{searchQuery}}"></paper-input>
-          <paper-button on-tap="{{doSearch}}" style="background:#cccccc; color:#ffffff;">
-            <core-icon icon="search"></core-icon>
-          </paper-button>
-        </div>
-        <div>
-          <paper-icon-button icon="close"></paper-icon-button>
+        <div horizontal layout>
+          <div flex style="text-align: center;">
+            <paper-input value="{{searchQuery}}"></paper-input>
+            <paper-button on-tap="{{doSearch}}">
+              <core-icon icon="search"></core-icon>
+            </paper-button>
+          </div>
+          <div>
+            <paper-icon-button style='-webkit-app-region: no-drag; color:#db4437;' icon="close" title="Close" on-tap="{{closeSearch}}"></paper-icon-button>
+          </div>
         </div>
         <div style="height:400px; width:400px; overflow-y:scroll; text-align: center;">
           <template if="{{searchResults.artist}}">

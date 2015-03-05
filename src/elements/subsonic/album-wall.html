@@ -40,12 +40,33 @@
         font-size: 14px;
         overflow:hidden;
       }
+      a {
+        color:#000000;
+        text-decoration: none;
+      }
+      h3 {
+        color: #db4437
+      }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <core-scroll-threshold id="threshold" lowerThreshold="500" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
     <core-animated-pages selected="{{showing}}" valueattr="view" transitions="slide-from-right">
       <div view="cover">
+        <template if="{{!isLoading && !wall[0]}}">
+          <paper-shadow class='card' style="text-align:center;">
+            <h3>Add some Content</h3>
+            Currently there is no media to play. to add content open the official Subsonic webapp.
+            <br><br>
+            Found Here <a href="{{url}}" target='_blank'>{{url}}</a>
+            <br><br>
+            To add albums navigate to Settings > Media Folders.
+            <br><br>
+            To add Podcast click Podcast in the top menu row.
+            <br><br>
+            To add a album to your favorites just click the heart on the album you want to favorite.
+          </paper-shadow>
+        </template>
         <core-list id="list" data="{{wall}}" flex grid='false' scrollTarget="{{scrollTarget}}">
           <template>
             <div>
@@ -59,6 +80,20 @@
         <div class="foot"></div>
       </div>
       <div view="podcast">
+        <template if="{{!isLoading && !podcast[0]}}">
+          <paper-shadow class='card' style="text-align:center;">
+            <h3>Add some Content</h3>
+            Currently there is no media to play. to add content open the official Subsonic webapp.
+            <br><br>
+            Found Here <a href="{{url}}" target='_blank'>{{url}}</a>
+            <br><br>
+            To add albums navigate to Settings > Media Folders.
+            <br><br>
+            To add Podcast click Podcast in the top menu row.
+            <br><br>
+            To add a album to your favorites just click the heart on the album you want to favorite.
+          </paper-shadow>
+        </template>
         <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
           <template>
             <div>
@@ -88,6 +123,20 @@
         <div class="foot"></div>
       </div>
       <div view="artists">
+        <template if="{{!isLoading && !artists[0]}}">
+          <paper-shadow class='card' style="text-align:center;">
+            <h3>Add some Content</h3>
+            Currently there is no media to play. to add content open the official Subsonic webapp.
+            <br><br>
+            Found Here <a href="{{url}}" target='_blank'>{{url}}</a>
+            <br><br>
+            To add albums navigate to Settings > Media Folders.
+            <br><br>
+            To add Podcast click Podcast in the top menu row.
+            <br><br>
+            To add a album to your favorites just click the heart on the album you want to favorite.
+          </paper-shadow>
+        </template>
         <core-list id="artists" data="{{artists}}" flex scrollTarget="{{scrollTarget}}">
           <template>
             <div>

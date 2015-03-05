@@ -21,7 +21,6 @@
         z-index:5;
         position:fixed !important;
         background: #db4437;
-        -webkit-app-region: no-drag;
       }
       core-animated-pages {
         height:100%;
@@ -51,7 +50,7 @@
         <paper-fab class="bottom" icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
       </div>
       <div class="page" page="top">
-        <paper-fab class="top" icon="list" hero-id="foo" hero layered></paper-fab>
+        <paper-fab class="top" icon="list" hero-id="foo" hero layered  style='-webkit-app-region: no-drag;'></paper-fab>
       </div>
       <div page="mid">
         <paper-fab class="mid" icon="av:play-arrow" hero-id="foo" hero layered></paper-fab>

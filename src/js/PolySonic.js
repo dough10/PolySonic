@@ -330,6 +330,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }.bind(this));
   };
 
+  this.closeSearch = function () {
+    this.$.searchDialog.close();
+  };
+
+  this.closePlaylist = function () {
+    this.$.playlistDialog.close();
+  };
+
   this.doToast = function (text) {
     var toast = document.querySelector("#toast");
     toast.text = text;

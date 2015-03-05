@@ -160,3 +160,6 @@ paper-input /deep/ .focused-underline  {
 core-menu core-icon {
   margin-right:16px;
 }
+.redClose {
+  color: #db4437;
+}
