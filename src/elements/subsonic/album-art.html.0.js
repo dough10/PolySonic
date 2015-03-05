@@ -132,7 +132,6 @@ Polymer('album-art', {
   */
   coverChanged: function () {
     'use strict';
-    document.querySelector("#tmpl").showApp();
     if (this.cover) {
       this.isLoading = true;
       var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + this.cover;
@@ -185,6 +184,7 @@ Polymer('album-art', {
 
   doDialog: function () {
     'use strict';
+    this.tmpl.$.searchDialog.close();
     this.tmpl.setScrollerPos();
     var data = {artist: this.artist, album: this.album, id: this.item, coverid: this.cover, cover: this.imgURL, tracks: this.tracks, favorite: this.isFavorite, parent: this.albumID},
       details = document.querySelector("#details");
@@ -223,6 +223,7 @@ Polymer('album-art', {
 
   playAlbum: function () {
     'use strict';
+    this.tmpl.$.searchDialog.close();
     this.tmpl.setScrollerPos();
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
     if (this.cover) {

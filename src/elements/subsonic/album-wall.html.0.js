@@ -1,18 +1,30 @@
 Polymer('album-wall', {
   created: function () {
     'use strict';
-    this.post = {
-      f: 'json',
-      c: 'PolySonic',
-      type: 'newest',
-      size: 20,
-      offset: 0
-    };
-    this.showing = this.showing || 'cover';
-    this.wall = [];
-    this.podcast = [];
-    this.artists = [];
-    this.request = this.request || 'getAlbumList2';
+    chrome.storage.sync.get(function (res) {
+      this.post = {
+        f: 'json',
+        c: 'PolySonic',
+        type: res.sortType || 'newest',
+        size: 20,
+        offset: 0
+      };
+      this.request = res.request || 'getAlbumList2';
+      this.showing = this.showing || 'cover';
+      this.wall = [];
+      this.podcast = [];
+      this.artists = [];
+      if (res.request === 'getPodcasts') {
+        this.showing = 'podcast';
+        this.getPodcast();
+      } else if (res.request === 'getStarred2') {
+        this.showing = 'cover';
+        this.getStarred();
+      } else if (res.request === 'getArtists') {
+        this.showing = 'artists';
+        this.getArtist();
+      }
+    }.bind(this));
   },
   domReady: function () {
     'use strict';
@@ -81,6 +93,7 @@ Polymer('album-wall', {
         console.log(response.error.message);
         this.tmpl.doToast(response.error.message);
       }
+      tmpl.showApp();
     }
   },
   doAjax: function () {
@@ -96,6 +109,10 @@ Polymer('album-wall', {
       this.post.offset = 0;
       this.$.ajax.go();
       this.showing = 'podcast';
+      chrome.storage.sync.set({
+        'sortType': this.post.type,
+        'request': this.request
+      });
     }.bind(this));
   },
   getStarred: function () {
@@ -107,6 +124,10 @@ Polymer('album-wall', {
       this.post.offset = 0;
       this.$.ajax.go();
       this.showing = 'cover';
+      chrome.storage.sync.set({
+        'sortType': this.post.type,
+        'request': this.request
+      });
     }.bind(this));
   },
   getArtist: function () {
@@ -118,6 +139,10 @@ Polymer('album-wall', {
       this.post.offset = 0;
       this.$.ajax.go();
       this.showing = 'artists';
+      chrome.storage.sync.set({
+        'sortType': this.post.type,
+        'request': this.request
+      });
     }.bind(this));
   },
   sortChanged: function () {
@@ -129,6 +154,10 @@ Polymer('album-wall', {
       this.post.offset = 0;
       this.$.ajax.go();
       this.showing = 'cover';
+      chrome.storage.sync.set({
+        'sortType': this.post.type,
+        'request': this.request
+      });
     }.bind(this));
   },
   resizeLists: function () {

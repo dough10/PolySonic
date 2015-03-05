@@ -47,10 +47,10 @@
               <core-icon icon="favorite"></core-icon>
               Favorites
             </paper-item>
-            <!--<paper-item on-tap="{{openSearch}}">
+            <paper-item on-tap="{{openSearch}}">
               <core-icon icon="search"></core-icon>
               Search
-            </paper-item>-->
+            </paper-item>
             <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
               Settings
@@ -126,7 +126,7 @@
           </core-animated-pages>
         </core-header-panel>
       </core-drawer-panel>
-      <paper-dialog id="playlistDialog" transition="core-transition-top">
+      <paper-dialog id="playlistDialog" style="min-height:695px; min-width:535px;" transition="core-transition-top">
         <div horizontal layout>
           <div flex></div>
           <div>
@@ -155,7 +155,7 @@
         <br>
         <volume-slider volume="{{volume}}"></volume-slider>
       </paper-dialog>
-      <paper-action-dialog id="firstRun" autoclosedisabled transition="core-transition-center">
+      <paper-action-dialog id="firstRun" style="min-height: 425px;" autoclosedisabled transition="core-transition-center">
         <subsonic-login url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}">
         </subsonic-login>
       </paper-action-dialog>
@@ -167,7 +167,7 @@
       <paper-dialog id="searchDialog" header="Search" transition="core-transition-center">
         <div horizontal layout>
           <div flex style="text-align: center;">
-            <paper-input value="{{searchQuery}}"></paper-input>
+            <paper-input value="{{searchQuery}}" style="width: 300px;"></paper-input>
             <paper-button on-tap="{{doSearch}}">
               <core-icon icon="search"></core-icon>
             </paper-button>
@@ -177,13 +177,17 @@
           </div>
         </div>
         <div style="height:400px; width:400px; overflow-y:scroll; text-align: center;">
+          <template if="{{searching}}">
+            <paper-spinner active></paper-spinner>
+            <br>
+          </template>
           <template if="{{searchResults.artist}}">
             <h3>Artists</h3>
             <template repeat="{{searchResults.artist}}">
               <core-item>{{name}}</core-item>
             </template>
           </template>
-          <template if="{{searchResults.album}}">
+          <template if="{{searchResults.album[0]}}">
             <h3>Albums</h3>
             <template repeat="{{searchResults.album}}">
               <album-art listMode="search" bitRate="{{bitRate}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" isFavorite="{{starred}}"></album-art>
@@ -201,6 +205,9 @@
                 <paper-icon-button on-tap="{{doDownload}}" ident="{{id}}"  icon="file-download"></paper-icon-button>
               </core-item>
             </template>
+          </template>
+          <template if="{{!searchResults.artist && !searchResults.album[0] && searchResults.song}}">
+            No results matching query
           </template>
         </div>
       </paper-dialog>

@@ -133,6 +133,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     if (!visible) {
       loader.classList.add('hide');
       box.classList.add('hide');
+      box.classList.add('hide');
       this.fire('loaded');
     }
   };
@@ -143,15 +144,17 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.doSearch = function () {
     if (this.searchQuery) {
+      this.searching = true;
       var url = this.url + '/rest/search3.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&query=' + encodeURIComponent(this.searchQuery);
       this.doXhr(url, 'json', function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
+          this.searching = false;
           var response = e.target.response['subsonic-response'];
           this.searchResults = [];
           this.searchResults.artist = response.searchResult3.artist;
           this.searchResults.album = [];
           this.searchResults.song = response.searchResult3.song;
-          if (response.searchResult3.album !== null) {
+          if (response.searchResult3.album !== null && response.searchResult3.album !== undefined) {
             Array.prototype.forEach.call(response.searchResult3.album, function (e) {
               var data = {artist: e.artist, coverArt: e.coverArt, id: e.id, name: e.name, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate, listMode: 'cover'};
               this.searchResults.album.push(data);

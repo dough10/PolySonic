@@ -69,6 +69,18 @@
         text-align:left;
         font-size: 12pt;
       }
+      #overlay-full {
+        position:absolute;
+        top:-2%;
+        left:-0.5%;
+        height:65px;
+        width:375px;
+        padding:0.5em;
+        background:rgba(255,255,255, 1);
+        border:1px solid #d8d8d8;
+        text-align:left;
+        font-size: 12pt;
+      }
       #overlay-off {
         position:absolute;
         top:100%;
@@ -267,7 +279,7 @@
         </div>
         <div page="search">
           <div class="wrapper">
-            <div id="overlay-high-small" hero-id="hero" hero="">
+            <div id="overlay-full" hero-id="hero" hero="">
               <core-item>
                 <div flex style="overflow:hidden">
                   {{artist}} - {{album}}
