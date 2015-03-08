@@ -1,4 +1,4 @@
-/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics */
+/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob */
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
   'use strict';
 
@@ -134,14 +134,48 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       loader.classList.add('hide');
       box.classList.add('hide');
       box.classList.add('hide');
-      this.fire('loaded');
+      this.askAnalistics();
     }
+  };
+
+  this.askAnalistics = function () {
+    chrome.storage.sync.get(function (result) {
+      this.service.getConfig().addCallback(
+        /** @param {!analytics.Config} config */
+        function (config) {
+          if (result.analistics === undefined) {
+            this.askUser();
+          } else {
+            config.setTrackingPermitted(result.analistics);
+          }
+          this.allowAnalistics = function () {
+            config.setTrackingPermitted(true);
+            chrome.storage.sync.set({
+              'analistics': true
+            });
+          };
+
+          this.disAllowAnalistics = function () {
+            config.setTrackingPermitted(false);
+            chrome.storage.sync.set({
+              'analistics': false
+            });
+          };
+        }.bind(this)
+      );
+    }.bind(this));
   };
 
   this.askUser = function () {
     this.$.analistics.toggle();
   };
 
+  /*
+
+  curr3ently broke!!!!!!!!!!!
+
+
+  */
   this.doSearch = function () {
     if (this.searchQuery) {
       this.searching = true;
@@ -164,6 +198,88 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       }.bind(this));
     } else {
       this.doToast('No Query to Search');
+    }
+  };
+
+  this.checkForImage = function (id, callback) {
+    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
+      request = transaction.objectStore("albumInfo").count(id);
+    request.onsuccess = callback;
+    request.onerror = this.dbErrorHandler;
+  };
+
+  /* pull image from server */
+  this.getImageFile = function (url, id, callback) {
+    this.doXhr(url, 'blob', function (e) {
+      var blob = new Blob([e.target.response], {type: 'image/jpeg'});
+      this.putInDb(blob, id, callback);
+      console.log('New Image Added to indexedDB ' + id);
+    }.bind(this));
+  };
+
+  this.putInDb = function (data, id, callback) {
+    var transaction = this.db.transaction(["albumInfo"], "readwrite");
+    if (id) {
+      transaction.objectStore("albumInfo").put(data, id);
+      transaction.objectStore("albumInfo").get(id).onsuccess = callback;
+    }
+  };
+
+  this.getDbItem = function (id, callback) {
+    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
+      request = transaction.objectStore("albumInfo").get(id);
+    request.onsuccess = callback;
+    request.onerror = this.dbErrorHandler;
+  };
+
+  this.shufflePlay = function () {
+    var url = this.url + '/rest/getRandomSongs.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&size=200',
+      imgURL,
+      artId,
+      obj,
+      img,
+      mins,
+      seconds,
+      timeString;
+    this.doXhr(url, 'json', function (event) {
+      var data = event.target.response['subsonic-response'];
+      Array.prototype.forEach.call(data.randomSongs.song, function (item) {
+        mins = Math.floor(item.duration / 60);
+        seconds = Math.floor(item.duration - (mins * 60));
+        timeString = mins + ':' + ('0' + seconds).slice(-2);
+        artId = 'al-' + item.id;
+        img = this.url + '/rest/getCoverArt.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + artId;
+        obj = {id: item.id, artist: item.artist, title: item.title, duration: timeString, cover: img};
+        this.playlist.push(obj);
+        console.log(obj);
+        /*this.checkForImage(artId, function (res) {
+          if (res.target.result === 0) {
+            this.doXhr(img, 'blob', function (xhrEvent) {
+              var blob = new Blob([xhrEvent.target.response], {type: 'image/jpeg'});
+              this.putInDb(blob, artId, function (putEvent) {
+                imgURL = window.URL.createObjectURL(putEvent.target.result);
+
+
+                this.doPlayback();
+                console.log('New Image Added to indexedDB ' + artId);
+              }.bind(this));
+            }.bind(this));
+          } else {
+            this.getDbItem(artId, function (getEvent) {
+              imgURL = window.URL.createObjectURL(getEvent.target.result);
+              this.doPlayback();
+            }.bind(this));
+          }
+        }.bind(this));*/
+      }.bind(this));
+    }.bind(this));
+  };
+
+  this.doPlayback = function () {
+    if (this.$.audio.paused) {
+      var art = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
+      this.playing = 0;
+      this.playAudio(this.playlist[0].artist, this.playlist[0].title, art, this.playlist[0].cover);
     }
   };
 
@@ -206,34 +322,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         e.icon = 'check-box-outline-blank';
       });
     }
-
-    this.addEventListener('loaded', function () {
-      chrome.storage.sync.get(function (result) {
-        this.service.getConfig().addCallback(
-          /** @param {!analytics.Config} config */
-          function (config) {
-            if (result.analistics === undefined) {
-              this.askUser();
-            } else {
-              config.setTrackingPermitted(result.analistics);
-            }
-            this.allowAnalistics = function () {
-              config.setTrackingPermitted(true);
-              chrome.storage.sync.set({
-                'analistics': true
-              });
-            };
-
-            this.disAllowAnalistics = function () {
-              config.setTrackingPermitted(false);
-              chrome.storage.sync.set({
-                'analistics': false
-              });
-            };
-          }.bind(this)
-        );
-      }.bind(this));
-    }.bind(this));
 
     this.position = scroller.scrollTop;
 

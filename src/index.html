@@ -29,6 +29,10 @@
         <core-scroll-header-panel drawer flex mode="seamed">
           <core-menu id="menu" selected="{{selected}}" valueattr="i">
             <core-toolbar class="medium-tall"></core-toolbar>
+            <paper-item on-tap="{{shufflePlay}}">
+              <core-icon icon="av:shuffle"></core-icon>
+              Shuffle
+            </paper-item>
             <paper-item on-tap="{{getArtist}}">
               <core-icon icon="perm-identity"></core-icon>
               Artists List

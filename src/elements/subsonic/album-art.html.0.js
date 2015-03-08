@@ -49,15 +49,6 @@ Polymer('album-art', {
     console.log(e);
   },
 
-  /* query indexeddb content */
-  getDbItem: function (id, callback) {
-    'use strict';
-    var transaction = this.tmpl.db.transaction(["albumInfo"], "readwrite"),
-      request = transaction.objectStore("albumInfo").get(id);
-    request.onsuccess = callback;
-    request.onerror = this.dbErrorHandler;
-  },
-
   /* counts images in indexeddb with a given id */
   checkForImage: function (id, callback) {
     'use strict';
@@ -77,12 +68,12 @@ Polymer('album-art', {
         var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&size=600&id=" + id;
         this.tmpl.doXhr(url, 'json', function (e) {
           this.trackResponse = e.target.response;
-          this.putInDb(this.trackResponse, id, function () {
+          this.tmpl.putInDb(this.trackResponse, id, function () {
             console.log('New JSON Data Added to indexedDB ' + id);
           });
         }.bind(this));
       } else {
-        this.getDbItem(id, function (event) {
+        this.tmpl.getDbItem(id, function (event) {
           var data = event.target.result;
           this.trackResponse = data;
         }.bind(this));
@@ -107,26 +98,6 @@ Polymer('album-art', {
     this.isLoading = false;
   },
 
-  /* save content to indexeddb */
-  putInDb: function (data, id, callback) {
-    'use strict';
-    var transaction = this.tmpl.db.transaction(["albumInfo"], "readwrite");
-    if (id) {
-      transaction.objectStore("albumInfo").put(data, id);
-      transaction.objectStore("albumInfo").get(id).onsuccess = callback;
-    }
-  },
-
-  /* pull image from server */
-  getImageFile: function (url, id, callback) {
-    'use strict';
-    this.tmpl.doXhr(url, 'blob', function (e) {
-      var blob = new Blob([e.target.response], {type: 'image/jpeg'});
-      this.putInDb(blob, id, callback);
-      console.log('New Image Added to indexedDB ' + id);
-    }.bind(this));
-  },
-
   /*
     method ran when cover attribute is changed
   */
@@ -139,9 +110,9 @@ Polymer('album-art', {
         if (e.target.result === 0) {
           this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
           this.imgURL = this.defaultImgURL;
-          this.getImageFile(url, this.cover, this.setImage.bind(this));
+          this.tmpl.getImageFile(url, this.cover, this.setImage.bind(this));
         } else {
-          this.getDbItem(this.cover, this.setImage.bind(this));
+          this.tmpl.getDbItem(this.cover, this.setImage.bind(this));
         }
       }.bind(this));
     } else {
