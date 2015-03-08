@@ -48,7 +48,9 @@ Polymer('album-wall', {
   },
   clearData: function (callback) {
     'use strict';
-    this.scrollTarget.scrollTop = 0;
+    if (this.scrollTarget) {
+      this.scrollTarget.scrollTop = 0;
+    }
     this.artists = null;
     this.artists = [];
     this.wall = null;

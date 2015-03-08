@@ -110,8 +110,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.xhrProgress = function (e) {
     if (e.lengthComputable) {
-      var precent = Math.round(e.loaded / e.total) * 100;
-      console.log(precent);
+      /*var precent = Math.round(e.loaded / e.total) * 100;
+      console.log(precent);*/
     }
   };
 
@@ -138,6 +138,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
   };
 
+  /* request premission for analistics */
   this.askAnalistics = function () {
     chrome.storage.sync.get(function (result) {
       this.service.getConfig().addCallback(
@@ -232,54 +233,77 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     request.onerror = this.dbErrorHandler;
   };
 
+  this.shuffleOptions = function () {
+    var url = this.url + '/rest/getGenres.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
+    this.doXhr(url, 'json', function (e) {
+      this.genres = e.target.response['subsonic-response'].genres.genre;
+      this.$.shuffleOptions.open();
+      this.closeDrawer();
+    }.bind(this));
+  };
+
   this.shufflePlay = function () {
-    var url = this.url + '/rest/getRandomSongs.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&size=200',
+    this.$.audio.pause();
+    this.shuffleLoading = true;
+    this.playlist = null;
+    this.playlist = [];
+    var url,
       imgURL,
       artId,
       obj,
-      img,
       mins,
       seconds,
       timeString;
+    if (this.genreFilter) {
+      url = this.url + '/rest/getRandomSongs.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&size=200&genre=' + this.genreFilter;
+    } else {
+      url = this.url + '/rest/getRandomSongs.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&size=200';
+    }
     this.doXhr(url, 'json', function (event) {
       var data = event.target.response['subsonic-response'];
       Array.prototype.forEach.call(data.randomSongs.song, function (item) {
         mins = Math.floor(item.duration / 60);
         seconds = Math.floor(item.duration - (mins * 60));
         timeString = mins + ':' + ('0' + seconds).slice(-2);
-        artId = 'al-' + item.id;
-        img = this.url + '/rest/getCoverArt.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + artId;
-        obj = {id: item.id, artist: item.artist, title: item.title, duration: timeString, cover: img};
-        this.playlist.push(obj);
-        console.log(obj);
-        /*this.checkForImage(artId, function (res) {
-          if (res.target.result === 0) {
-            this.doXhr(img, 'blob', function (xhrEvent) {
-              var blob = new Blob([xhrEvent.target.response], {type: 'image/jpeg'});
-              this.putInDb(blob, artId, function (putEvent) {
-                imgURL = window.URL.createObjectURL(putEvent.target.result);
-
-
-                this.doPlayback();
-                console.log('New Image Added to indexedDB ' + artId);
-              }.bind(this));
-            }.bind(this));
-          } else {
-            this.getDbItem(artId, function (getEvent) {
-              imgURL = window.URL.createObjectURL(getEvent.target.result);
-              this.doPlayback();
-            }.bind(this));
-          }
-        }.bind(this));*/
+        artId = "al-" + item.albumId;
+        obj = {id: item.id, artist: item.artist, title: item.title, duration: timeString, cover: artId};
+        this.fixCoverArtForShuffle(obj);
       }.bind(this));
     }.bind(this));
   };
 
-  this.doPlayback = function () {
+  this.fixCoverArtForShuffle = function (obj) {
+    var img = this.url + '/rest/getCoverArt.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + obj.cover;
+    this.checkForImage(obj.cover, function(e) {
+      if (e.target.result === 0) {
+        this.getImageFile(img, obj.cover, function (ev) {
+          var raw = ev.target.result,
+            imgURL = window.URL.createObjectURL(raw);
+          obj.cover = imgURL;
+          this.playlist.push(obj);
+          this.doShufflePlayback();
+        }.bind(this));
+      } else {
+        this.getDbItem(obj.cover, function (ev) {
+          var raw = ev.target.result,
+            imgURL = window.URL.createObjectURL(raw);
+          obj.cover = imgURL;
+          this.playlist.push(obj);
+          this.doShufflePlayback();
+        }.bind(this));
+      }
+    }.bind(this));
+  };
+
+  this.doShufflePlayback = function () {
     if (this.$.audio.paused) {
       var art = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
       this.playing = 0;
       this.playAudio(this.playlist[0].artist, this.playlist[0].title, art, this.playlist[0].cover);
+      this.getImageForPlayer(this.playlist[0].cover);
+      this.page = 1;
+      this.$.shuffleOptions.close();
+      this.shuffleLoading = false;
     }
   };
 
@@ -644,6 +668,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.clearPlaylist = function () {
+    this.$.audio.pause();
+    this.$.audio.src = '';
+    this.$.playlistDialog.close();
+    this.page = 0;
     this.playlist = null;
     this.playlist = [];
   };

@@ -37,6 +37,7 @@
       #showPass {
         font-size:8pt;
         cursor:pointer;
+        display:inline-block;
       }
       paper-input-decorator {
         max-width:250px;
@@ -60,7 +61,7 @@
           <input is="core-input" id="password" type="password" value="{{post.pass}}">
         </paper-input-decorator>
         <br>
-        <div id="showPass" on-tap="{{hidePass}}">Show Password</div>
+        <div id="showPass" on-tap="{{hidePass}}">Show Password</div><br>
         <core-label>
           Subsonic Version:
           <paper-dropdown-menu label="Select Version">

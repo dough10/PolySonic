@@ -29,7 +29,7 @@
         <core-scroll-header-panel drawer flex mode="seamed">
           <core-menu id="menu" selected="{{selected}}" valueattr="i">
             <core-toolbar class="medium-tall"></core-toolbar>
-            <paper-item on-tap="{{shufflePlay}}">
+            <paper-item on-tap="{{shuffleOptions}}">
               <core-icon icon="av:shuffle"></core-icon>
               Shuffle
             </paper-item>
@@ -214,6 +214,35 @@
             No results matching query
           </template>
         </div>
+      </paper-dialog>
+      <paper-dialog id="shuffleOptions" transition="core-transition-center">
+        <core-label>
+          <h3>Shuffle Options</h3>
+          <core-label>
+            Genres:
+            <paper-dropdown-menu label="Optional">
+              <paper-dropdown style="z-index:1001" layered class="dropdown">
+                <core-menu selected="{{genreFilter}}" valueattr="i" class="menu">
+                  <template repeat="{{genres}}">
+                    <template if="{{songCount > 200}}">
+                      <paper-item i="{{value}}">{{value}}</paper-item>
+                    </template>
+                  </template>
+                </core-menu>
+              </paper-dropdown>
+            </paper-dropdown-menu>
+          </core-label>
+          <div style="text-align:center">
+            <paper-button on-tap="{{shufflePlay}}">
+              Play
+              <template if="{{shuffleLoading}}">
+                <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
+                  <paper-spinner active=""></paper-spinner>
+                </div>
+              </template>
+            </paper-button>
+          </div>
+        </core-label>
       </paper-dialog>
       <core-a11y-keys keys="space" on-keys-pressed="{{playPause}}"></core-a11y-keys>
       <core-a11y-keys keys="left" on-keys-pressed="{{lastTrack}}"></core-a11y-keys>

@@ -37,6 +37,7 @@
       #showPass {
         font-size:8pt;
         cursor:pointer;
+        display:inline-block;
       }
     </style>
     <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v={{post.version}}&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
@@ -56,7 +57,7 @@
           <input is="core-input" id="password" type="password" value="{{post.pass}}">
         </paper-input-decorator>
         <br>
-        <div id="showPass" on-tap="{{hidePass}}">Show Password</div>
+        <div id="showPass" on-tap="{{hidePass}}">Show Password</div><br>
         <core-label>
           Version:
           <paper-dropdown-menu label="Select Version" layered>
