@@ -28,6 +28,7 @@ Polymer('album-details', {
   setImage: function (img) {
     'use strict';
     this.$.head.style.backgroundImage = "url('" + img + "')";
+    this.$.topper.style.backgroundImage = "url('" + img + "')";
   },
 
   dataChanged: function () {
