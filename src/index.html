@@ -64,7 +64,7 @@
         <!-- body -->
         <core-header-panel id="headerPanel" main flex mode="seamed">
           <core-toolbar id="toolbar" class="medium-tall">
-            <div flex></div>
+            <div flex id='drag'></div>
             <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
             <!--<paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>-->
             <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
@@ -134,7 +134,7 @@
         <div horizontal layout>
           <div flex></div>
           <div>
-            <paper-icon-button style='-webkit-app-region: no-drag; color:#db4437;' icon="close" title="Close" on-tap="{{closePlaylist}}"></paper-icon-button>
+            <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closePlaylist}}"></paper-icon-button>
           </div>
         </div>
         <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>

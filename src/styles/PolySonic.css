@@ -126,14 +126,9 @@ paper-progress::shadow #secondaryProgress {
   opacity:0;
   visibility: hidden;
 }
-paper-icon-button {
-  -webkit-app-region: no-drag;
-}
-paper-dialog {
-  -webkit-app-region: no-drag;
-}
-#toolbar {
+#drag {
   -webkit-app-region: drag;
+  height:40px;
 }
 .card {
   margin:1%;
