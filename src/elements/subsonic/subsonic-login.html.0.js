@@ -13,7 +13,7 @@
       ready: function () {
         'use strict';
         this.post = [];
-        this.tmpl = document.querySelector("#tmpl");
+        this.tmpl = document.getElementById("tmpl");
       },
       validate: function (callback) {
         'use strict';
@@ -74,8 +74,7 @@
       },
       responseChanged: function () {
         'use strict';
-        var tmpl = document.querySelector("#tmpl"),
-          wall = document.querySelector('#wall');
+        var wall = document.getElementById('wall');
         
         if (this.response) {
           if (this.response['subsonic-response'].status === 'ok') {
@@ -85,13 +84,13 @@
               'pass': this.post.pass,
               'version': this.post.version
             });
-            tmpl.url = this.post.url;
-            tmpl.user = this.post.user;
-            tmpl.pass = this.post.pass;
-            tmpl.version = this.post.version;
-            tmpl.doToast("Loading Data");
-            tmpl.tracker.sendEvent('API Version', this.post.version);
-            tmpl.$.firstRun.close();
+            this.tmpl.url = this.post.url;
+            this.tmpl.user = this.post.user;
+            this.tmpl.pass = this.post.pass;
+            this.tmpl.version = this.post.version;
+            this.tmpl.doToast("Loading Data");
+            this.tmpl.tracker.sendEvent('API Version', this.post.version);
+            this.tmpl.$.firstRun.close();
             setTimeout(function () {
               wall.doAjax();
             }, 100);

@@ -3,7 +3,7 @@ Polymer('artist-details', {
     this.data = [];
   },
   domReady: function () {
-    this.tmpl = document.querySelector("#tmpl");
+    this.tmpl = document.getElementById("tmpl");
     this.scrollTarget = this.tmpl.appScroller();
   },
   queryData: function () {

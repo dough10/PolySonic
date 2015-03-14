@@ -14,7 +14,7 @@
 </head>
 <body>
   <div id="loader">
-    <div class="box">
+    <div id="box">
       <img src="../images/icon_128.png" height="128" width="128" alt="Icon">
       <div tyle="height:30px">
         <paper-spinner id="spinner" active=""></paper-spinner>
@@ -23,7 +23,7 @@
   </div>
   <div unresolved>
     <template is="auto-binding" id="tmpl">
-      <animated-fab page="{{page}}" on-tap="{{doAction}}"></animated-fab>
+      <animated-fab id="fab" page="{{page}}" on-tap="{{doAction}}"></animated-fab>
       <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px" disableSwipe?="{{page !== 0}}">
         <!-- menu -->
         <core-scroll-header-panel drawer flex mode="seamed">

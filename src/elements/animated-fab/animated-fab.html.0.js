@@ -24,6 +24,6 @@
         } else {
           this.state = 'off';
         }
-        document.querySelector("#tmpl").tracker.sendAppView(pName);
+        document.getElementById("tmpl").tracker.sendAppView(pName);
       }
     });

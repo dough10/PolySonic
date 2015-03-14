@@ -118,17 +118,18 @@ paper-progress::shadow #secondaryProgress {
   pointer-events: none;
   transition: all 0.5s;
 }
-.box {
+#box {
   width:128px;
   transition: all 0.4s;
 }
-.box.hide {
+#box.hide {
   opacity:0;
   visibility: hidden;
 }
 #drag {
   -webkit-app-region: drag;
   height:40px;
+  cursor: -webkit-grab;
 }
 .card {
   margin:1%;

@@ -13,15 +13,15 @@ Polymer('album-details', {
 
     this.playlist = [];
 
-    this.tmpl = document.querySelector("#tmpl");
+    this.tmpl = document.getElementById("tmpl");
 
   },
 
   domReady: function () {
     'use strict';
-    this.audio = document.querySelector("#audio");
+    this.audio = document.getElementById("audio");
 
-    this.playerArt = document.querySelector("#coverArt");
+    this.playerArt = document.getElementById("coverArt");
 
   },
 
@@ -84,9 +84,8 @@ Polymer('album-details', {
     var mins = Math.floor(sender.attributes.duration.value / 60),
       seconds = Math.floor(sender.attributes.duration.value - (mins * 60)),
       timeString = mins + ':' + ('0' + seconds).slice(-2),
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
-      playerArt = document.querySelector('#coverArt');
-    playerArt.style.backgroundImage = "url('" + this.data.cover + "')";
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
+    this.playerArt.style.backgroundImage = "url('" + this.data.cover + "')";
     this.tmpl.page = 1;
     this.tmpl.playlist = [{artist: sender.attributes.artist.value, title: sender.attributes.title.value, cover: this.data.cover, duration: timeString, id: sender.attributes.ident.value}];
     this.tmpl.playing = 0;

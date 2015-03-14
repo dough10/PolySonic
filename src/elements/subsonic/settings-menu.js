@@ -29,8 +29,8 @@
         this.post = [];
       },
       domReady: function () {
-        this.tmpl = document.querySelector("#tmpl");
-        this.wall = document.querySelector("#wall");
+        this.tmpl = document.getElementById("tmpl");
+        this.wall = document.getElementById("wall");
       },
       validate: function (callback) {
         'use strict';

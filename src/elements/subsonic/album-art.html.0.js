@@ -18,9 +18,9 @@ Polymer('album-art', {
 
     this.defaultImgURL = 'images/default-cover-art.png';
     
-    this.tmpl = document.querySelector("#tmpl");
+    this.tmpl = document.getElementById("tmpl");
     
-    this.audio = document.querySelector("#audio");
+    this.audio = document.getElementById("audio");
 
   },
 
@@ -158,14 +158,14 @@ Polymer('album-art', {
     this.tmpl.$.searchDialog.close();
     this.tmpl.setScrollerPos();
     var data = {artist: this.artist, album: this.album, id: this.item, coverid: this.cover, cover: this.imgURL, tracks: this.tracks, favorite: this.isFavorite, parent: this.albumID},
-      details = document.querySelector("#details");
+      details = this.tmpl.$.details;
     details.data = data;
     this.tmpl.page = 3;
   },
 
   defaultPlayerImage: function () {
     'use strict';
-    var art = document.querySelector('#coverArt');
+    var art = this.tmpl.$.coverArt;
     art.style.backgroundImage =  "url('images/default-cover-art.png')";
   },
 

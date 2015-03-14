@@ -28,9 +28,9 @@ Polymer('album-wall', {
   },
   domReady: function () {
     'use strict';
-    this.tmpl = document.querySelector("#tmpl");
-    this.audio = document.querySelector("#audio");
-    this.scrollTarget = document.querySelector("#tmpl").appScroller();
+    this.tmpl = document.getElementById("tmpl");
+    this.audio = document.getElementById("audio");
+    this.scrollTarget = this.tmpl.appScroller();
   },
   userChanged: function () {
     'use strict';
@@ -65,8 +65,7 @@ Polymer('album-wall', {
     'use strict';
     if (this.response) {
       var wall = this.wall,
-        response = this.response['subsonic-response'],
-        tmpl = document.querySelector("#tmpl");
+        response = this.response['subsonic-response'];
 
       if (response.albumList2 && response.albumList2.album) {
         Array.prototype.forEach.call(response.albumList2.album, function (e) {
@@ -95,7 +94,7 @@ Polymer('album-wall', {
         console.log(response.error.message);
         this.tmpl.doToast(response.error.message);
       }
-      tmpl.showApp();
+      this.tmpl.showApp();
     }
   },
   doAjax: function () {
@@ -203,7 +202,7 @@ Polymer('album-wall', {
     }
   },
   artistDetails: function (event, detail, sender) {
-    var artist = document.querySelector("#aDetails");
+    var artist = document.getElementById("aDetails");
     this.tmpl.setScrollerPos();
     artist.artistId = sender.attributes.ident.value;
     artist.queryData();

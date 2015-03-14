@@ -43,16 +43,16 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.getImageForPlayer = function (url) {
-    var art = document.querySelector('#coverArt'),
-      note = document.querySelector('#playNotify');
+    var art = this.$.coverArt,
+      note = this.$.playNotify;
 
     art.style.backgroundImage = "url('" + url + "')";
     note.icon = url;
   };
 
   this.defaultPlayImage = function () {
-    var art = document.querySelector('#coverArt'),
-      note = document.querySelector('#playNotify');
+    var art = this.$.coverArt,
+      note = this.$.playNotify;
 
     art.style.backgroundImage =  "url('images/default-cover-art.png')";
     note.icon = 'images/default-cover-art.png';
@@ -126,9 +126,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.showApp = function () {
-    var visible = document.querySelector("#loader").classList.contains("hide"),
-      loader = document.querySelector('#loader'),
-      box = document.querySelector(".box");
+    var loader = document.getElementById("loader"),
+      visible = loader.classList.contains("hide"),
+      box = document.getElementById("box");
 
     if (!visible) {
       loader.classList.add('hide');
@@ -376,7 +376,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.position = scroller.scrollTop;
 
     scroller.onscroll = function () {
-      var fab = document.querySelector('animated-fab');
+      var fab = this.$.fab;
 
       if (this.page === 0 && fab.state !== 'off' && scroller.scrollTop < this.position) {
         fab.state = 'off';
@@ -400,7 +400,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.loadData = function () {
     chrome.storage.sync.get(function (result) {
       if (result.url === undefined) {
-        document.querySelector('#firstRun').toggle();
+        this.$.firstRun.open();
       } else {
         this.url = result.url;
       }
@@ -480,14 +480,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.doToast = function (text) {
-    var toast = document.querySelector("#toast");
+    var toast = this.$.toast;
     toast.text = text;
     toast.show();
   };
 
   this.playAudio = function (artist, title, src, image) {
-    var audio = document.querySelector("#audio"),
-      note = document.querySelector("#playNotify");
+    var audio = this.$.audio,
+      note = this.$.playNotify;
     if (artist === '') {
       this.currentPlaying = title;
       note.title = title;
@@ -738,7 +738,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   }.bind(this), 200);
 
   chrome.commands.onCommand.addListener(function (command) {
-    var audio = document.querySelector('#audio');
+    var audio =this.$.audio;
     if (command === "playPauseMediaKey") {
       this.playPause();
     } else if (!audio.paused && command === "nextTrackMediaKey") {
