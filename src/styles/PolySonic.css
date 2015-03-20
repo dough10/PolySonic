@@ -1,3 +1,17 @@
+html /deep/ core-header-panel {
+  ::-webkit-scrollbar-track {
+    background:white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 7.5px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: lightgrey; //fallback
+    background-color: rgba(26, 26, 26, 0.25);
+  }
+}
 body {
   margin:0;
   font-family: 'RobotoDraft', sans-serif;

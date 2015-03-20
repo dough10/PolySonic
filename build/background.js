@@ -5,15 +5,15 @@ chrome.app.runtime.onLaunched.addListener(function() {
       'type': 'none'
     },
     'bounds': {
-      'width': 605,
+      'width': 535,
       'height': 761
     },
     'innerBounds': {
-      'width': 605,
+      'width': 535,
       'height': 761,
-      'minWidth': 605,
+      'minWidth': 535,
       'minHeight': 761,
-      'maxWidth': 605,
+      'maxWidth': 535,
       'maxHeight': 761
     }
   });
