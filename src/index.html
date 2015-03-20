@@ -188,7 +188,7 @@
           <template if="{{searchResults.artist}}">
             <h3>Artists</h3>
             <template repeat="{{searchResults.artist}}">
-              <core-item>{{name}}</core-item>
+              <paper-item on-tap="{{artistDetails}}" i="{{id}}">{{name}}</paper-item>
             </template>
           </template>
           <template if="{{searchResults.album[0]}}">
@@ -197,7 +197,7 @@
               <album-art listMode="search" bitRate="{{bitRate}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" isFavorite="{{starred}}"></album-art>
             </template>
           </template>
-          <template if="{{searchResults.song}}">
+          <!--<template if="{{searchResults.song}}">
             <h3>Songs</h3>
             <template repeat="{{searchResults.song}}">
               <core-item>
@@ -209,7 +209,7 @@
                 <paper-icon-button on-tap="{{doDownload}}" ident="{{id}}"  icon="file-download"></paper-icon-button>
               </core-item>
             </template>
-          </template>
+          </template>-->
           <template if="{{!searchResults.artist && !searchResults.album[0] && searchResults.song}}">
             No results matching query
           </template>
