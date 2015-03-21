@@ -124,7 +124,8 @@ Polymer('album-art', {
           this.tmpl.getDbItem(this.cover, this.setImage.bind(this));
         }
       }.bind(this));
-    } else {
+    } 
+    if (this.cover === undefined) {
       this.defaultArt();
     }
   },
