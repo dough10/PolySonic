@@ -226,9 +226,7 @@
                   <core-menu selected="{{genreFilter}}" valueattr="i" class="menu">
                     <paper-item i="">Optional</paper-item>
                     <template repeat="{{genres}}">
-                      <template if="{{songCount > 50}}">
-                        <paper-item i="{{value}}">{{value}}</paper-item>
-                      </template>
+                      <paper-item i="{{value}}">{{value}}</paper-item>
                     </template>
                   </core-menu>
                 </paper-dropdown>
