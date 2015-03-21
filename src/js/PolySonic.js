@@ -214,7 +214,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.doXhr(url, 'blob', function (e) {
       var blob = new Blob([e.target.response], {type: 'image/jpeg'});
       this.putInDb(blob, id, callback);
-      console.log('New Image Added to indexedDB ' + id);
+      console.log('Image Added to indexedDB ' + id);
     }.bind(this));
   };
 
@@ -227,10 +227,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.getDbItem = function (id, callback) {
-    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
-      request = transaction.objectStore("albumInfo").get(id);
-    request.onsuccess = callback;
-    request.onerror = this.dbErrorHandler;
+    if (id) {
+      var transaction = this.db.transaction(["albumInfo"], "readwrite"),
+        request = transaction.objectStore("albumInfo").get(id);
+      request.onsuccess = callback;
+      request.onerror = this.dbErrorHandler;
+    } else {
+      console.log('Invalid ID = ' + id);
+    }
   };
 
   this.shuffleOptions = function () {
@@ -692,6 +696,15 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
     return this.volume;
   };
+  
+  this.artistDetails = function (event, detail, sender) {
+    var artist = document.getElementById("aDetails");
+    this.setScrollerPos();
+    artist.artistId = sender.attributes.i.value;
+    artist.queryData();
+    this.$.searchDialog.close();
+    this.page = 4;
+  }
 
   this.clearPlaylist = function () {
     this.$.audio.pause();
