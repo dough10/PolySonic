@@ -53,8 +53,6 @@
           var invalid1 = this.$.input1.classList.contains("invalid"),
             invalid2 = this.$.input2.classList.contains("invalid"),
             invalid3 = this.$.input3.classList.contains("invalid");
-
-
           if (invalid1 && invalid2 && this.post.version === undefined) {
             this.tmpl.doToast("URL, Username & Version Required");
           } else if (invalid1) {
@@ -107,6 +105,17 @@
         req.onblocked = function () {
           console.log("Couldn't delete database due to the operation being blocked");
         };
+      },
+      clearSettings: function () {
+        chrome.storage.sync.clear();
+        this.tmpl.url = '';
+        this.tmpl.user = '';
+        this.tmpl.pass = '';
+        this.tmpl.version = '';
+        this.tmpl.bitRate = '';
+        this.tmpl.querySize = '';
+        this.post = [];
+        this.tmpl.doToast("Settings Cleared");
       },
       responseChanged: function () {
         'use strict';

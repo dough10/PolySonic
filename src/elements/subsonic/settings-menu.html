@@ -53,11 +53,11 @@
           <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
         </paper-input-decorator>
         <br>
-        <paper-input-decorator id="input2" labelvisible="" floatinglabel="" error="Username Required" label="Username">
+        <paper-input-decorator id="input2"labelvisible="" floatinglabel="" error="Username Required" label="Username">
           <input is="core-input" type="text" value="{{post.user}}" required="">
         </paper-input-decorator>
         <br>
-        <paper-input-decorator id="input3" labelvisible="" floatinglabel="" error="Password Required" label="Password">
+        <paper-input-decorator id="input3" labelvisible="" floatinglabel="" label="Password">
           <input is="core-input" id="password" type="password" value="{{post.pass}}">
         </paper-input-decorator>
         <br>
@@ -112,7 +112,12 @@
       </core-label>
       <br>
       <br>
+      <br>
+      <br>
       <paper-button on-tap="{{clearCache}}">Clear Cache</paper-button>
+      <br>
+      <br>
+      <paper-button on-tap="{{clearSettings}}">Clear Settings</paper-button>
     </div>
   </template>
   <script src="settings-menu.js"></script>

@@ -45,15 +45,15 @@
       <h3>PolySonic</h3>
       A Subconic streaming app built with Polymer.
       <div id="validate">
-        <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="URL Required" label="http://yourname.subsonic.org:4040">
+        <paper-input-decorator id="input1" autoValidate isInvalid="{{invalid1}}" labelvisible="" floatinglabel="" error="URL Required" label="http://yourname.subsonic.org:4040">
           <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
         </paper-input-decorator>
         <br>
-        <paper-input-decorator id="input2" labelvisible="" floatinglabel="" error="Username Required" label="Username">
+        <paper-input-decorator id="input2" autoValidate isInvalid="{{inValid2}}" labelvisible="" floatinglabel="" error="Username Required" label="Username">
           <input is="core-input" type="text" value="{{post.user}}" required="">
         </paper-input-decorator>
         <br>
-        <paper-input-decorator id="input3" labelvisible="" floatinglabel="" error="Password Required" label="Password">
+        <paper-input-decorator id="input3" autoValidate isInvalid="{{inValid3}}" labelvisible="" floatinglabel="" error="Password Required" label="Password">
           <input is="core-input" id="password" type="password" value="{{post.pass}}">
         </paper-input-decorator>
         <br>
