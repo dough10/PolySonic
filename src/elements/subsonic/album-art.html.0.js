@@ -88,13 +88,15 @@ Polymer('album-art', {
 
     if (imgURL === null) {
       console.log(this.cover + ' = null');
+      console.log(event);
+    } else {
+      this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+      this.imgURL = imgURL;
+      Array.prototype.forEach.call(this.playlist, function (e) {
+        e.cover = imgURL;
+      }.bind(this));
+      this.isLoading = false;
     }
-    this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-    this.imgURL = imgURL;
-    Array.prototype.forEach.call(this.playlist, function (e) {
-      e.cover = imgURL;
-    }.bind(this));
-    this.isLoading = false;
   },
 
   /*

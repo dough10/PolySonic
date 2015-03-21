@@ -211,11 +211,15 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   /* pull image from server */
   this.getImageFile = function (url, id, callback) {
-    this.doXhr(url, 'blob', function (e) {
-      var blob = new Blob([e.target.response], {type: 'image/jpeg'});
-      this.putInDb(blob, id, callback);
-      console.log('Image Added to indexedDB ' + id);
-    }.bind(this));
+    if (id !== undefined) {
+      this.doXhr(url, 'blob', function (e) {
+        var blob = new Blob([e.target.response], {type: 'image/jpeg'});
+        this.putInDb(blob, id, callback);
+        console.log('Image Added to indexedDB ' + id);
+      }.bind(this));
+    } else {
+      console.log('Image Error ID is undefined');
+    }
   };
 
   this.putInDb = function (data, id, callback) {
@@ -296,14 +300,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.shuffleLoading = false;
       this.doToast("Invalid Entry");
     }
-  };
-
-  this.validate = function (callback) {
-    var $d = this.$.validate.querySelectorAll('paper-input-decorator');
-    Array.prototype.forEach.call($d, function(d) {
-      d.isInvalid = !d.querySelector('input').validity.valid;
-    });
-    callback();
   };
 
   this.fixCoverArtForShuffle = function (obj) {
@@ -395,8 +391,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
     }.bind(this);
 
-    /* no longer needed untill resizing is reactivated */
-    //window.onresize = this.sizePlayer;
+    window.onresize = this.sizePlayer.bind(this);
 
     audio.onended = this.nextTrack.bind(this);
 
