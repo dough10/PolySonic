@@ -105,32 +105,6 @@ Polymer('album-art', {
   },
 
   /*
-    method ran when cover attribute is changed
-  */
-  coverChanged: function () {
-    'use strict';
-    /* default cover image */
-    this.defaultArt();
-    /* update with correct art if cover was returned with response */
-    if (this.cover && this.cover !== undefined) {
-      this.isLoading = true;
-      var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + this.cover;
-      this.checkForImage(this.cover, function (e) {
-        if (e.target.result === 0) {
-          this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
-          this.imgURL = this.defaultImgURL;
-          this.tmpl.getImageFile(url, this.cover, this.setImage.bind(this));
-        } else {
-          this.tmpl.getDbItem(this.cover, this.setImage.bind(this));
-        }
-      }.bind(this));
-    } 
-    if (this.cover === undefined) {
-      this.defaultArt();
-    }
-  },
-
-  /*
     slide up the box to cover art and show hidden details
   */
   slideUp: function () {
@@ -259,11 +233,24 @@ Polymer('album-art', {
 
   itemChanged: function () {
     'use strict';
+    this.defaultArt();
     if (this.item) {
       this.playlist = null;
       this.playlist = [];
       this.checkJSONEntry(this.item);
+      var artId = "al-" + this.item;
+      this.isLoading = true;
+      var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + artId;
+      this.checkForImage(artId, function (e) {
+        if (e.target.result === 0) {
+          this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+          this.imgURL = this.defaultImgURL;
+          this.tmpl.getImageFile(url, artId, this.setImage.bind(this));
+        } else {
+          this.tmpl.getDbItem(artId, this.setImage.bind(this));
+        }
+      }.bind(this));
     }
-  }
+    }
 });
 
