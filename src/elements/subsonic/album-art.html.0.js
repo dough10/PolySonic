@@ -59,25 +59,11 @@ Polymer('album-art', {
   },
 
   /* counts json entrys in indexeddb with a given id */
-  checkJSONEntry: function (id) {
+  checkJSONEntry: function (id, callback) {
     'use strict';
     var transaction = this.tmpl.db.transaction(["albumInfo"], "readwrite"),
       request = transaction.objectStore("albumInfo").count(id);
-    request.onsuccess = function () {
-      if (request.result === 0) {
-        var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&size=600&id=" + id;
-        this.tmpl.doXhr(url, 'json', function (e) {
-          this.trackResponse = e.target.response;
-          this.tmpl.putInDb(this.trackResponse, id, function () {
-            console.log('JSON Data Added to indexedDB ' + id);
-          });
-        }.bind(this));
-      } else {
-        this.tmpl.getDbItem(id, function (event) {
-          this.trackResponse = event.target.result;
-        }.bind(this));
-      }
-    }.bind(this);
+    request.onsuccess = callback;
   },
 
   /* setup image  */
@@ -85,18 +71,12 @@ Polymer('album-art', {
     'use strict';
     var imgFile = event.target.result,
       imgURL = window.URL.createObjectURL(imgFile);
-
-    if (imgURL === null) {
-      console.log(this.cover + ' = null');
-      console.log(event);
-    } else {
-      this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-      this.imgURL = imgURL;
-      Array.prototype.forEach.call(this.playlist, function (e) {
-        e.cover = imgURL;
-      }.bind(this));
-      this.isLoading = false;
-    }
+    this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+    this.imgURL = imgURL;
+    Array.prototype.forEach.call(this.playlist, function (e) {
+      e.cover = imgURL;
+    }.bind(this));
+    this.isLoading = false;
   },
   
   defaultArt: function () {
@@ -158,11 +138,7 @@ Polymer('album-art', {
     if (this.audio.paused) {
       this.tmpl.playing = 0;
       this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL);
-      if (this.cover) {
-        this.tmpl.getImageForPlayer(this.imgURL);
-      } else {
-        this.defaultPlayerImage();
-      }
+      this.tmpl.getImageForPlayer(this.imgURL);
     }
     Array.prototype.forEach.call(this.playlist, function (e) {
       this.tmpl.playlist.push(e);
@@ -180,11 +156,7 @@ Polymer('album-art', {
     this.tmpl.$.searchDialog.close();
     this.tmpl.setScrollerPos();
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
-    if (this.cover) {
-      this.tmpl.getImageForPlayer(this.imgURL);
-    } else {
-      this.defaultPlayerImage();
-    }
+    this.tmpl.getImageForPlayer(this.imgURL);
     this.tmpl.page = 1;
     this.tmpl.playlist = this.playlist;
     this.tmpl.playing = 0;
@@ -233,18 +205,31 @@ Polymer('album-art', {
 
   itemChanged: function () {
     'use strict';
-    this.defaultArt();
     if (this.item) {
+      this.defaultArt();
       this.playlist = null;
       this.playlist = [];
-      this.checkJSONEntry(this.item);
+      this.checkJSONEntry(this.item, function (e) {
+        if (e.target.result === 0) {
+          var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&size=600&id=" + this.item;
+          this.tmpl.doXhr(url, 'json', function (e) {
+            this.trackResponse = e.target.response;
+            this.tmpl.putInDb(this.trackResponse, this.item, function () {
+              console.log('JSON Data Added to indexedDB ' + this.item);
+            }.bind(this));
+          }.bind(this));
+        } else {
+          this.tmpl.getDbItem(this.item, function (event) {
+            this.trackResponse = event.target.result;
+          }.bind(this));
+        }
+      }.bind(this));
       var artId = "al-" + this.item;
       this.isLoading = true;
       var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + artId;
       this.checkForImage(artId, function (e) {
         if (e.target.result === 0) {
-          this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
-          this.imgURL = this.defaultImgURL;
+          this.defaultArt();
           this.tmpl.getImageFile(url, artId, this.setImage.bind(this));
         } else {
           this.tmpl.getDbItem(artId, this.setImage.bind(this));
