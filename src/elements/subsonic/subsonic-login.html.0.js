@@ -15,39 +15,20 @@
         this.post = [];
         this.tmpl = document.getElementById("tmpl");
       },
-      validate: function (callback) {
-        'use strict';
-
-        /*
-          here i use polymer built in selector to select all the inputs that are inside the div with the id of validate
-        */
-        var $d = this.$.validate.querySelectorAll('paper-input-decorator');
-        Array.prototype.forEach.call($d, function(d) {
-          d.isInvalid = !d.querySelector('input').validity.valid;
-        });
-        callback();
-      },
       submit: function () {
         'use strict';
-        this.validate(function () {
-          var invalid1 = this.$.input1.classList.contains("invalid"),
-            invalid2 = this.$.input2.classList.contains("invalid"),
-            invalid3 = this.$.input3.classList.contains("invalid");
-
-
-          if (invalid1 && invalid2 && this.post.version === undefined) {
-            this.tmpl.doToast("URL, Username & Version Required");
-          } else if (invalid1) {
-            this.tmpl.doToast("URL Required");
-          } else if (invalid2) {
-            this.tmpl.doToast("Username Required");
-          } else if (this.post.version === undefined) {
-            this.tmpl.doToast("Version Required");
-          } else if (!invalid1 && !invalid2 && !invalid3 && this.post.version !== undefined) {
-            /* ping server to check user given data */
-            this.$.ajax.go();
-          }
-        }.bind(this));
+        if (this.invalid1 && this.invalid2 && this.post.version === undefined) {
+          this.tmpl.doToast("URL, Username & Version Required");
+        } else if (this.invalid1) {
+          this.tmpl.doToast("URL Required");
+        } else if (this.invalid2) {
+          this.tmpl.doToast("Username Required");
+        } else if (this.post.version === undefined) {
+          this.tmpl.doToast("Version Required");
+        } else if (!this.invalid1 && !this.invalid2 && !this.invalid3 && this.post.version !== undefined) {
+          /* ping server to check user data if valid */
+          this.$.ajax.go();
+        }
       },
       hidePass: function (event, detail, sender) {
         'use strict';

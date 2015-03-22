@@ -55,17 +55,13 @@
       <div view="cover">
         <template if="{{!isLoading && !wall[0] && request === 'getStarred2'}}">
           <paper-shadow class='card' style="text-align:center;">
-            <h3>Add some Content</h3>
-            Favorite something!!
-            <br><br>
+            <h3>Favorite something!!</h3>
             To add a album to your favorites just click the heart on the album you want to favorite.
           </paper-shadow>
         </template>
         <template if="{{!isLoading && !wall[0] && request !== 'getStarred2'}}">
           <paper-shadow class='card' style="text-align:center;">
-            <h3>Add some Content</h3>
-            Add content by opening the official Subsonic webapp.
-            <br><br>
+            <h3>Add content by opening the official Subsonic webapp</h3>
             <a href="{{url}}" target='_blank'>Found here {{url}}</a>
             <br><br>
             To add albums navigate to Settings > Media Folders.
@@ -86,9 +82,7 @@
       <div view="podcast">
         <template if="{{!isLoading && !podcast[0]}}">
           <paper-shadow class='card' style="text-align:center;">
-            <h3>Add some Content</h3>
-            Add content by opening the official Subsonic webapp.
-            <br><br>
+            <h3>Add content by opening the official Subsonic webapp</h3>
             <a href="{{url}}" target='_blank'>Found here {{url}}</a>
             <br><br>
             Add Podcast by clicking Podcast in the top menu row. Then input the XML feed for your favorite podcasts and enjoy.
@@ -125,9 +119,7 @@
       <div view="artists">
         <template if="{{!isLoading && !artists[0]}}">
           <paper-shadow class='card' style="text-align:center;">
-            <h3>Add some Content</h3>
-            Add content by opening the official Subsonic webapp.
-            <br><br>
+            <h3>Add content by opening the official Subsonic webapp</h3>
             <a href="{{url}}" target='_blank'>Found here {{url}}</a>
             <br><br>
             To add albums navigate to Settings > Media Folders.
