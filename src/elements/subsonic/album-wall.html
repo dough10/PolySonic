@@ -33,6 +33,7 @@
       }
       .heading {
         font-size: 22px;
+        overflow:hidden;
       }
       .title {
         text-align:left;
@@ -49,123 +50,155 @@
       .center {
         text-align:center;
       }
+      .black::shadow .circle {
+        border-color: #000;
+      }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <core-scroll-threshold id="threshold" lowerThreshold="500" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
-    <core-animated-pages selected="{{showing}}" valueattr="view" transitions="slide-from-right">
-      <div view="cover">
-        <template if="{{!isLoading && !wall[0] && request === 'getStarred2'}}">
-          <paper-shadow class='card' style="text-align:center;">
-            <h3>Favorite something!!</h3>
-            To add a album to your favorites just click the heart on the album you want to favorite.
-          </paper-shadow>
-        </template>
-        <template if="{{!isLoading && !wall[0] && request !== 'getStarred2'}}">
-          <paper-shadow class='card' style="text-align:center;">
-            <h3>Add content by opening the official Subsonic webapp</h3>
-            <a href="{{url}}" target='_blank'>Found here {{url}}</a>
-            <br><br>
-            To add albums navigate to Settings > Media Folders.
-          </paper-shadow>
-        </template>
-        <core-list id="list" data="{{wall}}" flex grid='false' scrollTarget="{{scrollTarget}}">
-          <template>
-            <div>
-              <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}"></album-art>
-            </div>
+    <div id="all">
+      <core-animated-pages selected="{{showing}}" valueattr="view" transitions="slide-from-right">
+        <div view="cover">
+          <template if="{{!isLoading && !wall[0] && request === 'getStarred2'}}">
+            <paper-shadow class='card' style="text-align:center;">
+              <h3>Favorite something!!</h3>
+              To add a album to your favorites just click the heart on the album you want to favorite.
+            </paper-shadow>
           </template>
-        </core-list>
-        <template if="{{isLoading}}">
-          <paper-spinner id="spinner" active=""></paper-spinner>
-        </template>
-        <div class="foot"></div>
-      </div>
-      <div view="podcast">
-        <template if="{{!isLoading && !podcast[0]}}">
-          <paper-shadow class='card' style="text-align:center;">
-            <h3>Add content by opening the official Subsonic webapp</h3>
-            <a href="{{url}}" target='_blank'>Found here {{url}}</a>
-            <br><br>
-            Add Podcast by clicking Podcast in the top menu row. Then input the XML feed for your favorite podcasts and enjoy.
-          </paper-shadow>
-        </template>
-        <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
-          <template>
-            <div>
-              <paper-shadow class="card">
-                <core-item style="border-bottom:1px solid #CECECE;">
-                  <div flex class="heading">
-                    {{model.title}}
-                  </div>
-                  <paper-menu-button>
-                    <paper-icon-button icon="more-vert"></paper-icon-button>
-                    <paper-dropdown class="dropdown" halign="right">
-                      <core-menu class="menu">
-                        <paper-item on-tap="{{deleteDialog}}" ident="{{model.id}}">
-                          <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
-                          Delete Channel
-                        </paper-item>
-                      </core-menu>
-                    </paper-dropdown>
-                  </paper-menu-button>
-                </core-item>
-                <template repeat="{{model.episode}}">
-                  <template if="{{streamId}}">
-                    <core-item>
-                      <div flex class="title">
-                        {{title}}
-                      </div>
-                      <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
-                      <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
-                    </core-item>
-                    <core-collapse>
-                      {{description}}
-                    </core-collapse>
+          <template if="{{!isLoading && !wall[0] && request !== 'getStarred2'}}">
+            <paper-shadow class='card' style="text-align:center;">
+              <h3>Add content by opening the official Subsonic webapp</h3>
+              <a href="{{url}}" target='_blank'>Found here {{url}}</a>
+              <br><br>
+              To add albums navigate to Settings > Media Folders.
+            </paper-shadow>
+          </template>
+          <core-list id="list" data="{{wall}}" flex grid='false' scrollTarget="{{scrollTarget}}">
+            <template>
+              <div>
+                <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}"></album-art>
+              </div>
+            </template>
+          </core-list>
+          <template if="{{isLoading}}">
+            <paper-spinner id="spinner" active=""></paper-spinner>
+          </template>
+          <div class="foot"></div>
+        </div>
+        <div view="podcast">
+          <template if="{{!isLoading && !podcast[0]}}">
+            <paper-shadow class='card' style="text-align:center;">
+              <h3>Add content by opening the official Subsonic webapp</h3>
+              <a href="{{url}}" target='_blank'>Found here {{url}}</a>
+              <br><br>
+              Add Podcast by clicking Podcast in the top menu row. Then input the XML feed for your favorite podcasts and enjoy.
+            </paper-shadow>
+          </template>
+          <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
+            <template>
+              <div>
+                <paper-shadow class="card">
+                  <core-item>
+                    <div flex class="heading">
+                      {{model.title}}
+                      <template if="{{model.status === 'downloading' && model.title === undefined}}">
+                        <paper-spinner class="black" active title="Downloading"></paper-spinner>
+                      </template>
+                    </div>
+                    <paper-menu-button>
+                      <paper-icon-button icon="more-vert"></paper-icon-button>
+                      <paper-dropdown class="dropdown" halign="right">
+                        <core-menu class="menu">
+                          <paper-item on-tap="{{deleteDialog}}" ident="{{model.id}}">
+                            <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
+                            Delete Channel
+                          </paper-item>
+                        </core-menu>
+                      </paper-dropdown>
+                    </paper-menu-button>
+                  </core-item>
+                  <template repeat="{{model.episode}}">
+                    <template if="{{streamId}}">
+                      <core-item>
+                        <div flex class="title" on-tap="{{toggleCollapse}}" ident="collapse{{id}}"> 
+                          {{title}}
+                        </div>
+                        <template if="{{status === 'completed'}}">
+                          <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
+                          <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
+                          <paper-menu-button>
+                            <paper-icon-button icon="more-vert"></paper-icon-button>
+                            <paper-dropdown class="dropdown" halign="right">
+                              <core-menu class="menu">
+                                <paper-item on-tap="{{episodeDialog}}" ident="{{id}}">
+                                  <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
+                                  Delete Episode
+                                </paper-item>
+                              </core-menu>
+                            </paper-dropdown>
+                          </paper-menu-button>
+                        </template>
+                        <template if="{{status === 'downloading'}}">
+                          <paper-spinner class="black" active style="margin-right: 6px;" title="Downloading"></paper-spinner>
+                        </template>
+                      </core-item>
+                      <core-collapse id="collapse{{id}}">
+                        {{description}}
+                      </core-collapse>
+                    </template>
+                    <template if="{{!streamId}}">
+                      <core-item>
+                        <div flex class="title">
+                          {{title}}
+                        </div>
+                        <paper-icon-button on-tap="{{downloadEpisode}}" icon="file-download" title="{{title}}" ident="{{id}}"></paper-icon-button>
+                      </core-item>
+                    </template>
                   </template>
-                </template>
-              </paper-shadow>
-            </div>
+                </paper-shadow>
+              </div>
+            </template>
+          </core-list>
+          <template if="{{isLoading}}">
+            <paper-spinner id="spinner" active=""></paper-spinner>
           </template>
-        </core-list>
-        <template if="{{isLoading}}">
-          <paper-spinner id="spinner" active=""></paper-spinner>
-        </template>
-        <template if="{{!isLoading}}">
-          <paper-button on-tap="{{topOfPage}}">Back to Top</paper-button>
-        </template>
-        <div class="foot"></div>
-      </div>
-      <div view="artists">
-        <template if="{{!isLoading && !artists[0]}}">
-          <paper-shadow class='card' style="text-align:center;">
-            <h3>Add content by opening the official Subsonic webapp</h3>
-            <a href="{{url}}" target='_blank'>Found here {{url}}</a>
-            <br><br>
-            To add albums navigate to Settings > Media Folders.
-          </paper-shadow>
-        </template>
-        <core-list id="artists" data="{{artists}}" flex scrollTarget="{{scrollTarget}}">
-          <template>
-            <div>
-              <paper-shadow class="card">
-                <div class="heading center">{{model.name}}</div>
-                <template repeat="{{model.artist}}">
-                  <paper-item class='title' on-tap="{{artistDetails}}" ident="{{id}}">
-                    <div flex style="text-align:left">{{name}}</div>
-                    <div>{{albumCount}} Albums</div>
-                  </paper-item>
-                </template>
-              </paper-shadow>
-            </div>
+          <template if="{{!isLoading}}">
+            <paper-button on-tap="{{topOfPage}}">Back to Top</paper-button>
           </template>
-        </core-list>
-        <template if="{{isLoading}}">
-          <paper-spinner id="spinner" active=""></paper-spinner>
-        </template>
-        <div class="foot"></div>
-      </div>
-    </core-animated-pages>
+          <div class="foot"></div>
+        </div>
+        <div view="artists">
+          <template if="{{!isLoading && !artists[0]}}">
+            <paper-shadow class='card' style="text-align:center;">
+              <h3>Add content by opening the official Subsonic webapp</h3>
+              <a href="{{url}}" target='_blank'>Found here {{url}}</a>
+              <br><br>
+              To add albums navigate to Settings > Media Folders.
+            </paper-shadow>
+          </template>
+          <core-list id="artists" data="{{artists}}" flex scrollTarget="{{scrollTarget}}">
+            <template>
+              <div>
+                <paper-shadow class="card">
+                  <div class="heading center">{{model.name}}</div>
+                  <template repeat="{{model.artist}}">
+                    <paper-item class='title' on-tap="{{artistDetails}}" ident="{{id}}">
+                      <div flex style="text-align:left">{{name}}</div>
+                      <div>{{albumCount}} Albums</div>
+                    </paper-item>
+                  </template>
+                </paper-shadow>
+              </div>
+            </template>
+          </core-list>
+          <template if="{{isLoading}}">
+            <paper-spinner id="spinner" active=""></paper-spinner>
+          </template>
+          <div class="foot"></div>
+        </div>
+      </core-animated-pages>
+    </div>
   </template>
   <script src="album-wall.html.0.js"></script>
 </polymer-element>

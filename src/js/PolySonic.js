@@ -171,12 +171,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.$.analistics.toggle();
   };
 
-  /*
-
-  curr3ently broke!!!!!!!!!!!
-
-
-  */
   this.doSearch = function () {
     if (this.searchQuery) {
       this.searching = true;
@@ -211,15 +205,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   /* pull image from server */
   this.getImageFile = function (url, id, callback) {
-    if (id !== undefined) {
-      this.doXhr(url, 'blob', function (e) {
-        var blob = new Blob([e.target.response], {type: 'image/jpeg'});
-        this.putInDb(blob, id, callback);
-        console.log('Image Added to indexedDB ' + id);
-      }.bind(this));
-    } else {
-      console.log('Image Error ID is undefined');
-    }
+    this.doXhr(url, 'blob', function (e) {
+      var blob = new Blob([e.target.response], {type: 'image/jpeg'});
+      this.putInDb(blob, id, callback);
+      console.log('Image Added to indexedDB ' + id);
+    }.bind(this));
   };
 
   this.putInDb = function (data, id, callback) {
@@ -393,7 +383,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         fab.state = 'bottom';
       }
       this.position = scroller.scrollTop;
-
     }.bind(this);
 
     window.onresize = this.sizePlayer.bind(this);
@@ -738,11 +727,31 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       }
     }.bind(this));
   };
+  
+  this.addChannel = function () {
+    if (!this.invalidURL) {
+      this.addingChannel = true;
+      var url = this.url + "/rest/createPodcastChannel.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&url=" + encodeURIComponent(this.castURL);
+      this.doXhr(url, 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 'ok') {
+          this.addingChannel = false;
+          this.$.addPodcast.close();
+          this.$.wall.refreshContent();
+          this.doToast('Channel Added');
+          this.castURL = '';
+        }
+      }.bind(this));
+    }
+  };
 
   this.doDelete = function (event, detail, sender) {
     this.$.wall.deleteChannel(sender.attributes.ident.value);
   };
-
+  
+  this.deleteEpisode = function (event, detail, sender) {
+    this.$.wall.deleteEpisode(sender.attributes.ident.value);
+  };
+  
   this.loadListeners();
   this.loadData();
   this.sizePlayer();

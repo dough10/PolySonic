@@ -58,8 +58,6 @@ Polymer('album-wall', {
     this.podcast = null;
     this.podcast = [];
     callback();
-    //this.wall.splice(0,this.wall.length);
-    //this.podcast.splice(0,this.podcast.length);
   },
   responseChanged: function () {
     'use strict';
@@ -79,7 +77,7 @@ Polymer('album-wall', {
         }.bind(this));
       } else if (response.podcasts && response.podcasts.channel) {
         Array.prototype.forEach.call(response.podcasts.channel, function (e) {
-          var obj = {title: e.title, episode: e.episode, id: e.id};
+          var obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
           this.podcast.push(obj);
         }.bind(this));
       } else if (response.artists) {
@@ -265,6 +263,36 @@ Polymer('album-wall', {
     this.clearData(function () {
       this.$.ajax.go();
     }.bind(this));
+  },
+  downloadEpisode: function (event, detail, sender) {
+    var url = this.url + "/rest/downloadPodcastEpisode.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.ident.value;
+    this.tmpl.doXhr(url, 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        this.clearData(function () {
+          this.$.ajax.go();
+          this.tmpl.doToast('Downloading Episode');
+        }.bind(this));
+      }
+    }.bind(this));
+  },
+  episodeDialog: function (event, detail, sender) {
+    this.tmpl.delID = sender.attributes.ident.value;
+    this.tmpl.$.episodeConfirm.open();
+  },
+  deleteEpisode: function (id) {
+    'use strict';
+    var url = this.url + "/rest/deletePodcastEpisode.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + id;
+    this.tmpl.doXhr(url, 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        this.clearData(function () {
+          this.$.ajax.go();
+        }.bind(this));
+      }
+    }.bind(this));
+  },
+  toggleCollapse: function (event, detail, sender) {
+    var id = '#' + sender.attributes.ident.value;
+    this.$.all.querySelector(id).toggle();
   }
 });
 
