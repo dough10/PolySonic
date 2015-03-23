@@ -171,12 +171,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.$.analistics.toggle();
   };
 
-  /*
-
-  curr3ently broke!!!!!!!!!!!
-
-
-  */
   this.doSearch = function () {
     if (this.searchQuery) {
       this.searching = true;
@@ -211,15 +205,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   /* pull image from server */
   this.getImageFile = function (url, id, callback) {
-    if (id !== undefined) {
-      this.doXhr(url, 'blob', function (e) {
-        var blob = new Blob([e.target.response], {type: 'image/jpeg'});
-        this.putInDb(blob, id, callback);
-        console.log('Image Added to indexedDB ' + id);
-      }.bind(this));
-    } else {
-      console.log('Image Error ID is undefined');
-    }
+    this.doXhr(url, 'blob', function (e) {
+      var blob = new Blob([e.target.response], {type: 'image/jpeg'});
+      this.putInDb(blob, id, callback);
+      console.log('Image Added to indexedDB ' + id);
+    }.bind(this));
   };
 
   this.putInDb = function (data, id, callback) {
@@ -393,7 +383,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         fab.state = 'bottom';
       }
       this.position = scroller.scrollTop;
-
     }.bind(this);
 
     window.onresize = this.sizePlayer.bind(this);

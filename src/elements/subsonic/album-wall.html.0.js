@@ -58,8 +58,6 @@ Polymer('album-wall', {
     this.podcast = null;
     this.podcast = [];
     callback();
-    //this.wall.splice(0,this.wall.length);
-    //this.podcast.splice(0,this.podcast.length);
   },
   responseChanged: function () {
     'use strict';
