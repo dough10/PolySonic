@@ -338,10 +338,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.doAction = function () {
-    var scroller = this.appScroller();
+    var scroller = this.appScroller(),
+      wall = this.$.wall;
 
-    if (this.page === 0 && scroller.scrollTop !== 0) {
+    if (this.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast') {
       scroller.scrollTop = 0;
+    }
+    if (this.page === 0 && wall.showing === 'podcast') {
+      this.$.addPodcast.open();
     }
     if (this.page === 1) {
       this.showPlaylist();
@@ -380,11 +384,12 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.position = scroller.scrollTop;
 
     scroller.onscroll = function () {
-      var fab = this.$.fab;
+      var fab = this.$.fab,
+        wall = this.$.wall;
 
-      if (this.page === 0 && fab.state !== 'off' && scroller.scrollTop < this.position) {
+      if (this.page === 0 && fab.state !== 'off' && scroller.scrollTop < this.position && wall.showing !== 'podcast') {
         fab.state = 'off';
-      } else if (this.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > this.position) {
+      } else if (this.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > this.position && wall.showing !== 'podcast') {
         fab.state = 'bottom';
       }
       this.position = scroller.scrollTop;
@@ -712,6 +717,25 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.page = 0;
     this.playlist = null;
     this.playlist = [];
+  };
+
+  this.refreshPodcast = function (event, detail, sender) {
+    var animation = new CoreAnimation();
+    animation.duration = 1000;
+    animation.iterations = 'Infinity';
+    animation.keyframes = [
+      {opacity: 1},
+      {opacity: 0}
+    ];
+    animation.target = sender;
+    animation.play();
+    var url = this.url + "/rest/refreshPodcasts.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic";
+    this.doXhr(url, 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        animation.cancel();
+        this.doToast('Checking for new Episodes');
+      }
+    }.bind(this));
   };
 
   this.loadListeners();

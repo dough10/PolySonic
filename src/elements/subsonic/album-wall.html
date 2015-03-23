@@ -6,7 +6,8 @@
 <link href="../../bower_components/core-menu/core-submenu.html" rel="import">
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/core-scroll-threshold/core-scroll-threshold.html" rel="import">
-</head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize isLoading">
+<link href="../../bower_components/core-animation/core-animation.html" rel="import">
+</head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize isLoading showing">
   <template>
     <style>
       paper-item {
@@ -32,8 +33,6 @@
       }
       .heading {
         font-size: 22px;
-        text-align:center;
-        border-bottom:1px solid #CECECE;
       }
       .title {
         text-align:left;
@@ -92,7 +91,22 @@
           <template>
             <div>
               <paper-shadow class="card">
-                <core-item class="heading">{{model.title}}</core-item>
+                <core-item style="border-bottom:1px solid #CECECE;">
+                  <div flex class="heading">
+                    {{model.title}}
+                  </div>
+                  <paper-menu-button>
+                    <paper-icon-button icon="more-vert"></paper-icon-button>
+                    <paper-dropdown class="dropdown" halign="right">
+                      <core-menu class="menu">
+                        <paper-item on-tap="{{deleteChannel}}" ident="{{model.id}}">
+                          <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
+                          Delete Channel
+                        </paper-item>
+                      </core-menu>
+                    </paper-dropdown>
+                  </paper-menu-button>
+                </core-item>
                 <template repeat="{{model.episode}}">
                   <template if="{{streamId}}">
                     <core-item>
@@ -113,6 +127,9 @@
         </core-list>
         <template if="{{isLoading}}">
           <paper-spinner id="spinner" active=""></paper-spinner>
+        </template>
+        <template if="{{!isLoading}}">
+          <paper-button on-tap="{{topOfPage}}">Back to Top</paper-button>
         </template>
         <div class="foot"></div>
       </div>

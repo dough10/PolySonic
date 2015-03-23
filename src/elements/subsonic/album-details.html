@@ -103,7 +103,7 @@
         <div class="wrapper">
           <template repeat="{{track in data.tracks}}">
             <core-item>
-              <div flex style="margin-right:8px">
+              <div flex style="margin-right:8px; overflow: hidden;">
                 {{track.title}}
               </div>
               <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>

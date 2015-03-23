@@ -71,7 +71,12 @@
             <template if="{{page === 0}}">
               <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
               <div flex  class="bottom alignLeft">PolySonic</div>
-              <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="{{view}}" class="bottom"></paper-icon-button>
+              <template if="{{showing === 'cover'}}">
+                <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="{{view}}" class="bottom"></paper-icon-button>
+              </template>
+              <template if="{{showing === 'podcast'}}">
+                <paper-icon-button title="Refresh Podcast" on-tap="{{refreshPodcast}}" icon="autorenew" class="bottom"></paper-icon-button>
+              </template>
             </template>
             <template if="{{page !== 0}}">
               <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
@@ -96,7 +101,7 @@
           </core-toolbar>
           <core-animated-pages id="main" on-core-animated-pages-transition-prepare="{{fixScroller}}" on-core-animated-pages-transition-end="{{fixScroller}}" selected="{{page}}" transitions="slide-from-right">
             <section>
-              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}"></album-wall>
+              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}"></album-wall>
             </section>
             <section>
               <div id="coverArt"></div>
@@ -248,6 +253,14 @@
               </div>
             </template>
           </paper-button>
+        </div>
+      </paper-dialog>
+      <paper-dialog id="addPodcast" transition="core-transition-bottom">
+        <div style="text-align:center;">
+          <paper-input-decorator style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="URL Required" label="Podcast feed URL">
+            <input is="core-input" type="URL" value="{{castURL}}" required="">
+          </paper-input-decorator>
+          <paper-button>Submit</paper-button>
         </div>
       </paper-dialog>
       <core-a11y-keys keys="space" on-keys-pressed="{{playPause}}"></core-a11y-keys>

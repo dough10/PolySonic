@@ -79,7 +79,7 @@ Polymer('album-wall', {
         }.bind(this));
       } else if (response.podcasts && response.podcasts.channel) {
         Array.prototype.forEach.call(response.podcasts.channel, function (e) {
-          var obj = {title: e.title, episode: e.episode};
+          var obj = {title: e.title, episode: e.episode, id: e.id};
           this.podcast.push(obj);
         }.bind(this));
       } else if (response.artists) {
@@ -234,6 +234,28 @@ Polymer('album-wall', {
       obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
       this.tmpl.playlist.push(obj);
     }
+  },
+  showingChanged: function () {
+    var fab = document.getElementById('fab');
+    if (this.showing === 'podcast') {
+      fab.state = 'podcast';
+    } else {
+      fab.state = "off";
+    }
+  },
+  topOfPage: function () {
+    this.scrollTarget.scrollTop = 0;
+  },
+  deleteChannel: function (event, detail, sender) {
+    'use strict';
+    var url = this.url + "/rest/deletePodcastChannel.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.ident.value;
+    this.tmpl.doXhr(url, 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        this.clearData(function () {
+          this.$.ajax.go();
+        }.bind(this));
+      }
+    }.bind(this));
   }
 });
 
