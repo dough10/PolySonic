@@ -738,11 +738,31 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       }
     }.bind(this));
   };
+  
+  this.addChannel = function () {
+    if (!this.invalidURL) {
+      this.addingChannel = true;
+      var url = this.url + "/rest/createPodcastChannel.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&url=" + encodeURIComponent(this.castURL);
+      this.doXhr(url, 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 'ok') {
+          this.addingChannel = false;
+          this.$.addPodcast.close();
+          this.$.wall.refreshContent();
+          this.doToast('Channel Added');
+          this.castURL = '';
+        }
+      }.bind(this));
+    }
+  };
 
   this.doDelete = function (event, detail, sender) {
     this.$.wall.deleteChannel(sender.attributes.ident.value);
   };
-
+  
+  this.deleteEpisode = function (event, detail, sender) {
+    this.$.wall.deleteEpisode(sender.attributes.ident.value);
+  };
+  
   this.loadListeners();
   this.loadData();
   this.sizePlayer();
