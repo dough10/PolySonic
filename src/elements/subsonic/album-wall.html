@@ -102,7 +102,7 @@
                   <core-item>
                     <div flex class="heading">
                       {{model.title}}
-                      <template if="{{model.status === 'downloading'}}">
+                      <template if="{{model.status === 'downloading' && model.title === undefined}}">
                         <paper-spinner class="black" active title="Downloading"></paper-spinner>
                       </template>
                     </div>
