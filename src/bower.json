@@ -7,14 +7,14 @@
   "author": "",
   "private": true,
   "dependencies": {
-    "polymer": "Polymer/polymer",
-    "paper-elements": "Polymer/paper-elements",
-    "x-notification": "1000ch/x-notification",
-    "core-ajax" : "Polymer/core-ajax",
-    "core-animated-pages" : "Polymer/core-animated-pages",
-    "web-animations-js": "web-animations/web-animations-js",
-    "core-list": "Polymer/core-list",
-    "core-label": "Polymer/core-label",
-    "core-scroll-threshold": "Polymer/core-scroll-threshold"
+    "polymer": "Polymer/polymer#^0.5.5",
+    "paper-elements": "Polymer/paper-elements#^0.5.5",
+    "x-notification": "1000ch/x-notification#^0.4.1",
+    "core-ajax" : "Polymer/core-ajax#^0.5.5",
+    "core-animated-pages" : "Polymer/core-animated-pages#^0.5.5",
+    "web-animations-js": "web-animations/web-animations-js#^1.0.7",
+    "core-list": "Polymer/core-list#^0.5.5",
+    "core-label": "Polymer/core-label#^0.5.5",
+    "core-scroll-threshold": "Polymer/core-scroll-threshold#^0.5.5"
   }
 }
