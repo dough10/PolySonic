@@ -46,6 +46,9 @@
       h3 {
         color: #db4437
       }
+      .center {
+        text-align:center;
+      }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <core-scroll-threshold id="threshold" lowerThreshold="500" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
@@ -99,7 +102,7 @@
                     <paper-icon-button icon="more-vert"></paper-icon-button>
                     <paper-dropdown class="dropdown" halign="right">
                       <core-menu class="menu">
-                        <paper-item on-tap="{{deleteChannel}}" ident="{{model.id}}">
+                        <paper-item on-tap="{{deleteDialog}}" ident="{{model.id}}">
                           <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
                           Delete Channel
                         </paper-item>
@@ -146,7 +149,7 @@
           <template>
             <div>
               <paper-shadow class="card">
-                <div class="heading">{{model.name}}</div>
+                <div class="heading center">{{model.name}}</div>
                 <template repeat="{{model.artist}}">
                   <paper-item class='title' on-tap="{{artistDetails}}" ident="{{id}}">
                     <div flex style="text-align:left">{{name}}</div>

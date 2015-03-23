@@ -733,9 +733,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         animation.cancel();
+        this.$.wall.refreshContent();
         this.doToast('Checking for new Episodes');
       }
     }.bind(this));
+  };
+
+  this.doDelete = function (event, detail, sender) {
+    this.$.wall.deleteChannel(sender.attributes.ident.value);
   };
 
   this.loadListeners();

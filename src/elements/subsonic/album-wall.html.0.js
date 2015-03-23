@@ -246,15 +246,24 @@ Polymer('album-wall', {
   topOfPage: function () {
     this.scrollTarget.scrollTop = 0;
   },
-  deleteChannel: function (event, detail, sender) {
+  deleteDialog: function (event, detail, sender) {
+    this.tmpl.delID = sender.attributes.ident.value;
+    this.tmpl.$.confirmDelete.open();
+  },
+  deleteChannel: function (id) {
     'use strict';
-    var url = this.url + "/rest/deletePodcastChannel.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.ident.value;
+    var url = this.url + "/rest/deletePodcastChannel.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + id;
     this.tmpl.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.clearData(function () {
           this.$.ajax.go();
         }.bind(this));
       }
+    }.bind(this));
+  },
+  refreshContent: function () {
+    this.clearData(function () {
+      this.$.ajax.go();
     }.bind(this));
   }
 });
