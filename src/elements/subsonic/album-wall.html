@@ -121,30 +121,26 @@
                   <template repeat="{{model.episode}}">
                     <template if="{{streamId}}">
                       <core-item>
-                        <div flex class="title" on-tap="{{toggleCollapse}}" ident="collapse{{id}}"> 
+                        <div flex class="title">
                           {{title}}
                         </div>
                         <template if="{{status === 'completed'}}">
                           <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
                           <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
-                          <paper-menu-button>
-                            <paper-icon-button icon="more-vert"></paper-icon-button>
-                            <paper-dropdown class="dropdown" halign="right">
-                              <core-menu class="menu">
-                                <paper-item on-tap="{{episodeDialog}}" ident="{{id}}">
-                                  <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
-                                  Delete Episode
-                                </paper-item>
-                              </core-menu>
-                            </paper-dropdown>
-                          </paper-menu-button>
+                          <paper-icon-button on-tap="{{toggleCollapse}}" icon="more-vert" ident="collapse{{id}}"></paper-icon-button>
                         </template>
                         <template if="{{status === 'downloading'}}">
                           <paper-spinner class="black" active style="margin-right: 6px;" title="Downloading"></paper-spinner>
                         </template>
                       </core-item>
                       <core-collapse id="collapse{{id}}">
-                        {{description}}
+                        <div flex>
+                          {{description}}
+                        </div>
+                        <paper-item on-tap="{{episodeDialog}}" ident="{{id}}">
+                          <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
+                          Delete Episode
+                        </paper-item>
                       </core-collapse>
                     </template>
                     <template if="{{!streamId}}">
