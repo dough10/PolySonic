@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "PolySonic",
   "short_name": "PolySonic",
-  "description": "",
+  "description": "A HTML5 Subsonic Streaming App made with Polymer",
   "version": "0.1.1",
   "minimum_chrome_version": "38",
 
