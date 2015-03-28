@@ -199,5 +199,9 @@
 
       querySizeChanged: function () {
         this.post.querySize = this.querySize;
+      },
+      
+      showQuota: function () {
+        this.$.quota.toggle();
       }
     });

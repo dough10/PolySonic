@@ -9,7 +9,8 @@
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/paper-dropdown/paper-dropdown.html" rel="import">
 <link href="../../bower_components/core-label/core-label.html" rel="import">
-</head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate querySize">
+<link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
+</head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate querySize storageQuota">
   <template>
     <style>
       :host {
@@ -114,7 +115,13 @@
       <br>
       <br>
       <br>
-      <paper-button on-tap="{{clearCache}}">Clear Cache</paper-button>
+      <paper-button on-tap="{{showQuota}}">Cache Details</paper-button>
+      <core-collapse id="quota">
+        {{storageQuota}}
+        <br>
+        <br>
+        <paper-button on-tap="{{clearCache}}">Clear Cache</paper-button>
+      </core-collapse>
       <br>
       <br>
       <paper-button on-tap="{{clearSettings}}">Clear Settings</paper-button>

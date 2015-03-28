@@ -220,6 +220,15 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
   };
 
+  this.storageSize = function () {
+    navigator.webkitTemporaryStorage.queryUsageAndQuota(
+    function(used, remaining) {
+      this.storageQuota = "Used quota: " + Math.round(10 * (((used / 1000) / 1000))) / 10  + " MB, remaining quota: " + Math.round(10 * ((remaining / 1000) / 1000)) / 10 + " MB,";
+    }.bind(this), function(e) {
+      console.log('Error', e); 
+    });
+  };
+
   this.getDbItem = function (id, callback) {
     if (id) {
       var transaction = this.db.transaction(["albumInfo"], "readwrite"),
@@ -762,6 +771,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.loadListeners();
   this.loadData();
   this.sizePlayer();
+  this.storageSize();
 
   setInterval(function () {
     var audio = this.$.audio,
