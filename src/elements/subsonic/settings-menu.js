@@ -98,13 +98,16 @@
         req.onsuccess = function () {
           console.log("Deleted database successfully");
           this.tmpl.createObjectStore();
-        };
+          this.tmpl.storageSize();
+        }.bind(this);
         req.onerror = function () {
           console.log("Error deleting database");
-        };
+          this.tmpl.storageSize();
+        }.bind(this);
         req.onblocked = function () {
           console.log("Couldn't delete database due to the operation being blocked");
-        };
+          this.tmpl.storageSize();
+        }.bind(this);
       },
       clearSettings: function () {
         chrome.storage.sync.clear();
@@ -199,5 +202,9 @@
 
       querySizeChanged: function () {
         this.post.querySize = this.querySize;
+      },
+      
+      showQuota: function () {
+        this.$.quota.toggle();
       }
     });

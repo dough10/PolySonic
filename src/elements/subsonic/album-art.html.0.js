@@ -68,6 +68,7 @@ Polymer('album-art', {
       e.cover = imgURL;
     }.bind(this));
     this.isLoading = false;
+    this.tmpl.storageSize();
   },
   
   defaultArt: function () {
@@ -207,6 +208,7 @@ Polymer('album-art', {
             this.trackResponse = e.target.response;
             this.tmpl.putInDb(this.trackResponse, this.item, function () {
               console.log('JSON Data Added to indexedDB ' + this.item);
+              this.tmpl.storageSize();
             }.bind(this));
           }.bind(this));
         } else {

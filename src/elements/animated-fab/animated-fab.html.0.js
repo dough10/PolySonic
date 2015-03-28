@@ -24,7 +24,7 @@
         } else {
           this.state = 'off';
         }
-        if (this.page == 0 && this.showing === 'podcast') {
+        if (this.page === 0 && this.showing === 'podcast') {
           this.state = 'podcast';
         }
         document.getElementById("tmpl").tracker.sendAppView(pName);

@@ -220,14 +220,21 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
   };
 
+  this.storageSize = function () {
+    navigator.webkitTemporaryStorage.queryUsageAndQuota(
+    function(used, remaining) {
+      this.storageQuota = "Used quota: " + Math.round(10 * (((used / 1000) / 1000))) / 10  + " MB, remaining quota: " + Math.round(10 * ((remaining / 1000) / 1000)) / 10 + " MB,";
+    }.bind(this), function(e) {
+      console.log('Error', e); 
+    });
+  };
+
   this.getDbItem = function (id, callback) {
     if (id) {
       var transaction = this.db.transaction(["albumInfo"], "readwrite"),
         request = transaction.objectStore("albumInfo").get(id);
       request.onsuccess = callback;
       request.onerror = this.dbErrorHandler;
-    } else {
-      console.log('Invalid ID = ' + id);
     }
   };
 
@@ -697,7 +704,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     artist.queryData();
     this.$.searchDialog.close();
     this.page = 4;
-  }
+  };
 
   this.clearPlaylist = function () {
     this.$.audio.pause();
@@ -753,7 +760,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
   
   this.checkForImage = function (id, callback) {
-    'use strict';
     var transaction = this.db.transaction(["albumInfo"], "readwrite"),
       request = transaction.objectStore("albumInfo").count(id);
     request.onsuccess = callback;
@@ -763,6 +769,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.loadListeners();
   this.loadData();
   this.sizePlayer();
+  this.storageSize();
 
   setInterval(function () {
     var audio = this.$.audio,
