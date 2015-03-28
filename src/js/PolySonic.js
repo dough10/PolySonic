@@ -235,8 +235,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         request = transaction.objectStore("albumInfo").get(id);
       request.onsuccess = callback;
       request.onerror = this.dbErrorHandler;
-    } else {
-      console.log('Invalid ID = ' + id);
     }
   };
 
