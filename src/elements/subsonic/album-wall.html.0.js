@@ -77,7 +77,8 @@ Polymer('album-wall', {
         }.bind(this));
       } else if (response.podcasts && response.podcasts.channel) {
         Array.prototype.forEach.call(response.podcasts.channel, function (e) {
-          var obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
+          var art = e.episode[0].coverArt,
+            obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
           this.podcast.push(obj);
         }.bind(this));
       } else if (response.artists) {
@@ -206,31 +207,90 @@ Polymer('album-wall', {
     artist.queryData();
     this.tmpl.page = 4;
   },
-  playPodcast: function (event, detial, sender) {
-    'use strict';
-    var imgURL = 'images/default-cover-art.png',
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value,
-      obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+  doPlay: function (obj, url) {
     this.tmpl.playlist = [obj];
     this.tmpl.playing = 0;
+    this.tmpl.playAudio('', obj.title, url, obj.cover);
+  },
+  playPodcast: function (event, detial, sender) {
+    'use strict';
+    var artURL = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.cover.value,
+        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value,
+        imgURL,
+        obj;
+    if (sender.attributes.cover.value) {
+      this.tmpl.checkForImage(sender.attributes.cover.value, function (e) {
+        if (e.target.result === 0) {
+          this.tmpl.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
+            var imgFile = ev.target.result;
+            imgURL = window.URL.createObjectURL(imgFile);
+            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+            this.tmpl.getImageForPlayer(imgURL);
+            this.doPlay(obj, url);
+          }.bind(this));
+        } else {
+          this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {
+            var imgFile = ev.target.result;
+            imgURL = window.URL.createObjectURL(imgFile);
+            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+            this.tmpl.getImageForPlayer(imgURL);
+            this.doPlay(obj, url);
+          }.bind(this));
+        }
+      }.bind(this));
+    } else {
+      obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+      this.tmpl.defaultPlayImage();
+      this.doPlay(obj, url);
+    }
     this.tmpl.page = 1;
-    this.tmpl.defaultPlayImage();
-    this.tmpl.playAudio('', sender.attributes.title.value, url, imgURL);
   },
   add2Playlist: function (event, detial, sender) {
     'use strict';
-    var imgURL = 'images/default-cover-art.png',
-      obj,
-      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value;
-    if (this.audio.paused) {
-      obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-      this.tmpl.playlist = [obj];
-      this.tmpl.playing = 0;
-      this.tmpl.defaultPlayImage();
-      this.tmpl.playAudio('', sender.attributes.title.value, url, imgURL);
+    var artURL = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.cover.value,
+        imgURL,
+        obj,
+        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value;
+    if (sender.attributes.cover.value) {
+      this.tmpl.checkForImage(sender.attributes.cover.value, function (e) {
+        if (e.target.result === 0) {
+          this.tmpl.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
+            var imgFile = ev.target.result;
+            imgURL = window.URL.createObjectURL(imgFile);
+            if (this.audio.paused) {
+              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+              this.tmpl.getImageForPlayer(imgURL);
+              this.doPlay(obj, url);
+            } else {
+              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+              this.tmpl.playlist.push(obj);
+            }
+          }.bind(this));
+        } else {
+          this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {
+            var imgFile = ev.target.result;
+            imgURL = window.URL.createObjectURL(imgFile);
+            if (this.audio.paused) {
+              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+              this.tmpl.getImageForPlayer(imgURL);
+              this.doPlay(obj, url);
+            } else {
+              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+              this.tmpl.playlist.push(obj);
+            }
+          }.bind(this));
+        }
+      }.bind(this));
     } else {
-      obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-      this.tmpl.playlist.push(obj);
+      imgURL = 'images/default-cover-art.png';
+      if (this.audio.paused) {
+        obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+        this.tmpl.getImageForPlayer(imgURL);
+        this.doPlay(obj, url);
+      } else {
+        obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+        this.tmpl.playlist.push(obj);
+      }
     }
   },
   showingChanged: function () {

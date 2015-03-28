@@ -49,15 +49,6 @@ Polymer('album-art', {
     console.log(e);
   },
 
-  /* counts images in indexeddb with a given id */
-  checkForImage: function (id, callback) {
-    'use strict';
-    var transaction = this.tmpl.db.transaction(["albumInfo"], "readwrite"),
-      request = transaction.objectStore("albumInfo").count(id);
-    request.onsuccess = callback;
-    request.onerror = this.dbErrorHandler;
-  },
-
   /* counts json entrys in indexeddb with a given id */
   checkJSONEntry: function (id, callback) {
     'use strict';
@@ -227,7 +218,7 @@ Polymer('album-art', {
       var artId = "al-" + this.item;
       this.isLoading = true;
       var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + artId;
-      this.checkForImage(artId, function (e) {
+      this.tmpl.checkForImage(artId, function (e) {
         if (e.target.result === 0) {
           this.defaultArt();
           this.tmpl.getImageFile(url, artId, this.setImage.bind(this));

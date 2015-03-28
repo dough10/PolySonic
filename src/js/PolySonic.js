@@ -752,6 +752,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.$.wall.deleteEpisode(sender.attributes.ident.value);
   };
   
+  this.checkForImage = function (id, callback) {
+    'use strict';
+    var transaction = this.db.transaction(["albumInfo"], "readwrite"),
+      request = transaction.objectStore("albumInfo").count(id);
+    request.onsuccess = callback;
+    request.onerror = this.dbErrorHandler;
+  };
+
   this.loadListeners();
   this.loadData();
   this.sizePlayer();

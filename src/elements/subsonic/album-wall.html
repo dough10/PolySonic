@@ -125,8 +125,8 @@
                           {{title}}
                         </div>
                         <template if="{{status === 'completed'}}">
-                          <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
-                          <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" title="{{title}}" streamId="{{streamId}}"></paper-icon-button>
+                          <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" title="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
+                          <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" title="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
                           <paper-icon-button on-tap="{{toggleCollapse}}" icon="more-vert" ident="collapse{{id}}"></paper-icon-button>
                         </template>
                         <template if="{{status === 'downloading'}}">
