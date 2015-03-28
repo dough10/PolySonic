@@ -1,14 +1,5 @@
 
     Polymer('subsonic-login',{
-      versions: [
-        {sub:'5.2', api:'1.12.0'},
-        {sub:'5.1', api:'1.11.0'}
-        
-        /* versions not supported due to access-control-allow-origin header*/
-      /*{sub:'4.9', api:'1.10.2'},
-        {sub:'4.8', api:'1.9.0'},
-        {sub:'4.7', api:'1.8.0'}*/
-      ],
       timer: 0,
       ready: function () {
         'use strict';
@@ -23,9 +14,7 @@
           this.tmpl.doToast("URL Required");
         } else if (this.invalid2) {
           this.tmpl.doToast("Username Required");
-        } else if (this.post.version === undefined) {
-          this.tmpl.doToast("Version Required");
-        } else if (!this.invalid1 && !this.invalid2 && !this.invalid3 && this.post.version !== undefined) {
+        } else if (!this.invalid1 && !this.invalid2 && !this.invalid3) {
           /* ping server to check user data if valid */
           this.$.ajax.go();
         }
@@ -63,12 +52,12 @@
               'url': this.post.url,
               'user': this.post.user,
               'pass': this.post.pass,
-              'version': this.post.version
+              'version': this.response['subsonic-response'].version
             });
             this.tmpl.url = this.post.url;
             this.tmpl.user = this.post.user;
             this.tmpl.pass = this.post.pass;
-            this.tmpl.version = this.post.version;
+            this.tmpl.version = this.response['subsonic-response'].version;
             this.tmpl.doToast("Loading Data");
             this.tmpl.tracker.sendEvent('API Version', this.post.version);
             this.tmpl.$.firstRun.close();

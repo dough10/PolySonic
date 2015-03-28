@@ -40,7 +40,7 @@
         display:inline-block;
       }
     </style>
-    <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v={{post.version}}&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
+    <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v=1.11.0&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
     </core-ajax>
       <h3>PolySonic</h3>
       A Subconic streaming app built with Polymer.
@@ -58,18 +58,6 @@
         </paper-input-decorator>
         <br>
         <div id="showPass" on-tap="{{hidePass}}">Show Password</div><br>
-        <core-label>
-          Version:
-          <paper-dropdown-menu label="Select Version" layered>
-            <paper-dropdown layered class="dropdown">
-              <core-menu class="menu" selected="{{post.version}}" valueattr="i">
-                <template repeat="{{versions}}">
-                  <paper-item i="{{api}}">{{sub}}</paper-item>
-                </template>
-              </core-menu>
-            </paper-dropdown>
-          </paper-dropdown-menu>
-        </core-label>
         <br>
         <paper-button on-tap="{{submit}}" affirmative>
           <template if="{{isLoading}}">

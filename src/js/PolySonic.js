@@ -697,7 +697,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     artist.queryData();
     this.$.searchDialog.close();
     this.page = 4;
-  }
+  };
 
   this.clearPlaylist = function () {
     this.$.audio.pause();
@@ -753,7 +753,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
   
   this.checkForImage = function (id, callback) {
-    'use strict';
     var transaction = this.db.transaction(["albumInfo"], "readwrite"),
       request = transaction.objectStore("albumInfo").count(id);
     request.onsuccess = callback;
