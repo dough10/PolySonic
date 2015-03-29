@@ -192,23 +192,29 @@
             <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closePlaylist}}"></paper-icon-button>
           </div>
         </div>
-        <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
-          Clear Playlist
-        </paper-item>
-        <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
-          <template repeat="{{playlist}}">
-            <paper-item on-tap="{{playThis}}" ident="{{id}}" cover="{{cover}}" artist="{{artist}}" title="{{title}}" style="color:#000000" ident="{{id}}">
-              <div flex style="overflow:hidden">
-                {{artist}} - {{title}}
-              </div>
-              <div style="margin-left:8px">
-                {{duration}}
-              </div>
-            </paper-item>
-          </template>
-        </core-menu>
+        <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
+          <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
+            Clear Play Queue
+          </paper-item>
+          <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
+            <template repeat="{{playlist}}">
+              <paper-item on-tap="{{playThis}}" ident="{{id}}" cover="{{cover}}" artist="{{artist}}" title="{{title}}" style="color:#000000" ident="{{id}}">
+                <div flex style="overflow:hidden">
+                  {{artist}} - {{title}}
+                </div>
+                <div style="margin-left:8px">
+                  {{duration}}
+                </div>
+              </paper-item>
+            </template>
+          </core-menu>
+        </div>
       </paper-dialog>
+
+      <!-- want Toast? -->
       <paper-toast id="toast"></paper-toast>
+
+      <!-- volume -->
       <paper-dialog id="volumeDialog" transition="core-transition-bottom">
         Volume
         <br>
@@ -229,19 +235,17 @@
       </paper-action-dialog>
 
       <!-- search -->
-      <paper-dialog id="searchDialog" header="Search" transition="core-transition-center">
+      <paper-dialog id="searchDialog" header="Search" style="height:480px; width:400px;" transition="core-transition-center">
         <div horizontal layout>
           <div flex style="text-align: center;">
-            <paper-input value="{{searchQuery}}" style="width: 300px;"></paper-input>
-            <paper-button on-tap="{{doSearch}}">
-              <core-icon icon="search"></core-icon>
-            </paper-button>
+            <paper-input value="{{searchQuery}}" style="width: 250px;"></paper-input>
           </div>
           <div>
-            <paper-icon-button style='-webkit-app-region: no-drag; color:#db4437;' icon="close" title="Close" on-tap="{{closeSearch}}"></paper-icon-button>
+            <paper-icon-button on-tap="{{doSearch}}" title="Search" icon="search"></paper-icon-button>
+            <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closeSearch}}"></paper-icon-button>
           </div>
         </div>
-        <div style="height:400px; width:400px; overflow-y:scroll; text-align: center;">
+        <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto; text-align: center;">
           <template if="{{searching}}">
             <paper-spinner active></paper-spinner>
             <br>

@@ -60,7 +60,7 @@ Polymer('album-details', {
     Array.prototype.forEach.call(this.playlist, function (e) {
       this.tmpl.playlist.push(e);
     }.bind(this));
-    this.tmpl.doToast('Added to Playlist');
+    this.tmpl.doToast('Added to Play Queue');
   },
 
   doDownload: function (event, detail, sender) {
@@ -110,7 +110,7 @@ Polymer('album-details', {
         this.playerArt.style.backgroundImage =  "url('images/default-cover-art.png')";
       }
     }
-    this.tmpl.doToast('Added to Playlist');
+    this.tmpl.doToast('Added to Play Queue');
   },
 
   addFavorite: function (event, detail, sender) {

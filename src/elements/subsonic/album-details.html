@@ -76,7 +76,7 @@
       .wrapper {
         min-height: 200px;
         max-height:255px;
-        overflow-y: scroll;
+        overflow-y: auto;
       }
       core-item:first-or-type {
         border-top:0px;
@@ -89,10 +89,10 @@
     <paper-shadow hero-id="art" hero z="3" class="card">
       <div id="topper"></div>
       <div style="font-size:10pt; position:relative; top:240px;">
-        <div style="font-size:14pt; margin:8px">
+        <div style="font-size:14pt; margin:8px; max-height:22px;">
           {{data.artist}} / {{data.album}}
         </div>
-        <paper-icon-button on-tap="{{add2Playlist}}" title="Add to Playlist" icon="av:playlist-add"></paper-icon-button>
+        <paper-icon-button on-tap="{{add2Playlist}}" title="Add to Play Queue" icon="av:playlist-add"></paper-icon-button>
         <template if="{{!data.favorite}}">
           <paper-icon-button on-tap="{{addFavorite}}" title="Add as Favorite" ident="{{data.id}}" icon="favorite-outline"></paper-icon-button>
         </template>

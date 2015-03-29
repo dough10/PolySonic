@@ -135,7 +135,7 @@ Polymer('album-art', {
     Array.prototype.forEach.call(this.playlist, function (e) {
       this.tmpl.playlist.push(e);
     }.bind(this));
-    this.tmpl.doToast('Added to Playlist');
+    this.tmpl.doToast('Added to Play Queue');
   },
 
   doDownload: function (event, detail, sender) {

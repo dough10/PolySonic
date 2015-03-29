@@ -66,7 +66,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.sortTypes = [
     {sort: 'newest', name: 'Newest'},
-    {sort: 'frequent', name: 'Frequent'},
+    {sort: 'frequent', name: 'Frequently Played'},
     {sort: 'alphabeticalByName', name: 'By Title'},
     {sort: 'alphabeticalByArtist', name: 'By Artist'},
     {sort: 'recent', name: 'Recently Played'}
@@ -105,6 +105,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.xhrError = function (e) {
+    console.log(e);
     this.doToast('Error connecting to Subsonic');
   }.bind(this);
   
@@ -223,7 +224,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.calculateStorageSize = function () {
     navigator.webkitTemporaryStorage.queryUsageAndQuota(
     function(used, remaining) {
-      this.storageQuota = "Used quota: " + Math.round(10 * (((used / 1000) / 1000))) / 10  + " MB, remaining quota: " + Math.round(10 * ((remaining / 1000) / 1000)) / 10 + " MB";
+      var usedQuota = Math.round(10 * (((used / 1000) / 1000))) / 10,
+          remainingQuota = Math.round(10 * ((remaining / 1000) / 1000)) / 10,
+          bytes = 'MB';
+      if (remainingQuota > 1000) {
+        remainingQuota = Math.round(10 * (((remaining / 1000) / 1000) / 1000)) / 10;
+        bytes = 'GB';
+      }
+      this.storageQuota = "Disk Used: " + usedQuota  + " MB, Disk Remaining: " + remainingQuota + " " + bytes;
     }.bind(this), function(e) {
       console.log('Error', e); 
     });
@@ -403,6 +411,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.loadData = function () {
     chrome.storage.sync.get(function (result) {
+      //console.log(result);
       if (result.url === undefined) {
         this.$.firstRun.open();
       } else {
@@ -443,9 +452,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       }
       if (result.querySize === undefined) {
         chrome.storage.sync.set({
-          'querySize': 40
+          'querySize': 20
         });
-        this.querySize = 40;
+        this.querySize = 20;
       } else {
         this.querySize = result.querySize;
       }
@@ -457,7 +466,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       } else {
         this.queryMethod = 'ID3';
       }
-      if (result.mediaFolder !== undefined) {
+      if (result.mediaFolder !== undefined && result.mediaFolder !== 0) {
         this.folder = result.mediaFolder;
       }
       if (this.url && this.user && this.pass && this.version) {
@@ -650,6 +659,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   /*jslint unparam: true*/
   this.selectAction = function (event, detail, sender) {
     var wall = this.$.wall;
+    if (wall.sort === sender.attributes.i.value) {
+      wall.refreshContent();
+    }
     wall.sort = sender.attributes.i.value;
     this.closeDrawer();
     this.tracker.sendEvent('Sort By', sender.attributes.i.value);
@@ -688,9 +700,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.setFolder = function (event, detail, sender) {
-    this.folder = sender.attributes.i.value;
+    var value = parseInt(sender.attributes.i.value);
+    this.folder = value;
     chrome.storage.sync.set({
-      'mediaFolder': this.folder
+      'mediaFolder': value
     });
   };
 

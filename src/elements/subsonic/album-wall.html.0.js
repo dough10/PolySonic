@@ -53,6 +53,7 @@ Polymer('album-wall', {
     } else {
       delete this.post.musicFolderId;
     }
+    this.refreshContent();
   },
   clearData: function (callback) {
     'use strict';
@@ -129,7 +130,8 @@ Polymer('album-wall', {
       this.showing = 'podcast';
       chrome.storage.sync.set({
         'sortType': this.post.type,
-        'request': this.request
+        'request': this.request,
+        'mediaFolder': this.mediaFolder
       });
     }.bind(this));
   },
@@ -148,7 +150,8 @@ Polymer('album-wall', {
       this.showing = 'cover';
       chrome.storage.sync.set({
         'sortType': this.post.type,
-        'request': this.request
+        'request': this.request,
+        'mediaFolder': this.mediaFolder
       });
     }.bind(this));
   },
@@ -163,7 +166,8 @@ Polymer('album-wall', {
       this.showing = 'artists';
       chrome.storage.sync.set({
         'sortType': this.post.type,
-        'request': this.request
+        'request': this.request,
+        'mediaFolder': this.mediaFolder
       });
     }.bind(this));
   },
@@ -182,7 +186,8 @@ Polymer('album-wall', {
       this.showing = 'cover';
       chrome.storage.sync.set({
         'sortType': this.post.type,
-        'request': this.request
+        'request': this.request,
+        'mediaFolder': this.mediaFolder
       });
     }.bind(this));
   },
@@ -205,7 +210,7 @@ Polymer('album-wall', {
     if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.tmpl.pageLimit && this.tmpl.page === 0) {
       this.isLoading = true;
       this.tmpl.doToast('Loading..');
-      this.post.offset = parseInt(this.post.offset, 10) + this.post.size;
+      this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
       this.$.ajax.go();
     }
   },
@@ -347,6 +352,9 @@ Polymer('album-wall', {
     }.bind(this));
   },
   refreshContent: function () {
+    if (this.post.offset !== 0) {
+      this.post.offset = 0;
+    }
     this.clearData(function () {
       this.$.ajax.go();
     }.bind(this));
