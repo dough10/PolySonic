@@ -660,7 +660,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.selectAction = function (event, detail, sender) {
     var wall = this.$.wall;
     if (wall.sort === sender.attributes.i.value) {
+      if (this.queryMethod === 'ID3') {
+        wall.request = 'getAlbumList2';
+      } else {
+        wall.request = 'getAlbumList';
+      }
+      wall.post.type = sender.attributes.i.value;
       wall.refreshContent();
+      wall.showing = 'cover';
     }
     wall.sort = sender.attributes.i.value;
     this.closeDrawer();
