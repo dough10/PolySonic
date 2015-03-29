@@ -259,7 +259,6 @@ Polymer('album-wall', {
             obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
             this.tmpl.getImageForPlayer(imgURL);
             this.doPlay(obj, url);
-            this.tmpl.calculateStorageSize();
           }.bind(this));
         } else {
           this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {

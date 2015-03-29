@@ -212,6 +212,7 @@
       },
 
       showQuota: function () {
+        this.tmpl.calculateStorageSize();
         this.$.quota.toggle();
       }
     });
