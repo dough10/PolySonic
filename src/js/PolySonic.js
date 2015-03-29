@@ -660,6 +660,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.selectAction = function (event, detail, sender) {
     var wall = this.$.wall;
     if (wall.sort === sender.attributes.i.value) {
+      this.pageLimit = false;
       if (this.queryMethod === 'ID3') {
         wall.request = 'getAlbumList2';
       } else {
@@ -668,6 +669,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       wall.post.type = sender.attributes.i.value;
       wall.refreshContent();
       wall.showing = 'cover';
+      wall.$.threshold.clearLower();
     }
     wall.sort = sender.attributes.i.value;
     this.closeDrawer();

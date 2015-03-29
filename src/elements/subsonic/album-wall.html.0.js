@@ -54,6 +54,8 @@ Polymer('album-wall', {
       delete this.post.musicFolderId;
     }
     this.refreshContent();
+    this.tmpl.pageLimit = false;
+    this.$.threshold.clearLower();
   },
   clearData: function (callback) {
     'use strict';
@@ -209,7 +211,6 @@ Polymer('album-wall', {
     this.$.threshold.clearLower();
     if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.tmpl.pageLimit && this.tmpl.page === 0) {
       this.isLoading = true;
-      this.tmpl.doToast('Loading..');
       this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
       this.$.ajax.go();
     }
