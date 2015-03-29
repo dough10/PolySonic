@@ -61,6 +61,12 @@
             this.tmpl.doToast("Loading Data");
             this.tmpl.tracker.sendEvent('API Version', this.post.version);
             this.tmpl.$.firstRun.close();
+            this.tmpl.doXhr(this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic", 'json', function (e) {
+              this.tmpl.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+              if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+                this.tmpl.$.sortBox.style.display = 'none';
+              }
+            }.bind(this));
             setTimeout(function () {
               wall.doAjax();
             }, 100);

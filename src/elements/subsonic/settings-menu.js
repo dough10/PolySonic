@@ -98,15 +98,15 @@
         req.onsuccess = function () {
           console.log("Deleted database successfully");
           this.tmpl.createObjectStore();
-          this.tmpl.storageSize();
+          this.tmpl.calculateStorageSize();
         }.bind(this);
         req.onerror = function () {
           console.log("Error deleting database");
-          this.tmpl.storageSize();
+          this.tmpl.calculateStorageSize();
         }.bind(this);
         req.onblocked = function () {
           console.log("Couldn't delete database due to the operation being blocked");
-          this.tmpl.storageSize();
+          this.tmpl.calculateStorageSize();
         }.bind(this);
       },
       clearSettings: function () {
@@ -145,9 +145,10 @@
               'url': this.post.url,
               'user': this.post.user,
               'pass': this.post.pass,
-              'version': this.post.version,
+              'version': this.response['subsonic-response'].version,
               'bitRate': this.post.bitRate,
-              'querySize': this.post.querySize
+              'querySize': this.post.querySize,
+              'queryMethod': this.post.queryMethod
             });
 
             this.tmpl.url = this.post.url;
@@ -156,11 +157,13 @@
 
             this.tmpl.pass = this.post.pass;
 
-            this.tmpl.version = this.post.version;
+            this.tmpl.version = this.response['subsonic-response'].version;
 
             this.tmpl.bitRate = this.post.bitRate;
 
             this.tmpl.querySize = this.post.querySize;
+
+            this.tmpl.queryMethod = this.post.queryMethod;
 
             this.tmpl.doToast("Settings Saved");
           } else if (this.response['subsonic-response'].status === 'failed') {
@@ -204,6 +207,10 @@
         this.post.querySize = this.querySize;
       },
       
+      queryMethodChanged: function () {
+        this.post.queryMethod = this.queryMethod;
+      },
+
       showQuota: function () {
         this.$.quota.toggle();
       }

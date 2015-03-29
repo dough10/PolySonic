@@ -68,7 +68,7 @@ Polymer('album-art', {
       e.cover = imgURL;
     }.bind(this));
     this.isLoading = false;
-    this.tmpl.storageSize();
+    this.tmpl.calculateStorageSize();
   },
   
   defaultArt: function () {
@@ -203,12 +203,12 @@ Polymer('album-art', {
       this.playlist = [];
       this.checkJSONEntry(this.item, function (e) {
         if (e.target.result === 0) {
-          var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&size=600&id=" + this.item;
+          var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.item;
           this.tmpl.doXhr(url, 'json', function (e) {
             this.trackResponse = e.target.response;
             this.tmpl.putInDb(this.trackResponse, this.item, function () {
               console.log('JSON Data Added to indexedDB ' + this.item);
-              this.tmpl.storageSize();
+              this.tmpl.calculateStorageSize();
             }.bind(this));
           }.bind(this));
         } else {

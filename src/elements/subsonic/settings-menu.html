@@ -10,7 +10,7 @@
 <link href="../../bower_components/paper-dropdown/paper-dropdown.html" rel="import">
 <link href="../../bower_components/core-label/core-label.html" rel="import">
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
-</head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate querySize storageQuota">
+</head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate querySize storageQuota queryMethod">
   <template>
     <style>
       :host {
@@ -44,6 +44,10 @@
         max-width:250px;
         margin:auto;
       }
+      .red {
+        color:#fff;
+        background:
+      }
     </style>
     <core-ajax id="ajax" auto="false" method="POST" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v={{post.version}}&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
     </core-ajax>
@@ -63,18 +67,6 @@
         </paper-input-decorator>
         <br>
         <div id="showPass" on-tap="{{hidePass}}">Show Password</div><br>
-        <core-label>
-          Subsonic Version:
-          <paper-dropdown-menu label="Select Version">
-            <paper-dropdown layered class="dropdown">
-              <core-menu class="menu" selected="{{post.version}}" valueattr="i">
-                <template repeat="{{versions}}">
-                  <paper-item i="{{api}}">{{sub}}</paper-item>
-                </template>
-              </core-menu>
-            </paper-dropdown>
-          </paper-dropdown-menu>
-        </core-label>
         <br>
         <core-label>
           Bitrate:
@@ -101,6 +93,18 @@
             </paper-dropdown>
           </paper-dropdown-menu>
         </core-label>
+        <!--<br>
+        <core-label>
+          Sort By:
+          <paper-dropdown-menu label="Select Method">
+            <paper-dropdown layered class="dropdown">
+              <core-menu class="menu" selected="{{post.queryMethod}}" valueattr="i">
+                <paper-item i="ID3">ID3</paper-item>
+                <paper-item i="Traditional">Traditional</paper-item>
+              </core-menu>
+            </paper-dropdown>
+          </paper-dropdown-menu>
+        </core-label>-->
         <br>
         <paper-button on-tap="{{submit}}">
           <template if="{{isLoading}}">

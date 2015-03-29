@@ -13,6 +13,9 @@
   <link rel="stylesheet" href="styles/PolySonic.css" shim-shadowdom>
 </head>
 <body>
+
+
+  <!-- loading screen -->
   <div id="loader">
     <div id="box">
       <img src="../images/icon_128.png" height="128" width="128" alt="Icon">
@@ -21,14 +24,37 @@
       </div>
     </div>
   </div>
+
+
+  <!-- app body -->
   <div unresolved>
+
+    <!-- begin databindings -->
     <template is="auto-binding" id="tmpl">
+
+      <!-- fab -->
       <animated-fab id="fab" page="{{page}}" showing="{{showing}}" on-tap="{{doAction}}"></animated-fab>
       <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px" disableSwipe?="{{page !== 0}}">
+
         <!-- menu -->
         <core-scroll-header-panel drawer flex mode="seamed">
           <core-menu id="menu" selected="{{selected}}" valueattr="i">
             <core-toolbar class="medium-tall"></core-toolbar>
+            <div id="sortBox">
+              <core-label>
+                Folder:
+                <paper-dropdown-menu label="All">
+                  <paper-dropdown class="dropdown">
+                    <core-menu class="menu" selected="{{folder}}" valueattr="i">
+                      <paper-item i="" on-tap="{{setFolder}}">All</paper-item>
+                      <template repeat="{{mediaFolders}}">
+                        <paper-item i="{{id}}" on-tap="{{setFolder}}">{{name}}</paper-item>
+                      </template>
+                    </core-menu>
+                  </paper-dropdown>
+                </paper-dropdown-menu>
+              </core-label>
+            </div>
             <paper-item on-tap="{{shuffleOptions}}">
               <core-icon icon="av:shuffle"></core-icon>
               Shuffle
@@ -61,13 +87,23 @@
             </paper-item>
           </core-menu>
         </core-scroll-header-panel>
+
+
         <!-- body -->
         <core-header-panel id="headerPanel" main flex mode="seamed">
+
+          <!--app toolbar-->
           <core-toolbar id="toolbar" class="medium-tall">
+
+            <!-- click area to move app -->
             <div flex id='drag'></div>
+
+            <!-- app minimize / close buttons -->
             <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
             <!--<paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>-->
             <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
+
+            <!-- logic for toolbar -->
             <template if="{{page === 0}}">
               <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
               <div flex  class="bottom alignLeft">PolySonic</div>
@@ -99,10 +135,16 @@
               </template>
             </template>
           </core-toolbar>
+
+          <!-- app main page animations -->
           <core-animated-pages id="main" on-core-animated-pages-transition-prepare="{{fixScroller}}" on-core-animated-pages-transition-end="{{fixScroller}}" selected="{{page}}" transitions="slide-from-right">
+
+            <!-- main content album wall, podcast, artist -->
             <section>
-              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}"></album-wall>
+              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}" queryMethod="{{queryMethod}}" mediaFolder="{{folder}}"></album-wall>
             </section>
+
+            <!-- player -->
             <section>
               <div id="coverArt"></div>
               <div class="controlsWrapper">
@@ -121,20 +163,28 @@
                 <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
               </div>
             </section>
+
+            <!-- settings menu -->
             <section>
               <paper-shadow z='1' class='card'>
-                <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" storageQuota="{{storageQuota}}"></settings-menu>
+                <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" storageQuota="{{storageQuota}}" queryMethod="{{queryMethod}}"></settings-menu>
               </paper-shadow>
             </section>
+
+            <!-- album details -->
             <section>
               <album-details id="details" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}"></album-details>
             </section>
+
+            <!-- artist details -->
             <section>
               <artist-details id="aDetails" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}"></artist-details>
             </section>
           </core-animated-pages>
         </core-header-panel>
       </core-drawer-panel>
+
+      <!-- playlist -->
       <paper-dialog id="playlistDialog" style="min-height:695px; min-width:471px;" transition="core-transition-top">
         <div horizontal layout>
           <div flex></div>
@@ -164,15 +214,21 @@
         <br>
         <volume-slider volume="{{volume}}"></volume-slider>
       </paper-dialog>
+
+      <!-- first run login details n such -->
       <paper-action-dialog id="firstRun" style="min-height: 425px;" autoclosedisabled transition="core-transition-center">
         <subsonic-login url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}">
         </subsonic-login>
       </paper-action-dialog>
+
+      <!-- request analistics -->
       <paper-action-dialog id='analistics' autoclosedisabled transition="core-transition-center" layered>
         <h4>Allow anonymous usage tracking?</h4>
         <paper-button affirmative on-tap="{{disAllowAnalistics}}">Decline</paper-button>
         <paper-button affirmative on-tap="{{allowAnalistics}}">Accept</paper-button>
       </paper-action-dialog>
+
+      <!-- search -->
       <paper-dialog id="searchDialog" header="Search" transition="core-transition-center">
         <div horizontal layout>
           <div flex style="text-align: center;">
@@ -220,6 +276,9 @@
           </template>
         </div>
       </paper-dialog>
+
+
+      <!-- shuffle options -->
       <paper-dialog id="shuffleOptions" style="height:400px; width:300px;" transition="core-transition-center">
         <div style="text-align:center">
           <core-label>
@@ -255,6 +314,8 @@
           </paper-button>
         </div>
       </paper-dialog>
+
+      <!-- add podcast -->
       <paper-dialog id="addPodcast" transition="core-transition-bottom">
         <div style="text-align:center;">
           <paper-input-decorator style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="URL Required" label="Podcast feed URL">
@@ -270,24 +331,32 @@
           </paper-button>
         </div>
       </paper-dialog>
+
+      <!-- delete confirmation podcast channel -->
       <paper-action-dialog id='confirmDelete' autoclosedisabled transition="core-transition-center" layered>
         <div style="min-width:280px"></div>
         <h4>Are You Sure? Delete Channel</h4>
         <paper-button affirmative>Decline</paper-button>
         <paper-button affirmative ident="{{delID}}" on-tap="{{doDelete}}">Accept</paper-button>
       </paper-action-dialog>
+
+      <!-- delete confirmation podcast episodes  -->
       <paper-action-dialog id='episodeConfirm' autoclosedisabled transition="core-transition-center" layered>
         <div style="min-width:280px"></div>
         <h4>Are You Sure? Delete Episode</h4>
         <paper-button affirmative>Decline</paper-button>
         <paper-button affirmative ident="{{delID}}" on-tap="{{deleteEpisode}}">Accept</paper-button>
       </paper-action-dialog>
+
+      <!--some key bindings ** half ass working** -->
       <core-a11y-keys keys="space" on-keys-pressed="{{playPause}}"></core-a11y-keys>
       <core-a11y-keys keys="left" on-keys-pressed="{{lastTrack}}"></core-a11y-keys>
       <core-a11y-keys keys="right"on-keys-pressed="{{nextTrack}}"></core-a11y-keys>
       <core-a11y-keys keys="up" on-keys-pressed="{{volUp}}"></core-a11y-keys>
       <core-a11y-keys keys="down" on-keys-pressed="{{volDown}}"></core-a11y-keys>
       <x-notification id="playNotify" timeout='5000' tag="tag"></x-notification>
+
+      <!-- where the magic happens -->
       <audio id="audio"></audio>
     </template>
   </div>

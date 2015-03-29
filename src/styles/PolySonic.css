@@ -173,3 +173,8 @@ core-menu core-icon {
 .redClose {
   color: #db4437;
 }
+#sortBox {
+  height:52px;
+  padding-left: 16px;
+  text-align:left;
+}

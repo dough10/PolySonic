@@ -220,10 +220,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
   };
 
-  this.storageSize = function () {
+  this.calculateStorageSize = function () {
     navigator.webkitTemporaryStorage.queryUsageAndQuota(
     function(used, remaining) {
-      this.storageQuota = "Used quota: " + Math.round(10 * (((used / 1000) / 1000))) / 10  + " MB, remaining quota: " + Math.round(10 * ((remaining / 1000) / 1000)) / 10 + " MB,";
+      this.storageQuota = "Used quota: " + Math.round(10 * (((used / 1000) / 1000))) / 10  + " MB, remaining quota: " + Math.round(10 * ((remaining / 1000) / 1000)) / 10 + " MB";
     }.bind(this), function(e) {
       console.log('Error', e); 
     });
@@ -452,6 +452,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (result.volume !== undefined) {
         this.volume = result.volume;
       }
+      if (result.queryMethod !== undefined) {
+        this.queryMethod = result.queryMethod;
+      } else {
+        this.queryMethod = 'ID3';
+      }
+      if (result.mediaFolder !== undefined) {
+        this.folder = result.mediaFolder;
+      }
       if (this.url && this.user && this.pass && this.version) {
         var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
         this.doXhr(url, 'json', function (e) {
@@ -459,6 +467,12 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
             var response = e.target.response['subsonic-response'];
             if (response.status === 'ok') {
               console.log('Connected to Subconic loading data');
+              this.doXhr(this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic", 'json', function (e) {
+                this.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+                  this.$.sortBox.style.display = 'none';
+                }
+              }.bind(this));
               this.$.wall.doAjax();
             } else {
               this.tracker.sendEvent('Connection Error', response.error.meessage);
@@ -673,6 +687,13 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     dialog.toggle();
   };
 
+  this.setFolder = function (event, detail, sender) {
+    this.folder = sender.attributes.i.value;
+    chrome.storage.sync.set({
+      'mediaFolder': this.folder
+    });
+  };
+
   this.openPanel = function () {
     var panel = this.$.panel;
     panel.openDrawer();
@@ -769,7 +790,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.loadListeners();
   this.loadData();
   this.sizePlayer();
-  this.storageSize();
+  this.calculateStorageSize();
 
   setInterval(function () {
     var audio = this.$.audio,
