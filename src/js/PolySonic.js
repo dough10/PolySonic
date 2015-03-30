@@ -428,6 +428,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.loadData = function () {
     chrome.storage.sync.get(function (result) {
+      //console.log(result);
       if (result.url === undefined) {
         this.$.firstRun.open();
       } else {
@@ -484,6 +485,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (result.mediaFolder !== undefined && result.mediaFolder !== 0) {
         this.folder = result.mediaFolder;
       }
+      this.colorThiefEnabled = result.colorThiefEnabled || false;
+      console.log(this.colorThiefEnabled);
       if (this.url && this.user && this.pass && this.version) {
         var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
         this.doXhr(url, 'json', function (e) {
@@ -613,7 +616,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.clearPlayer = function () {
     this.page = 0;
-    this.src = '';
     this.playlist = null;
     this.playlist = [];
     console.log('Playlist Clear');
@@ -822,11 +824,20 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.getColor = function (image) {
     var colorThief = new ColorThief();
-    return colorThief.getColor(image);
+    return colorThief.getPalette(image, 2);
+  };
+  
+ this.componentToHex = function (c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+  };
+  
+  this.rgbToHex = function (r, g, b) {
+    return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
   };
 
   this.loadListeners();
-  this.loadData();
+  //this.loadData();   // moved to subsonic-login element
   this.sizePlayer();
   this.calculateStorageSize();
 

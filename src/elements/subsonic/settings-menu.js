@@ -164,26 +164,31 @@
           }
         }
       },
+      colorThiefToggle: function () {
+        chrome.storage.sync.set({
+          'colorThiefEnabled': this.colorThiefEnabled
+        });
+      },
       bitRateSelect: function () {
         chrome.storage.sync.set({
           'bitRate': this.post.bitRate
         });
         this.tmpl.bitRate = this.post.bitRate;
-        console.log('Bitrate Changed to ' + this.post.bitRate);
+        console.log('Bitrate set to ' + this.post.bitRate);
       },
       querySelect: function () {
         chrome.storage.sync.set({
           'querySize': this.post.querySize
         });
         this.tmpl.querySize = this.post.querySize;
-        console.log('Query Size Change to ' + this.post.querySize);
+        console.log('Query Size set to ' + this.post.querySize);
       },
       methodSelect: function () {
         chrome.storage.sync.set({
           'queryMethod': this.post.queryMethod
         });
         this.tmpl.queryMethod = this.post.queryMethod;
-        console.log('Query Method Changed to ' + this.post.queryMethod);
+        console.log('Query Method set to ' + this.post.queryMethod);
       },
       errorChanged: function () {
         'use strict';
