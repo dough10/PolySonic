@@ -114,6 +114,9 @@ Polymer('album-wall', {
         console.log(response.error.message);
         this.tmpl.doToast(response.error.message);
       }
+      /*
+        will hide loading screen overlay
+      */
       this.tmpl.showApp();
     }
   },
@@ -314,7 +317,7 @@ Polymer('album-wall', {
         }
       }.bind(this));
     } else {
-      imgURL = 'images/default-cover-art.png';
+      imgURL = '../../../images/default-cover-art.png';
       if (this.audio.paused) {
         obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
         this.tmpl.getImageForPlayer(imgURL);

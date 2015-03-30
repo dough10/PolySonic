@@ -100,7 +100,7 @@
 
             <!-- app minimize / close buttons -->
             <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-            <!--<paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>-->
+            <!--<paper-icon-button id="max" on-tap="{{maximize}}"></paper-icon-button>-->
             <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
 
             <!-- logic for toolbar -->
@@ -262,7 +262,7 @@
               <album-art listMode="search" bitRate="{{bitRate}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" isFavorite="{{starred}}"></album-art>
             </template>
           </template>
-          <!--<template if="{{searchResults.song}}">
+          <template if="{{searchResults.song}}">
             <h3>Songs</h3>
             <template repeat="{{searchResults.song}}">
               <core-item>
@@ -274,7 +274,7 @@
                 <paper-icon-button on-tap="{{doDownload}}" ident="{{id}}"  icon="file-download"></paper-icon-button>
               </core-item>
             </template>
-          </template>-->
+          </template>
           <template if="{{!searchResults.artist && !searchResults.album[0] && searchResults.song}}">
             No results matching query
           </template>
@@ -295,6 +295,19 @@
                     <paper-item i="">Optional</paper-item>
                     <template repeat="{{genres}}">
                       <paper-item i="{{value}}">{{value}}</paper-item>
+                    </template>
+                  </core-menu>
+                </paper-dropdown>
+              </paper-dropdown-menu>
+            </core-label>
+            <br>
+            <core-label>
+              Number of Songs to return:
+              <paper-dropdown-menu label="Optional">
+                <paper-dropdown layered class="dropdown">
+                  <core-menu selected="{{shuffleSize}}" valueattr="i" class="menu">
+                    <template repeat="{{shuffleSizes}}">
+                      <paper-item i="{{}}">{{}}</paper-item>
                     </template>
                   </core-menu>
                 </paper-dropdown>
@@ -367,4 +380,5 @@
   <script src="js/cast_sender.js"></script>
   <script src="js/PolySonic.js"></script>
   <script src="js/google-analytics-bundle.js"></script>
+  <script src="js/color-thief.min.js"></script>
 </body>
