@@ -168,6 +168,10 @@
         chrome.storage.sync.set({
           'colorThiefEnabled': this.colorThiefEnabled
         });
+        this.tmpl.colorThiefFab = undefined;
+        this.tmpl.colorThiefFabOff = undefined;
+        this.tmpl.colorThiefBuffered = undefined;
+        this.tmpl.colorThiefProgBg = undefined;
       },
       bitRateSelect: function () {
         chrome.storage.sync.set({

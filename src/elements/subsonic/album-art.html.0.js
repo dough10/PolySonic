@@ -81,14 +81,29 @@ Polymer('album-art', {
 
       rgb color code saved as this.color
     */
-    if (this.colorThiefEnabled) {
-      imgElement = new Image();
-      imgElement.src = imgURL;
-      imgElement.onload = function (e) {
-        var color = this.tmpl.getColor(imgElement);
-        console.log(color);
-      }.bind(this);
-    }
+    imgElement = new Image();
+    imgElement.src = imgURL;
+    imgElement.onload = function (e) {
+      var color = this.tmpl.getColor(imgElement),
+          r = color[1][0],
+          g = color[1][1],
+          b = color[1][2],
+          hex = this.tmpl.rgbToHex(r, g, b),
+          fabColor = 'rgb(' + r + ',' + g + ',' + b + ');',
+          fabOffColor = this.tmpl.getContrast50(hex),
+          bufferedColor = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+      Array.prototype.forEach.call(this.playlist, function (e) {
+        e.palette = [];
+        e.palette.push(fabColor);
+        e.palette.push(fabOffColor);
+        e.palette.push(bufferedColor);
+        if (fabOffColor !== 'white') {
+          e.palette.push('#444444');
+        } else {
+          e.palette.push('#c8c8c8');
+        }
+      }.bind(this));
+    }.bind(this);
   },
   
   defaultArt: function () {
@@ -151,6 +166,12 @@ Polymer('album-art', {
       this.tmpl.playing = 0;
       this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL);
       this.tmpl.getImageForPlayer(this.imgURL);
+      if (this.colorThiefEnabled) {
+        this.tmpl.colorThiefFab = this.playlist[0].palette[0];
+        this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
+        this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
+        this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
+      }
     }
     Array.prototype.forEach.call(this.playlist, function (e) {
       this.tmpl.playlist.push(e);
@@ -165,6 +186,13 @@ Polymer('album-art', {
 
   playAlbum: function () {
     'use strict';
+    if (this.colorThiefEnabled) {
+      this.tmpl.colorThiefFab = this.playlist[0].palette[0];
+      this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
+      this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
+      this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
+    }
+    
     this.tmpl.$.searchDialog.close();
     this.tmpl.setScrollerPos();
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;

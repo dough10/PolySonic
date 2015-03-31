@@ -549,6 +549,12 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   /*jslint unparam: true*/
   this.playThis = function (event, detail, sender) {
+    if (this.colorThiefEnabled) {
+      this.colorThiefFab = sender.attributes.fab.value;
+      this.colorThiefFabOff =  sender.attributes.offColor.value;
+      this.colorThiefBuffered =  sender.attributes.buffer.value;
+      this.colorThiefProgBg = sender.attributes.progBg.value;
+    }
     var url;
     if (sender.attributes.artist.value === '') {
       // is a podcast
@@ -567,6 +573,12 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   /*jslint unparam: false*/
 
   this.playNext = function (next) {
+    if (this.colorThiefEnabled) {
+      this.colorThiefFab = this.playlist[next].palette[0];
+      this.colorThiefFabOff = this.playlist[next].palette[1];
+      this.colorThiefBuffered = this.playlist[next].palette[2];
+      this.colorThiefProgBg = this.playlist[0].palette[3];
+    }
     var url;
     if (this.playlist[next]) {
       if (this.playlist[next].artist === '') {
@@ -619,6 +631,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.playlist = null;
     this.playlist = [];
     console.log('Playlist Clear');
+    this.colorThiefFab = undefined;
+    this.colorThiefFabOff = undefined;
+    this.colorThiefBuffered = undefined;
+    this.colorThiefProgBg = undefined;
   };
 
   this.back2List = function () {
@@ -836,7 +852,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.rgbToHex = function (r, g, b) {
-    return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
+    return this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
   };
 
   this.loadListeners();
