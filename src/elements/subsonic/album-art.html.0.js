@@ -67,8 +67,7 @@ Polymer('album-art', {
     'use strict';
     var imgFile = event.target.result,
       imgURL = window.URL.createObjectURL(imgFile),
-      imgElement,
-      list;
+      imgElement;
 
     this.$.card.style.backgroundImage = "url('" + imgURL + "')";
     this.imgURL = imgURL;
