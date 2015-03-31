@@ -334,7 +334,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
               fabOffColor = this.getContrast50(hex),
               bufferedColor = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
               
-          console.log(e);
           e.palette = [];
           e.palette.push(fabColor);
           e.palette.push(fabOffColor);
