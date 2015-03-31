@@ -4,7 +4,7 @@
 <link href="../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
 <link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
 <link href="../../bower_components/core-icons/av-icons.html" rel="import">
-</head><body><polymer-element name="animated-fab" attributes="state fabTimer page showing">
+</head><body><polymer-element name="animated-fab" attributes="state fabTimer page showing colorThiefFab colorThiefFabOff">
   <template>
     <style>
       :host {
@@ -40,6 +40,10 @@
       .mid {
         top:356px;
       }
+      .colorThief {
+        background:{{colorThiefFab}};
+        color:{{ colorThiefFabOff}};
+      }
     </style>
     <core-media-query query="max-width:480px" querymatches="{{phoneSize}}"></core-media-query>
     <core-animated-pages selected="{{state}}" valueattr="page" transitions="hero-transition">
@@ -50,7 +54,7 @@
         <paper-fab class="bottom" icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
       </div>
       <div class="page" page="top">
-        <paper-fab class="top" icon="list" hero-id="foo" hero layered  style='-webkit-app-region: no-drag;'></paper-fab>
+        <paper-fab class="top colorThief" icon="list" hero-id="foo" hero></paper-fab>
       </div>
       <div page="mid">
         <paper-fab class="mid" icon="av:play-arrow" hero-id="foo" hero layered></paper-fab>

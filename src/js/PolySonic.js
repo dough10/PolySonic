@@ -486,7 +486,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         this.folder = result.mediaFolder;
       }
       this.colorThiefEnabled = result.colorThiefEnabled || false;
-      console.log(this.colorThiefEnabled);
+      console.log('Color Thief Mode: ' + this.colorThiefEnabled);
       if (this.url && this.user && this.pass && this.version) {
         var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
         this.doXhr(url, 'json', function (e) {
@@ -762,7 +762,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.clearPlaylist = function () {
     this.$.audio.pause();
-    this.$.audio.src = '';
     this.$.playlistDialog.close();
     this.page = 0;
     this.playlist = null;
@@ -824,10 +823,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.getColor = function (image) {
     var colorThief = new ColorThief();
-    return colorThief.getPalette(image, 2);
+    return colorThief.getPalette(image, 4);
   };
   
- this.componentToHex = function (c) {
+  this.getContrast50  = function (hexcolor){
+    return (parseInt(hexcolor, 16) > 0xffffff/2) ? 'black':'white';
+  };
+
+  this.componentToHex = function (c) {
     var hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
   };

@@ -174,21 +174,21 @@
           'bitRate': this.post.bitRate
         });
         this.tmpl.bitRate = this.post.bitRate;
-        console.log('Bitrate set to ' + this.post.bitRate);
+        console.log('Bitrate: ' + this.post.bitRate);
       },
       querySelect: function () {
         chrome.storage.sync.set({
           'querySize': this.post.querySize
         });
         this.tmpl.querySize = this.post.querySize;
-        console.log('Query Size set to ' + this.post.querySize);
+        console.log('Query Size: ' + this.post.querySize);
       },
       methodSelect: function () {
         chrome.storage.sync.set({
           'queryMethod': this.post.queryMethod
         });
         this.tmpl.queryMethod = this.post.queryMethod;
-        console.log('Query Method set to ' + this.post.queryMethod);
+        console.log('Query Method: ' + this.post.queryMethod);
       },
       errorChanged: function () {
         'use strict';

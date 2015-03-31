@@ -87,10 +87,7 @@ Polymer('album-art', {
       imgElement.src = imgURL;
       imgElement.onload = function (e) {
         var color = this.tmpl.getColor(imgElement); 
-        Array.prototype.forEach.call(color, function (e) {
-          var hex = this.tmpl.rgbToHex(e[0],e[1],e[2]);
-          console.log(hex);
-        }.bind(this));
+        console.log(color);
       }.bind(this);
     }
   },
