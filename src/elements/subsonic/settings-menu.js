@@ -1,14 +1,5 @@
 
     Polymer('settings-menu',{
-      versions: [
-        {sub:'5.2', api:'1.12.0'},
-        {sub:'5.1', api:'1.11.0'}
-        
-        /* versions not supported due to access-control-allow-origin header*/
-      /*{sub:'4.9', api:'1.10.2'},
-        {sub:'4.8', api:'1.9.0'},
-        {sub:'4.7', api:'1.8.0'}*/
-      ],
       speeds: [
         96,
         128,
@@ -172,6 +163,32 @@
             this.tmpl.doToast("Error Connecting to Server. Check Settings");
           }
         }
+      },
+      colorThiefToggle: function () {
+        chrome.storage.sync.set({
+          'colorThiefEnabled': this.colorThiefEnabled
+        });
+      },
+      bitRateSelect: function () {
+        chrome.storage.sync.set({
+          'bitRate': this.post.bitRate
+        });
+        this.tmpl.bitRate = this.post.bitRate;
+        console.log('Bitrate: ' + this.post.bitRate);
+      },
+      querySelect: function () {
+        chrome.storage.sync.set({
+          'querySize': this.post.querySize
+        });
+        this.tmpl.querySize = this.post.querySize;
+        console.log('Query Size: ' + this.post.querySize);
+      },
+      methodSelect: function () {
+        chrome.storage.sync.set({
+          'queryMethod': this.post.queryMethod
+        });
+        this.tmpl.queryMethod = this.post.queryMethod;
+        console.log('Query Method: ' + this.post.queryMethod);
       },
       errorChanged: function () {
         'use strict';

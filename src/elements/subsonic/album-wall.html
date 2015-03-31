@@ -7,7 +7,7 @@
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/core-scroll-threshold/core-scroll-threshold.html" rel="import">
 <link href="../../bower_components/core-animation/core-animation.html" rel="import">
-</head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize isLoading showing queryMethod mediaFolder request post">
+</head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize isLoading showing queryMethod mediaFolder request post colorThiefEnabled">
   <template>
     <style>
       paper-item {
@@ -77,7 +77,7 @@
           <core-list id="list" data="{{wall}}" flex grid='false' scrollTarget="{{scrollTarget}}">
             <template>
               <div>
-                <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}"></album-art>
+                <album-art listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}" colorThiefEnabled="{{colorThiefEnabled}}"></album-art>
               </div>
             </template>
           </core-list>

@@ -19,6 +19,9 @@
           this.$.ajax.go();
         }
       },
+      domReady: function () {
+        this.tmpl.loadData();
+      },
       hidePass: function (event, detail, sender) {
         'use strict';
         var type = this.$.password.type,
