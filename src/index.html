@@ -31,6 +31,18 @@
 
     <!-- begin databindings -->
     <template is="auto-binding" id="tmpl">
+      
+      <style>
+        paper-progress::shadow #progressContainer {
+          background-color:{{colorThiefProgBg}};
+        }
+        paper-progress::shadow #activeProgress {
+          background-color:{{colorThiefFab}};
+        }
+        paper-progress::shadow #secondaryProgress {
+          background-color:{{colorThiefBuffered}};
+        }
+      </style>
 
       <!-- fab -->
       <animated-fab id="fab" page="{{page}}" showing="{{showing}}" on-tap="{{doAction}}" colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}"></animated-fab>
@@ -146,9 +158,15 @@
 
             <!-- player -->
             <section>
-              <div id="coverArt"></div>
+              <div id="coverArt">
+                <template if="{{contentLoading}}">
+                  <div class="spinWrapper">
+                    <paper-spinner active></paper-spinner>
+                  </div>
+                </template>
+              </div>
               <div class="controlsWrapper">
-                <paper-progress id="progress" value="{{progress}}" style="background:{{colorThiefFab}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
+                <paper-progress id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
                 <div id="time">{{playTime}}</div>
                 <template if="{{playlist && playing !== 0}}">
                   <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
@@ -198,7 +216,7 @@
           </paper-item>
           <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
             <template repeat="{{playlist}}">
-              <paper-item on-tap="{{playThis}}" ident="{{id}}" cover="{{cover}}" artist="{{artist}}" title="{{title}}" style="color:#000000" ident="{{id}}">
+              <paper-item on-tap="{{playThis}}" ident="{{id}}" cover="{{cover}}" artist="{{artist}}" title="{{title}}" fab='{{palette[0]}}' offColor="{{palette[1]}}" buffer="{{palette[2]}}" progBg="{{palette[3]}}" style="color:#000000" ident="{{id}}">
                 <div flex style="overflow:hidden">
                   {{artist}} - {{title}}
                 </div>
