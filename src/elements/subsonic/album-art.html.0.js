@@ -27,8 +27,8 @@ Polymer('album-art', {
 
   },
 
-  /* 
-    changes size and content of element 
+  /*
+    changes size and content of element
   */
   listModeChanged: function () {
     'use strict';
@@ -69,24 +69,24 @@ Polymer('album-art', {
       imgURL = window.URL.createObjectURL(imgFile),
       imgElement,
       list;
-      
+
     this.$.card.style.backgroundImage = "url('" + imgURL + "')";
     this.imgURL = imgURL;
     Array.prototype.forEach.call(this.playlist, function (e) {
       e.cover = imgURL;
     }.bind(this));
-    this.isLoading = false; 
-    
+    this.isLoading = false;
+
     /*
       get dominant color from image
-      
+
       rgb color code saved as this.color
     */
     if (this.colorThiefEnabled) {
       imgElement = new Image();
       imgElement.src = imgURL;
       imgElement.onload = function (e) {
-        var color = this.tmpl.getColor(imgElement); 
+        var color = this.tmpl.getColor(imgElement);
         console.log(color);
       }.bind(this);
     }
@@ -222,7 +222,7 @@ Polymer('album-art', {
       this.defaultArt();
       this.playlist = null;
       this.playlist = [];
-      
+
       /*
         search indexeddb for data
       */

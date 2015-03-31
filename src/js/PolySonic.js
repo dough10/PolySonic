@@ -245,7 +245,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       request.onerror = this.dbErrorHandler;
     }
   };
-  
+
   this.shuffleSizes = [
     20,
     40,
@@ -254,7 +254,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     100,
     200,
   ];
-  
+
   this.shuffleSize = this.shuffleSize || '50';
 
   this.shuffleOptions = function () {
@@ -413,7 +413,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
     /*
       only needed if fullscreen enabled
-      
+
       html commented out on index file enables icon
     */
     //window.onresize = this.sizePlayer.bind(this);
@@ -820,12 +820,12 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     request.onsuccess = callback;
     request.onerror = this.dbErrorHandler;
   };
-  
+
   this.getColor = function (image) {
     var colorThief = new ColorThief();
     return colorThief.getPalette(image, 4);
   };
-  
+
   this.getContrast50  = function (hexcolor){
     return (parseInt(hexcolor, 16) > 0xffffff/2) ? 'black':'white';
   };
@@ -834,7 +834,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     var hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
   };
-  
+
   this.rgbToHex = function (r, g, b) {
     return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
   };
