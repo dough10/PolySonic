@@ -173,6 +173,9 @@
         this.tmpl.colorThiefBuffered = undefined;
         this.tmpl.colorThiefProgBg = undefined;
       },
+      thiefDetailsToggle: function () {
+        this.$.thiefCollapse.toggle();
+      },
       bitRateSelect: function () {
         chrome.storage.sync.set({
           'bitRate': this.post.bitRate

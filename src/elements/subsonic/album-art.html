@@ -203,6 +203,9 @@
       .spinner::shadow .circle {
         border-color: #000;
       }
+      #colored {
+        color:{{colorThiefFab}};
+      }
     </style>
     <div id="card">
       <core-animated-pages selected="{{page}}" valueattr="page" transitions="cross-fade hero-transition">
@@ -214,7 +217,7 @@
               </div>
             </template>
             <template if="{{playlist[0]}}">
-              <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{playAlbum}}"></paper-icon-button>
+              <paper-icon-button class="huge" id="colored" icon="av:play-arrow" on-tap="{{playAlbum}}"></paper-icon-button>
             </template>
             <div id="overlay-low" hero-id="hero" hero="">
               <paper-icon-button id="icon" on-tap="{{slideUp}}" class="left-icon" icon="more-vert"></paper-icon-button>

@@ -81,29 +81,32 @@ Polymer('album-art', {
 
       rgb color code saved as this.color
     */
-    imgElement = new Image();
-    imgElement.src = imgURL;
-    imgElement.onload = function (e) {
-      var color = this.tmpl.getColor(imgElement),
-          r = color[1][0],
-          g = color[1][1],
-          b = color[1][2],
-          hex = this.tmpl.rgbToHex(r, g, b),
-          fabColor = 'rgb(' + r + ',' + g + ',' + b + ');',
-          fabOffColor = this.tmpl.getContrast50(hex),
-          bufferedColor = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
-      Array.prototype.forEach.call(this.playlist, function (e) {
-        e.palette = [];
-        e.palette.push(fabColor);
-        e.palette.push(fabOffColor);
-        e.palette.push(bufferedColor);
-        if (fabOffColor !== 'white') {
-          e.palette.push('#444444');
-        } else {
-          e.palette.push('#c8c8c8');
-        }
-      }.bind(this));
-    }.bind(this);
+     if (this.colorThiefEnabled) {
+      imgElement = new Image();
+      imgElement.src = imgURL;
+      imgElement.onload = function (e) {
+        var color = this.tmpl.getColor(imgElement),
+            r = color[1][0],
+            g = color[1][1],
+            b = color[1][2],
+            hex = this.tmpl.rgbToHex(r, g, b),
+            fabColor = 'rgb(' + r + ',' + g + ',' + b + ');',
+            fabOffColor = this.tmpl.getContrast50(hex),
+            bufferedColor = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+       
+        Array.prototype.forEach.call(this.playlist, function (e) {
+          e.palette = [];
+          e.palette.push(fabColor);
+          e.palette.push(fabOffColor);
+          e.palette.push(bufferedColor);
+          if (fabOffColor !== 'white') {
+            e.palette.push('#444444');
+          } else {
+            e.palette.push('#c8c8c8');
+          }
+        }.bind(this));
+      }.bind(this);
+    }
   },
   
   defaultArt: function () {

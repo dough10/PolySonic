@@ -127,10 +127,14 @@
         <!-- switch to enable color thief mode -->
         <br>
         <div center horizontal layout class="switchBox">
-          <div flex class="switchLabel">Color Thief Mode</div>
+          <div flex class="switchLabel" title="Click for Details" on-tap="{{thiefDetailsToggle}}">Color Thief Mode</div>
           <paper-toggle-button class="redSwitch" checked="{{colorThiefEnabled}}" on-change="{{colorThiefToggle}}"></paper-toggle-button>
         </div>
-        
+        <core-collapse id="thiefCollapse">
+          <div>
+            Color Thief is a Javascript library that can get a palette of colors from a image.
+          </div>
+        </core-collapse>
         <br>
         <paper-button on-tap="{{submit}}">
           <template if="{{isLoading}}">

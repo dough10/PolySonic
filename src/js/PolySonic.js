@@ -277,6 +277,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       mins,
       seconds,
       timeString;
+      
     if (!this.startYearInvalid && !this.endYearInvalid) {
       this.$.audio.pause();
       if (this.endingYear && this.startingYear && this.genreFilter) {
@@ -317,6 +318,36 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.doToast("Invalid Entry");
     }
   };
+  
+  this.shuffleColorThief = function () {
+     if (this.colorThiefEnabled) {
+      Array.prototype.forEach.call(this.playlist, function (e) {
+        var imgElement = new Image();
+        imgElement.src = e.cover;
+        imgElement.onload = function () {
+          var color = this.getColor(imgElement),
+              r = color[1][0],
+              g = color[1][1],
+              b = color[1][2],
+              hex = this.rgbToHex(r, g, b),
+              fabColor = 'rgb(' + r + ',' + g + ',' + b + ');',
+              fabOffColor = this.getContrast50(hex),
+              bufferedColor = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+              
+          console.log(e);
+          e.palette = [];
+          e.palette.push(fabColor);
+          e.palette.push(fabOffColor);
+          e.palette.push(bufferedColor);
+          if (fabOffColor !== 'white') {
+            e.palette.push('#444444');
+          } else {
+            e.palette.push('#c8c8c8');
+          }
+        }.bind(this);
+      }.bind(this));
+    }
+  };
 
   this.fixCoverArtForShuffle = function (obj) {
     var img = this.url + '/rest/getCoverArt.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + obj.cover;
@@ -326,6 +357,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           var raw = ev.target.result,
             imgURL = window.URL.createObjectURL(raw);
           obj.cover = imgURL;
+          this.shuffleColorThief();
           this.playlist.push(obj);
           this.doShufflePlayback();
         }.bind(this));
@@ -334,6 +366,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           var raw = ev.target.result,
             imgURL = window.URL.createObjectURL(raw);
           obj.cover = imgURL;
+          this.shuffleColorThief();
           this.playlist.push(obj);
           this.doShufflePlayback();
         }.bind(this));
@@ -343,6 +376,13 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.doShufflePlayback = function () {
     if (this.$.audio.paused) {
+      if (this.colorThiefEnabled) {
+        console.log(this.playlist);
+/*        this.colorThiefFab = this.playlist[0].palette[0];
+        this.colorThiefFabOff = this.playlist[0].palette[1];
+        this.colorThiefBuffered = this.playlist[0].palette[2];
+        this.colorThiefProgBg = this.playlist[0].palette[3];*/
+      }
       var art = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
       this.playing = 0;
       this.playAudio(this.playlist[0].artist, this.playlist[0].title, art, this.playlist[0].cover);
@@ -573,7 +613,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   /*jslint unparam: false*/
 
   this.playNext = function (next) {
-    if (this.colorThiefEnabled) {
+    if (this.colorThiefEnabled && this.playlist[next].palette) {
       this.colorThiefFab = this.playlist[next].palette[0];
       this.colorThiefFabOff = this.playlist[next].palette[1];
       this.colorThiefBuffered = this.playlist[next].palette[2];
@@ -631,10 +671,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.playlist = null;
     this.playlist = [];
     console.log('Playlist Clear');
-    this.colorThiefFab = undefined;
-    this.colorThiefFabOff = undefined;
-    this.colorThiefBuffered = undefined;
-    this.colorThiefProgBg = undefined;
   };
 
   this.back2List = function () {
@@ -879,9 +915,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       button.icon = "av:pause";
       this.isNowPlaying = true;
       if (!audio.duration) {
+        this.contentLoading = true;
         this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
         this.progress = 0;
       } else {
+        this.contentLoading = false;
         this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
         this.progress = progress;
       }

@@ -158,7 +158,13 @@
 
             <!-- player -->
             <section>
-              <div id="coverArt"></div>
+              <div id="coverArt">
+                <template if="{{contentLoading}}">
+                  <div class="spinWrapper">
+                    <paper-spinner active></paper-spinner>
+                  </div>
+                </template>
+              </div>
               <div class="controlsWrapper">
                 <paper-progress id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
                 <div id="time">{{playTime}}</div>
