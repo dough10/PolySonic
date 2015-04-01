@@ -123,7 +123,7 @@ Polymer('album-art', {
         var mins = Math.floor(e.duration / 60),
           seconds = Math.floor(e.duration - (mins * 60)),
           timeString = mins + ':' + ('0' + seconds).slice(-2),
-          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber};
+          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
         this.playlist.push(obj);
       }.bind(this));
     }
@@ -233,7 +233,6 @@ Polymer('album-art', {
       this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
       this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
     }
-    this.tmpl.$.searchDialog.close();
     this.tmpl.setScrollerPos();
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
     this.tmpl.getImageForPlayer(this.imgURL);

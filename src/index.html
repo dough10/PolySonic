@@ -152,7 +152,7 @@
           </core-toolbar>
 
           <!-- app main page animations -->
-          <core-animated-pages id="main" on-core-animated-pages-transition-prepare="{{fixScroller}}" on-core-animated-pages-transition-end="{{fixScroller}}" selected="{{page}}" transitions="slide-from-right">
+          <core-animated-pages id="main" on-core-animated-pages-transition-prepare="{{fixScroller}}" on-core-animated-pages-transition-end="{{fixScroller}}" selected="{{page}}" transitions="cross-fade-all">
 
             <!-- main content album wall, podcast, artist -->
             <section>
@@ -161,21 +161,23 @@
 
             <!-- player -->
             <section>
-              <div id="coverArt"></div>
-              <div class="controlsWrapper">
-                <paper-progress id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
-                <div id="time">{{playTime}}</div>
-                <template if="{{playlist && playing !== 0}}">
-                  <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
-                </template>
-                <template if="{{playlist[0] && playing === 0}}">
-                  <paper-icon-button class="big"></paper-icon-button>
-                </template>
-                <paper-icon-button id="avIcon" class="huge" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
-                <template if="{{playlist[0]}}">
-                  <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
-                </template>
-                <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
+              <div style="position:relative;">
+                <div id="coverArt"></div>
+                <div class="controlsWrapper">
+                  <paper-progress id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
+                  <div id="time">{{playTime}}</div>
+                  <template if="{{playlist && playing !== 0}}">
+                    <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
+                  </template>
+                  <template if="{{playlist[0] && playing === 0}}">
+                    <paper-icon-button class="big"></paper-icon-button>
+                  </template>
+                  <paper-icon-button id="avIcon" class="huge" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
+                  <template if="{{playlist[0]}}">
+                    <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
+                  </template>
+                  <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
+                </div>
               </div>
             </section>
 
@@ -188,7 +190,16 @@
 
             <!-- artist details -->
             <section>
-              <artist-details id="aDetails" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}"></artist-details>
+              <artist-details
+                id="aDetails"
+                listMode="{{listMode}}"
+                url="{{url}}"
+                user="{{user}}"
+                pass="{{pass}}"
+                version="{{version}}"
+                bitRate="{{bitRate}}"
+                colorThiefEnabled="{{colorThiefEnabled}}">
+              </artist-details>
             </section>
           </core-animated-pages>
         </core-header-panel>

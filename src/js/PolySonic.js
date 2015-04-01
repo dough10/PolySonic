@@ -413,6 +413,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     if (this.page === 0 && this.$.fab.state === 'mid') {
       this.$.wall.playSomething(sender.ident);
     }
+    if (this.page === 3) {
+      this.$.aDetails.playSomething(sender.ident);
+    }
   };
 
   this.sizePlayer = function () {
@@ -931,7 +934,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.isNowPlaying = false;
       button.icon = "av:play-arrow";
     }
-  }.bind(this), 200);
+  }.bind(this), 250);
 
   chrome.commands.onCommand.addListener(function (command) {
     var audio =this.$.audio;

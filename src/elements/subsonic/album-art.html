@@ -298,7 +298,7 @@
           top:0;
           left:0;
           right:0;
-          height:300px;
+          height:400px;
           background-image:url("../../../images/default-cover-art.png");
           background-repeat: no-repeat;
           background-position: center;
@@ -310,12 +310,14 @@
           z-index:5;
           right:16px;
           top:16px;
-          color:#ffffff;
+          color:#db4437;
+          background:rgba(255,255,255,0.3);
+          border-radius: 50%;
         }
         .trackWrapper {
           position:fixed;
           overflow-y: auto;
-          top:380px;
+          top:480px;
           left:0;
           right:0;
           bottom:0;
@@ -330,7 +332,7 @@
       </style>
       <paper-icon-button id="closeDialog" icon="close" title="Close" on-tap="{{closeDialog}}"></paper-icon-button>
       <div id="topper"></div>
-      <div style="font-size:10pt; left: 8px; position:absolute; top:300px; width:455px;">
+      <div style="font-size:10pt; left: 8px; position:absolute; top:400px; width:455px;">
         <div style="font-size:14pt; margin:8px; margin-right: 30px; max-height:30px;">
           {{artist}} / {{album}}
         </div>
