@@ -397,11 +397,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
   };
 
-  this.doAction = function () {
+  this.doAction = function (event, detail, sender) {
     var scroller = this.appScroller(),
       wall = this.$.wall;
 
-    if (this.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast') {
+    if (this.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast' && this.$.fab.state === 'bottom') {
       scroller.scrollTop = 0;
     }
     if (this.page === 0 && wall.showing === 'podcast') {
@@ -410,8 +410,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     if (this.page === 1) {
       this.showPlaylist();
     }
-    if (this.page === 3) {
-      this.$.details.playAlbum();
+    if (this.page === 0 && this.$.fab.state === 'mid') {
+      this.$.wall.playSomething(sender.ident);
     }
   };
 

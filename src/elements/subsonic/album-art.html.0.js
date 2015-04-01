@@ -25,6 +25,7 @@ Polymer('album-art', {
     
     this.audio = document.getElementById("audio");
 
+    this.playerArt = document.getElementById("coverArt");
   },
 
   /*
@@ -70,6 +71,7 @@ Polymer('album-art', {
       imgElement;
 
     this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+    this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
     this.imgURL = imgURL;
     Array.prototype.forEach.call(this.playlist, function (e) {
       e.cover = imgURL;
@@ -104,11 +106,24 @@ Polymer('album-art', {
       this.playlist.length = 0;
       this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
       this.tracks = this.trackResponse['subsonic-response'].album.song;
-      Array.prototype.forEach.call(this.trackResponse['subsonic-response'].album.song, function (e) {
+
+      /* sort tracks by diskNumber thanks Joe Shelby */
+      this.tracks.sort(function(a,b) {
+        var da = a.discNumber || 0, db = b.discNumber || 0;
+        var ta = a.track || 0, tb = b.track || 0;
+        if (da === db) {
+          // TODO - if ta === tb (no real id3 info?) consider sorting by path using localeCompare or just the < > compare operators?
+          return ta - tb;
+        } else {
+          return da - db;
+        }
+      });
+
+      Array.prototype.forEach.call(this.tracks, function (e) {
         var mins = Math.floor(e.duration / 60),
           seconds = Math.floor(e.duration - (mins * 60)),
           timeString = mins + ':' + ('0' + seconds).slice(-2),
-          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette};
+          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber};
         this.playlist.push(obj);
       }.bind(this));
     }
@@ -116,12 +131,19 @@ Polymer('album-art', {
 
   doDialog: function () {
     'use strict';
-    this.tmpl.$.searchDialog.close();
-    this.tmpl.setScrollerPos();
-    var data = {artist: this.artist, album: this.album, id: this.item, coverid: this.cover, cover: this.imgURL, tracks: this.tracks, favorite: this.isFavorite, parent: this.albumID},
-      details = this.tmpl.$.details;
-    details.data = data;
-    this.tmpl.page = 3;
+    this.closeSlide();
+    this.$.detailsDialog.toggle();
+    this.tmpl.$.fab.state = 'mid';
+    this.tmpl.$.fab.ident = this.id;
+    if (this.colorThiefEnabled && this.playlist[0].palette) {
+      this.tmpl.colorThiefAlbum = this.playlist[0].palette[0];
+      this.tmpl.colorThiefAlbumOff = this.playlist[0].palette[1];
+    }
+  },
+
+  closeDialog: function () {
+    this.$.detailsDialog.close();
+    this.tmpl.$.fab.state = 'off';
   },
 
   defaultPlayerImage: function () {
@@ -155,7 +177,7 @@ Polymer('album-art', {
     window.open(this.url + "/rest/download.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.ident.value, '_blank');
   },
 
-  playAlbum: function () {
+  playTrack: function (event, detail, sender) {
     'use strict';
     if (this.colorThiefEnabled && this.playlist[0].palette) {
       this.tmpl.colorThiefFab = this.playlist[0].palette[0];
@@ -163,7 +185,54 @@ Polymer('album-art', {
       this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
       this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
     }
-    
+    var mins = Math.floor(sender.attributes.duration.value / 60),
+      seconds = Math.floor(sender.attributes.duration.value - (mins * 60)),
+      timeString = mins + ':' + ('0' + seconds).slice(-2),
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
+    this.$.detailsDialog.close();
+    this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";
+    this.tmpl.page = 1;
+    this.tmpl.playlist = [{artist: sender.attributes.artist.value, title: sender.attributes.title.value, cover: this.imgURL, duration: timeString, id: sender.attributes.ident.value}];
+    this.tmpl.playing = 0;
+    this.tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, this.imgURL);
+  },
+
+  addSingle2Playlist: function (event, detail, sender) {
+    'use strict';
+    var mins = Math.floor(sender.attributes.duration.value / 60),
+      seconds = Math.floor(sender.attributes.duration.value - (mins * 60)),
+      timeString = mins + ':' + ('0' + seconds).slice(-2),
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
+      obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value,  duration: timeString , cover: this.imgURL};
+
+    this.tmpl.playlist.push(obj);
+    if (this.audio.paused) {
+      if (this.colorThiefEnabled && this.playlist[0].palette) {
+        this.tmpl.colorThiefFab = this.playlist[0].palette[0];
+        this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
+        this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
+        this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
+      }
+      this.tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, this.imgURL);
+      this.tmpl.playing = 0;
+      if (this.imgURL) {
+        this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";
+      } else {
+        this.playerArt.style.backgroundImage =  "url('images/default-cover-art.png')";
+      }
+    }
+    this.tmpl.doToast('Added to Play Queue');
+  },
+
+  playAlbum: function () {
+    'use strict';
+    this.$.detailsDialog.close();
+    if (this.colorThiefEnabled && this.playlist[0].palette) {
+      this.tmpl.colorThiefFab = this.playlist[0].palette[0];
+      this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
+      this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
+      this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
+    }
     this.tmpl.$.searchDialog.close();
     this.tmpl.setScrollerPos();
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;

@@ -48,7 +48,7 @@
       </style>
 
       <!-- fab -->
-      <animated-fab id="fab" page="{{page}}" showing="{{showing}}" on-tap="{{doAction}}" colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}"></animated-fab>
+      <animated-fab id="fab" page="{{page}}" showing="{{showing}}" on-tap="{{doAction}}" colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}" colorThiefalbum="{{colorThiefAlbum}}" colorThiefAlbumOff="{{colorThiefAlbumOff}}"></animated-fab>
       <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px" disableSwipe?="{{page !== 0}}">
 
         <!-- menu -->
@@ -184,11 +184,6 @@
               <paper-shadow z='1' class='card'>
                 <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" storageQuota="{{storageQuota}}" queryMethod="{{queryMethod}}" colorThiefEnabled="{{colorThiefEnabled}}"></settings-menu>
               </paper-shadow>
-            </section>
-
-            <!-- album details -->
-            <section>
-              <album-details id="details" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}"></album-details>
             </section>
 
             <!-- artist details -->

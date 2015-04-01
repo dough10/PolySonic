@@ -203,9 +203,6 @@
       .spinner::shadow .circle {
         border-color: #000;
       }
-      #colored {
-        color:{{colorThiefFab}};
-      }
     </style>
     <div id="card">
       <core-animated-pages selected="{{page}}" valueattr="page" transitions="cross-fade hero-transition">
@@ -294,6 +291,71 @@
         </div>
       </core-animated-pages>
     </div>
+    <paper-dialog id="detailsDialog" style="min-height:695px; min-width:471px;" backdrop autoclosedisabled transition="core-transition-center">
+      <style>
+        #topper {
+          position:fixed;
+          top:0;
+          left:0;
+          right:0;
+          height:300px;
+          background-image:url("../../../images/default-cover-art.png");
+          background-repeat: no-repeat;
+          background-position: center;
+          background-origin: content-box;
+          background-size:471px;
+        }
+        #closeDialog {
+          position:fixed;
+          z-index:5;
+          right:16px;
+          top:16px;
+          color:#ffffff;
+        }
+        .trackWrapper {
+          position:fixed;
+          overflow-y: auto;
+          top:380px;
+          left:0;
+          right:0;
+          bottom:0;
+          padding:16px;
+          padding-right:8px;
+        }
+        paper-dialog::shadow #scroller {
+          overflow:hidden;
+          max-height:695px;
+          max-width: 471px;
+        }
+      </style>
+      <paper-icon-button id="closeDialog" icon="close" title="Close" on-tap="{{closeDialog}}"></paper-icon-button>
+      <div id="topper"></div>
+      <div style="font-size:10pt; left: 8px; position:absolute; top:300px; width:455px;">
+        <div style="font-size:14pt; margin:8px; margin-right: 30px; max-height:30px;">
+          {{artist}} / {{album}}
+        </div>
+        <paper-icon-button on-tap="{{add2Playlist}}" title="Add to Play Queue" icon="av:playlist-add"></paper-icon-button>
+        <template if="{{!isFavorite}}">
+          <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
+        </template>
+        <template if="{{isFavorite}}">
+          <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
+        </template>
+        <paper-icon-button on-tap="{{doDownload}}" title="Download Album" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+      </div>
+      <div class="trackWrapper">
+        <template repeat="{{track in playlist}}">
+          <core-item>
+            <div flex style="margin-right:8px; overflow: hidden;">
+              {{track.title}}
+            </div>
+            <paper-icon-button icon="av:play-arrow" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
+            <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
+            <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
+          </core-item>
+        </template>
+      </div>
+    </paper-dialog>
   </template>
   <script src="album-art.html.0.js"></script>
 </polymer-element>

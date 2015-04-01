@@ -176,6 +176,11 @@ Polymer('album-wall', {
       });
     }.bind(this));
   },
+  getArtistDetails: function (event, detail, sender) {
+    this.clearData(function () {
+
+    }.bind(this));
+  },
   sortChanged: function () {
     'use strict';
     this.clearData(function () {
@@ -240,7 +245,7 @@ Polymer('album-wall', {
     this.tmpl.setScrollerPos();
     artist.artistId = sender.attributes.ident.value;
     artist.queryData();
-    this.tmpl.page = 4;
+    this.tmpl.page = 3;
   },
   doPlay: function (obj, url) {
     this.tmpl.playlist = [obj];
@@ -391,6 +396,15 @@ Polymer('album-wall', {
   toggleCollapse: function (event, detail, sender) {
     var id = '#' + sender.attributes.ident.value;
     this.$.all.querySelector(id).toggle();
+  },
+  playSomething: function (id) {
+    var albums = this.$.all.querySelectorAll('album-art');
+    Array.prototype.forEach.call(albums, function (el) {
+      if (el.id === id) {
+        el.playAlbum();
+      }
+    }.bind(this));
+
   }
 });
 

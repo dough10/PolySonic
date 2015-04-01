@@ -9,9 +9,6 @@
         if (this.page === 1) {
           pName = 'Player';
           this.state = 'top';
-        } else if (this.page === 3) {
-          pName = 'Album Details';
-          this.state = 'mid';
         } else if (this.page === 0) {
           pName = 'Album Wall';
           this.state = 'off';

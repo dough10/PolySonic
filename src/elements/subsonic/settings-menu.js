@@ -170,6 +170,8 @@
         });
         this.tmpl.colorThiefFab = undefined;
         this.tmpl.colorThiefFabOff = undefined;
+        this.tmpl.colorThiefAlbum = undefined;
+        this.tmpl.colorThiefAlbumOff = undefined;
         this.tmpl.colorThiefBuffered = undefined;
         this.tmpl.colorThiefProgBg = undefined;
         if (this.colorThiefEnabled) {
