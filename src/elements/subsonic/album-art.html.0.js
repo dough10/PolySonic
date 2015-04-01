@@ -75,38 +75,6 @@ Polymer('album-art', {
       e.cover = imgURL;
     }.bind(this));
     this.isLoading = false;
-
-    /*
-      get dominant color from image
-
-      rgb color code saved as this.color
-    */
-     if (this.colorThiefEnabled) {
-      imgElement = new Image();
-      imgElement.src = imgURL;
-      imgElement.onload = function (e) {
-        var color = this.tmpl.getColor(imgElement),
-            r = color[1][0],
-            g = color[1][1],
-            b = color[1][2],
-            hex = this.tmpl.rgbToHex(r, g, b),
-            fabColor = 'rgb(' + r + ',' + g + ',' + b + ');',
-            fabOffColor = this.tmpl.getContrast50(hex),
-            bufferedColor = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
-       
-        Array.prototype.forEach.call(this.playlist, function (e) {
-          e.palette = [];
-          e.palette.push(fabColor);
-          e.palette.push(fabOffColor);
-          e.palette.push(bufferedColor);
-          if (fabOffColor !== 'white') {
-            e.palette.push('#444444');
-          } else {
-            e.palette.push('#c8c8c8');
-          }
-        }.bind(this));
-      }.bind(this);
-    }
   },
   
   defaultArt: function () {
@@ -140,7 +108,7 @@ Polymer('album-art', {
         var mins = Math.floor(e.duration / 60),
           seconds = Math.floor(e.duration - (mins * 60)),
           timeString = mins + ':' + ('0' + seconds).slice(-2),
-          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL};
+          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette};
         this.playlist.push(obj);
       }.bind(this));
     }
@@ -246,6 +214,14 @@ Polymer('album-art', {
     }.bind(this));
   },
 
+  paletteChanged: function () {
+    if (this.palette !== undefined) {
+      Array.prototype.forEach.call(this.playlist, function (el) {
+        el.palette = this.palette;
+      }.bind(this));
+    }
+  },
+
   itemChanged: function () {
     'use strict';
     if (this.item) {
@@ -264,12 +240,66 @@ Polymer('album-art', {
           /*
             get image from subsonic server
           */
-          this.tmpl.getImageFile(url, artId, this.setImage.bind(this));
+          this.tmpl.getImageFile(url, artId, function (event) {
+            var imgFile = event.target.result,
+              imgURL = window.URL.createObjectURL(imgFile),
+              imgElement;
+
+            this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+            this.imgURL = imgURL;
+            Array.prototype.forEach.call(this.playlist, function (e) {
+              e.cover = imgURL;
+            }.bind(this));
+            this.isLoading = false;
+
+            /*
+              get dominant color from image
+
+              rgb color code saved as this.color
+            */
+            imgElement = new Image();
+            imgElement.src = imgURL;
+            imgElement.onload = function () {
+              var color = this.tmpl.getColor(imgElement),
+                  array = [],
+                  r = color[1][0],
+                  g = color[1][1],
+                  b = color[1][2],
+                  hex = this.tmpl.rgbToHex(r, g, b);
+
+              /*
+
+                array[0] fab color
+
+                array[1] fab contrasting color
+
+                array[2] progress bar buffering color
+
+                array[3] progress bar background
+              */
+              array[0] = 'rgb(' + r + ',' + g + ',' + b + ');',
+              array[1]= this.tmpl.getContrast50(hex);
+              array[2]= 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+              if (array[1] !== 'white') {
+                array[3] = '#444444';
+              } else {
+                array[3] = '#c8c8c8';
+              }
+              this.palette = array;
+              this.tmpl.putInDb(array, this.cover + '-palette', function () {
+                console.log('Color palette saved ' + this.cover);
+              }.bind(this));
+            }.bind(this);
+
+          }.bind(this));
         } else {
           /*
             get image from indexeddb
           */
           this.tmpl.getDbItem(artId, this.setImage.bind(this));
+          this.tmpl.getDbItem(artId + '-palette', function (e) {
+            this.palette = e.target.result;
+          }.bind(this));
         }
       }.bind(this));
 

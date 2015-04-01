@@ -319,55 +319,61 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }
   };
   
-  this.shuffleColorThief = function () {
-     if (this.colorThiefEnabled) {
-      Array.prototype.forEach.call(this.playlist, function (e) {
-        var imgElement = new Image();
-        imgElement.src = e.cover;
-        imgElement.onload = function () {
-          var color = this.getColor(imgElement),
-              r = color[1][0],
-              g = color[1][1],
-              b = color[1][2],
-              hex = this.rgbToHex(r, g, b),
-              fabColor = 'rgb(' + r + ',' + g + ',' + b + ');',
-              fabOffColor = this.getContrast50(hex),
-              bufferedColor = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
-              
-          e.palette = [];
-          e.palette.push(fabColor);
-          e.palette.push(fabOffColor);
-          e.palette.push(bufferedColor);
-          if (fabOffColor !== 'white') {
-            e.palette.push('#444444');
-          } else {
-            e.palette.push('#c8c8c8');
-          }
-        }.bind(this);
-      }.bind(this));
+  this.shuffleColorThief = function (img, artId, obj) {
+    if (this.colorThiefEnabled) {
+      var imgElement = new Image();
+      imgElement.src = img;
+      imgElement.onload = function () {
+        var color = this.getColor(imgElement),
+            r = color[1][0],
+            g = color[1][1],
+            b = color[1][2],
+            array = [];
+        array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
+        array[1] = this.getContrast50(this.rgbToHex(r, g, b));
+        array[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+        if (array[1] !== 'white') {
+          array[3] = '#444444';
+        } else {
+          array[3] = '#c8c8c8';
+        }
+        obj.palette = array;
+        this.playlist.push(obj);
+        this.putInDb(array, artId + '-palette', function () {
+          console.log('Color palette saved ' + artId );
+          this.doShufflePlayback();
+        }.bind(this));
+      }.bind(this);
     }
   };
 
   this.fixCoverArtForShuffle = function (obj) {
-    var img = this.url + '/rest/getCoverArt.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + obj.cover;
-    this.checkForImage(obj.cover, function(e) {
+    var artId = obj.cover,
+        img = this.url + '/rest/getCoverArt.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + artId;
+    this.checkForImage(artId, function(e) {
       if (e.target.result === 0) {
-        this.getImageFile(img, obj.cover, function (ev) {
+        this.getImageFile(img, artId, function (ev) {
           var raw = ev.target.result,
             imgURL = window.URL.createObjectURL(raw);
+
           obj.cover = imgURL;
-          this.shuffleColorThief();
-          this.playlist.push(obj);
-          this.doShufflePlayback();
+
+          /* finish up the work after grabbing color */
+          this.shuffleColorThief(imgURL, artId, obj);
         }.bind(this));
       } else {
-        this.getDbItem(obj.cover, function (ev) {
+        this.getDbItem(artId, function (ev) {
           var raw = ev.target.result,
             imgURL = window.URL.createObjectURL(raw);
           obj.cover = imgURL;
-          this.shuffleColorThief();
-          this.playlist.push(obj);
-          this.doShufflePlayback();
+          /* if cover exists then palette will as well get it also */
+          this.getDbItem(artId + '-palette', function (ev) {
+            obj.palette = ev.target.result;
+            this.playlist.push(obj);
+            setTimeout(function () {
+              this.doShufflePlayback();
+            }.bind(this), 100);
+          }.bind(this));
         }.bind(this));
       }
     }.bind(this));
@@ -375,12 +381,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.doShufflePlayback = function () {
     if (this.$.audio.paused) {
-      if (this.colorThiefEnabled) {
-        console.log(this.playlist);
-/*        this.colorThiefFab = this.playlist[0].palette[0];
+      if (this.colorThiefEnabled && this.playlist[0].palette) {
+        this.colorThiefFab = this.playlist[0].palette[0];
         this.colorThiefFabOff = this.playlist[0].palette[1];
         this.colorThiefBuffered = this.playlist[0].palette[2];
-        this.colorThiefProgBg = this.playlist[0].palette[3];*/
+        this.colorThiefProgBg = this.playlist[0].palette[3];
       }
       var art = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
       this.playing = 0;
