@@ -172,6 +172,9 @@
         this.tmpl.colorThiefFabOff = undefined;
         this.tmpl.colorThiefBuffered = undefined;
         this.tmpl.colorThiefProgBg = undefined;
+        if (this.colorThiefEnabled) {
+          this.tmpl.$.wall.refreshContent();
+        }
       },
       thiefDetailsToggle: function () {
         this.$.thiefCollapse.toggle();
@@ -238,5 +241,10 @@
       showQuota: function () {
         this.tmpl.calculateStorageSize();
         this.$.quota.toggle();
+      },
+
+      linkGo: function (event, detail, sender) {
+        var url = sender.attributes.link.value;
+        window.open(url, '_blank');
       }
     });

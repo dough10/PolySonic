@@ -11,6 +11,7 @@
 <link href="../../bower_components/core-label/core-label.html" rel="import">
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/paper-toggle-button/paper-toggle-button.html" rel="import">
+<link href="../../bower_components/core-icon/core-icon.html" rel="import">
 </head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate querySize storageQuota queryMethod colorThiefEnabled">
   <template>
     <style>
@@ -63,6 +64,16 @@
   
       paper-toggle-button.redSwitch::shadow [checked] .toggle {
         background-color: #db4437;
+      }
+      .collapseWrapper {
+        padding:8px;
+      }
+      .yellow {
+        color:#F7D953;
+      }
+      .link {
+        cursor:pointer;
+        display:inline-block;
       }
     </style>
     <core-ajax id="ajax" auto="false" method="GET" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v=1.11.0&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
@@ -127,19 +138,29 @@
         <!-- switch to enable color thief mode -->
         <br>
         <div center horizontal layout class="switchBox">
-          <div flex class="switchLabel" title="Click for Details" on-tap="{{thiefDetailsToggle}}">Color Thief Mode</div>
+          <div flex class="switchLabel" title="Click for Details" on-tap="{{thiefDetailsToggle}}">
+            <core-icon class="yellow" icon="warning"></core-icon>
+            Color Thief Mode
+          </div>
           <paper-toggle-button class="redSwitch" checked="{{colorThiefEnabled}}" on-change="{{colorThiefToggle}}"></paper-toggle-button>
         </div>
         <core-collapse id="thiefCollapse">
-          <div>
-            Color Thief is a Javascript library that can get a palette of colors from a image.
+          <div class="collapseWrapper">
+            Color Thief is a Javascript library that can extract a color palette from a image. i use it to get a highlight color for action fab and progress bar. Check out the project on their
+            <div class="link" link='https://github.com/lokesh/color-thief/' on-tap='{{linkGo}}'>Github</div> for more info.
+            <br>
+            <br>
+            This Option causes the browser to do quite a bit more work and in so uses more resources.
+            Leave disabled on slower machines. <br>
+            If you try please send from feedback on any issues you encounter
+            <div class="link" link="https://github.com/dough10/PolySonic/issues" on-tap='{{linkGo}}'>here</div>
           </div>
         </core-collapse>
         <br>
         <paper-button on-tap="{{submit}}">
           <template if="{{isLoading}}">
             <div id="load">
-              <paper-spinner active=""></paper-spinner>
+              <paper-spinner active="https://github.com/dough10/PolySonic/issues" on-tap='{{linkGo}}'></paper-spinner>
             </div>
           </template>
           Submit

@@ -1,4 +1,4 @@
-/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob */
+/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief */
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
   'use strict';
 
@@ -616,7 +616,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.colorThiefFab = this.playlist[next].palette[0];
       this.colorThiefFabOff = this.playlist[next].palette[1];
       this.colorThiefBuffered = this.playlist[next].palette[2];
-      this.colorThiefProgBg = this.playlist[0].palette[3];
+      this.colorThiefProgBg = this.playlist[next].palette[3];
     }
     var url;
     if (this.playlist[next]) {
@@ -891,7 +891,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.loadListeners();
-  //this.loadData();   // moved to subsonic-login element
+  this.loadData();
   this.sizePlayer();
   this.calculateStorageSize();
 

@@ -1,4 +1,4 @@
-/*global Polymer, console, document, Blob, window */
+/*global Polymer, console, document, Blob, window, Image, CoreAnimation */
 Polymer('album-art', {
   /*
     method ran when element is created in dom
@@ -169,7 +169,7 @@ Polymer('album-art', {
       this.tmpl.playing = 0;
       this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL);
       this.tmpl.getImageForPlayer(this.imgURL);
-      if (this.colorThiefEnabled) {
+      if (this.colorThiefEnabled && this.playlist[0].palette) {
         this.tmpl.colorThiefFab = this.playlist[0].palette[0];
         this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
         this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
@@ -189,7 +189,7 @@ Polymer('album-art', {
 
   playAlbum: function () {
     'use strict';
-    if (this.colorThiefEnabled) {
+    if (this.colorThiefEnabled && this.playlist[0].palette) {
       this.tmpl.colorThiefFab = this.playlist[0].palette[0];
       this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
       this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
@@ -253,6 +253,26 @@ Polymer('album-art', {
       this.playlist = null;
       this.playlist = [];
 
+      var artId = "al-" + this.item;
+      this.isLoading = true;
+      var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
+      /*
+        check indexeddb for image
+      */
+      this.tmpl.checkForImage(artId, function (e) {
+        if (e.target.result === 0) {
+          /*
+            get image from subsonic server
+          */
+          this.tmpl.getImageFile(url, artId, this.setImage.bind(this));
+        } else {
+          /*
+            get image from indexeddb
+          */
+          this.tmpl.getDbItem(artId, this.setImage.bind(this));
+        }
+      }.bind(this));
+
       /*
         search indexeddb for data
       */
@@ -280,27 +300,8 @@ Polymer('album-art', {
           }.bind(this));
         }
       }.bind(this));
-      var artId = "al-" + this.item;
-      this.isLoading = true;
-      var url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + artId;
-      /*
-        check indexeddb for image
-      */
-      this.tmpl.checkForImage(artId, function (e) {
-        if (e.target.result === 0) {
-          /*
-            get image from subsonic server
-          */
-          this.tmpl.getImageFile(url, artId, this.setImage.bind(this));
-        } else {
-          /*
-            get image from indexeddb
-          */
-          this.tmpl.getDbItem(artId, this.setImage.bind(this));
-        }
-      }.bind(this));
     }
-    }
+  }
 });
 
 
