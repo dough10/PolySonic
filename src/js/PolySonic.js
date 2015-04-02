@@ -256,6 +256,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.closeDrawer();
     }.bind(this));
   };
+  
+  this.closeShuffleOptions = function () {
+    this.$.shuffleOptions.close();
+  };
 
   this.shufflePlay = function () {
     this.shuffleLoading = true;
@@ -308,6 +312,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.shuffleLoading = false;
       this.doToast("Invalid Entry");
     }
+  };
+  
+  this.closePodcastDialog = function () {
+    this.$.addPodcast.close();
   };
   
   this.shuffleColorThief = function (img, artId, obj) {
@@ -392,6 +400,13 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     var scroller = this.appScroller(),
         wall = this.$.wall,
         animation = new CoreAnimation();
+    animation.duration = 1000;
+    animation.iterations = 'Infinity';
+    animation.keyframes = [
+      {opacity: 1},
+      {opacity: 0}
+    ];
+    animation.target = sender;
     if (this.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast' && this.$.fab.state === 'bottom') {
       scroller.scrollTop = 0;
     }
@@ -402,26 +417,12 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.showPlaylist();
     }
     if (this.page === 0 && this.$.fab.state === 'mid') {
-      animation.duration = 1000;
-      animation.iterations = 'Infinity';
-      animation.keyframes = [
-        {opacity: 1},
-        {opacity: 0}
-      ];
-      animation.target = sender;
       animation.play();
       this.$.wall.playSomething(sender.ident, function () {
         animation.cancel();
       });
     }
     if (this.page === 3) {
-      animation.duration = 1000;
-      animation.iterations = 'Infinity';
-      animation.keyframes = [
-        {opacity: 1},
-        {opacity: 0}
-      ];
-      animation.target = sender;
       animation.play();
       this.$.aDetails.playSomething(sender.ident, function () {
         animation.cancel();
@@ -443,17 +444,15 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     var scroller = this.appScroller(),
       audio = this.$.audio,
       maximized = chrome.app.window.current().isMaximized(),
-      buttons = document.querySelectorAll('.max');
-
-    if (maximized) {
-      Array.prototype.forEach.call(buttons, function (e) {
-        e.icon = 'flip-to-back';
-      });
+      button = this.$.max;
+      
+    /*if (maximized) {
+      button.icon = 'check-box-outline-blank';
+      chrome.app.window.current().restore();
     } else {
-      Array.prototype.forEach.call(buttons, function (e) {
-        e.icon = 'check-box-outline-blank';
-      });
-    }
+      button.icon = 'flip-to-back';
+      chrome.app.window.current().maximize();
+    }*/
 
     this.position = scroller.scrollTop;
 
@@ -526,11 +525,16 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       }
       if (result.querySize === undefined) {
         chrome.storage.sync.set({
-          'querySize': 20
+          'querySize': 10
         });
-        this.querySize = 20;
+        this.querySize = 10;
       } else {
-        this.querySize = result.querySize;
+        /* if current querySize is larger then 20 set to 10 */
+        if (result.querySize > 20) {
+          this.querySize = 10;
+        } else {
+          this.querySize = result.querySize;
+        }
       }
       if (result.volume !== undefined) {
         this.volume = result.volume;
@@ -631,14 +635,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   /*jslint unparam: false*/
 
   this.playNext = function (next) {
-    if (this.colorThiefEnabled && this.playlist[next].palette) {
-      this.colorThiefFab = this.playlist[next].palette[0];
-      this.colorThiefFabOff = this.playlist[next].palette[1];
-      this.colorThiefBuffered = this.playlist[next].palette[2];
-      this.colorThiefProgBg = this.playlist[next].palette[3];
-    }
     var url;
     if (this.playlist[next]) {
+      if (this.colorThiefEnabled && this.playlist[next].palette) {
+        this.colorThiefFab = this.playlist[next].palette[0];
+        this.colorThiefFabOff = this.playlist[next].palette[1];
+        this.colorThiefBuffered = this.playlist[next].palette[2];
+        this.colorThiefProgBg = this.playlist[next].palette[3];
+      }
       if (this.playlist[next].artist === '') {
         url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + this.playlist[next].id;
       } else {
@@ -907,6 +911,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     return this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
   };
 
+  this.dataLoading = false;
   this.loadListeners();
   this.loadData();
   this.sizePlayer();

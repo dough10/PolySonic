@@ -213,9 +213,7 @@
                 <paper-spinner class="spinner" active></paper-spinner>
               </div>
             </template>
-            <template if="{{playlist[0]}}">
-              <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{playAlbum}}"></paper-icon-button>
-            </template>
+            <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{doPlayback}}"></paper-icon-button>
             <div id="overlay-low" hero-id="hero" hero="">
               <paper-icon-button id="icon" on-tap="{{slideUp}}" class="left-icon" icon="more-vert"></paper-icon-button>
               <div class="artist">{{artist}}</div>
@@ -232,7 +230,7 @@
               <br>
               <div class="album">{{album}}</div>
               <core-item>
-                <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add"></paper-icon-button>
+                <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add"></paper-icon-button>
                 Add to Play Queue
               </core-item>
               <core-item>
@@ -249,7 +247,7 @@
                 Downlaod
               </core-item>
               <core-item>
-                <paper-icon-button on-tap="{{doDialog}}" icon="reorder"></paper-icon-button>
+                <paper-icon-button on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
                 Track List
               </core-item>
             </div>
@@ -262,8 +260,8 @@
                 <div flex style="overflow:hidden">
                   {{artist}} - {{album}}
                 </div>
-                <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
-                <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add"></paper-icon-button>
+                <paper-icon-button on-tap="{{doPlayback}}" icon="av:play-arrow"></paper-icon-button>
+                <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add"></paper-icon-button>
                 <template if="{{!isFavorite}}">
                   <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
                 </template>
@@ -271,7 +269,7 @@
                   <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
                 </template>
                 <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
-                <paper-icon-button class="bumpMargin" on-tap="{{doDialog}}" icon="reorder"></paper-icon-button>
+                <paper-icon-button class="bumpMargin" on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
               </core-item>
             </div>
           </div>
@@ -283,8 +281,8 @@
                 <div flex style="overflow:hidden">
                   {{artist}} - {{album}}
                 </div>
-                <paper-icon-button on-tap="{{playAlbum}}" icon="av:play-arrow"></paper-icon-button>
-                <paper-icon-button class="bumpMargin" on-tap="{{doDialog}}" icon="reorder"></paper-icon-button>
+                <paper-icon-button on-tap="{{doPlayback}}" icon="av:play-arrow"></paper-icon-button>
+                <paper-icon-button class="bumpMargin" on-tap="{{doSearchDetails}}" icon="reorder"></paper-icon-button>
               </core-item>
             </div>
           </div>
@@ -341,7 +339,7 @@
         <div style="font-size:14pt; margin:8px; margin-right: 30px; max-height:30px;">
           {{artist}} / {{album}}
         </div>
-        <paper-icon-button on-tap="{{add2Playlist}}" title="Add to Play Queue" icon="av:playlist-add"></paper-icon-button>
+        <paper-icon-button on-tap="{{doAdd2Playlist}}" title="Add to Play Queue" icon="av:playlist-add"></paper-icon-button>
         <template if="{{!isFavorite}}">
           <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
         </template>

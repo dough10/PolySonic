@@ -131,13 +131,13 @@ Polymer('album-wall', {
       this.request = 'getPodcasts';
       this.post.type = '';
       this.post.offset = 0;
-      this.$.ajax.go();
       this.showing = 'podcast';
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
+      this.$.ajax.go();
     }.bind(this));
   },
   getStarred: function () {
@@ -151,13 +151,13 @@ Polymer('album-wall', {
       }
       this.post.type = '';
       this.post.offset = 0;
-      this.$.ajax.go();
       this.showing = 'cover';
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
+      this.$.ajax.go();
     }.bind(this));
   },
   getArtist: function () {
@@ -167,13 +167,13 @@ Polymer('album-wall', {
       this.request = 'getArtists';
       this.post.type = '';
       this.post.offset = 0;
-      this.$.ajax.go();
       this.showing = 'artists';
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
+      this.$.ajax.go();
     }.bind(this));
   },
   sortChanged: function () {
@@ -187,13 +187,13 @@ Polymer('album-wall', {
       }
       this.post.type = this.sort;
       this.post.offset = 0;
-      this.$.ajax.go();
       this.showing = 'cover';
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
+      this.$.ajax.go();
     }.bind(this));
   },
   resizeLists: function () {
@@ -224,7 +224,7 @@ Polymer('album-wall', {
   },
   listModeChanged: function () {
     'use strict';
-    this.$.list.updateSize();
+    this.resizeLists();
     if (this.listMode === 'cover') {
       this.$.list.grid = true;
       this.$.list.width = '260';
@@ -258,8 +258,8 @@ Polymer('album-wall', {
     this.tmpl.colorThiefAlbum = undefined;
     this.tmpl.colorThiefAlbumOff = undefined;
     this.tmpl.colorThiefBuffered = undefined;
-
     this.tmpl.colorThiefProgBg = undefined;
+    
     if (sender.attributes.cover.value) {
       this.tmpl.checkForImage(sender.attributes.cover.value, function (e) {
         if (e.target.result === 0) {
