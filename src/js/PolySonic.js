@@ -446,13 +446,13 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       maximized = chrome.app.window.current().isMaximized(),
       button = this.$.max;
       
-    if (maximized) {
+    /*if (maximized) {
       button.icon = 'check-box-outline-blank';
       chrome.app.window.current().restore();
     } else {
       button.icon = 'flip-to-back';
       chrome.app.window.current().maximize();
-    }
+    }*/
 
     this.position = scroller.scrollTop;
 
