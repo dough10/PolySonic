@@ -29,7 +29,7 @@ Polymer('album-art', {
 
     this.tmpl.colorThiefAlbum = this.tmpl.colorThiefAlbum  || '#db4437';
 
-     this.tmpl.colorThiefAlbumOff = this.tmpl.colorThiefAlbumOff  || 'white';
+    this.tmpl.colorThiefAlbumOff = this.tmpl.colorThiefAlbumOff  || 'white';
   },
 
   /*
@@ -85,6 +85,7 @@ Polymer('album-art', {
   
   defaultArt: function () {
     this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+    this.$.topper.style.backgroundImage = "url('" + this.defaultImgURL + "')";
     this.imgURL = this.defaultImgURL;
   },
 
@@ -104,39 +105,11 @@ Polymer('album-art', {
     this.page = "cover";
   },
 
-  trackResponseChanged: function () {
-    'use strict';
-    if (this.trackResponse) {
-      this.playlist.length = 0;
-      this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
-      this.tracks = this.trackResponse['subsonic-response'].album.song;
-
-      /* sort tracks by diskNumber thanks Joe Shelby */
-      this.tracks.sort(function(a,b) {
-        var da = a.discNumber || 0, db = b.discNumber || 0;
-        var ta = a.track || 0, tb = b.track || 0;
-        if (da === db) {
-          // TODO - if ta === tb (no real id3 info?) consider sorting by path using localeCompare or just the < > compare operators?
-          return ta - tb;
-        } else {
-          return da - db;
-        }
-      });
-
-      Array.prototype.forEach.call(this.tracks, function (e) {
-        var mins = Math.floor(e.duration / 60),
-          seconds = Math.floor(e.duration - (mins * 60)),
-          timeString = mins + ':' + ('0' + seconds).slice(-2),
-          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
-        this.playlist.push(obj);
-      }.bind(this));
-    }
-  },
-
   doDialog: function () {
     'use strict';
+    this.tmpl.dataLoading = false;
     this.closeSlide();
-    this.$.detailsDialog.toggle();
+    this.$.detailsDialog.open();
     this.tmpl.$.fab.state = 'mid';
     this.tmpl.$.fab.ident = this.id;
     if (this.colorThiefEnabled && this.playlist[0].palette) {
@@ -158,6 +131,7 @@ Polymer('album-art', {
 
   add2Playlist: function () {
     'use strict';
+    this.tmpl.dataLoading = false;
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
     if (this.audio.paused) {
       this.tmpl.playing = 0;
@@ -230,6 +204,7 @@ Polymer('album-art', {
 
   playAlbum: function () {
     'use strict';
+    this.tmpl.dataLoading = false;
     this.$.detailsDialog.close();
     if (this.colorThiefEnabled && this.playlist[0].palette) {
       this.tmpl.colorThiefFab = this.playlist[0].palette[0];
@@ -292,6 +267,83 @@ Polymer('album-art', {
       }.bind(this));
     }
   },
+  
+  doPlayback: function () {
+    this.tmpl.dataLoading = true;
+    this.doQuery(this.playAlbum.bind(this));
+  },
+  
+  doDetails: function () {
+    this.tmpl.dataLoading = true;
+    this.doQuery(this.doDialog.bind(this));
+  },
+  
+  doAdd2Playlist: function () {
+    this.tmpl.dataLoading = true;
+    this.doQuery(this.add2Playlist.bind(this));
+  },
+  
+  processJOSN: function (hasRun, callback) {
+    this.playlist.length = 0;
+    this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
+    this.tracks = this.trackResponse['subsonic-response'].album.song;
+
+    /* sort tracks by diskNumber thanks Joe Shelby */
+    this.tracks.sort(function(a,b) {
+      var da = a.discNumber || 0, db = b.discNumber || 0;
+      var ta = a.track || 0, tb = b.track || 0;
+      if (da === db) {
+        // TODO - if ta === tb (no real id3 info?) consider sorting by path using localeCompare or just the < > compare operators?
+        return ta - tb;
+      } else {
+        return da - db;
+      }
+    });
+
+    Array.prototype.forEach.call(this.tracks, function (e) {
+      var mins = Math.floor(e.duration / 60),
+        seconds = Math.floor(e.duration - (mins * 60)),
+        timeString = mins + ':' + ('0' + seconds).slice(-2),
+        obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
+      this.playlist.push(obj);
+      if (!hasRun) callback();
+      hasRun = true;
+    }.bind(this)); 
+  },
+  
+  doQuery: function (callback) {
+    /*
+      search indexeddb for data
+    */
+    var hasRun = false;
+    this.queryingJSON = true;
+    this.checkJSONEntry(this.item, function (e) {
+      if (e.target.result === 0) {
+        var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.item;
+        /*
+          get the data from subsonic server
+        */
+        this.tmpl.doXhr(url, 'json', function (e) {
+          this.trackResponse = e.target.response;
+          /*
+            place json in indexeddb
+          */
+          this.tmpl.putInDb(this.trackResponse, this.item, function () {
+            this.processJOSN(hasRun, callback);
+            console.log('JSON Data Added to indexedDB ' + this.item);
+          }.bind(this));
+        }.bind(this));
+      } else {
+        /*
+          get the data from indexeddb
+        */
+        this.tmpl.getDbItem(this.item, function (event) {
+          this.trackResponse = event.target.result;
+          this.processJOSN(hasRun, callback);
+        }.bind(this));
+      }
+    }.bind(this));
+  },
 
   itemChanged: function () {
     'use strict';
@@ -317,6 +369,7 @@ Polymer('album-art', {
               imgElement;
 
             this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+            this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
             this.imgURL = imgURL;
             Array.prototype.forEach.call(this.playlist, function (e) {
               e.cover = imgURL;
@@ -339,7 +392,6 @@ Polymer('album-art', {
                   hex = this.tmpl.rgbToHex(r, g, b);
 
               /*
-
                 array[0] fab color
 
                 array[1] fab contrasting color
@@ -348,7 +400,7 @@ Polymer('album-art', {
 
                 array[3] progress bar background
               */
-              array[0] = 'rgb(' + r + ',' + g + ',' + b + ');',
+              array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
               array[1]= this.tmpl.getContrast50(hex);
               array[2]= 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
               if (array[1] !== 'white') {
@@ -370,34 +422,6 @@ Polymer('album-art', {
           this.tmpl.getDbItem(artId, this.setImage.bind(this));
           this.tmpl.getDbItem(artId + '-palette', function (e) {
             this.palette = e.target.result;
-          }.bind(this));
-        }
-      }.bind(this));
-
-      /*
-        search indexeddb for data
-      */
-      this.checkJSONEntry(this.item, function (e) {
-        if (e.target.result === 0) {
-          var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.item;
-          /*
-            get the data from subsonic server
-          */
-          this.tmpl.doXhr(url, 'json', function (e) {
-            this.trackResponse = e.target.response;
-            /*
-              place json in indexeddb
-            */
-            this.tmpl.putInDb(this.trackResponse, this.item, function () {
-              console.log('JSON Data Added to indexedDB ' + this.item);
-            }.bind(this));
-          }.bind(this));
-        } else {
-          /*
-            get the data from indexeddb
-          */
-          this.tmpl.getDbItem(this.item, function (event) {
-            this.trackResponse = event.target.result;
           }.bind(this));
         }
       }.bind(this));

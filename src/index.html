@@ -47,6 +47,11 @@
         }
       </style>
 
+      <template if="{{dataLoading}}">
+        <div class="dataLoading">
+          <paper-spinner active></paper-spinner>
+        </div>
+      </template>
       <!-- fab -->
       <animated-fab id="fab" page="{{page}}" showing="{{showing}}" on-tap="{{doAction}}" colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}" colorThiefalbum="{{colorThiefAlbum}}" colorThiefAlbumOff="{{colorThiefAlbumOff}}"></animated-fab>
       <core-drawer-panel id="panel" narrow="{{narrow}}" responsivewidth="191900px" disableSwipe?="{{page !== 0}}">
@@ -305,6 +310,7 @@
 
       <!-- shuffle options -->
       <paper-dialog id="shuffleOptions" style="height:400px; width:300px;" transition="core-transition-center">
+        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closeShuffleOptions}}"></paper-icon-button>
         <div style="text-align:center">
           <core-label>
             <h3>Shuffle Options</h3>
@@ -355,6 +361,7 @@
 
       <!-- add podcast -->
       <paper-dialog id="addPodcast" transition="core-transition-bottom">
+        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePodcastDialog}}"></paper-icon-button>
         <div style="text-align:center;">
           <paper-input-decorator style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="URL Required" label="Podcast feed URL">
             <input is="core-input" type="URL" value="{{castURL}}" required="">

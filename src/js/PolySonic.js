@@ -256,6 +256,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.closeDrawer();
     }.bind(this));
   };
+  
+  this.closeShuffleOptions = function () {
+    this.$.shuffleOptions.close();
+  };
 
   this.shufflePlay = function () {
     this.shuffleLoading = true;
@@ -308,6 +312,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.shuffleLoading = false;
       this.doToast("Invalid Entry");
     }
+  };
+  
+  this.closePodcastDialog = function () {
+    this.$.addPodcast.close();
   };
   
   this.shuffleColorThief = function (img, artId, obj) {
@@ -907,6 +915,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     return this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
   };
 
+  this.dataLoading = false;
   this.loadListeners();
   this.loadData();
   this.sizePlayer();
