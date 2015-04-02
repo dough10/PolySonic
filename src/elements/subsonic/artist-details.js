@@ -7,6 +7,7 @@ Polymer('artist-details', {
     this.scrollTarget = this.tmpl.appScroller();
   },
   queryData: function () {
+    this.tmpl.page = 3;
     this.data = null;
     this.data = [];
     var url = this.url + "/rest/getArtist.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.artistId;

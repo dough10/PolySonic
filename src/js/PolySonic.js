@@ -81,19 +81,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     return this.$.headerPanel.scroller;
   };
 
-  this.scrollerPos = 0;
-
-  this.setScrollerPos = function () {
-    var scrollbar = this.appScroller();
-    this.scrollerPos = scrollbar.scrollTop;
-  };
-
   /*jslint unparam: true*/
   this.fixScroller = function (event, detail, sender) {
     var scrollbar = this.appScroller();
-    if (event.type === 'core-animated-pages-transition-end' && event.target.id === 'main' && this.scrollerPos !== 0 && this.page === 0) {
-      scrollbar.scrollTop = this.scrollerPos;
-    } else if (event.type === 'core-animated-pages-transition-prepare' && event.target.id === 'main' && scrollbar.scrollTop !== 0) {
+    if (event.type === 'core-animated-pages-transition-prepare' && event.target.id === 'main' && scrollbar.scrollTop !== 0) {
       scrollbar.scrollTop = 0;
     }
   };
@@ -682,11 +673,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.back2List = function () {
     this.page = 0;
-    this.$.wall.listModeChanged();
+    //this.$.wall.listModeChanged(); //shrug
   };
 
   this.nowPlaying = function () {
-    this.setScrollerPos();
     this.page = 1;
   };
 
@@ -812,7 +802,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.artistDetails = function (event, detail, sender) {
     var artist = document.getElementById("aDetails");
-    this.setScrollerPos();
     artist.artistId = sender.attributes.i.value;
     artist.queryData();
     this.$.searchDialog.close();

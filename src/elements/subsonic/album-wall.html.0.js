@@ -176,11 +176,6 @@ Polymer('album-wall', {
       });
     }.bind(this));
   },
-  getArtistDetails: function (event, detail, sender) {
-    this.clearData(function () {
-
-    }.bind(this));
-  },
   sortChanged: function () {
     'use strict';
     this.clearData(function () {
@@ -242,10 +237,8 @@ Polymer('album-wall', {
   },
   artistDetails: function (event, detail, sender) {
     var artist = document.getElementById("aDetails");
-    this.tmpl.setScrollerPos();
     artist.artistId = sender.attributes.ident.value;
     artist.queryData();
-    this.tmpl.page = 3;
   },
   doPlay: function (obj, url) {
     this.tmpl.playlist = [obj];

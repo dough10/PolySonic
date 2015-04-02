@@ -233,7 +233,6 @@ Polymer('album-art', {
       this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
       this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
     }
-    this.tmpl.setScrollerPos();
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
     this.tmpl.getImageForPlayer(this.imgURL);
     this.tmpl.page = 1;
