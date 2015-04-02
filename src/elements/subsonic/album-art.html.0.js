@@ -102,7 +102,9 @@ Polymer('album-art', {
   */
   closeSlide: function () {
     'use strict';
-    this.page = "cover";
+    if (this.page === 'info') {
+      this.page = "cover";
+    }
   },
 
   doDialog: function () {
@@ -169,10 +171,10 @@ Polymer('album-art', {
       url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
     this.$.detailsDialog.close();
     this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";
-    this.tmpl.page = 1;
     this.tmpl.playlist = [{artist: sender.attributes.artist.value, title: sender.attributes.title.value, cover: this.imgURL, duration: timeString, id: sender.attributes.ident.value}];
     this.tmpl.playing = 0;
     this.tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, this.imgURL);
+    this.tmpl.page = 1;
   },
 
   addSingle2Playlist: function (event, detail, sender) {
@@ -268,7 +270,29 @@ Polymer('album-art', {
     }
   },
   
+  doSearchPlayback: function () {
+    this.tmpl.$.searchDialog.close();
+    this.tmpl.dataLoading = true;
+    this.doQuery(this.playAlbum.bind(this));
+  },
+  
+  doSearchDetails: function () {
+    this.tmpl.$.searchDialog.close();
+    this.tmpl.dataLoading = true;
+    this.doQuery(function () {
+      this.tmpl.dataLoading = false;
+      this.$.detailsDialog.open();
+      this.tmpl.$.fab.state = 'mid';
+      this.tmpl.$.fab.ident = this.id;
+      if (this.colorThiefEnabled && this.playlist[0].palette) {
+        this.tmpl.colorThiefAlbum = this.playlist[0].palette[0];
+        this.tmpl.colorThiefAlbumOff = this.playlist[0].palette[1];
+      }      
+    }.bind(this));
+  },
+  
   doPlayback: function () {
+    this.tmpl.$.searchDialog.close();
     this.tmpl.dataLoading = true;
     this.doQuery(this.playAlbum.bind(this));
   },
@@ -283,7 +307,7 @@ Polymer('album-art', {
     this.doQuery(this.add2Playlist.bind(this));
   },
   
-  processJOSN: function (hasRun, callback) {
+  processJSON: function (hasRun, callback) {
     this.playlist.length = 0;
     this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
     this.tracks = this.trackResponse['subsonic-response'].album.song;
@@ -329,7 +353,7 @@ Polymer('album-art', {
             place json in indexeddb
           */
           this.tmpl.putInDb(this.trackResponse, this.item, function () {
-            this.processJOSN(hasRun, callback);
+            this.processJSON(hasRun, callback);
             console.log('JSON Data Added to indexedDB ' + this.item);
           }.bind(this));
         }.bind(this));
@@ -339,7 +363,7 @@ Polymer('album-art', {
         */
         this.tmpl.getDbItem(this.item, function (event) {
           this.trackResponse = event.target.result;
-          this.processJOSN(hasRun, callback);
+          this.processJSON(hasRun, callback);
         }.bind(this));
       }
     }.bind(this));

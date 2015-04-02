@@ -97,10 +97,10 @@
               <core-icon icon="favorite"></core-icon>
               Favorites
             </paper-item>
-            <paper-item on-tap="{{openSearch}}">
+            <!--<paper-item on-tap="{{openSearch}}">
               <core-icon icon="search"></core-icon>
               Search
-            </paper-item>
+            </paper-item>-->
             <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
               Settings
@@ -276,31 +276,33 @@
             <paper-spinner active></paper-spinner>
             <br>
           </template>
-          <template if="{{searchResults.artist}}">
-            <h3>Artists</h3>
-            <template repeat="{{searchResults.artist}}">
-              <paper-item on-tap="{{artistDetails}}" i="{{id}}">{{name}}</paper-item>
+          <div id="all">
+            <template if="{{searchResults.artist}}">
+              <h3>Artists</h3>
+              <template repeat="{{searchResults.artist}}">
+                <paper-item on-tap="{{artistDetails}}" i="{{id}}">{{name}}</paper-item>
+              </template>
             </template>
-          </template>
-          <template if="{{searchResults.album[0]}}">
-            <h3>Albums</h3>
-            <template repeat="{{searchResults.album}}">
-              <album-art listMode="search" bitRate="{{bitRate}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" isFavorite="{{starred}}"></album-art>
+            <template if="{{searchResults.album[0]}}">
+              <h3>Albums</h3>
+              <template repeat="{{searchResults.album}}">
+                <album-art listMode="search" bitRate="{{bitRate}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" isFavorite="{{starred}}"></album-art>
+              </template>
             </template>
-          </template>
-          <!--<template if="{{searchResults.song}}">
-            <h3>Songs</h3>
-            <template repeat="{{searchResults.song}}">
-              <core-item>
-                <div flex style="text-align:left; overflow:hidden;">
-                  {{title}}
-                </div>
-                <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{title}}" artist="{{artist}}" ident="{{id}}" cover="{{cover}}"></paper-icon-button>
-                <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" title="{{title}}" artist="{{artist}}" ident="{{id}}" cover="{{cover}}"></paper-icon-button>
-                <paper-icon-button on-tap="{{doDownload}}" ident="{{id}}"  icon="file-download"></paper-icon-button>
-              </core-item>
-            </template>
-          </template>-->
+            <!--<template if="{{searchResults.song}}">
+              <h3>Songs</h3>
+              <template repeat="{{searchResults.song}}">
+                <core-item>
+                  <div flex style="text-align:left; overflow:hidden;">
+                    {{title}}
+                  </div>
+                  <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{title}}" artist="{{artist}}" ident="{{id}}" cover="{{cover}}"></paper-icon-button>
+                  <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" title="{{title}}" artist="{{artist}}" ident="{{id}}" cover="{{cover}}"></paper-icon-button>
+                  <paper-icon-button on-tap="{{doDownload}}" ident="{{id}}"  icon="file-download"></paper-icon-button>
+                </core-item>
+              </template>
+            </template>-->
+          </div>
           <template if="{{!searchResults.artist && !searchResults.album[0] && searchResults.song}}">
             No results matching query
           </template>
