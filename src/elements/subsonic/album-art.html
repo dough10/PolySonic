@@ -310,9 +310,14 @@
           z-index:5;
           right:16px;
           top:16px;
-          color:#db4437;
-          background:rgba(255,255,255,0.3);
+          color:{{tmpl.colorThiefAlbum}};
+          background:{{tmpl.colorThiefAlbumOff}};
           border-radius: 50%;
+          opacity:0.5;
+        }
+        #closeDialog:hover {
+          color:#db4437;
+          opacity:1;
         }
         .trackWrapper {
           position:fixed;

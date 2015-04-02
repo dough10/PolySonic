@@ -390,8 +390,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.doAction = function (event, detail, sender) {
     var scroller = this.appScroller(),
-      wall = this.$.wall;
-
+        wall = this.$.wall,
+        animation = new CoreAnimation();
     if (this.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast' && this.$.fab.state === 'bottom') {
       scroller.scrollTop = 0;
     }
@@ -402,10 +402,30 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.showPlaylist();
     }
     if (this.page === 0 && this.$.fab.state === 'mid') {
-      this.$.wall.playSomething(sender.ident);
+      animation.duration = 1000;
+      animation.iterations = 'Infinity';
+      animation.keyframes = [
+        {opacity: 1},
+        {opacity: 0}
+      ];
+      animation.target = sender;
+      animation.play();
+      this.$.wall.playSomething(sender.ident, function () {
+        animation.cancel();
+      });
     }
     if (this.page === 3) {
-      this.$.aDetails.playSomething(sender.ident);
+      animation.duration = 1000;
+      animation.iterations = 'Infinity';
+      animation.keyframes = [
+        {opacity: 1},
+        {opacity: 0}
+      ];
+      animation.target = sender;
+      animation.play();
+      this.$.aDetails.playSomething(sender.ident, function () {
+        animation.cancel();
+      });
     }
   };
 

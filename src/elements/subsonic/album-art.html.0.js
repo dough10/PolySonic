@@ -26,6 +26,10 @@ Polymer('album-art', {
     this.audio = document.getElementById("audio");
 
     this.playerArt = document.getElementById("coverArt");
+
+    this.tmpl.colorThiefAlbum = this.tmpl.colorThiefAlbum  || '#db4437';
+
+     this.tmpl.colorThiefAlbumOff = this.tmpl.colorThiefAlbumOff  || 'white';
   },
 
   /*

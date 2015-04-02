@@ -19,10 +19,12 @@ Polymer('artist-details', {
       }.bind(this));
     }.bind(this));
   },
-  playSomething: function (id) {
+  playSomething: function (id, callback) {
     var albums = this.$.all.querySelectorAll('album-art');
     Array.prototype.forEach.call(albums, function (el) {
       if (el.id === id) {
+        callback();
+        el.closeDialog();
         el.playAlbum();
       }
     }.bind(this));
