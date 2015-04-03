@@ -523,19 +523,20 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (result.sort === undefined) {
         this.selected = '';
       }
-      if (result.querySize === undefined) {
+      this.querySize = 26;
+      /* leaving here for performance tuning later */
+      /*if (result.querySize === undefined) {
         chrome.storage.sync.set({
           'querySize': 10
         });
         this.querySize = 10;
       } else {
-        /* if current querySize is larger then 20 set to 10 */
         if (result.querySize > 20) {
           this.querySize = 10;
         } else {
           this.querySize = result.querySize;
         }
-      }
+      }*/
       if (result.volume !== undefined) {
         this.volume = result.volume;
       }
@@ -547,7 +548,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (result.mediaFolder !== undefined && result.mediaFolder !== 0) {
         this.folder = result.mediaFolder;
       }
-      this.colorThiefEnabled = result.colorThiefEnabled || false;
+      this.colorThiefEnabled = true;
+      //this.colorThiefEnabled = result.colorThiefEnabled || false;
       console.log('Color Thief Mode: ' + this.colorThiefEnabled);
       if (this.url && this.user && this.pass && this.version) {
         var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';

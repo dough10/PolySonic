@@ -8,9 +8,7 @@
         320
       ],
       sizes: [
-        10,
-        15,
-        20
+        18
       ],
       timer: 0,
       ready: function () {
