@@ -26,6 +26,7 @@
         this.cacheDetails = chrome.i18n.getMessage("cacheDetails");
         this.clearCacheLabel = chrome.i18n.getMessage("clearCacheLabel");
         this.clearSettingsLabel = chrome.i18n.getMessage("clearSettingsLabel");
+        this.serverSettingsLabel = chrome.i18n.getMessage("serverSettingsLabel");
       },
       domReady: function () {
         this.tmpl = document.getElementById("tmpl");

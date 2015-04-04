@@ -231,7 +231,7 @@
               <div class="album">{{album}}</div>
               <core-item>
                 <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add"></paper-icon-button>
-                Add to Play Queue
+                {{add2PlayQueue}}
               </core-item>
               <core-item>
                 <template if="{{!isFavorite}}">
@@ -240,15 +240,15 @@
                 <template if="{{isFavorite}}">
                   <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
                 </template>
-                Favorite
+                {{favoriteAlbum}}
               </core-item>
               <core-item>
                 <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
-                Downlaod
+                {{downloadButton}}
               </core-item>
               <core-item>
                 <paper-icon-button on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
-                Track List
+                {{albumTracklist}}
               </core-item>
             </div>
           </div>
@@ -339,14 +339,14 @@
         <div style="font-size:14pt; margin:8px; margin-right: 30px; max-height:30px;">
           {{artist}} / {{album}}
         </div>
-        <paper-icon-button on-tap="{{doAdd2Playlist}}" title="Add to Play Queue" icon="av:playlist-add"></paper-icon-button>
+        <paper-icon-button on-tap="{{doAdd2Playlist}}" title="{{add2PlayQueue}}" icon="av:playlist-add"></paper-icon-button>
         <template if="{{!isFavorite}}">
           <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
         </template>
         <template if="{{isFavorite}}">
-          <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
+          <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
         </template>
-        <paper-icon-button on-tap="{{doDownload}}" title="Download Album" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+        <paper-icon-button on-tap="{{doDownload}}" title="{{downloadButton}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
       </div>
       <div class="trackWrapper">
         <template repeat="{{track in playlist}}">

@@ -87,6 +87,10 @@
     "message": "Submit",
     "description": "label for submission button"
   },
+  "serverSettingsLabel": {
+    "message": "Server Settings",
+    "description": "header label for settings menu"
+  },
   "bitrateLabel": {
     "message": "Bitrate",
     "description": "label for bitrate selector"
@@ -102,5 +106,61 @@
   "clearSettingsLabel": {
     "message": "Clear Settings",
     "description": "label for button to clear local storage seetings"
+  },
+  "add2PlayQueue": {
+    "message": "Add to Play Queue",
+    "description": "add album to play queue" 
+  },
+  "favoriteAlbum": {
+    "message": "Favorite",
+    "description": "label for button to add album to favorites"
+  },
+  "downloadButton": {
+    "message": "Download",
+    "description": "label forbutton to download the ablum or track"
+  },
+  "albumTracklist": {
+    "message": "Track List",
+    "description": "label for button to view album details"
+  },
+  "nowPlayingTitle": {
+    "message": "Now Playing",
+    "description": "hover title for now playing button"
+  },
+  "connectionError": {
+    "message": "Error Connecting to Subsonic",
+    "description": "general connection error"
+  },
+  "noSearch": {
+    "message": "No Query to Search",
+    "description": "error when no search input"
+  },
+  "noMatch": {
+    "message": "No Matchs",
+    "description": "error shown when shuffle returns no results"
+  },
+  "podcastCheck": {
+    "message": "Checking for new Episodes",
+    "description": "message displayed when checking for new podcast episodes"
+  },
+  "channelAdded": {
+    "message": "Channel Added",
+    "description": "shown when a new podcast channel is added"
+  },
+  "podcastError": {
+    "message": "Error adding podcast channel",
+    "description": "shown when a error adding a podcast channel"
+  },
+  "invalidEntry": {
+    "message": "Invalid Entry",
+    "description": ""
+  },
+  "added2Queue": {
+    "message": "Added to Play Queue",
+    "description": "shown when something is added to queue"
+  },
+  "podcastDownload": {
+    "message": "Podcast Downloading",
+    "description": "shown when podcast download is started"
   }
 }

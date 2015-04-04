@@ -22,6 +22,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.settingsButton = chrome.i18n.getMessage("settingsButton");
   
+  this.nowPlayingLabel = chrome.i18n.getMessage("nowPlayingLabel");
+  
   
   /* begin analistics */
   this.service = analytics.getService('PolySonic');
@@ -119,7 +121,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.xhrError = function (e) {
     console.log(e);
-    this.doToast('Error connecting to Subsonic');
+    this.doToast(chrome.i18n.getMessage("connectionError"));
   }.bind(this);
   
   this.xhrProgress = function (e) {
@@ -206,7 +208,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         }
       }.bind(this));
     } else {
-      this.doToast('No Query to Search');
+      this.doToast(chrome.i18n.getMessage("noSearch"));
     }
   };
 
@@ -326,13 +328,13 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
             this.fixCoverArtForShuffle(obj);
           }.bind(this));
         } else {
-          this.doToast('No Matches');
+          this.doToast(chrome.i18n.getMessage("noMatch"));
           this.shuffleLoading = false;
         }
       }.bind(this));
     } else {
       this.shuffleLoading = false;
-      this.doToast("Invalid Entry");
+      this.doToast(chrome.i18n.getMessage("invalidEntry"));
     }
   };
   
@@ -875,7 +877,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (e.target.response['subsonic-response'].status === 'ok') {
         animation.cancel();
         this.$.wall.refreshContent();
-        this.doToast('Checking for new Episodes');
+        this.doToast(chrome.i18n.getMessage("podcastCheck"));
       }
     }.bind(this));
   };
@@ -889,10 +891,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           this.addingChannel = false;
           this.$.addPodcast.close();
           this.$.wall.refreshContent();
-          this.doToast('Channel Added');
+          this.doToast(chrome.i18n.getMessage("channelAdded"));
           this.castURL = '';
         } else {
-          this.doToast('Error adding podcast channel');
+          this.doToast(chrome.i18n.getMessage("podcastError"));
         }
       }.bind(this));
     }

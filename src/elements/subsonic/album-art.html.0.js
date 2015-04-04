@@ -30,6 +30,14 @@ Polymer('album-art', {
     this.tmpl.colorThiefAlbum = this.tmpl.colorThiefAlbum  || '#db4437';
 
     this.tmpl.colorThiefAlbumOff = this.tmpl.colorThiefAlbumOff  || 'white';
+    
+    this.add2PlayQueue = chrome.i18n.getMessage("add2PlayQueue");
+    
+    this.favoriteAlbum = chrome.i18n.getMessage("favoriteAlbum");
+    
+    this.downloadButton = chrome.i18n.getMessage("downloadButton");
+    
+    this.albumTracklist = chrome.i18n.getMessage("albumTracklist");
   },
 
   /*
@@ -149,7 +157,7 @@ Polymer('album-art', {
     Array.prototype.forEach.call(this.playlist, function (e) {
       this.tmpl.playlist.push(e);
     }.bind(this));
-    this.tmpl.doToast('Added to Play Queue');
+    this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
   },
 
   doDownload: function (event, detail, sender) {
@@ -199,7 +207,7 @@ Polymer('album-art', {
         this.playerArt.style.backgroundImage =  "url('images/default-cover-art.png')";
       }
     }
-    this.tmpl.doToast('Added to Play Queue');
+    this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
   },
 
   playAlbum: function () {
