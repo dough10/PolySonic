@@ -1,4 +1,4 @@
-/*global Polymer, console, document, Blob, window, Image, CoreAnimation */
+/*global Polymer, console, chrome, document, Blob, window, Image, CoreAnimation */
 Polymer('album-art', {
   /*
     method ran when element is created in dom

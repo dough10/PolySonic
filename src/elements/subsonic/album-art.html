@@ -230,20 +230,20 @@
               <br>
               <div class="album">{{album}}</div>
               <core-item>
-                <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add"></paper-icon-button>
+                <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add" title="{{add2PlayQueue}}"></paper-icon-button>
                 {{add2PlayQueue}}
               </core-item>
               <core-item>
                 <template if="{{!isFavorite}}">
-                  <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
+                  <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline" title="{{favoriteAlbum}}"></paper-icon-button>
                 </template>
                 <template if="{{isFavorite}}">
-                  <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
+                  <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
                 </template>
                 {{favoriteAlbum}}
               </core-item>
               <core-item>
-                <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+                <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download" title="{{downloadButton}}"></paper-icon-button>
                 {{downloadButton}}
               </core-item>
               <core-item>
@@ -261,14 +261,14 @@
                   {{artist}} - {{album}}
                 </div>
                 <paper-icon-button on-tap="{{doPlayback}}" icon="av:play-arrow"></paper-icon-button>
-                <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add"></paper-icon-button>
+                <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add" title="{{add2PlayQueue}}"></paper-icon-button>
                 <template if="{{!isFavorite}}">
-                  <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
+                  <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline" title="{{favoriteAlbum}}"></paper-icon-button>
                 </template>
                 <template if="{{isFavorite}}">
-                  <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
+                  <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
                 </template>
-                <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+                <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"  title="{{downloadButton}}" ></paper-icon-button>
                 <paper-icon-button class="bumpMargin" on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
               </core-item>
             </div>
