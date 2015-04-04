@@ -408,14 +408,10 @@ Polymer('album-wall', {
     this.$.all.querySelector(id).toggle();
   },
   playSomething: function (id, callback) {
-    var albums = this.$.all.querySelectorAll('album-art');
-    Array.prototype.forEach.call(albums, function (el) {
-      if (el.id === id) {
-        callback();
-        el.closeDialog();
-        el.playAlbum();
-      }
-    }.bind(this));
+    var album = this.$.all.querySelector('#' + id);
+    album.playAlbum();
+    album.closeDialog();
+    callback();
   }
 });
 
