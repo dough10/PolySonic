@@ -63,10 +63,10 @@
             <div id="sortBox">
               <core-label>
                 {{folderSelector}}:
-                <paper-dropdown-menu label="All">
+                <paper-dropdown-menu label="{{folderSelectorLabel}}">
                   <paper-dropdown class="dropdown">
                     <core-menu class="menu" selected="{{folder}}" valueattr="i">
-                      <paper-item i="" on-tap="{{setFolder}}">All</paper-item>
+                      <paper-item i="" on-tap="{{setFolder}}">{{folderSelectorLabel}}</paper-item>
                       <template repeat="{{mediaFolders}}">
                         <paper-item i="{{id}}" on-tap="{{setFolder}}">{{name}}</paper-item>
                       </template>
@@ -220,7 +220,7 @@
         </div>
         <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
           <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
-            Clear Play Queue
+            {{clearQueue}}
           </paper-item>
           <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
             <template repeat="{{playlist}}">
@@ -242,7 +242,7 @@
 
       <!-- volume -->
       <paper-dialog id="volumeDialog" transition="core-transition-bottom">
-        Volume
+        {{volumeLabel}}
         <br>
         <volume-slider volume="{{volume}}"></volume-slider>
       </paper-dialog>
@@ -255,9 +255,9 @@
 
       <!-- request analistics -->
       <paper-action-dialog id='analistics' autoclosedisabled transition="core-transition-center" layered>
-        <h4>Allow anonymous usage tracking?</h4>
-        <paper-button affirmative on-tap="{{disAllowAnalistics}}">Decline</paper-button>
-        <paper-button affirmative on-tap="{{allowAnalistics}}">Accept</paper-button>
+        <h4>{{analistics}}</h4>
+        <paper-button affirmative on-tap="{{disAllowAnalistics}}">{{decline}}</paper-button>
+        <paper-button affirmative on-tap="{{allowAnalistics}}">{{accept}}</paper-button>
       </paper-action-dialog>
 
       <!-- search -->
@@ -315,13 +315,13 @@
         <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closeShuffleOptions}}"></paper-icon-button>
         <div style="text-align:center">
           <core-label>
-            <h3>Shuffle Options</h3>
+            <h3>{{shuffleOptionsLabel}}</h3>
             <core-label>
               Genre:
-              <paper-dropdown-menu label="Optional">
+              <paper-dropdown-menu label="{{optional}}">
                 <paper-dropdown layered class="dropdown">
                   <core-menu selected="{{genreFilter}}" valueattr="i" class="menu">
-                    <paper-item i="">Optional</paper-item>
+                    <paper-item i="">{{optional}}</paper-item>
                     <template repeat="{{genres}}">
                       <paper-item i="{{value}}">{{value}}</paper-item>
                     </template>
@@ -332,7 +332,7 @@
             <br>
             <core-label>
               Number of Songs to return:
-              <paper-dropdown-menu label="Optional">
+              <paper-dropdown-menu label="">
                 <paper-dropdown layered class="dropdown">
                   <core-menu selected="{{shuffleSize}}" valueattr="i" class="menu">
                     <template repeat="{{shuffleSizes}}">

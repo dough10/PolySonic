@@ -11,6 +11,10 @@
     "message": "Folder",
     "description":"Label for folder selector at the top of menu"
   },
+  "folderSelectorLabel": {
+    "message": "All Folders",
+    "description": "label for showing content from all folders"
+  },
   "shuffleButton": {
     "message": "Shuffle",
     "description":"shuffle menu button label"
@@ -60,7 +64,7 @@
     "description": "message displayed when incorrect url is entered"
   },
   "urlLabel": {
-    "message": "http://ipAddress:4040",
+    "message": "http://ipaddress:4040",
     "description": "label for url input"
   },
   "usernameError": {
@@ -162,5 +166,29 @@
   "podcastDownload": {
     "message": "Podcast Downloading",
     "description": "shown when podcast download is started"
+  },
+  "clearQueue": {
+    "message": "Clear Play Queue",
+    "description": "button to clear the play queue"
+  },
+  "analistics": {
+    "message": "Allow anonymous usage tracking?",
+    "description": " ask user to allow analistics"
+  },
+  "accept": {
+    "message": "Accept",
+    "description": "accept"
+  },
+  "decline": {
+    "message": "Decline",
+    "description": "decline"
+  },
+  "shuffleOptionsLabel": {
+    "message": "Shuffle Options",
+    "description": "label for shuffle options"
+  },
+  "optional": {
+    "message": "Optional",
+    "description": "optional"
   }
 }

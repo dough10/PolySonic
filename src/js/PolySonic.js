@@ -24,6 +24,22 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.nowPlayingLabel = chrome.i18n.getMessage("nowPlayingLabel");
   
+  this.folderSelectorLabel = chrome.i18n.getMessage("folderSelectorLabel");
+  
+  this.clearQueue = chrome.i18n.getMessage("clearQueue");
+  
+  this.volumeLabel = chrome.i18n.getMessage("volumeLabel");
+  
+  this.analistics = chrome.i18n.getMessage("analistics");
+  
+  this.accept = chrome.i18n.getMessage("accept");
+  
+  this.decline = chrome.i18n.getMessage("decline");
+  
+  this.shuffleOptionsLabel = chrome.i18n.getMessage("shuffleOptionsLabel");
+  
+  this.optional = chrome.i18n.getMessage("optional");
+  
   
   /* begin analistics */
   this.service = analytics.getService('PolySonic');
