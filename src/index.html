@@ -91,19 +91,19 @@
             </template>
             <paper-item on-tap="{{getPodcast}}">
               <core-icon icon="sort"></core-icon>
-              Podcast
+              {{podcastButton}}
             </paper-item>
             <paper-item on-tap="{{getStarred}}">
               <core-icon icon="favorite"></core-icon>
-              Favorites
+              {{favoritesButton}}
             </paper-item>
             <!--<paper-item on-tap="{{openSearch}}">
               <core-icon icon="search"></core-icon>
-              Search
+              {{searchButton}}
             </paper-item>-->
             <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
-              Settings
+              {{settingsButton}}
             </paper-item>
           </core-menu>
         </core-scroll-header-panel>
@@ -248,8 +248,8 @@
       </paper-dialog>
 
       <!-- first run login details n such -->
-      <paper-action-dialog id="firstRun" style="min-height: 425px;" autoclosedisabled transition="core-transition-center">
-        <subsonic-login url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}">
+      <paper-action-dialog id="firstRun" style="min-height: 425px; width:280px; text-align:center;" autoclosedisabled transition="core-transition-center">
+        <subsonic-login url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" appName="{{appName}}" appDesc="{{appDesc}}">
         </subsonic-login>
       </paper-action-dialog>
 

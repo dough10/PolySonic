@@ -5,13 +5,25 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   /*locale settings */
 
   this.appName = chrome.i18n.getMessage("appName");
+  
+  this.appDesc = chrome.i18n.getMessage("appDesc");
 
   this.folderSelector = chrome.i18n.getMessage("folderSelector");
 
   this.shuffleButton = chrome.i18n.getMessage("shuffleButton");
 
   this.artistButton = chrome.i18n.getMessage("artistButton");
-
+  
+  this.podcastButton = chrome.i18n.getMessage("podcastButton");
+  
+  this.favoritesButton = chrome.i18n.getMessage("favoritesButton");
+  
+  this.searchButton = chrome.i18n.getMessage("searchButton");
+  
+  this.settingsButton = chrome.i18n.getMessage("settingsButton");
+  
+  
+  /* begin analistics */
   this.service = analytics.getService('PolySonic');
 
   this.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
@@ -75,11 +87,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.pageLimit = false;
 
   this.sortTypes = [
-    {sort: 'newest', name: 'Newest'},
-    {sort: 'frequent', name: 'Frequently Played'},
-    {sort: 'alphabeticalByName', name: 'By Title'},
-    {sort: 'alphabeticalByArtist', name: 'By Artist'},
-    {sort: 'recent', name: 'Recently Played'}
+    {sort: 'newest', name: chrome.i18n.getMessage("newButton")},
+    {sort: 'frequent', name: chrome.i18n.getMessage("frequentButton")},
+    {sort: 'alphabeticalByName', name: chrome.i18n.getMessage("titleButton")},
+    {sort: 'alphabeticalByArtist', name: chrome.i18n.getMessage("byArtistButton")},
+    {sort: 'recent', name: chrome.i18n.getMessage("recentButton")}
   ];
 
   this.closeDrawer = function () {
@@ -530,7 +542,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (result.sort === undefined) {
         this.selected = '';
       }
-      this.querySize = 30
+      this.querySize = 30;
       /* leaving here for performance tuning later */
       /*if (result.querySize === undefined) {
         chrome.storage.sync.set({

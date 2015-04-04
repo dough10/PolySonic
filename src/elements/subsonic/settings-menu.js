@@ -14,6 +14,18 @@
       ready: function () {
         'use strict';
         this.post = [];
+        this.urlError = chrome.i18n.getMessage("urlError");
+        this.urlLabel = chrome.i18n.getMessage("urlLabel");
+        this.usernameError = chrome.i18n.getMessage("usernameError");
+        this.usernameLabel = chrome.i18n.getMessage("usernameLabel");
+        this.passwordLabel = chrome.i18n.getMessage("passwordLabel");
+        this.showPass = chrome.i18n.getMessage("showPass");
+        this.hideThePass = chrome.i18n.getMessage("hidePass");
+        this.submitButton = chrome.i18n.getMessage("submitButton");
+        this.bitrateLabel = chrome.i18n.getMessage("bitrateLabel");
+        this.cacheDetails = chrome.i18n.getMessage("cacheDetails");
+        this.clearCacheLabel = chrome.i18n.getMessage("clearCacheLabel");
+        this.clearSettingsLabel = chrome.i18n.getMessage("clearSettingsLabel");
       },
       domReady: function () {
         this.tmpl = document.getElementById("tmpl");
@@ -65,17 +77,17 @@
 
         if (type === "text") {
           this.$.password.type = "password";
-          button.innerHTML = "Show Password";
+          button.innerHTML = this.showPass;
           if (timer) {
             clearTimeout(timer);
             timer = 0;
           }
         } else {
           this.$.password.type = "text";
-          button.innerHTML = "Hide Password";
+          button.innerHTML = this.hideThePass;
           timer = setTimeout(function () {
             this.$.password.type = "password";
-            button.innerHTML = "Show Password";
+            button.innerHTML = this.showPass;
             timer = 0;
           }.bind(this), 15000);
         }

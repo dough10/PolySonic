@@ -4,7 +4,7 @@
     "description": "The title of the application, displayed in the web store."
   },
   "appDesc": {
-    "message": "A HTML5 Subsonic Streaming App made with Polymer",
+    "message": "A HTML5 Subsonic Streaming App",
     "description":"The description of the application, displayed in the web store."
   },
   "folderSelector": {
@@ -18,5 +18,89 @@
   "artistButton": {
     "message": "Artist List",
     "description":"artist list menu button label"
+  },
+  "NewButton": {
+    "message": "Newest",
+    "description": "sort by new menu button"
+  },
+  "frequentButton": {
+    "message": "Frequently Played",
+    "description": "sory by frequently played at top"
+  },
+  "titleButton": {
+    "message": "By Title",
+    "description": "sort by album title"
+  },
+  "byArtistButton": {
+    "message": "By Artist",
+    "description": "sory by artist"
+  },
+  "recentButton": {
+    "message": "Recently Played",
+    "description": "sort by recently played"
+  },
+  "podcastButton": {
+    "message": "Podcast",
+    "description": "display podcasts"
+  },
+  "favoritesButton": {
+    "message": "Favorites",
+    "description": "display favorite albums"
+  },
+  "searchButton": {
+    "message": "Search",
+    "description": "open search dialog"
+  },
+  "settingsButton": {
+    "message": "Settings",
+    "description": "show settings menu"
+  },
+  "urlError": {
+    "message": "URL Required",
+    "description": "message displayed when incorrect url is entered"
+  },
+  "urlLabel": {
+    "message": "http://ipAddress:4040",
+    "description": "label for url input"
+  },
+  "usernameError": {
+    "message": "Username Required",
+    "description": "error displayed if your name not entered"
+  },
+  "usernameLabel": {
+    "message": "Username",
+    "description": "label for usename input"
+  },
+  "passwordLabel": {
+    "message": "Password",
+    "description": "labe for password input"
+  },
+  "showPass": {
+    "message": "Show Password",
+    "description": "button to show hidden content of password input"
+  },
+  "hidePass": {
+    "message": "Hide Password",
+    "description": "button to hide the content of password input"
+  },
+  "submitButton": {
+    "message": "Submit",
+    "description": "label for submission button"
+  },
+  "bitrateLabel": {
+    "message": "Bitrate",
+    "description": "label for bitrate selector"
+  },
+  "cacheDetails": {
+    "message": "Cache Details",
+    "description": "cache details button"
+  },
+  "clearCacheLabel": {
+    "message": "Clear Cache",
+    "description": "button to clear indexeddb cache"
+  },
+  "clearSettingsLabel": {
+    "message": "Clear Settings",
+    "description": "label for button to clear local storage seetings"
   }
 }
