@@ -1,0 +1,22 @@
+ {
+  "appName": {
+    "message": "PolySonic",
+    "description": "The title of the application, displayed in the web store."
+  },
+  "appDesc": {
+    "message": "A HTML5 Subsonic Streaming App made with Polymer",
+    "description":"The description of the application, displayed in the web store."
+  },
+  "folderSelector": {
+    "message": "Folder",
+    "description":"Label for folder selector at the top of menu"
+  },
+  "shuffleButton": {
+    "message": "Shuffle",
+    "description":"shuffle menu button label"
+  },
+  "artistButton": {
+    "message": "Artist List",
+    "description":"artist list menu button label"
+  }
+}

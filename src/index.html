@@ -62,7 +62,7 @@
             <core-toolbar class="medium-tall"></core-toolbar>
             <div id="sortBox">
               <core-label>
-                Folder:
+                {{folderSelector}}:
                 <paper-dropdown-menu label="All">
                   <paper-dropdown class="dropdown">
                     <core-menu class="menu" selected="{{folder}}" valueattr="i">
@@ -77,11 +77,11 @@
             </div>
             <paper-item on-tap="{{shuffleOptions}}">
               <core-icon icon="av:shuffle"></core-icon>
-              Shuffle
+              {{shuffleButton}}
             </paper-item>
             <paper-item on-tap="{{getArtist}}">
               <core-icon icon="perm-identity"></core-icon>
-              Artists List
+              {{artistButton}}
             </paper-item>
             <template repeat="{{sortTypes}}">
               <paper-item on-tap="{{selectAction}}" i="{{sort}}">
@@ -120,13 +120,13 @@
 
             <!-- app minimize / close buttons -->
             <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-            <!--<paper-icon-button id="max" on-tap="{{maximize}}"></paper-icon-button>-->
+            <paper-icon-button id="max" on-tap="{{maximize}}"></paper-icon-button>
             <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
 
             <!-- logic for toolbar -->
             <template if="{{page === 0}}">
               <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
-              <div flex  class="bottom alignLeft">PolySonic</div>
+              <div flex  class="bottom alignLeft">{{appName}}</div>
               <template if="{{showing === 'cover'}}">
                 <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="{{view}}" class="bottom"></paper-icon-button>
               </template>

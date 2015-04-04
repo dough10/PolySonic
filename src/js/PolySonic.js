@@ -2,6 +2,16 @@
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
   'use strict';
 
+  /*locale settings */
+
+  this.appName = chrome.i18n.getMessage("appName");
+
+  this.folderSelector = chrome.i18n.getMessage("folderSelector");
+
+  this.shuffleButton = chrome.i18n.getMessage("shuffleButton");
+
+  this.artistButton = chrome.i18n.getMessage("artistButton");
+
   this.service = analytics.getService('PolySonic');
 
   this.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
@@ -446,13 +456,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       maximized = chrome.app.window.current().isMaximized(),
       button = this.$.max;
       
-    /*if (maximized) {
+    if (maximized) {
       button.icon = 'check-box-outline-blank';
-      chrome.app.window.current().restore();
     } else {
       button.icon = 'flip-to-back';
-      chrome.app.window.current().maximize();
-    }*/
+    }
 
     this.position = scroller.scrollTop;
 
@@ -471,9 +479,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     /*
       only needed if fullscreen enabled
 
-      html commented out on index file enables icon
     */
-    //window.onresize = this.sizePlayer.bind(this);
+    window.onresize = this.sizePlayer.bind(this);
 
     audio.onended = this.nextTrack.bind(this);
 
@@ -523,7 +530,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (result.sort === undefined) {
         this.selected = '';
       }
-      this.querySize = 26;
+      this.querySize = 30
       /* leaving here for performance tuning later */
       /*if (result.querySize === undefined) {
         chrome.storage.sync.set({
@@ -550,7 +557,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       }
       this.colorThiefEnabled = true;
       //this.colorThiefEnabled = result.colorThiefEnabled || false;
-      console.log('Color Thief Mode: ' + this.colorThiefEnabled);
       if (this.url && this.user && this.pass && this.version) {
         var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
         this.doXhr(url, 'json', function (e) {

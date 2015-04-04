@@ -220,3 +220,6 @@ core-menu core-icon {
 .spinner::shadow .circle {
   border-color: #000;
 }
+#max {
+  display:none;
+}

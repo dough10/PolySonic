@@ -154,7 +154,11 @@ Polymer('album-art', {
 
   doDownload: function (event, detail, sender) {
     'use strict';
-    window.open(this.url + "/rest/download.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.ident.value, '_blank');
+    this.tmpl.dataLoading = true;
+    this.doQuery(function () {
+      this.tmpl.dataLoading = false;
+      window.open(this.url + "/rest/download.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.ident.value, '_blank');
+    }.bind(this));
   },
 
   playTrack: function (event, detail, sender) {
@@ -285,23 +289,33 @@ Polymer('album-art', {
     }.bind(this));
   },
   
+  getPalette: function () {
+    var artId = "al-" + this.item;
+    this.tmpl.getDbItem(artId + '-palette', function (e) {
+      this.palette = e.target.result;
+    }.bind(this));
+  },
+
   doPlayback: function () {
     this.tmpl.$.searchDialog.close();
     this.tmpl.dataLoading = true;
+    this.getPalette();
     this.doQuery(this.playAlbum.bind(this));
   },
   
   doDetails: function () {
     this.tmpl.dataLoading = true;
+    this.getPalette();
     this.doQuery(this.doDialog.bind(this));
   },
   
   doAdd2Playlist: function () {
     this.tmpl.dataLoading = true;
+    this.getPalette();
     this.doQuery(this.add2Playlist.bind(this));
   },
   
-  processJSON: function (hasRun, callback) {
+  processJSON: function (callback) {
     this.playlist.length = 0;
     this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
     this.tracks = this.trackResponse['subsonic-response'].album.song;
@@ -324,8 +338,9 @@ Polymer('album-art', {
         timeString = mins + ':' + ('0' + seconds).slice(-2),
         obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
       this.playlist.push(obj);
-      if (!hasRun) callback();
-      hasRun = true;
+      this.job('job1', function () {
+        callback();
+      }, 200);
     }.bind(this)); 
   },
   
@@ -333,7 +348,6 @@ Polymer('album-art', {
     /*
       search indexeddb for data
     */
-    var hasRun = false;
     this.queryingJSON = true;
     this.checkJSONEntry(this.item, function (e) {
       if (e.target.result === 0) {
@@ -347,7 +361,7 @@ Polymer('album-art', {
             place json in indexeddb
           */
           this.tmpl.putInDb(this.trackResponse, this.item, function () {
-            this.processJSON(hasRun, callback);
+            this.processJSON(callback);
             console.log('JSON Data Added to indexedDB ' + this.item);
           }.bind(this));
         }.bind(this));
@@ -357,13 +371,17 @@ Polymer('album-art', {
         */
         this.tmpl.getDbItem(this.item, function (event) {
           this.trackResponse = event.target.result;
-          this.processJSON(hasRun, callback);
+          this.processJSON(callback);
         }.bind(this));
       }
     }.bind(this));
   },
 
   itemChanged: function () {
+    this.async(this.updateValues);
+  },
+
+  updateValues: function () {
     'use strict';
     if (this.item) {
       this.isLoading = true;
@@ -438,9 +456,6 @@ Polymer('album-art', {
             get image from indexeddb
           */
           this.tmpl.getDbItem(artId, this.setImage.bind(this));
-          this.tmpl.getDbItem(artId + '-palette', function (e) {
-            this.palette = e.target.result;
-          }.bind(this));
         }
       }.bind(this));
     }
