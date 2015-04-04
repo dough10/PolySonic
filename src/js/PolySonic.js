@@ -5,13 +5,43 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   /*locale settings */
 
   this.appName = chrome.i18n.getMessage("appName");
+  
+  this.appDesc = chrome.i18n.getMessage("appDesc");
 
   this.folderSelector = chrome.i18n.getMessage("folderSelector");
 
   this.shuffleButton = chrome.i18n.getMessage("shuffleButton");
 
   this.artistButton = chrome.i18n.getMessage("artistButton");
-
+  
+  this.podcastButton = chrome.i18n.getMessage("podcastButton");
+  
+  this.favoritesButton = chrome.i18n.getMessage("favoritesButton");
+  
+  this.searchButton = chrome.i18n.getMessage("searchButton");
+  
+  this.settingsButton = chrome.i18n.getMessage("settingsButton");
+  
+  this.nowPlayingLabel = chrome.i18n.getMessage("nowPlayingLabel");
+  
+  this.folderSelectorLabel = chrome.i18n.getMessage("folderSelectorLabel");
+  
+  this.clearQueue = chrome.i18n.getMessage("clearQueue");
+  
+  this.volumeLabel = chrome.i18n.getMessage("volumeLabel");
+  
+  this.analistics = chrome.i18n.getMessage("analistics");
+  
+  this.accept = chrome.i18n.getMessage("accept");
+  
+  this.decline = chrome.i18n.getMessage("decline");
+  
+  this.shuffleOptionsLabel = chrome.i18n.getMessage("shuffleOptionsLabel");
+  
+  this.optional = chrome.i18n.getMessage("optional");
+  
+  
+  /* begin analistics */
   this.service = analytics.getService('PolySonic');
 
   this.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
@@ -75,11 +105,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.pageLimit = false;
 
   this.sortTypes = [
-    {sort: 'newest', name: 'Newest'},
-    {sort: 'frequent', name: 'Frequently Played'},
-    {sort: 'alphabeticalByName', name: 'By Title'},
-    {sort: 'alphabeticalByArtist', name: 'By Artist'},
-    {sort: 'recent', name: 'Recently Played'}
+    {sort: 'newest', name: chrome.i18n.getMessage("newButton")},
+    {sort: 'frequent', name: chrome.i18n.getMessage("frequentButton")},
+    {sort: 'alphabeticalByName', name: chrome.i18n.getMessage("titleButton")},
+    {sort: 'alphabeticalByArtist', name: chrome.i18n.getMessage("byArtistButton")},
+    {sort: 'recent', name: chrome.i18n.getMessage("recentButton")}
   ];
 
   this.closeDrawer = function () {
@@ -107,7 +137,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.xhrError = function (e) {
     console.log(e);
-    this.doToast('Error connecting to Subsonic');
+    this.doToast(chrome.i18n.getMessage("connectionError"));
   }.bind(this);
   
   this.xhrProgress = function (e) {
@@ -194,7 +224,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         }
       }.bind(this));
     } else {
-      this.doToast('No Query to Search');
+      this.doToast(chrome.i18n.getMessage("noSearch"));
     }
   };
 
@@ -314,13 +344,13 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
             this.fixCoverArtForShuffle(obj);
           }.bind(this));
         } else {
-          this.doToast('No Matches');
+          this.doToast(chrome.i18n.getMessage("noMatch"));
           this.shuffleLoading = false;
         }
       }.bind(this));
     } else {
       this.shuffleLoading = false;
-      this.doToast("Invalid Entry");
+      this.doToast(chrome.i18n.getMessage("invalidEntry"));
     }
   };
   
@@ -530,7 +560,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (result.sort === undefined) {
         this.selected = '';
       }
-      this.querySize = 30
+      this.querySize = 30;
       /* leaving here for performance tuning later */
       /*if (result.querySize === undefined) {
         chrome.storage.sync.set({
@@ -863,7 +893,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (e.target.response['subsonic-response'].status === 'ok') {
         animation.cancel();
         this.$.wall.refreshContent();
-        this.doToast('Checking for new Episodes');
+        this.doToast(chrome.i18n.getMessage("podcastCheck"));
       }
     }.bind(this));
   };
@@ -877,10 +907,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           this.addingChannel = false;
           this.$.addPodcast.close();
           this.$.wall.refreshContent();
-          this.doToast('Channel Added');
+          this.doToast(chrome.i18n.getMessage("channelAdded"));
           this.castURL = '';
         } else {
-          this.doToast('Error adding podcast channel');
+          this.doToast(chrome.i18n.getMessage("podcastError"));
         }
       }.bind(this));
     }

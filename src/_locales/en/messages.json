@@ -4,12 +4,16 @@
     "description": "The title of the application, displayed in the web store."
   },
   "appDesc": {
-    "message": "A HTML5 Subsonic Streaming App made with Polymer",
+    "message": "A HTML5 Subsonic Streaming App",
     "description":"The description of the application, displayed in the web store."
   },
   "folderSelector": {
     "message": "Folder",
     "description":"Label for folder selector at the top of menu"
+  },
+  "folderSelectorLabel": {
+    "message": "All Folders",
+    "description": "label for showing content from all folders"
   },
   "shuffleButton": {
     "message": "Shuffle",
@@ -18,5 +22,173 @@
   "artistButton": {
     "message": "Artist List",
     "description":"artist list menu button label"
+  },
+  "NewButton": {
+    "message": "Newest",
+    "description": "sort by new menu button"
+  },
+  "frequentButton": {
+    "message": "Frequently Played",
+    "description": "sory by frequently played at top"
+  },
+  "titleButton": {
+    "message": "By Title",
+    "description": "sort by album title"
+  },
+  "byArtistButton": {
+    "message": "By Artist",
+    "description": "sory by artist"
+  },
+  "recentButton": {
+    "message": "Recently Played",
+    "description": "sort by recently played"
+  },
+  "podcastButton": {
+    "message": "Podcast",
+    "description": "display podcasts"
+  },
+  "favoritesButton": {
+    "message": "Favorites",
+    "description": "display favorite albums"
+  },
+  "searchButton": {
+    "message": "Search",
+    "description": "open search dialog"
+  },
+  "settingsButton": {
+    "message": "Settings",
+    "description": "show settings menu"
+  },
+  "urlError": {
+    "message": "URL Required",
+    "description": "message displayed when incorrect url is entered"
+  },
+  "urlLabel": {
+    "message": "http://ipaddress:4040",
+    "description": "label for url input"
+  },
+  "usernameError": {
+    "message": "Username Required",
+    "description": "error displayed if your name not entered"
+  },
+  "usernameLabel": {
+    "message": "Username",
+    "description": "label for usename input"
+  },
+  "passwordLabel": {
+    "message": "Password",
+    "description": "labe for password input"
+  },
+  "showPass": {
+    "message": "Show Password",
+    "description": "button to show hidden content of password input"
+  },
+  "hidePass": {
+    "message": "Hide Password",
+    "description": "button to hide the content of password input"
+  },
+  "submitButton": {
+    "message": "Submit",
+    "description": "label for submission button"
+  },
+  "serverSettingsLabel": {
+    "message": "Server Settings",
+    "description": "header label for settings menu"
+  },
+  "bitrateLabel": {
+    "message": "Bitrate",
+    "description": "label for bitrate selector"
+  },
+  "cacheDetails": {
+    "message": "Cache Details",
+    "description": "cache details button"
+  },
+  "clearCacheLabel": {
+    "message": "Clear Cache",
+    "description": "button to clear indexeddb cache"
+  },
+  "clearSettingsLabel": {
+    "message": "Clear Settings",
+    "description": "label for button to clear local storage seetings"
+  },
+  "add2PlayQueue": {
+    "message": "Add to Play Queue",
+    "description": "add album to play queue" 
+  },
+  "favoriteAlbum": {
+    "message": "Favorite",
+    "description": "label for button to add album to favorites"
+  },
+  "downloadButton": {
+    "message": "Download",
+    "description": "label forbutton to download the ablum or track"
+  },
+  "albumTracklist": {
+    "message": "Track List",
+    "description": "label for button to view album details"
+  },
+  "nowPlayingTitle": {
+    "message": "Now Playing",
+    "description": "hover title for now playing button"
+  },
+  "connectionError": {
+    "message": "Error Connecting to Subsonic",
+    "description": "general connection error"
+  },
+  "noSearch": {
+    "message": "No Query to Search",
+    "description": "error when no search input"
+  },
+  "noMatch": {
+    "message": "No Matchs",
+    "description": "error shown when shuffle returns no results"
+  },
+  "podcastCheck": {
+    "message": "Checking for new Episodes",
+    "description": "message displayed when checking for new podcast episodes"
+  },
+  "channelAdded": {
+    "message": "Channel Added",
+    "description": "shown when a new podcast channel is added"
+  },
+  "podcastError": {
+    "message": "Error adding podcast channel",
+    "description": "shown when a error adding a podcast channel"
+  },
+  "invalidEntry": {
+    "message": "Invalid Entry",
+    "description": ""
+  },
+  "added2Queue": {
+    "message": "Added to Play Queue",
+    "description": "shown when something is added to queue"
+  },
+  "podcastDownload": {
+    "message": "Podcast Downloading",
+    "description": "shown when podcast download is started"
+  },
+  "clearQueue": {
+    "message": "Clear Play Queue",
+    "description": "button to clear the play queue"
+  },
+  "analistics": {
+    "message": "Allow anonymous usage tracking?",
+    "description": " ask user to allow analistics"
+  },
+  "accept": {
+    "message": "Accept",
+    "description": "accept"
+  },
+  "decline": {
+    "message": "Decline",
+    "description": "decline"
+  },
+  "shuffleOptionsLabel": {
+    "message": "Shuffle Options",
+    "description": "label for shuffle options"
+  },
+  "optional": {
+    "message": "Optional",
+    "description": "optional"
   }
 }

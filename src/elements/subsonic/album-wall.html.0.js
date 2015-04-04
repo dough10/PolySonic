@@ -383,7 +383,7 @@ Polymer('album-wall', {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.clearData(function () {
           this.$.ajax.go();
-          this.tmpl.doToast('Downloading Episode');
+          this.tmpl.doToast(chrome.i18n.getMessage("downloadPodcast"));
         }.bind(this));
       }
     }.bind(this));

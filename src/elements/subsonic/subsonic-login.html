@@ -8,7 +8,7 @@
 <link href="../../bower_components/core-menu/core-menu.html" rel="import">
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/paper-dropdown/paper-dropdown.html" rel="import">
-</head><body><polymer-element name="subsonic-login" attributes="url user pass version">
+</head><body><polymer-element name="subsonic-login" attributes="url user pass version appName appDesc">
   <template>
     <style>
       :host {
@@ -42,22 +42,22 @@
     </style>
     <core-ajax id="ajax" auto="false" method="GET" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v=1.11.0&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" response="{{response}}">
     </core-ajax>
-      <h3>PolySonic</h3>
-      A Subconic streaming app built with Polymer.
+      <h3>{{appName}}</h3>
+      {{appDesc}}
       <div id="validate">
-        <paper-input-decorator id="input1" autoValidate isInvalid="{{invalid1}}" labelvisible="" floatinglabel="" error="URL Required" label="http://yourname.subsonic.org:4040">
+        <paper-input-decorator id="input1" autoValidate isInvalid="{{invalid1}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
           <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
         </paper-input-decorator>
         <br>
-        <paper-input-decorator id="input2" autoValidate isInvalid="{{inValid2}}" labelvisible="" floatinglabel="" error="Username Required" label="Username">
+        <paper-input-decorator id="input2" autoValidate isInvalid="{{inValid2}}" labelvisible="" floatinglabel="" error="{{usernameError}}" label="{{usernameLabel}}">
           <input is="core-input" type="text" value="{{post.user}}" required="">
         </paper-input-decorator>
         <br>
-        <paper-input-decorator id="input3" autoValidate isInvalid="{{inValid3}}" labelvisible="" floatinglabel="" error="Password Required" label="Password">
+        <paper-input-decorator id="input3" autoValidate isInvalid="{{inValid3}}" labelvisible="" floatinglabel="" label="{{passwordLabel}}">
           <input is="core-input" id="password" type="password" value="{{post.pass}}">
         </paper-input-decorator>
         <br>
-        <div id="showPass" on-tap="{{hidePass}}">Show Password</div><br>
+        <div id="showPass" on-tap="{{hidePass}}">{{showPass}}</div><br>
         <br>
         <paper-button on-tap="{{submit}}" affirmative>
           <template if="{{isLoading}}">
@@ -65,7 +65,7 @@
               <paper-spinner active=""></paper-spinner>
             </div>
           </template>
-          Submit
+          {{submitButton}}
         </paper-button>
       </div>
     <core-label>

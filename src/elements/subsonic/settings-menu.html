@@ -82,24 +82,24 @@
     </core-ajax>
     <div id="validate">
       <core-label>
-        <h4>Server Settings</h4>
-        <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="URL Required" label="URL:Port">
+        <h4>{{serverSettingsLabel}}</h4>
+        <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
           <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
         </paper-input-decorator>
         <br>
-        <paper-input-decorator id="input2"labelvisible="" floatinglabel="" error="Username Required" label="Username">
+        <paper-input-decorator id="input2"labelvisible="" floatinglabel="" error="{{usernameError}}" label="{{usernameLabel}}">
           <input is="core-input" type="text" value="{{post.user}}" required="">
         </paper-input-decorator>
         <br>
-        <paper-input-decorator id="input3" labelvisible="" floatinglabel="" label="Password">
+        <paper-input-decorator id="input3" labelvisible="" floatinglabel="" label="{{passwordLabel}}">
           <input is="core-input" id="password" type="password" value="{{post.pass}}">
         </paper-input-decorator>
         <br>
-        <div id="showPass" on-tap="{{hidePass}}">Show Password</div><br>
+        <div id="showPass" on-tap="{{hidePass}}">{{showPass}}</div><br>
         <br>
         <core-label>
-          Bitrate:
-          <paper-dropdown-menu label="Select Bitrate">
+          {{bitrateLabel}}:
+          <paper-dropdown-menu label="{{bitrateLabel}}">
             <paper-dropdown layered class="dropdown">
               <core-menu class="menu" selected="{{post.bitRate}}" valueattr="i" on-core-select="{{bitRateSelect}}">
                 <template repeat="{{speeds}}">
@@ -159,26 +159,26 @@
         <paper-button on-tap="{{submit}}">
           <template if="{{isLoading}}">
             <div id="load">
-              <paper-spinner active="https://github.com/dough10/PolySonic/issues" on-tap='{{linkGo}}'></paper-spinner>
+              <paper-spinner active></paper-spinner>
             </div>
           </template>
-          Submit
+          {{submitButton}}
         </paper-button>
       </core-label>
       <br>
       <br>
       <br>
       <br>
-      <paper-button on-tap="{{showQuota}}">Cache Details</paper-button>
+      <paper-button on-tap="{{showQuota}}">{{cacheDetails}}</paper-button>
       <core-collapse id="quota">
         {{storageQuota}}
         <br>
         <br>
-        <paper-button on-tap="{{clearCache}}">Clear Cache</paper-button>
+        <paper-button on-tap="{{clearCache}}">{{clearCacheLabel}}</paper-button>
       </core-collapse>
       <br>
       <br>
-      <paper-button on-tap="{{clearSettings}}">Clear Settings</paper-button>
+      <paper-button on-tap="{{clearSettings}}">{{clearSettingsLabel}}</paper-button>
     </div>
   </template>
   <script src="settings-menu.js"></script>
