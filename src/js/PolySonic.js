@@ -1,4 +1,4 @@
-/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief */
+/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief, setTimeout */
 document.querySelector('#tmpl').addEventListener('template-bound', function () {
   'use strict';
 
@@ -40,12 +40,40 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.optional = chrome.i18n.getMessage("optional");
   
+  this.artistLabel = chrome.i18n.getMessage("artistLabel");
+
+  this.albumLabel = chrome.i18n.getMessage("albumLabel");
+
+  this.genreLabel = chrome.i18n.getMessage("genreLabel");
+
+  this.songReturn = chrome.i18n.getMessage("songReturn");
+
+  this.playButton = chrome.i18n.getMessage("playButton");
+
+  this.yearError = chrome.i18n.getMessage("yearError");
+
+  this.releasedAfter = chrome.i18n.getMessage("releasedAfter");
+
+  this.releasedBefore = chrome.i18n.getMessage("releasedBefore");
+
+  this.submitButton = chrome.i18n.getMessage("submitButton");
+
+  this.deleteConfirm = chrome.i18n.getMessage("deleteConfirm");
+
+  this.noResults = chrome.i18n.getMessage("noResults");
+
+  this.urlError = chrome.i18n.getMessage("urlError");
+
+  this.podcastSubmissionLabel = chrome.i18n.getMessage("podcastSubmissionLabel");
+
   
   /* begin analistics */
   this.service = analytics.getService('PolySonic');
 
   this.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
 
+
+  /* indexeddb */
   this.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
 
   this.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
@@ -409,9 +437,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           this.getDbItem(artId + '-palette', function (ev) {
             obj.palette = ev.target.result;
             this.playlist.push(obj);
-            setTimeout(function () {
+            this.async(function () {
               this.doShufflePlayback();
-            }.bind(this), 100);
+            }, null,  100);
           }.bind(this));
         }.bind(this));
       }

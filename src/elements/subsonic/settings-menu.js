@@ -14,6 +14,7 @@
       ready: function () {
         'use strict';
         this.post = [];
+        /* locale settings */
         this.urlError = chrome.i18n.getMessage("urlError");
         this.urlLabel = chrome.i18n.getMessage("urlLabel");
         this.usernameError = chrome.i18n.getMessage("usernameError");

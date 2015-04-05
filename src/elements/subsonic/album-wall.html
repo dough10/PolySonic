@@ -62,16 +62,16 @@
         <div view="cover">
           <template if="{{!isLoading && !wall[0] && request === 'getStarred2'}}">
             <paper-shadow class='card' style="text-align:center;">
-              <h3>Favorite something!!</h3>
-              To add a album to your favorites just click the heart on the album you want to favorite.
+              <h3>{{noFavoriteHeader}}</h3>
+              {{noFavoriteMessage}}
             </paper-shadow>
           </template>
           <template if="{{!isLoading && !wall[0] && request !== 'getStarred2'}}">
             <paper-shadow class='card' style="text-align:center;">
-              <h3>Add content by opening the official Subsonic webapp</h3>
-              <a href="{{url}}" target='_blank'>Found here {{url}}</a>
+              <h3>{{addContent}}</h3>
+              {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
               <br><br>
-              To add albums navigate to Settings > Media Folders.
+              {{addAlbums}}
             </paper-shadow>
           </template>
           <core-list id="list" data="{{wall}}" flex grid='false' scrollTarget="{{scrollTarget}}">
@@ -89,10 +89,10 @@
         <div view="podcast">
           <template if="{{!isLoading && !podcast[0]}}">
             <paper-shadow class='card' style="text-align:center;">
-              <h3>Add content by opening the official Subsonic webapp</h3>
-              <a href="{{url}}" target='_blank'>Found here {{url}}</a>
+              <h3>{{addContent}}</h3>
+              {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
               <br><br>
-              Add Podcast by clicking Podcast in the top menu row. Then input the XML feed for your favorite podcasts and enjoy.
+              {{addPodcast}}
             </paper-shadow>
           </template>
           <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
@@ -112,7 +112,7 @@
                         <core-menu class="menu">
                           <paper-item on-tap="{{deleteDialog}}" ident="{{model.id}}">
                             <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
-                            Delete Channel
+                            {{deleteLabel}}
                           </paper-item>
                         </core-menu>
                       </paper-dropdown>
@@ -139,7 +139,7 @@
                         </div>
                         <paper-item on-tap="{{episodeDialog}}" ident="{{id}}">
                           <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
-                          Delete Episode
+                          Delete <!-- need to replace with locale variable -->
                         </paper-item>
                       </core-collapse>
                     </template>
@@ -167,10 +167,10 @@
         <div view="artists">
           <template if="{{!isLoading && !artists[0]}}">
             <paper-shadow class='card' style="text-align:center;">
-              <h3>Add content by opening the official Subsonic webapp</h3>
-              <a href="{{url}}" target='_blank'>Found here {{url}}</a>
+              <h3>{{addContent}}</h3>
+              {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
               <br><br>
-              To add albums navigate to Settings > Media Folders.
+              {{addAlbums}}
             </paper-shadow>
           </template>
           <core-list id="artists" data="{{artists}}" flex scrollTarget="{{scrollTarget}}">

@@ -278,13 +278,13 @@
           </template>
           <div id="all">
             <template if="{{searchResults.artist}}">
-              <h3>Artists</h3>
+              <h3>{{artistLabel}}</h3>
               <template repeat="{{searchResults.artist}}">
                 <paper-item on-tap="{{artistDetails}}" i="{{id}}">{{name}}</paper-item>
               </template>
             </template>
             <template if="{{searchResults.album[0]}}">
-              <h3>Albums</h3>
+              <h3>{{albumLabel}}</h3>
               <template repeat="{{searchResults.album}}">
                 <album-art listMode="search" bitRate="{{bitRate}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" isFavorite="{{starred}}"></album-art>
               </template>
@@ -304,7 +304,7 @@
             </template>-->
           </div>
           <template if="{{!searchResults.artist && !searchResults.album[0] && searchResults.song}}">
-            No results matching query
+            {{noResults}}
           </template>
         </div>
       </paper-dialog>
@@ -317,7 +317,7 @@
           <core-label>
             <h3>{{shuffleOptionsLabel}}</h3>
             <core-label>
-              Genre:
+              {{genreLabel}}:
               <paper-dropdown-menu label="{{optional}}">
                 <paper-dropdown layered class="dropdown">
                   <core-menu selected="{{genreFilter}}" valueattr="i" class="menu">
@@ -331,7 +331,7 @@
             </core-label>
             <br>
             <core-label>
-              Number of Songs to return:
+              {{songReturn}}:
               <paper-dropdown-menu label="">
                 <paper-dropdown layered class="dropdown">
                   <core-menu selected="{{shuffleSize}}" valueattr="i" class="menu">
@@ -342,16 +342,16 @@
                 </paper-dropdown>
               </paper-dropdown-menu>
             </core-label>
-            <paper-input-decorator id="startYearValidate" autoValidate isInvalid="{{startYearInvalid}}" labelvisible="" floatinglabel="" error="Please enter a valid year" label="Released after: Optional">
+            <paper-input-decorator id="startYearValidate" autoValidate isInvalid="{{startYearInvalid}}" labelvisible="" floatinglabel="" error="{{yearError}}" label="{{releasedAfter}}">
               <input is="core-input" type="text" pattern='[0-9]{4}' value="{{startingYear}}">
             </paper-input-decorator>
-            <paper-input-decorator id="endYearValidate" autoValidate isInvalid="{{endYearInvalid}}" labelvisible="" floatinglabel="" error="Please enter a valid year" label="Released before: Optional">
+            <paper-input-decorator id="endYearValidate" autoValidate isInvalid="{{endYearInvalid}}" labelvisible="" floatinglabel="" error="{{yearError}}" label="{{releasedBefore}}">
               <input is="core-input" type="text" pattern='[0-9]{4}' value="{{endingYear}}">
             </paper-input-decorator>
           </core-label>
           <br>
           <paper-button on-tap="{{shufflePlay}}">
-            Play
+            {{playButton}}
             <template if="{{shuffleLoading}}">
               <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
                 <paper-spinner active=""></paper-spinner>
@@ -365,11 +365,11 @@
       <paper-dialog id="addPodcast" transition="core-transition-bottom">
         <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePodcastDialog}}"></paper-icon-button>
         <div style="text-align:center;">
-          <paper-input-decorator style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="URL Required" label="Podcast feed URL">
+          <paper-input-decorator style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{podcastSubmissionLabel}}">
             <input is="core-input" type="URL" value="{{castURL}}" required="">
           </paper-input-decorator>
           <paper-button on-tap="{{addChannel}}">
-            Submit
+            {{submitButton}}
             <template if="{{addingChannel}}">
               <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
                 <paper-spinner active=""></paper-spinner>
@@ -382,17 +382,17 @@
       <!-- delete confirmation podcast channel -->
       <paper-action-dialog id='confirmDelete' autoclosedisabled transition="core-transition-center" layered>
         <div style="min-width:280px"></div>
-        <h4>Are You Sure? Delete Channel</h4>
-        <paper-button affirmative>Decline</paper-button>
-        <paper-button affirmative ident="{{delID}}" on-tap="{{doDelete}}">Accept</paper-button>
+        <h4>{{deleteConfirm}}</h4>
+        <paper-button affirmative>{{decline}}</paper-button>
+        <paper-button affirmative ident="{{delID}}" on-tap="{{doDelete}}">{{accept}}</paper-button>
       </paper-action-dialog>
 
       <!-- delete confirmation podcast episodes  -->
       <paper-action-dialog id='episodeConfirm' autoclosedisabled transition="core-transition-center" layered>
         <div style="min-width:280px"></div>
-        <h4>Are You Sure? Delete Episode</h4>
-        <paper-button affirmative>Decline</paper-button>
-        <paper-button affirmative ident="{{delID}}" on-tap="{{deleteEpisode}}">Accept</paper-button>
+        <h4>{{deleteConfirm}}</h4>
+        <paper-button affirmative>{{decline}}</paper-button>
+        <paper-button affirmative ident="{{delID}}" on-tap="{{deleteEpisode}}">{{accept}}</paper-button>
       </paper-action-dialog>
 
       <!--some key bindings ** half ass working** -->

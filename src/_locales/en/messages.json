@@ -190,5 +190,65 @@
   "optional": {
     "message": "Optional",
     "description": "optional"
+  },
+  "artistLabel": {
+    "message": "Artist",
+    "description": "artist"
+  },
+  "albumLabel": {
+    "message": "Album",
+    "description": "album"
+  },
+  "genreLabel": {
+    "message": "Genre",
+    "description": "Genre"
+  },
+  "songReturn": {
+    "message": "Number of songs to return",
+    "description": "label for song return count dropdown"
+  },
+   "playButton": {
+    "message": "Play",
+     "description": "text for play button"
+  },
+  "yearError": {
+    "message": "Please enter a valid year",
+    "description": "error displayed when invalid year entry"
+  },
+  "releasedAfter": {
+    "message": "Released after: Optional"
+  },
+  "releasedBefore": {
+    "message": "Released before: Optional"
+  },
+  "deleteConfirm": {
+    "message": "Delete Item Are you sure?"
+  },
+  "noResults": {
+    "message": "No results"
+  },
+  "noFavoriteHeader": {
+    "message": "Favorite something!!"
+  },
+  "noFavoriteMessage": {
+    "message": "To add a album to your favorites just click the heart on the album you want to favorite."
+  },
+  "addContent": {
+    "message": "Add content by opening the official Subsonic webapp"
+  },
+  "addAlbums": {
+    "message": "To add albums navigate to Settings > Media Folders."
+  },
+  "addPodcast": {
+    "message": "Add Podcast by clicking plus button on the bottom right. Then input the XML feed for your favorite podcasts and enjoy."
+  },
+  "podcastSubmissionLabel": {
+    "message": "Podcast feed URL"
+  },
+  "foundHere": {
+    "message": "Found here"
+  },
+  "deleteLabel": {
+    "message": "Delete"
   }
 }

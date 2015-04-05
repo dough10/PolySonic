@@ -27,6 +27,15 @@ Polymer('album-wall', {
       }
     }.bind(this));
   },
+  ready: function () {
+    this.noFavoriteHeader = chrome.i18n.getMessage("noFavoriteHeader");
+    this.noFavoriteMessage = chrome.i18n.getMessage("noFavoriteMessage");
+    this.addContent = chrome.i18n.getMessage("addContent");
+    this.addAlbums = chrome.i18n.getMessage("addAlbums");
+    this.addPodcast = chrome.i18n.getMessage("addPodcast");
+    this.foundHere = chrome.i18n.getMessage("foundHere");
+    this.deleteLabel = chrome.i18n.getMessage("deleteLabel");
+  },
   domReady: function () {
     'use strict';
     this.tmpl = document.getElementById("tmpl");
