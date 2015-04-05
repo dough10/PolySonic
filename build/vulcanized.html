@@ -145,7 +145,8 @@
                         </div><template if="{{status === 'completed'}}"><paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" title="{{title}}" streamid="{{streamId}}" cover="{{coverArt}}"></paper-icon-button><paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" title="{{title}}" streamid="{{streamId}}" cover="{{coverArt}}"></paper-icon-button><paper-icon-button on-tap="{{toggleCollapse}}" icon="more-vert" ident="collapse{{id}}"></paper-icon-button></template><template if="{{status === 'downloading'}}"><paper-spinner class="black" active="" style="margin-right: 6px;" title="Downloading"></paper-spinner></template></core-item><core-collapse id="collapse{{id}}"><div flex="">
                           {{description}}
                         </div><paper-item on-tap="{{episodeDialog}}" ident="{{id}}"><core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
-                          Delete </paper-item></core-collapse></template><template if="{{!streamId}}"><core-item><div flex="" class="title">
+                          Delete
+                        </paper-item></core-collapse></template><template if="{{!streamId}}"><core-item><div flex="" class="title">
                           {{title}}
                         </div><paper-icon-button on-tap="{{downloadEpisode}}" icon="file-download" title="{{title}}" ident="{{id}}"></paper-icon-button></core-item></template></template></paper-shadow></div></template></core-list><template if="{{isLoading}}"><paper-spinner id="spinner" active=""></paper-spinner></template><template if="{{!isLoading}}"><paper-button on-tap="{{topOfPage}}">Back to Top</paper-button></template><div class="foot"></div></div><div view="artists"><template if="{{!isLoading &amp;&amp; !artists[0]}}"><paper-shadow class="card" style="text-align:center;"><h3>{{addContent}}</h3>
               {{foundHere}} <a href="{{url}}" target="_blank">{{url}}</a><br><br>
