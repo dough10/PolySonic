@@ -149,7 +149,6 @@
   },
   "albumLabel": {
     "message": "Album"
-
   },
   "genreLabel": {
     "message": "Genre"
@@ -158,8 +157,7 @@
     "message": "Number of songs to return"
   },
    "playButton": {
-    "message": "Play",
-     "description": "text for play button"
+    "message": "Play"
   },
   "yearError": {
     "message": "Please enter a valid year"
