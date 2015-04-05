@@ -66,6 +66,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.podcastSubmissionLabel = chrome.i18n.getMessage("podcastSubmissionLabel");
 
+  this.diskUsed = chrome.i18n.getMessage("diskused");
+
+  this.diskRemaining = chrome.i18n.getMessage("diskRemaining");
+
   
   /* begin analistics */
   this.service = analytics.getService('PolySonic');
@@ -161,6 +165,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.openSearch = function () {
     this.closeDrawer();
     this.$.searchDialog.toggle();
+  };
+
+  this.closeVolume = function () {
+    this.$.volumeDialog.close();
   };
 
   this.xhrError = function (e) {
@@ -290,7 +298,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         remainingQuota = Math.round(10 * (((remaining / 1000) / 1000) / 1000)) / 10;
         bytes = 'GB';
       }
-      this.storageQuota = "Disk Used: " + usedQuota  + " MB, Disk Remaining: " + remainingQuota + " " + bytes;
+      this.storageQuota = this.diskUsed + ": " + usedQuota  + " MB, " + this.diskRemaining + ": " + remainingQuota + " " + bytes;
     }.bind(this), function(e) {
       console.log('Error', e); 
     });

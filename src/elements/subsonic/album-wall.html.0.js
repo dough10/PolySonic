@@ -28,6 +28,7 @@ Polymer('album-wall', {
     }.bind(this));
   },
   ready: function () {
+    /* locale settings */
     this.noFavoriteHeader = chrome.i18n.getMessage("noFavoriteHeader");
     this.noFavoriteMessage = chrome.i18n.getMessage("noFavoriteMessage");
     this.addContent = chrome.i18n.getMessage("addContent");

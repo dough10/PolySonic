@@ -139,7 +139,7 @@
                         </div>
                         <paper-item on-tap="{{episodeDialog}}" ident="{{id}}">
                           <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
-                          Delete <!-- need to replace with locale variable -->
+                          Delete
                         </paper-item>
                       </core-collapse>
                     </template>
@@ -181,7 +181,7 @@
                   <template repeat="{{model.artist}}">
                     <paper-item class='title' on-tap="{{artistDetails}}" ident="{{id}}">
                       <div flex style="text-align:left">{{name}}</div>
-                      <div>{{albumCount}} Albums</div>
+                      <div>{{albumCount}}</div>
                     </paper-item>
                   </template>
                 </paper-shadow>

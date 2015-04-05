@@ -242,6 +242,7 @@
 
       <!-- volume -->
       <paper-dialog id="volumeDialog" transition="core-transition-bottom">
+        <paper-icon-button style='color:#db4437; position:absolute; top:8px; right:8px;' icon="close" title="Close" on-tap="{{closeVolume}}"></paper-icon-button>
         {{volumeLabel}}
         <br>
         <volume-slider volume="{{volume}}"></volume-slider>
