@@ -38,6 +38,9 @@
   "favoritesButton": {
     "message": "Favorites"
   },
+  "playlistsButton": {
+    "message": "Saved Playlists"
+  },
   "searchButton": {
     "message": "Search"
   },
@@ -170,6 +173,9 @@
   },
   "deleteConfirm": {
     "message": "Delete Item Are you sure?"
+  },
+  "deleteError": {
+    "message": "Error Deleting"
   },
   "noResults": {
     "message": "No results"

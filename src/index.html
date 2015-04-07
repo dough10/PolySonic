@@ -97,6 +97,10 @@
               <core-icon icon="favorite"></core-icon>
               {{favoritesButton}}
             </paper-item>
+            <paper-item on-tap="{{openPlaylists}}">
+              <core-icon icon="sort"></core-icon>
+              {{playlistsButton}}
+            </paper-item>
             <!--<paper-item on-tap="{{openSearch}}">
               <core-icon icon="search"></core-icon>
               {{searchButton}}
@@ -213,6 +217,9 @@
       <!-- playlist -->
       <paper-dialog id="playlistDialog" style="min-height:695px; min-width:471px;" transition="core-transition-top">
         <div horizontal layout>
+          <div>
+            <paper-icon-button icon="create" on-tap="{{savePlayQueue}}" style="color:#57BA67;"></paper-icon-button>
+          </div>
           <div flex></div>
           <div>
             <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closePlaylist}}"></paper-icon-button>
@@ -377,6 +384,40 @@
               </div>
             </template>
           </paper-button>
+        </div>
+      </paper-dialog>
+      
+      <!-- playlists dialog -->
+      <paper-dialog id="playlistsDialog" style="min-height:500px; min-width:471px;" transition="core-transition-center">
+        <div horizontal layout>
+          <div flex></div>
+          <div>
+            <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closePlaylists}}"></paper-icon-button>
+          </div>
+        </div>
+        <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
+          <template if="{{playlistsLoading}}">
+            <paper-spinner active></paper-spinner>
+          </template>
+          <template repeat="{{playlists}}">
+            <div horizontal layout>
+              <div flex>
+                <paper-item on-tap="{{playPlaylist}}" ident="{{id}}">{{name}}</paper-item>
+              </div>
+              <div>
+                <paper-icon-button icon="remove-circle" on-tap="{{deletePlaylist}}" ident="{{id}}" style="margin-right:8px; color:#db4437;"></paper-icon-button>
+              </div>
+            </div>
+          </template>
+        </div>
+      </paper-dialog>
+      
+      <paper-dialog id="createPlaylist"  transition="core-transition-center">
+        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePlaylistSaver}}"></paper-icon-button>
+        <div style="text-align:center; margin:auto;">
+          <paper-input floatingLabel value="{{defaultName}}"></paper-input>
+          <br>
+          <paper-button>{{submitButton}}</paper-button>
         </div>
       </paper-dialog>
 
