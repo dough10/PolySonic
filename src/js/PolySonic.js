@@ -184,8 +184,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.xhrProgress = function (e) {
     if (e.lengthComputable) {
-      /*var precent = Math.round(e.loaded / e.total) * 100;
-      console.log(precent);*/
+      console.log(e);
+      var precent = Math.round(e.loaded / e.total) * 100;
+      console.log(precent);
     }
   };
 
