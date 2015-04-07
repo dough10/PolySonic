@@ -73,6 +73,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.playlistsButton = chrome.i18n.getMessage("playlistsButton");
   
   this.createPlaylistLabel = chrome.i18n.getMessage("createPlaylistLabel");
+  
+  this.playlistLabel = chrome.i18n.getMessage("playlistLabel");
 
   
   /* begin analistics */

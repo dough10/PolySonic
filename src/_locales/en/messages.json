@@ -221,5 +221,8 @@
   },
   "createPlaylistLabel": {
     "message": "Create Playlist"
+  },
+  "playlistLabel": {
+    "message": "Name of the playlist"
   }
 }
