@@ -69,6 +69,12 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.diskUsed = chrome.i18n.getMessage("diskused");
 
   this.diskRemaining = chrome.i18n.getMessage("diskRemaining");
+  
+  this.playlistsButton = chrome.i18n.getMessage("playlistsButton");
+  
+  this.createPlaylistLabel = chrome.i18n.getMessage("createPlaylistLabel");
+  
+  this.playlistLabel = chrome.i18n.getMessage("playlistLabel");
 
   
   /* begin analistics */
@@ -178,8 +184,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.xhrProgress = function (e) {
     if (e.lengthComputable) {
-      /*var precent = Math.round(e.loaded / e.total) * 100;
-      console.log(precent);*/
+      console.log(e);
+      var precent = Math.round(e.loaded / e.total) * 100;
+      console.log(precent);
     }
   };
 
@@ -319,8 +326,101 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     50,
     75,
     100,
-    200,
+    200
   ];
+  
+  this.openPlaylists = function () {
+    this.closeDrawer();
+    this.playlistsLoading = true;
+    var url = this.url + '/rest/getPlaylists.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
+    this.doXhr(url, 'json', function (e) {
+      this.playlistsLoading = false;
+      this.playlists = e.target.response['subsonic-response'].playlists.playlist;
+      this.$.playlistsDialog.open();
+    }.bind(this));
+  };
+  
+  this.savePlayQueue = function () {
+    this.$.playlistDialog.close();
+    this.$.createPlaylist.open();
+    this.defaultName = new Date();
+  };
+  
+  this.savePlayQueue2Playlist = function () {
+    var url = this.url + '/rest/createPlaylist.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&name=' + encodeURIComponent(this.defaultName),
+        hasRun = false;
+    this.savingPlaylist = true;
+    Array.prototype.forEach.call(this.playlist, function (item) {
+      url = url + '&songId=' + item.id;
+      this.async(function () {
+        if (!hasRun) {
+          this.doXhr(url, 'json', function (e) {
+            if (e.target.response['subsonic-response'].status === 'ok') {
+              this.doToast(chrome.i18n.getMessage('playlistCreated'));
+              this.$.createPlaylist.close();
+              this.savingPlaylist = false;
+            } else {
+              this.doToast(chrome.i18n.getMessage('playlistError'));
+              this.savingPlaylist = false;
+            }
+          }.bind(this));
+        }
+        hasRun = true;
+      }, null, 200);
+    }.bind(this));
+  };
+  
+  this.closePlaylistSaver = function () {
+    this.$.createPlaylist.close();
+  };
+  
+  this.playPlaylist = function (event, detail, sender) {
+    var url = this.url + '/rest/getPlaylist.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + sender.attributes.ident.value,
+        tracks,
+        mins,
+        seconds,
+        artId,
+        obj,
+        timeString;
+    this.dataLoading = true;
+    this.playlist = null;
+    this.playlist = [];
+    this.$.audio.pause();
+    this.doXhr(url, 'json', function (e) {
+      tracks = e.target.response['subsonic-response'].playlist.entry;
+      Array.prototype.forEach.call(tracks, function (item) {
+        mins = Math.floor(item.duration / 60);
+        seconds = Math.floor(item.duration - (mins * 60));
+        timeString = mins + ':' + ('0' + seconds).slice(-2);
+        artId = "al-" + item.albumId;
+        obj = {id: item.id, artist: item.artist, title: item.title, duration: timeString, cover: artId};
+        this.fixCoverArtForShuffle(obj);
+        this.async(function () {
+          this.closePlaylists();
+        });
+      }.bind(this));
+    }.bind(this));
+  };
+  
+  this.deletePlaylist = function (event, detail, sender) {
+    var url = this.url + '/rest/deletePlaylist.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + sender.attributes.ident.value,
+        url2 = this.url + '/rest/getPlaylists.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
+    this.doXhr(url, 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        this.playlistsLoading = true;
+        this.doXhr(url2, 'json', function (e) {
+          this.playlistsLoading = false;
+          this.playlists = e.target.response['subsonic-response'].playlists.playlist;
+        }.bind(this));
+      } else {
+        this.doToast(chrome.i18n.getMessage('deleteError'));
+      }
+    }.bind(this));
+  };
+  
+  this.closePlaylists = function () {
+    this.$.playlistsDialog.close();
+  };
 
   this.shuffleSize = this.shuffleSize || '50';
 
@@ -338,6 +438,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.shufflePlay = function () {
+    this.dataLoading = true;
     this.shuffleLoading = true;
     this.playlist = null;
     this.playlist = [];
@@ -417,6 +518,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         this.putInDb(array, artId + '-palette', function () {
           console.log('Color palette saved ' + artId );
           this.doShufflePlayback();
+          this.dataLoading = false;
         }.bind(this));
       }.bind(this);
     }
@@ -447,6 +549,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
             this.playlist.push(obj);
             this.async(function () {
               this.doShufflePlayback();
+              this.dataLoading = false;
             }, null,  100);
           }.bind(this));
         }.bind(this));
@@ -771,7 +874,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.back2List = function () {
     this.page = 0;
-    //this.$.wall.listModeChanged(); //shrug
   };
 
   this.nowPlaying = function () {
