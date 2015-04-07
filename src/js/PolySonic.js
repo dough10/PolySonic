@@ -71,6 +71,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.diskRemaining = chrome.i18n.getMessage("diskRemaining");
   
   this.playlistsButton = chrome.i18n.getMessage("playlistsButton");
+  
+  this.createPlaylistLabel = chrome.i18n.getMessage("createPlaylistLabel");
 
   
   /* begin analistics */
@@ -341,7 +343,29 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     this.defaultName = new Date();
   };
   
-  this.savePlayQueue2Playlist = function () {};
+  this.savePlayQueue2Playlist = function () {
+    var url = this.url + '/rest/createPlaylist.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&name=' + encodeURIComponent(this.defaultName),
+        hasRun = false;
+    this.savingPlaylist = true;
+    Array.prototype.forEach.call(this.playlist, function (item) {
+      url = url + '&songId=' + item.id;
+      this.async(function () {
+        if (!hasRun) {
+          this.doXhr(url, 'json', function (e) {
+            if (e.target.response['subsonic-response'].status === 'ok') {
+              this.doToast(chrome.i18n.getMessage('playlistCreated'));
+              this.$.createPlaylist.close();
+              this.savingPlaylist = false;
+            } else {
+              this.doToast(chrome.i18n.getMessage('playlistError'));
+              this.savingPlaylist = false;
+            }
+          }.bind(this));
+        }
+        hasRun = true;
+      }, null, 200);
+    }.bind(this));
+  };
   
   this.closePlaylistSaver = function () {
     this.$.createPlaylist.close();
@@ -370,7 +394,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         this.fixCoverArtForShuffle(obj);
         this.async(function () {
           this.closePlaylists();
-          this.dataLoading = false;
         });
       }.bind(this));
     }.bind(this));
@@ -412,6 +435,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.shufflePlay = function () {
+    this.dataLoading = true;
     this.shuffleLoading = true;
     this.playlist = null;
     this.playlist = [];
@@ -491,6 +515,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         this.putInDb(array, artId + '-palette', function () {
           console.log('Color palette saved ' + artId );
           this.doShufflePlayback();
+          this.dataLoading = false;
         }.bind(this));
       }.bind(this);
     }
@@ -521,6 +546,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
             this.playlist.push(obj);
             this.async(function () {
               this.doShufflePlayback();
+              this.dataLoading = false;
             }, null,  100);
           }.bind(this));
         }.bind(this));

@@ -93,25 +93,20 @@
               <core-icon icon="sort"></core-icon>
               {{podcastButton}}
             </paper-item>
-            <paper-item on-tap="{{getStarred}}">
-              <core-icon icon="favorite"></core-icon>
-              {{favoritesButton}}
-            </paper-item>
             <paper-item on-tap="{{openPlaylists}}">
               <core-icon icon="sort"></core-icon>
               {{playlistsButton}}
             </paper-item>
-            <!--<paper-item on-tap="{{openSearch}}">
-              <core-icon icon="search"></core-icon>
-              {{searchButton}}
-            </paper-item>-->
+            <paper-item on-tap="{{getStarred}}">
+              <core-icon icon="favorite"></core-icon>
+              {{favoritesButton}}
+            </paper-item>
             <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
               {{settingsButton}}
             </paper-item>
           </core-menu>
         </core-scroll-header-panel>
-
 
         <!-- body -->
         <core-header-panel id="headerPanel" main flex mode="seamed">
@@ -153,6 +148,9 @@
            <template if="{{page === 4}}">
               <div flex class="bottom"></div>
             </template>
+            <!--<template if="{{page === 0}}">
+              <paper-icon-button class="bottom" icon="search" on-tap="{{openSearch}}" title="{{searchButton}}"></paper-icon-button>
+            </template>-->
             <template if="{{page !== 1}}">
               <template if="{{isNowPlaying}}">
                 <paper-icon-button title="{{nowPlayingLabel}}" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
@@ -397,27 +395,42 @@
         </div>
         <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
           <template if="{{playlistsLoading}}">
-            <paper-spinner active></paper-spinner>
-          </template>
-          <template repeat="{{playlists}}">
-            <div horizontal layout>
-              <div flex>
-                <paper-item on-tap="{{playPlaylist}}" ident="{{id}}">{{name}}</paper-item>
-              </div>
-              <div>
-                <paper-icon-button icon="remove-circle" on-tap="{{deletePlaylist}}" ident="{{id}}" style="margin-right:8px; color:#db4437;"></paper-icon-button>
-              </div>
+            <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
+              <paper-spinner active=""></paper-spinner>
             </div>
+          </template>
+          <template if="{{!playlistsLoading}}">
+            <template repeat="{{playlists}}">
+              <div horizontal layout>
+                <div flex>
+                  <paper-item on-tap="{{playPlaylist}}" ident="{{id}}">{{name}}</paper-item>
+                </div>
+                <div>
+                  <paper-icon-button icon="remove-circle" on-tap="{{deletePlaylist}}" ident="{{id}}" style="margin-right:8px; color:#db4437;"></paper-icon-button>
+                </div>
+              </div>
+            </template>
           </template>
         </div>
       </paper-dialog>
       
-      <paper-dialog id="createPlaylist"  transition="core-transition-center">
+      <!-- create playlist dialog -->
+      <paper-dialog id="createPlaylist" style="min-width:300px;" transition="core-transition-center">
         <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePlaylistSaver}}"></paper-icon-button>
         <div style="text-align:center; margin:auto;">
-          <paper-input floatingLabel value="{{defaultName}}"></paper-input>
-          <br>
-          <paper-button>{{submitButton}}</paper-button>
+          <core-label>
+            <h4>{{createPlaylistLabel}}</h4>
+            <paper-input style="min-width:280px;" floatingLabel value="{{defaultName}}"></paper-input>
+            <br>
+            <paper-button on-tap="{{savePlayQueue2Playlist}}">
+              {{submitButton}}
+              <template if="{{savingPlaylist}}">
+                <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
+                  <paper-spinner active=""></paper-spinner>
+                </div>
+              </template>
+            </paper-button>
+          </core-label>
         </div>
       </paper-dialog>
 

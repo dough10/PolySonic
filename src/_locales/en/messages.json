@@ -212,5 +212,14 @@
   },
   "diskRemaining": {
     "message": "Disk Remaining"
+  },
+  "playlistCreated": {
+    "message": "Playlist Created"
+  },
+  "playlistError": {
+    "message": "Error Creating Playlist"
+  },
+  "createPlaylistLabel": {
+    "message": "Create Playlist"
   }
 }
