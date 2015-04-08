@@ -81,9 +81,6 @@
               </div>
             </template>
           </core-list>
-          <template if="{{isLoading}}">
-            <paper-spinner id="spinner" active=""></paper-spinner>
-          </template>
           <div class="foot"></div>
         </div>
         <div view="podcast">
@@ -156,9 +153,6 @@
               </div>
             </template>
           </core-list>
-          <template if="{{isLoading}}">
-            <paper-spinner id="spinner" active=""></paper-spinner>
-          </template>
           <template if="{{!isLoading}}">
             <paper-button on-tap="{{topOfPage}}">Back to Top</paper-button>
           </template>
@@ -188,9 +182,6 @@
               </div>
             </template>
           </core-list>
-          <template if="{{isLoading}}">
-            <paper-spinner id="spinner" active=""></paper-spinner>
-          </template>
           <div class="foot"></div>
         </div>
       </core-animated-pages>

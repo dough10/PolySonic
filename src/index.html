@@ -79,6 +79,10 @@
               <core-icon icon="av:shuffle"></core-icon>
               {{shuffleButton}}
             </paper-item>
+            <paper-item on-tap="{{getStarred}}">
+              <core-icon icon="favorite"></core-icon>
+              {{favoritesButton}}
+            </paper-item>
             <paper-item on-tap="{{getArtist}}">
               <core-icon icon="perm-identity"></core-icon>
               {{artistButton}}
@@ -90,16 +94,12 @@
               </paper-item>
             </template>
             <paper-item on-tap="{{getPodcast}}">
-              <core-icon icon="sort"></core-icon>
+              <core-icon icon="av:radio"></core-icon>
               {{podcastButton}}
             </paper-item>
             <paper-item on-tap="{{openPlaylists}}">
-              <core-icon icon="sort"></core-icon>
+              <core-icon icon="av:queue-music"></core-icon>
               {{playlistsButton}}
-            </paper-item>
-            <paper-item on-tap="{{getStarred}}">
-              <core-icon icon="favorite"></core-icon>
-              {{favoritesButton}}
             </paper-item>
             <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
@@ -215,18 +215,27 @@
       <!-- playlist -->
       <paper-dialog id="playlistDialog" style="min-height:695px; min-width:471px;" transition="core-transition-top">
         <div horizontal layout>
-          <div>
-            <paper-icon-button icon="create" on-tap="{{savePlayQueue}}" style="color:#57BA67;"></paper-icon-button>
-          </div>
           <div flex></div>
           <div>
+            <paper-menu-button>
+              <paper-icon-button icon="more-vert"></paper-icon-button>
+              <paper-dropdown class="dropdown" halign="right">
+                <core-menu class="menu">
+                  <paper-item on-tap="{{savePlayQueue}}">
+                    <core-icon icon="create" style="margin-right:24px; color:#57BA67;"></core-icon>
+                    {{createPlaylistLabel}}
+                  </paper-item>
+                  <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
+                    <core-icon icon="av:not-interested" style="margin-right:24px; color:#db4437;"></core-icon>
+                    {{clearQueue}}
+                  </paper-item>
+                </core-menu>
+              </paper-dropdown>
+            </paper-menu-button>
             <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closePlaylist}}"></paper-icon-button>
           </div>
         </div>
         <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
-          <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
-            {{clearQueue}}
-          </paper-item>
           <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
             <template repeat="{{playlist}}">
               <paper-item on-tap="{{playThis}}" ident="{{id}}" cover="{{cover}}" artist="{{artist}}" title="{{title}}" fab='{{palette[0]}}' offColor="{{palette[1]}}" buffer="{{palette[2]}}" progBg="{{palette[3]}}" style="color:#000000" ident="{{id}}">
@@ -386,7 +395,7 @@
       </paper-dialog>
       
       <!-- playlists dialog -->
-      <paper-dialog id="playlistsDialog" style="min-height:500px; min-width:471px;" transition="core-transition-center">
+      <paper-dialog id="playlistsDialog" style="min-height:280px; min-width:471px;" transition="core-transition-center">
         <div horizontal layout>
           <div flex></div>
           <div>
@@ -401,14 +410,15 @@
           </template>
           <template if="{{!playlistsLoading}}">
             <template repeat="{{playlists}}">
-              <div horizontal layout>
-                <div flex>
-                  <paper-item on-tap="{{playPlaylist}}" ident="{{id}}">{{name}}</paper-item>
+              <core-item>
+                <div flex style="font-size: 16px; margin-left: 16px;">
+                  {{name}}
                 </div>
                 <div>
-                  <paper-icon-button icon="remove-circle" on-tap="{{deletePlaylist}}" ident="{{id}}" style="margin-right:8px; color:#db4437;"></paper-icon-button>
+                  <paper-icon-button icon="av:play-arrow" on-tap="{{playPlaylist}}" ident="{{id}}"></paper-icon-button>
+                  <paper-icon-button icon="remove-circle" on-tap="{{reallyDelete}}" ident="{{id}}" style="margin-right:8px; color:#db4437;"></paper-icon-button>
                 </div>
-              </div>
+              </core-item>
             </template>
           </template>
         </div>
@@ -448,6 +458,14 @@
         <h4>{{deleteConfirm}}</h4>
         <paper-button affirmative>{{decline}}</paper-button>
         <paper-button affirmative ident="{{delID}}" on-tap="{{deleteEpisode}}">{{accept}}</paper-button>
+      </paper-action-dialog>
+
+      <!-- delete confirmation podcast episodes  -->
+      <paper-action-dialog id='playlistConfirm' autoclosedisabled transition="core-transition-center" layered>
+        <div style="min-width:280px"></div>
+        <h4>{{deleteConfirm}}</h4>
+        <paper-button affirmative>{{decline}}</paper-button>
+        <paper-button affirmative ident="{{delID}}" on-tap="{{deletePlaylist}}">{{accept}}</paper-button>
       </paper-action-dialog>
 
       <!--some key bindings ** half ass working** -->

@@ -402,6 +402,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
     }.bind(this));
   };
   
+  this.reallyDelete = function (event, detail, sender) {
+    this.delID =  sender.attributes.ident.value;
+    this.$.playlistConfirm.open();
+  };
+
   this.deletePlaylist = function (event, detail, sender) {
     var url = this.url + '/rest/deletePlaylist.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + sender.attributes.ident.value,
         url2 = this.url + '/rest/getPlaylists.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
