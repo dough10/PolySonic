@@ -395,7 +395,7 @@
       </paper-dialog>
       
       <!-- playlists dialog -->
-      <paper-dialog id="playlistsDialog" style="min-height:280px; min-width:471px;" transition="core-transition-center">
+      <paper-dialog id="playlistsDialog" style="min-height:600px; min-width:471px;" transition="core-transition-center">
         <div horizontal layout>
           <div flex></div>
           <div>
@@ -464,7 +464,7 @@
       <paper-action-dialog id='playlistConfirm' autoclosedisabled transition="core-transition-center" layered>
         <div style="min-width:280px"></div>
         <h4>{{deleteConfirm}}</h4>
-        <paper-button affirmative>{{decline}}</paper-button>
+        <paper-button affirmative on-tap="{{openPlaylists}}">{{decline}}</paper-button>
         <paper-button affirmative ident="{{delID}}" on-tap="{{deletePlaylist}}">{{accept}}</paper-button>
       </paper-action-dialog>
 

@@ -144,9 +144,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.sortTypes = [
     {sort: 'newest', name: chrome.i18n.getMessage("newButton")},
-    {sort: 'frequent', name: chrome.i18n.getMessage("frequentButton")},
-    {sort: 'alphabeticalByName', name: chrome.i18n.getMessage("titleButton")},
     {sort: 'alphabeticalByArtist', name: chrome.i18n.getMessage("byArtistButton")},
+    {sort: 'alphabeticalByName', name: chrome.i18n.getMessage("titleButton")},
+    {sort: 'frequent', name: chrome.i18n.getMessage("frequentButton")},
     {sort: 'recent', name: chrome.i18n.getMessage("recentButton")}
   ];
 
@@ -404,6 +404,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   
   this.reallyDelete = function (event, detail, sender) {
     this.delID =  sender.attributes.ident.value;
+    this.$.playlistsDialog.close();
     this.$.playlistConfirm.open();
   };
 
@@ -416,6 +417,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         this.doXhr(url2, 'json', function (e) {
           this.playlistsLoading = false;
           this.playlists = e.target.response['subsonic-response'].playlists.playlist;
+          this.$.playlistsDialog.open();
         }.bind(this));
       } else {
         this.doToast(chrome.i18n.getMessage('deleteError'));
@@ -693,14 +695,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           this.view = 'view-module';
         }
       }
-      if (result.bitRate === undefined) {
-        chrome.storage.sync.set({
-          'bitRate': '320'
-        });
-        this.bitRate = '320';
-      } else {
-        this.bitRate = result.bitRate;
-      }
+      this.bitRate = result.bitRate || 320;
       if (result.sort === undefined) {
         this.selected = '';
       }

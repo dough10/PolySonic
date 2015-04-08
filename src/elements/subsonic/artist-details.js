@@ -16,6 +16,9 @@ Polymer('artist-details', {
       Array.prototype.forEach.call(response.artist.album, function (e) {
         var obj = {name: e.name, artist: e.artist, coverArt: e.coverArt, id: e.id, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, listMode: this.listMode, bitRate: this.bitRate, colorThiefEnabled: this.colorThiefEnabled};
         this.data.push(obj);
+        this.async(function () {
+          this.tmpl.dataLoading = false;
+        });
       }.bind(this));
     }.bind(this));
   },

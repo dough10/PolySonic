@@ -64,6 +64,10 @@
             this.tmpl.doToast("Version Required");
           }
           if (!invalid1 && !invalid2 && !invalid3 && this.post.version !== undefined && this.post.bitRate !== undefined) {
+            var lastChar = this.post.url.substr(-1); // Selects the last character
+            if (lastChar === '/') {         // If the last character is a slash
+              this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
+            }
             this.$.ajax.go();
             this.wall.clearData(function () {
               this.wall.doAjax();
@@ -216,8 +220,8 @@
         /*
           will display any ajax error in a toast
         */
-        if (this.error) {
-          this.tmpl.doToast(this.error);
+        if (this.error.statusCode === 0) {
+          this.tmpl.doToast(chrome.i18n.getMessage('connectionError'));
         }
       },
 

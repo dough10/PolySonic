@@ -102,7 +102,7 @@
     "message": "Now Playing"
   },
   "connectionError": {
-    "message": "Error Connecting to Subsonic"
+    "message": "Error connecting to Subsonic server"
   },
   "noSearch": {
     "message": "No Query to Search"

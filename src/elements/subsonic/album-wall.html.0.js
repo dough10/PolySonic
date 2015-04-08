@@ -248,6 +248,7 @@ Polymer('album-wall', {
   },
   artistDetails: function (event, detail, sender) {
     var artist = document.getElementById("aDetails");
+    this.tmpl.dataLoading = true;
     artist.artistId = sender.attributes.ident.value;
     artist.queryData();
   },

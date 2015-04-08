@@ -23,7 +23,11 @@
         } else if (this.invalid2) {
           this.tmpl.doToast("Username Required");
         } else if (!this.invalid1 && !this.invalid2 && !this.invalid3) {
-          /* ping server to check user data if valid */
+          /* trim off trailing forward slash */
+          var lastChar = this.post.url.substr(-1); // Selects the last character
+          if (lastChar === '/') {         // If the last character is a slash
+            this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
+          }
           this.$.ajax.go();
         }
       },
@@ -79,6 +83,7 @@
               wall.doAjax();
             }, 100);
           } else {
+            console.log(this.response);
             this.tmpl.doToast(this.response['subsonic-response'].error.message);
           }
         }
@@ -88,8 +93,8 @@
         /*
           will display any ajax error in a toast
         */
-        if (this.error) {
-          this.tmpl.doToast(this.error);
+        if (this.error.statusCode === 0) {
+          this.tmpl.doToast(chrome.i18n.getMessage('connectionError'));
         }
       },
       
