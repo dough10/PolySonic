@@ -17,13 +17,10 @@ Polymer('album-wall', {
       this.queryMethod = this.queryMethod || 'ID3';
       if (res.request === 'getPodcasts') {
         this.showing = 'podcast';
-        this.getPodcast();
       } else if (res.request === 'getStarred2') {
         this.showing = 'cover';
-        this.getStarred();
       } else if (res.request === 'getArtists') {
         this.showing = 'artists';
-        this.getArtist();
       }
     }.bind(this));
   },
@@ -137,75 +134,83 @@ Polymer('album-wall', {
   },
   getPodcast: function () {
     'use strict';
-    this.clearData(function () {
-      this.tmpl.pageLimit = false;
-      this.request = 'getPodcasts';
-      this.post.type = '';
-      this.post.offset = 0;
-      this.showing = 'podcast';
-      chrome.storage.sync.set({
-        'sortType': this.post.type,
-        'request': this.request,
-        'mediaFolder': this.mediaFolder
-      });
-      this.$.ajax.go();
-    }.bind(this));
+    this.async(function () {
+      this.clearData(function () {
+        this.tmpl.pageLimit = false;
+        this.request = 'getPodcasts';
+        this.post.type = '';
+        this.post.offset = 0;
+        this.showing = 'podcast';
+        chrome.storage.sync.set({
+          'sortType': this.post.type,
+          'request': this.request,
+          'mediaFolder': this.mediaFolder
+        });
+        this.$.ajax.go();
+      }.bind(this));
+    });
   },
   getStarred: function () {
     'use strict';
-    this.clearData(function () {
-      this.tmpl.pageLimit = false;
-      if (this.queryMethod === 'ID3') {
-        this.request = 'getStarred2';
-      } else {
-        this.request = 'getStarred';
-      }
-      this.post.type = '';
-      this.post.offset = 0;
-      this.showing = 'cover';
-      chrome.storage.sync.set({
-        'sortType': this.post.type,
-        'request': this.request,
-        'mediaFolder': this.mediaFolder
-      });
-      this.$.ajax.go();
-    }.bind(this));
+    this.async(function () {
+      this.clearData(function () {
+        this.tmpl.pageLimit = false;
+        if (this.queryMethod === 'ID3') {
+          this.request = 'getStarred2';
+        } else {
+          this.request = 'getStarred';
+        }
+        this.post.type = '';
+        this.post.offset = 0;
+        this.showing = 'cover';
+        chrome.storage.sync.set({
+          'sortType': this.post.type,
+          'request': this.request,
+          'mediaFolder': this.mediaFolder
+        });
+        this.$.ajax.go();
+      }.bind(this));
+    });
   },
   getArtist: function () {
     'use strict';
-    this.clearData(function () {
-      this.tmpl.pageLimit = false;
-      this.request = 'getArtists';
-      this.post.type = '';
-      this.post.offset = 0;
-      this.showing = 'artists';
-      chrome.storage.sync.set({
-        'sortType': this.post.type,
-        'request': this.request,
-        'mediaFolder': this.mediaFolder
-      });
-      this.$.ajax.go();
-    }.bind(this));
+    this.async(function () {
+      this.clearData(function () {
+        this.tmpl.pageLimit = false;
+        this.request = 'getArtists';
+        this.post.type = '';
+        this.post.offset = 0;
+        this.showing = 'artists';
+        chrome.storage.sync.set({
+          'sortType': this.post.type,
+          'request': this.request,
+          'mediaFolder': this.mediaFolder
+        });
+        this.$.ajax.go();
+      }.bind(this));
+    });
   },
   sortChanged: function () {
     'use strict';
-    this.clearData(function () {
-      this.tmpl.pageLimit = false;
-      if (this.queryMethod === 'ID3') {
-        this.request = 'getAlbumList2';
-      } else {
-        this.request = 'getAlbumList';
-      }
-      this.post.type = this.sort;
-      this.post.offset = 0;
-      this.showing = 'cover';
-      chrome.storage.sync.set({
-        'sortType': this.post.type,
-        'request': this.request,
-        'mediaFolder': this.mediaFolder
-      });
-      this.$.ajax.go();
-    }.bind(this));
+    this.async(function () {
+      this.clearData(function () {
+        this.tmpl.pageLimit = false;
+        if (this.queryMethod === 'ID3') {
+          this.request = 'getAlbumList2';
+        } else {
+          this.request = 'getAlbumList';
+        }
+        this.post.type = this.sort;
+        this.post.offset = 0;
+        this.showing = 'cover';
+        chrome.storage.sync.set({
+          'sortType': this.post.type,
+          'request': this.request,
+          'mediaFolder': this.mediaFolder
+        });
+        this.$.ajax.go();
+      }.bind(this));
+    });
   },
   resizeLists: function () {
     'use strict';
@@ -217,17 +222,19 @@ Polymer('album-wall', {
     'use strict';
     if (this.error) {
       console.log(this.error);
-      this.tmpl.doToast(this.error);
+      this.tmpl.doToast(chrome.i18n.getMessage("connectionError"));
     }
   },
   loadMore: function () {
     'use strict';
-    this.$.threshold.clearLower();
-    if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.tmpl.pageLimit && this.tmpl.page === 0) {
-      this.isLoading = true;
-      this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
-      this.$.ajax.go();
-    }
+    this.async(function () {
+      this.$.threshold.clearLower();
+      if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.tmpl.pageLimit && this.tmpl.page === 0) {
+        this.isLoading = true;
+        this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
+        this.$.ajax.go();
+      }
+    });
   },
   querySizeChanged: function () {
     'use strict';
@@ -255,49 +262,55 @@ Polymer('album-wall', {
   doPlay: function (obj, url) {
     this.tmpl.playlist = [obj];
     this.tmpl.playing = 0;
-    this.tmpl.playAudio('', obj.title, url, obj.cover);
+    this.tmpl.playAudio('', obj.title, url, obj.cover, obj.id);
   },
   playPodcast: function (event, detial, sender) {
     'use strict';
-    var artURL = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.cover.value,
-        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value,
-        imgURL,
-        obj;
+    this.async(function () {
+      var artURL = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.cover.value,
+          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value,
+          imgURL,
+          obj;
 
-    /*removes color settings from fab */
-    this.tmpl.colorThiefFab = undefined;
-    this.tmpl.colorThiefFabOff = undefined;
-    this.tmpl.colorThiefAlbum = undefined;
-    this.tmpl.colorThiefAlbumOff = undefined;
-    this.tmpl.colorThiefBuffered = undefined;
-    this.tmpl.colorThiefProgBg = undefined;
-    
-    if (sender.attributes.cover.value) {
-      this.tmpl.checkForImage(sender.attributes.cover.value, function (e) {
-        if (e.target.result === 0) {
-          this.tmpl.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
-            var imgFile = ev.target.result;
-            imgURL = window.URL.createObjectURL(imgFile);
-            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-            this.tmpl.getImageForPlayer(imgURL);
-            this.doPlay(obj, url);
-          }.bind(this));
-        } else {
-          this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {
-            var imgFile = ev.target.result;
-            imgURL = window.URL.createObjectURL(imgFile);
-            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-            this.tmpl.getImageForPlayer(imgURL);
-            this.doPlay(obj, url);
-          }.bind(this));
-        }
-      }.bind(this));
-    } else {
-      obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-      this.tmpl.defaultPlayImage();
-      this.doPlay(obj, url);
-    }
-    this.tmpl.page = 1;
+      /*removes color settings from fab */
+      this.tmpl.colorThiefFab = undefined;
+      this.tmpl.colorThiefFabOff = undefined;
+      this.tmpl.colorThiefAlbum = undefined;
+      this.tmpl.colorThiefAlbumOff = undefined;
+      this.tmpl.colorThiefBuffered = undefined;
+      this.tmpl.colorThiefProgBg = undefined;
+
+      if (sender.attributes.cover.value) {
+        /* look for image in indexeddb */
+        this.tmpl.checkForImage(sender.attributes.cover.value, function (e) {
+          if (e.target.result === 0) {
+            /* get image from subsonic */
+            this.tmpl.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
+              var imgFile = ev.target.result;
+              imgURL = window.URL.createObjectURL(imgFile);
+              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+              this.tmpl.getImageForPlayer(imgURL);
+              this.doPlay(obj, url);
+            }.bind(this));
+          } else {
+            /* get image from indexeddb */
+            this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {
+              var imgFile = ev.target.result;
+              imgURL = window.URL.createObjectURL(imgFile);
+              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+              this.tmpl.getImageForPlayer(imgURL);
+              this.doPlay(obj, url);
+            }.bind(this));
+          }
+        }.bind(this));
+      } else {
+        imgURL = '../../../images/default-cover-art.png';
+        obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+        this.tmpl.getImageForPlayer(imgURL);
+        this.doPlay(obj, url);
+      }
+      this.tmpl.page = 1;
+    });
   },
   add2Playlist: function (event, detial, sender) {
     'use strict';
@@ -406,14 +419,16 @@ Polymer('album-wall', {
   },
   deleteEpisode: function (id) {
     'use strict';
-    var url = this.url + "/rest/deletePodcastEpisode.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + id;
-    this.tmpl.doXhr(url, 'json', function (e) {
-      if (e.target.response['subsonic-response'].status === 'ok') {
-        this.clearData(function () {
-          this.$.ajax.go();
-        }.bind(this));
-      }
-    }.bind(this));
+    this.async(function () {
+      var url = this.url + "/rest/deletePodcastEpisode.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + id;
+      this.tmpl.doXhr(url, 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 'ok') {
+          this.clearData(function () {
+            this.$.ajax.go();
+          }.bind(this));
+        }
+      }.bind(this));
+    });
   },
   toggleCollapse: function (event, detail, sender) {
     var id = '#' + sender.attributes.ident.value;
@@ -424,6 +439,18 @@ Polymer('album-wall', {
     album.playAlbum();
     album.closeDialog();
     callback();
+  },
+  jumpToLetter: function (letter) {
+    function functiontofindIndexByKeyValue(arraytosearch, key, valuetosearch) {
+      for (var i = 0; i < arraytosearch.length; i++) {
+        if (arraytosearch[i][key] == valuetosearch) {
+          return i;
+        }
+      }
+      return null;
+    }
+    var item = functiontofindIndexByKeyValue(this.artists, 'name', letter);
+    this.$.artists.scrollToItem(item);
   }
 });
 

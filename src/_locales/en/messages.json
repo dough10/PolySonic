@@ -3,7 +3,7 @@
     "message": "PolySonic"
   },
   "appDesc": {
-    "message": "A HTML5 Subsonic Streaming App"
+    "message": "HTML5 Subsonic client"
   },
   "folderSelector": {
     "message": "Folder"
@@ -70,9 +70,6 @@
   },
   "submitButton": {
     "message": "Submit"
-  },
-  "serverSettingsLabel": {
-    "message": "Server Settings"
   },
   "bitrateLabel": {
     "message": "Bitrate"

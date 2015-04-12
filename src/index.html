@@ -59,7 +59,9 @@
         <!-- menu -->
         <core-scroll-header-panel drawer flex mode="seamed">
           <core-menu id="menu" selected="{{selected}}" valueattr="i">
-            <core-toolbar class="medium-tall"></core-toolbar>
+            <core-toolbar class="medium-tall">
+              <div class="sysbar" horizontal layout></div>
+            </core-toolbar>
             <div id="sortBox">
               <core-label>
                 {{folderSelector}}:
@@ -114,13 +116,15 @@
           <!--app toolbar-->
           <core-toolbar id="toolbar" class="medium-tall">
 
-            <!-- click area to move app -->
-            <div flex id='drag'></div>
+            <div class="sysbar" horizontal layout>
+              <!-- click area to move app -->
+              <div flex id='drag'></div>
 
-            <!-- app minimize / close buttons -->
-            <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-            <paper-icon-button id="max" on-tap="{{maximize}}"></paper-icon-button>
-            <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
+              <!-- app minimize / close buttons -->
+              <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
+              <paper-icon-button id="max" on-tap="{{maximize}}"></paper-icon-button>
+              <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
+            </div>
 
             <!-- logic for toolbar -->
             <template if="{{page === 0}}">
@@ -151,6 +155,20 @@
             <!--<template if="{{page === 0}}">
               <paper-icon-button class="bottom" icon="search" on-tap="{{openSearch}}" title="{{searchButton}}"></paper-icon-button>
             </template>-->
+            <template if="{{page === 0 && showing === 'artists'}}">
+              <paper-menu-button class="bottom">
+                <paper-icon-button icon="arrow-drop-down"></paper-icon-button>
+                <paper-dropdown class="dropdown" halign="right">
+                  <core-menu class="menu">
+                    <template repeat="{{artists}}">
+                      <paper-item on-tap="{{jumpTo}}" it="{{name}}" style="color:#000">
+                        {{name}}
+                      </paper-item>
+                    </template>
+                  </core-menu>
+                </paper-dropdown>
+              </paper-menu-button>
+            </template>
             <template if="{{page !== 1}}">
               <template if="{{isNowPlaying}}">
                 <paper-icon-button title="{{nowPlayingLabel}}" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
@@ -163,7 +181,7 @@
 
             <!-- main content album wall, podcast, artist -->
             <section>
-              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}" queryMethod="{{queryMethod}}" mediaFolder="{{folder}}" colorThiefEnabled="{{colorThiefEnabled}}"></album-wall>
+              <album-wall id="wall" listMode="{{listMode}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}" queryMethod="{{queryMethod}}" mediaFolder="{{folder}}" colorThiefEnabled="{{colorThiefEnabled}}" artists="{{artists}}"></album-wall>
             </section>
 
             <!-- player -->

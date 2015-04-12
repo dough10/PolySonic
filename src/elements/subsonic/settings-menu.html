@@ -12,7 +12,7 @@
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/paper-toggle-button/paper-toggle-button.html" rel="import">
 <link href="../../bower_components/core-icon/core-icon.html" rel="import">
-</head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate querySize storageQuota queryMethod colorThiefEnabled">
+</head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate querySize storageQuota queryMethod colorThiefEnabled polysonicVersion">
   <template>
     <style>
       :host {
@@ -82,7 +82,7 @@
     </core-ajax>
     <div id="validate">
       <core-label>
-        <h4>{{serverSettingsLabel}}</h4>
+        <h4>{{appName}} {{polysonicVersion}}</h4>
         <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
           <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
         </paper-input-decorator>

@@ -27,11 +27,15 @@
         this.cacheDetails = chrome.i18n.getMessage("cacheDetails");
         this.clearCacheLabel = chrome.i18n.getMessage("clearCacheLabel");
         this.clearSettingsLabel = chrome.i18n.getMessage("clearSettingsLabel");
-        this.serverSettingsLabel = chrome.i18n.getMessage("serverSettingsLabel");
+        this.appName = chrome.i18n.getMessage("appName");
       },
       domReady: function () {
         this.tmpl = document.getElementById("tmpl");
         this.wall = document.getElementById("wall");
+        this.tmpl.doXhr('manifest.json', 'json', function (e) {
+          this.polysonicVersion = e.target.response.version;
+          console.log('App version: ' + this.polysonicVersion);
+        }.bind(this));
       },
       validate: function (callback) {
         'use strict';

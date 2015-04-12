@@ -58,7 +58,7 @@ paper-icon-button {
   font-size: 14pt;
 }
 #coverArt {
-  background-image:url("images/default-cover-art.png");
+  background-image:url("../images/default-cover-art.png");
   background-repeat: no-repeat;
   background-position: center;
   background-origin: content-box;
@@ -115,7 +115,7 @@ paper-progress::shadow #secondaryProgress {
   position: absolute;
   bottom:0;
   right:0;
-  top: 128px;
+  top: 78px;
   left: 0;
   height:100%;
   background: #e5e5e5;
@@ -222,4 +222,18 @@ core-menu core-icon {
 }
 #max {
   display:none;
+}
+.sysbar {
+  position: absolute;
+  top: 0;
+  left: -8px;
+  right: -8px;;
+  margin-top:8px;
+  background:rgba(0,0,0,0.2);
+  min-height:40px;
+}
+.jumpList {
+  position:fixed;
+  right:8px;
+  z-index:2;
 }
