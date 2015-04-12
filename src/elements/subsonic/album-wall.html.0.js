@@ -437,7 +437,6 @@ Polymer('album-wall', {
   playSomething: function (id, callback) {
     var album = this.$.all.querySelector('#' + id);
     album.playAlbum();
-    album.closeDialog();
     callback();
   },
   jumpToLetter: function (letter) {

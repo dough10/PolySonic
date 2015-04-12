@@ -240,11 +240,11 @@ Polymer('album-art', {
         this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
       }
       var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
+      this.tmpl.page = 1;
       this.tmpl.getImageForPlayer(this.imgURL);
       this.tmpl.playlist = this.playlist;
       this.tmpl.playing = 0;
       this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL, this.playlist[0].id);
-      this.tmpl.page = 1;
     });
   },
 

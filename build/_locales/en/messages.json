@@ -71,9 +71,6 @@
   "submitButton": {
     "message": "Submit"
   },
-  "serverSettingsLabel": {
-    "message": "Server Settings"
-  },
   "bitrateLabel": {
     "message": "Bitrate"
   },
