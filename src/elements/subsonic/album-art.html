@@ -24,7 +24,6 @@
         background-position: center;
         background-origin: content-box;
         background-size:{{width}};
-        font-family: 'Helvetica Neue', Helvetica, Arial;
       }
       core-animated-pages {
         height:100%;
@@ -59,10 +58,9 @@
       }
       #overlay-high-small {
         position:absolute;
-        top:10%;
+        top:0%;
         height:{{height}};
         width:{{width}};
-        padding:0.5em;
         background:rgba(255,255,255, 1);
         border:1px solid #d8d8d8;
         text-align:left;
@@ -203,10 +201,27 @@
       .spinner::shadow .circle {
         border-color: #000;
       }
+      #smallCover {
+        margin-left:16px;
+        margin-right:8px;
+        height:40px;
+        width:40px;
+        border-radius:50%;
+        background-image:url("../../../images/default-cover-art.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:50px;
+      }
     </style>
     <div id="card">
       <core-animated-pages selected="{{page}}" valueattr="page" transitions="cross-fade hero-transition">
         <paper-shadow page="cover">
+          <style>
+            :host {
+              margin:4px;
+            }
+          </style>
           <div class="wrapper">
             <template if="{{isLoading}}">
               <div class="spinWrapper">
@@ -253,27 +268,52 @@
             </div>
           </div>
         </paper-shadow>
-        <paper-shadow page="small">
+        <div page="small">
+          <style>
+            :host {
+              margin:0px;
+            }
+          </style>
           <div class="wrapper">
             <div id="overlay-high-small" hero-id="hero" hero="">
-              <core-item>
+              <core-item style="margin-top:0.5em;">
+                <div id="smallCover"></div>
                 <div flex style="overflow:hidden">
                   {{artist}} - {{album}}
                 </div>
                 <paper-icon-button on-tap="{{doPlayback}}" icon="av:play-arrow"></paper-icon-button>
-                <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add" title="{{add2PlayQueue}}"></paper-icon-button>
-                <template if="{{!isFavorite}}">
-                  <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline" title="{{favoriteAlbum}}"></paper-icon-button>
-                </template>
-                <template if="{{isFavorite}}">
-                  <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
-                </template>
-                <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"  title="{{downloadButton}}" ></paper-icon-button>
-                <paper-icon-button class="bumpMargin" on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
+                <paper-menu-button>
+                  <paper-icon-button icon="more-vert"  class="bumpMargin"></paper-icon-button>
+                  <paper-dropdown class="dropdown" halign="right" layered>
+                    <core-menu class="menu">
+                      <core-item>
+                        <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add" title="{{add2PlayQueue}}"></paper-icon-button>
+                        {{add2PlayQueue}}
+                      </core-item>
+                      <core-item>
+                        <template if="{{!isFavorite}}">
+                          <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline" title="{{favoriteAlbum}}"></paper-icon-button>
+                        </template>
+                        <template if="{{isFavorite}}">
+                          <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
+                        </template>
+                        {{favoriteAlbum}}
+                      </core-item>
+                      <core-item>
+                        <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download" title="{{downloadButton}}"></paper-icon-button>
+                        {{downloadButton}}
+                      </core-item>
+                      <core-item>
+                        <paper-icon-button on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
+                        {{albumTracklist}}
+                      </core-item>
+                    </core-menu>
+                  </paper-dropdown>
+                </paper-menu-button>
               </core-item>
             </div>
           </div>
-        </paper-shadow>
+        </div>
         <div page="search">
           <div class="wrapper search">
             <div id="overlay-full" hero-id="hero" hero="">

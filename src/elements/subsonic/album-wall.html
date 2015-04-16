@@ -81,7 +81,9 @@
               </div>
             </template>
           </core-list>
-          <div class="foot"></div>
+          <template if="{{isLoading}}">
+            <paper-spinner active></paper-spinner>
+          </template>
         </div>
         <div view="podcast">
           <template if="{{!isLoading && !podcast[0]}}">

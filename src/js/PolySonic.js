@@ -709,7 +709,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       if (result.sort === undefined) {
         this.selected = '';
       }
-      this.querySize = 30;
+      this.querySize = 60;
       /* leaving here for performance tuning later */
       /*if (result.querySize === undefined) {
         chrome.storage.sync.set({

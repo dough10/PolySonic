@@ -242,16 +242,20 @@ Polymer('album-wall', {
   },
   listModeChanged: function () {
     'use strict';
-    this.resizeLists();
-    if (this.listMode === 'cover') {
-      this.$.list.grid = true;
-      this.$.list.width = '260';
-      this.$.list.height = '260';
-    } else {
-      this.$.list.grid = false;
-      this.$.list.width = '605';
-      this.$.list.heioght = '65';
-    }
+    this.clearData(function () {
+      if (this.listMode === 'cover') {
+        this.$.list.grid = true;
+        this.$.list.width = '260';
+        this.$.list.height = '260';
+      } else {
+        this.$.list.grid = false;
+        this.$.list.width = '605';
+        this.$.list.heioght = '65';
+      }
+      this.async(function () {
+        this.$.ajax.go();
+      });
+    }.bind(this));
   },
   artistDetails: function (event, detail, sender) {
     var artist = document.getElementById("aDetails");

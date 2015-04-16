@@ -86,6 +86,7 @@ Polymer('album-art', {
         imgElement;
 
       this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+      this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
       this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
       this.imgURL = imgURL;
       Array.prototype.forEach.call(this.playlist, function (e) {
@@ -443,6 +444,7 @@ Polymer('album-art', {
               imgElement;
 
             this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+            this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
             this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
             this.imgURL = imgURL;
             Array.prototype.forEach.call(this.playlist, function (e) {
