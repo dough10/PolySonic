@@ -92,7 +92,9 @@ Polymer('album-art', {
       Array.prototype.forEach.call(this.playlist, function (e) {
         e.cover = imgURL;
       }.bind(this));
-      this.isLoading = false;
+      this.async(function () {
+        this.isLoading = false;
+      });
     });
   },
   

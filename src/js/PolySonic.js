@@ -897,7 +897,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   this.back2List = function () {
     this.async(function () {
+      this.dataLoading = true;
       this.page = 0;
+      this.async(function () {
+        this.dataLoading = false;
+      });
     });
   };
 
@@ -947,8 +951,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
 
   /*jslint unparam: true*/
   this.selectAction = function (event, detail, sender) {
+    var wall = this.$.wall;
     this.async(function () {
-      var wall = this.$.wall;
+      this.closeDrawer();
       if (wall.sort === sender.attributes.i.value) {
         this.pageLimit = false;
         if (this.queryMethod === 'ID3') {
@@ -962,15 +967,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         wall.$.threshold.clearLower();
       }
       wall.sort = sender.attributes.i.value;
-      this.closeDrawer();
       this.tracker.sendEvent('Sort By', sender.attributes.i.value);
     });
   };
   /*jslint unparam: false*/
 
   this.getPodcast = function () {
+    var wall = this.$.wall;
     this.async(function () {
-      var wall = this.$.wall;
       this.closeDrawer();
       wall.getPodcast();
       this.tracker.sendEvent('Sort By', 'Podcast');
@@ -978,8 +982,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.getStarred = function () {
+    var wall = this.$.wall;
     this.async(function () {
-      var wall = this.$.wall;
       this.closeDrawer();
       wall.getStarred();
       this.tracker.sendEvent('Sort By', 'Favorites');
@@ -987,8 +991,8 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.getArtist = function () {
+    var wall = this.$.wall;
     this.async(function () {
-      var wall = this.$.wall;
       this.closeDrawer();
       wall.getArtist();
       this.tracker.sendEvent('Sort By', 'Artist');
@@ -1040,16 +1044,6 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.volume = this.volume - 10;
     }
   };
-  
-  /*this.artistDetails = function (event, detail, sender) {
-    this.async(function () {
-      var artist = document.getElementById("aDetails");
-      artist.artistId = sender.attributes.i.value;
-      artist.queryData();
-      this.$.searchDialog.close();
-      this.page = 4;
-    });
-  };*/
 
   this.clearPlaylist = function () {
     this.async(function () {
@@ -1143,22 +1137,24 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.calculateStorageSize();
 
   setInterval(function () {
-    this.async(function () {
-      var audio = this.$.audio,
-        button = this.$.avIcon,
-        progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
-        currentMins = Math.floor(audio.currentTime / 60),
-        currentSecs = Math.round(audio.currentTime - (currentMins * 60)),
-        totalMins = Math.floor(audio.duration / 60),
-        totalSecs = Math.round(audio.duration - (totalMins * 60)),
-        buffer;
+    var audio = this.$.audio,
+      button = this.$.avIcon,
+      progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
+      currentMins = Math.floor(audio.currentTime / 60),
+      currentSecs = Math.round(audio.currentTime - (currentMins * 60)),
+      totalMins = Math.floor(audio.duration / 60),
+      totalSecs = Math.round(audio.duration - (totalMins * 60)),
+      buffer;
 
-      if (audio.duration) {
+    if (audio.duration) {
+      this.async(function () {
         buffer = (audio.buffered.end(0) / audio.duration) * 100;
         this.buffer = buffer;
-      }
+      });
+    }
 
-      if (!audio.paused) {
+    if (!audio.paused) {
+      this.async(function () {
         button.icon = "av:pause";
         this.isNowPlaying = true;
         if (!audio.duration) {
@@ -1170,11 +1166,13 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
           this.progress = progress;
         }
-      } else {
+      });
+    } else {
+      this.async(function () {
         this.isNowPlaying = false;
         button.icon = "av:play-arrow";
-      }
-    });
+      });
+    }
   }.bind(this), 250);
 
   chrome.commands.onCommand.addListener(function (command) {
