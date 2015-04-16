@@ -13,7 +13,7 @@
     <style shim-shadowdom>
       :host {
         display:inline-block;
-        margin:4px;
+        margin-bottom:4px;
       }
       #card {
         border-radius:2px;
@@ -217,11 +217,6 @@
     <div id="card">
       <core-animated-pages selected="{{page}}" valueattr="page" transitions="cross-fade hero-transition">
         <paper-shadow page="cover">
-          <style>
-            :host {
-              margin:4px;
-            }
-          </style>
           <div class="wrapper">
             <template if="{{isLoading}}">
               <div class="spinWrapper">
@@ -269,11 +264,6 @@
           </div>
         </paper-shadow>
         <div page="small">
-          <style>
-            :host {
-              margin:0px;
-            }
-          </style>
           <div class="wrapper">
             <div id="overlay-high-small" hero-id="hero" hero="">
               <core-item style="margin-top:0.5em;">
