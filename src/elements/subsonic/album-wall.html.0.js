@@ -242,7 +242,7 @@ Polymer('album-wall', {
   },
   listModeChanged: function () {
     'use strict';
-      this.clearData(function () {
+    this.clearData(function () {
       if (this.listMode === 'cover') {
         this.$.list.grid = true;
         this.$.list.width = '260';

@@ -45,21 +45,19 @@ Polymer('album-art', {
   */
   listModeChanged: function () {
     'use strict';
-    this.async(function () {
-      if (this.listMode === 'list') {
-        this.page = "small";
-        this.width = '520px';
-        this.height = "60px";
-      } else if (this.listMode === 'search') {
-        this.page = 'search';
-        this.width = '370px';
-        this.height = '60px';
-      } else {
-        this.page = "cover";
-        this.width = "250px";
-        this.height = "250px";
-      }
-    });
+    if (this.listMode === 'list') {
+      this.page = "small";
+      this.width = '520px';
+      this.height = "60px";
+    } else if (this.listMode === 'search') {
+      this.page = 'search';
+      this.width = '370px';
+      this.height = '60px';
+    } else {
+      this.page = "cover";
+      this.width = "250px";
+      this.height = "250px";
+    }
   },
 
   /* error handler for indexeddb calls */
@@ -101,6 +99,7 @@ Polymer('album-art', {
   defaultArt: function () {
     this.async(function () {
       this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      this.$.smallCover.style.backgroundImage = "url('" + this.defaultImgURL + "')";
       this.$.topper.style.backgroundImage = "url('" + this.defaultImgURL + "')";
       this.imgURL = this.defaultImgURL;
     });
@@ -336,7 +335,9 @@ Polymer('album-art', {
       this.tmpl.$.searchDialog.close();
       this.tmpl.dataLoading = true;
       this.getPalette();
-      this.doQuery(this.playAlbum.bind(this));
+      this.async(function () {
+        this.doQuery(this.playAlbum.bind(this));
+      });
     });
   },
   
@@ -344,7 +345,9 @@ Polymer('album-art', {
     this.async(function () {
       this.tmpl.dataLoading = true;
       this.getPalette();
-      this.doQuery(this.doDialog.bind(this));
+      this.async(function () {
+        this.doQuery(this.doDialog.bind(this));
+      });
     });
   },
   
@@ -352,7 +355,9 @@ Polymer('album-art', {
     this.async(function () {
       this.tmpl.dataLoading = true;
       this.getPalette();
-      this.doQuery(this.add2Playlist.bind(this));
+      this.async(function () {
+        this.doQuery(this.add2Playlist.bind(this));
+      });
     });
   },
   
@@ -372,17 +377,18 @@ Polymer('album-art', {
         return da - db;
       }
     });
-
-    Array.prototype.forEach.call(this.tracks, function (e) {
-      var mins = Math.floor(e.duration / 60),
-        seconds = Math.floor(e.duration - (mins * 60)),
-        timeString = mins + ':' + ('0' + seconds).slice(-2),
-        obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
-      this.playlist.push(obj);
-      this.job('job1', function () {
+    this.async(function () {
+      Array.prototype.forEach.call(this.tracks, function (e) {
+        var mins = Math.floor(e.duration / 60),
+          seconds = Math.floor(e.duration - (mins * 60)),
+          timeString = mins + ':' + ('0' + seconds).slice(-2),
+          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
+        this.playlist.push(obj);
+      }.bind(this)); 
+      this.async(function () {
         callback();
-      }, 200);
-    }.bind(this)); 
+      });
+    });
   },
   
   doQuery: function (callback) {

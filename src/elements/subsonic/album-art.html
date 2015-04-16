@@ -212,6 +212,15 @@
         background-position: center;
         background-origin: content-box;
         background-size:50px;
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
       }
     </style>
     <div id="card">
@@ -267,14 +276,18 @@
           <div class="wrapper">
             <div id="overlay-high-small" hero-id="hero" hero="">
               <core-item style="margin-top:0.5em;">
-                <div id="smallCover"></div>
+                <div id="smallCover">
+                  <template if="{{isLoading}}">
+                    <paper-spinner active></paper-spinner>
+                  </template>
+                </div>
                 <div flex style="overflow:hidden">
                   {{artist}} - {{album}}
                 </div>
                 <paper-icon-button on-tap="{{doPlayback}}" icon="av:play-arrow"></paper-icon-button>
                 <paper-menu-button>
                   <paper-icon-button icon="more-vert"  class="bumpMargin"></paper-icon-button>
-                  <paper-dropdown class="dropdown" halign="right" layered>
+                  <paper-dropdown class="dropdown" halign="right" layered style="height:194; width:184;">
                     <core-menu class="menu">
                       <core-item>
                         <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add" title="{{add2PlayQueue}}"></paper-icon-button>

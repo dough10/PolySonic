@@ -867,17 +867,22 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.toggleWall = function () {
+    this.dataLoading = true;
     this.async(function () {
       var wall = this.$.wall;
       if (wall.listMode === 'cover') {
         wall.listMode = 'list';
-        this.view = 'view-module';
+        this.async(function () {
+          this.view = 'view-module';
+        });
         chrome.storage.sync.set({
           'listMode': 'list'
         });
       } else {
         wall.listMode = 'cover';
-        this.view = 'view-stream';
+        this.async(function () {
+          this.view = 'view-stream';
+        });
         chrome.storage.sync.set({
           'listMode': 'cover'
         });
