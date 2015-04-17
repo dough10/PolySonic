@@ -45,19 +45,21 @@ Polymer('album-art', {
   */
   listModeChanged: function () {
     'use strict';
-    if (this.listMode === 'list') {
-      this.page = "small";
-      this.width = '520px';
-      this.height = "60px";
-    } else if (this.listMode === 'search') {
-      this.page = 'search';
-      this.width = '370px';
-      this.height = '60px';
-    } else {
-      this.page = "cover";
-      this.width = "250px";
-      this.height = "250px";
-    }
+    this.async(function () {
+      if (this.listMode === 'list') {
+        this.page = "small";
+        this.width = '520px';
+        this.height = "60px";
+      } else if (this.listMode === 'search') {
+        this.page = 'search';
+        this.width = '370px';
+        this.height = '60px';
+      } else {
+        this.page = "cover";
+        this.width = "250px";
+        this.height = "250px";
+      }
+    });
   },
 
   /* error handler for indexeddb calls */
@@ -458,7 +460,9 @@ Polymer('album-art', {
             Array.prototype.forEach.call(this.playlist, function (e) {
               e.cover = imgURL;
             }.bind(this));
-            this.isLoading = false;
+            this.async(function () {
+              this.isLoading = false;
+            });
 
             /*
               get dominant color from image
@@ -493,8 +497,8 @@ Polymer('album-art', {
                 array[3] = '#c8c8c8';
               }
               this.palette = array;
-              this.tmpl.putInDb(array, this.cover + '-palette', function () {
-                console.log('Color palette saved ' + this.cover);
+              this.tmpl.putInDb(array, artId + '-palette', function () {
+                console.log('Color palette saved ' + artId);
               }.bind(this));
             }.bind(this);
 

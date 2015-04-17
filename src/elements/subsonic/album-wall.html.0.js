@@ -63,6 +63,7 @@ Polymer('album-wall', {
     this.refreshContent();
     this.tmpl.pageLimit = false;
     this.$.threshold.clearLower();
+    this.tmpl.closeDrawer();
   },
   clearData: function (callback) {
     'use strict';
@@ -76,7 +77,9 @@ Polymer('album-wall', {
     this.wall = [];
     this.podcast = null;
     this.podcast = [];
-    callback();
+    this.async(function () {
+      callback();
+    });
   },
   responseChanged: function () {
     'use strict';
@@ -242,7 +245,7 @@ Polymer('album-wall', {
   },
   listModeChanged: function () {
     'use strict';
-    this.clearData(function () {
+    this.async(function () {
       if (this.listMode === 'cover') {
         this.$.list.grid = true;
         this.$.list.width = '260';
@@ -253,13 +256,9 @@ Polymer('album-wall', {
         this.$.list.heioght = '65';
       }
       this.async(function () {
-        this.post.offset = 0;
-        this.$.ajax.go();
-        this.async(function () {
-          this.tmpl.dataLoading = false;
-        });
+        this.tmpl.dataLoading = false;
       });
-    }.bind(this));
+    });
   },
   artistDetails: function (event, detail, sender) {
     var artist = document.getElementById("aDetails");
