@@ -668,7 +668,7 @@
         only needed if fullscreen enabled
   
       */
-      window.onresize = this.sizePlayer.bind(this);
+      //window.onresize = this.sizePlayer.bind(this);
   
       audio.onended = this.nextTrack.bind(this);
   
@@ -680,31 +680,16 @@
   
     this.loadData = function () {
       chrome.storage.sync.get(function (result) {
-        //console.log(result);
         if (result.url === undefined) {
           this.$.firstRun.open();
-        } else {
-          this.url = result.url;
-          this.user = result.user;
-          this.pass = result.pass;
         }
-        this.version = result.version;
-        if (result.version !== undefined) {
-          this.tracker.sendEvent('API Version', result.version);
-        }
-        if (result.listMode === undefined) {
-          chrome.storage.sync.set({
-            'listMode': 'cover'
-          });
-          this.listMode = 'cover';
-        } else {
-          this.tracker.sendEvent('ListMode', result.listMode);
-          this.listMode = result.listMode;
-        }
+        this.url = result.url;
+        this.user = result.user;
+        this.pass = result.pass;
+        this.tracker.sendEvent('ListMode', result.listMode);
+        this.listMode = result.listMode || 'cover';
         this.bitRate = result.bitRate || 320;
-        if (result.sort === undefined) {
-          this.selected = '';
-        }
+        this.version = '1.11.0';
         this.querySize = 60;
         /* leaving here for performance tuning later */
         /*if (result.querySize === undefined) {
@@ -719,25 +704,18 @@
             this.querySize = result.querySize;
           }
         }*/
-        if (result.volume !== undefined) {
-          this.volume = result.volume;
-        }
-        if (result.queryMethod !== undefined) {
-          this.queryMethod = result.queryMethod;
-        } else {
-          this.queryMethod = 'ID3';
-        }
-        if (result.mediaFolder !== undefined && result.mediaFolder !== 0) {
-          this.folder = result.mediaFolder;
-        }
+        this.volume = result.volume;
+        this.queryMethod = result.queryMethod || 'ID3';
+        this.folder = result.mediaFolder;
         this.colorThiefEnabled = true;
-        //this.colorThiefEnabled = result.colorThiefEnabled || false;
         if (this.url && this.user && this.pass && this.version) {
-          var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json',
-              url2 = this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic";
+          var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=1.11.0&c=PolySonic&f=json',
+              url2;
           this.doXhr(url, 'json', function (e) {
             if (e.target.status === 200) {
               var response = e.target.response['subsonic-response'];
+              this.version = response.version;
+              url2 = this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic";
               if (response.status === 'ok') {
                 console.log('Connected to Subconic loading data');
                 this.doXhr(url2, 'json', function (e) {
@@ -745,8 +723,8 @@
                   if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                     this.$.sortBox.style.display = 'none';
                   }
+                  this.$.wall.doAjax();
                 }.bind(this));
-                this.$.wall.doAjax();
               } else {
                 this.tracker.sendEvent('Connection Error', response.error.meessage);
                 this.$.firstRun.toggle();

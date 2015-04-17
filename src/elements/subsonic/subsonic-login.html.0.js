@@ -64,14 +64,13 @@
               'url': this.post.url,
               'user': this.post.user,
               'pass': this.post.pass,
-              'version': this.response['subsonic-response'].version
             });
             this.tmpl.url = this.post.url;
             this.tmpl.user = this.post.user;
             this.tmpl.pass = this.post.pass;
             this.tmpl.version = this.response['subsonic-response'].version;
             this.tmpl.doToast("Loading Data");
-            this.tmpl.tracker.sendEvent('API Version', this.post.version);
+            this.tmpl.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
             this.tmpl.$.firstRun.close();
             this.tmpl.doXhr(this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic", 'json', function (e) {
               this.tmpl.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;

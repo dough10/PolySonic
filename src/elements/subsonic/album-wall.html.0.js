@@ -192,7 +192,7 @@ Polymer('album-wall', {
         }
         this.post.type = '';
         this.post.offset = 0;
-        this.showing = 'cover';
+        this.showing = this.listMode;
         chrome.storage.sync.set({
           'sortType': this.post.type,
           'request': this.request,
@@ -234,7 +234,7 @@ Polymer('album-wall', {
         }
         this.post.type = this.sort;
         this.post.offset = 0;
-        this.showing = 'cover';
+        this.showing = this.listMode;
         chrome.storage.sync.set({
           'sortType': this.post.type,
           'request': this.request,
@@ -280,16 +280,16 @@ Polymer('album-wall', {
   listModeChanged: function () {
     'use strict';
     if (this.listMode) {
+      this.async(function () {
+        if (this.listMode === 'cover') {
+          this.showing = 'cover';
+        } else {
+          this.showing = 'list';
+        }
         this.async(function () {
-          if (this.listMode === 'cover') {
-            this.showing = 'cover';
-          } else {
-            this.showing = 'list';
-          }
-          this.async(function () {
-            this.tmpl.dataLoading = false;
-          });
+          this.tmpl.dataLoading = false;
         });
+      });
     }
   },
   
