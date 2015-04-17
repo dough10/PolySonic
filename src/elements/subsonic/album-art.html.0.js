@@ -442,8 +442,6 @@ Polymer('album-art', {
 
             /*
               get dominant color from image
-
-              rgb color code saved as this.color
             */
             imgElement = new Image();
             imgElement.src = imgURL;

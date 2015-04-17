@@ -279,16 +279,18 @@ Polymer('album-wall', {
   
   listModeChanged: function () {
     'use strict';
-    this.async(function () {
-      if (this.listMode === 'cover') {
-        this.showing = 'cover';
-      } else {
-        this.showing = 'list';
-      }
-      this.async(function () {
-        this.tmpl.dataLoading = false;
-      });
-    });
+    if (this.listMode) {
+        this.async(function () {
+          if (this.listMode === 'cover') {
+            this.showing = 'cover';
+          } else {
+            this.showing = 'list';
+          }
+          this.async(function () {
+            this.tmpl.dataLoading = false;
+          });
+        });
+    }
   },
   
   doPlay: function (obj, url) {

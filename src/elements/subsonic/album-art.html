@@ -395,6 +395,8 @@
         <template repeat="{{track in playlist}}">
           <core-item>
             <div flex style="margin-right:8px; overflow: hidden;">
+              <template if="{{track.disk}}">Disk{{track.disk}} </template>
+              <template if="{{track.track}}">Track {{track.track}}</template>
               {{track.title}}
             </div>
             <paper-icon-button icon="av:play-arrow" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
