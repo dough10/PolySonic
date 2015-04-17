@@ -131,7 +131,10 @@
               <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
               <div flex  class="bottom alignLeft">{{appName}}</div>
               <template if="{{showing === 'cover'}}">
-                <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="{{view}}" class="bottom"></paper-icon-button>
+                <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="view-stream" class="bottom"></paper-icon-button>
+              </template>
+              <template if="{{showing === 'list'}}">
+                <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="view-module" class="bottom"></paper-icon-button>
               </template>
               <template if="{{showing === 'podcast'}}">
                 <paper-icon-button title="Refresh Podcast" on-tap="{{refreshPodcast}}" icon="autorenew" class="bottom"></paper-icon-button>

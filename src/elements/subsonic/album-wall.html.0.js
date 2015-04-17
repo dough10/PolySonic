@@ -33,6 +33,12 @@ Polymer('album-wall', {
     this.addPodcast = chrome.i18n.getMessage("addPodcast");
     this.foundHere = chrome.i18n.getMessage("foundHere");
     this.deleteLabel = chrome.i18n.getMessage("deleteLabel");
+    this.$.cover.grid = true;
+    this.$.cover.width = '260';
+    this.$.cover.height = '260';
+    this.$.list.grid = false;
+    this.$.list.width = '605';
+    this.$.list.heioght = '65';
   },
   domReady: function () {
     'use strict';
@@ -247,13 +253,9 @@ Polymer('album-wall', {
     'use strict';
     this.async(function () {
       if (this.listMode === 'cover') {
-        this.$.list.grid = true;
-        this.$.list.width = '260';
-        this.$.list.height = '260';
+        this.showing = 'cover';
       } else {
-        this.$.list.grid = false;
-        this.$.list.width = '605';
-        this.$.list.heioght = '65';
+        this.showing = 'list';
       }
       this.async(function () {
         this.tmpl.dataLoading = false;

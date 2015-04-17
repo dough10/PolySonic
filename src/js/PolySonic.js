@@ -695,15 +695,9 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
           'listMode': 'cover'
         });
         this.listMode = 'cover';
-        this.view = 'view-stream';
       } else {
         this.tracker.sendEvent('ListMode', result.listMode);
         this.listMode = result.listMode;
-        if (result.listMode === 'cover') {
-          this.view = 'view-stream';
-        } else {
-          this.view = 'view-module';
-        }
       }
       this.bitRate = result.bitRate || 320;
       if (result.sort === undefined) {
@@ -737,13 +731,14 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       this.colorThiefEnabled = true;
       //this.colorThiefEnabled = result.colorThiefEnabled || false;
       if (this.url && this.user && this.pass && this.version) {
-        var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
+        var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json',
+            url2 = this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic";
         this.doXhr(url, 'json', function (e) {
           if (e.target.status === 200) {
             var response = e.target.response['subsonic-response'];
             if (response.status === 'ok') {
               console.log('Connected to Subconic loading data');
-              this.doXhr(this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic", 'json', function (e) {
+              this.doXhr(url2, 'json', function (e) {
                 this.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                 if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                   this.$.sortBox.style.display = 'none';
@@ -774,9 +769,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   };
 
   this.doToast = function (text) {
-    var toast = this.$.toast;
-    toast.text = text;
-    toast.show();
+    this.async(function () {
+      var toast = this.$.toast;
+      toast.text = text;
+      toast.show();
+    });
   };
 
   this.playAudio = function (artist, title, src, image, id) {
@@ -872,17 +869,11 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
       var wall = this.$.wall;
       if (wall.listMode === 'cover') {
         wall.listMode = 'list';
-        this.async(function () {
-          this.view = 'view-module';
-        });
         chrome.storage.sync.set({
           'listMode': 'list'
         });
       } else {
         wall.listMode = 'cover';
-        this.async(function () {
-          this.view = 'view-stream';
-        });
         chrome.storage.sync.set({
           'listMode': 'cover'
         });

@@ -55,7 +55,7 @@
       }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
-    <core-scroll-threshold id="threshold" lowerThreshold="1500" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
+    <core-scroll-threshold id="threshold" lowerThreshold="500" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
     <div id="all">
       <core-animated-pages selected="{{showing}}" valueattr="view">
@@ -74,10 +74,34 @@
               {{addAlbums}}
             </paper-shadow>
           </template>
+          <core-list id="cover" data="{{wall}}" flex grid='false' scrollTarget="{{scrollTarget}}">
+            <template>
+              <div>
+                <album-art id='al{{model.id}}' listMode="cover" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}" colorThiefEnabled="{{colorThiefEnabled}}"></album-art>
+              </div>
+            </template>
+          </core-list>
+          <div style="min-height:160px;"></div>
+        </div>
+        <div view="list">
+          <template if="{{!isLoading && !wall[0] && request === 'getStarred2'}}">
+            <paper-shadow class='card' style="text-align:center;">
+              <h3>{{noFavoriteHeader}}</h3>
+              {{noFavoriteMessage}}
+            </paper-shadow>
+          </template>
+          <template if="{{!isLoading && !wall[0] && request !== 'getStarred2'}}">
+            <paper-shadow class='card' style="text-align:center;">
+              <h3>{{addContent}}</h3>
+              {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
+              <br><br>
+              {{addAlbums}}
+            </paper-shadow>
+          </template>
           <core-list id="list" data="{{wall}}" flex grid='false' scrollTarget="{{scrollTarget}}">
             <template>
               <div>
-                <album-art id='al{{model.id}}' listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}" colorThiefEnabled="{{colorThiefEnabled}}"></album-art>
+                <album-art id='al{{model.id}}' listMode="list" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}" colorThiefEnabled="{{colorThiefEnabled}}"></album-art>
               </div>
             </template>
           </core-list>

@@ -45,21 +45,19 @@ Polymer('album-art', {
   */
   listModeChanged: function () {
     'use strict';
-    this.async(function () {
-      if (this.listMode === 'list') {
-        this.page = "small";
-        this.width = '520px';
-        this.height = "60px";
-      } else if (this.listMode === 'search') {
-        this.page = 'search';
-        this.width = '370px';
-        this.height = '60px';
-      } else {
-        this.page = "cover";
-        this.width = "250px";
-        this.height = "250px";
-      }
-    });
+    if (this.listMode === 'list') {
+      this.page = "small";
+      this.width = '520px';
+      this.height = "60px";
+    } else if (this.listMode === 'search') {
+      this.page = 'search';
+      this.width = '370px';
+      this.height = '60px';
+    } else {
+      this.page = "cover";
+      this.width = "250px";
+      this.height = "250px";
+    }
   },
 
   /* error handler for indexeddb calls */
