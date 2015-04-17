@@ -532,8 +532,10 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
         this.playlist.push(obj);
         this.putInDb(array, artId + '-palette', function () {
           console.log('Color palette saved ' + artId );
-          this.doShufflePlayback();
-          this.dataLoading = false;
+          this.async(function () {
+            this.doShufflePlayback();
+            this.dataLoading = false;
+          });
         }.bind(this));
       }.bind(this);
     }
@@ -565,7 +567,7 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
             this.async(function () {
               this.doShufflePlayback();
               this.dataLoading = false;
-            }, null,  100);
+            });
           }.bind(this));
         }.bind(this));
       }
@@ -1133,41 +1135,43 @@ document.querySelector('#tmpl').addEventListener('template-bound', function () {
   this.calculateStorageSize();
 
   setInterval(function () {
-    var audio = this.$.audio,
-      button = this.$.avIcon,
-      progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
-      currentMins = Math.floor(audio.currentTime / 60),
-      currentSecs = Math.round(audio.currentTime - (currentMins * 60)),
-      totalMins = Math.floor(audio.duration / 60),
-      totalSecs = Math.round(audio.duration - (totalMins * 60)),
-      buffer;
-
-    if (audio.duration) {
-      this.async(function () {
-        buffer = (audio.buffered.end(0) / audio.duration) * 100;
-        this.buffer = buffer;
-      });
-    }
-
-    if (!audio.paused) {
-      this.async(function () {
-        button.icon = "av:pause";
-        this.isNowPlaying = true;
-        if (!audio.duration) {
-          this.contentLoading = true;
-          this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
-          this.progress = 0;
-        } else {
-          this.contentLoading = false;
-          this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
-          this.progress = progress;
-        }
-      });
-    } else {
-      this.async(function () {
-        this.isNowPlaying = false;
-        button.icon = "av:play-arrow";
-      });
+    if (this.page === 1) {
+      var audio = this.$.audio,
+        button = this.$.avIcon,
+        progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
+        currentMins = Math.floor(audio.currentTime / 60),
+        currentSecs = Math.round(audio.currentTime - (currentMins * 60)),
+        totalMins = Math.floor(audio.duration / 60),
+        totalSecs = Math.round(audio.duration - (totalMins * 60)),
+        buffer;
+  
+      if (audio.duration) {
+        this.async(function () {
+          buffer = (audio.buffered.end(0) / audio.duration) * 100;
+          this.buffer = buffer;
+        });
+      }
+  
+      if (!audio.paused) {
+        this.async(function () {
+          button.icon = "av:pause";
+          this.isNowPlaying = true;
+          if (!audio.duration) {
+            this.contentLoading = true;
+            this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
+            this.progress = 0;
+          } else {
+            this.contentLoading = false;
+            this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
+            this.progress = progress;
+          }
+        });
+      } else {
+        this.async(function () {
+          this.isNowPlaying = false;
+          button.icon = "av:play-arrow";
+        });
+      }
     }
   }.bind(this), 250);
 
