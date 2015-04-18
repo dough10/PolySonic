@@ -13,7 +13,7 @@
     <style shim-shadowdom>
       :host {
         display:inline-block;
-        margin-bottom:4px;
+        margin-bottom:2px;
       }
       #card {
         border-radius:2px;
@@ -204,14 +204,14 @@
       #smallCover {
         margin-left:16px;
         margin-right:8px;
-        height:88px;
-        width:88px;
+        height:43px;
+        width:43px;
         border-radius:50%;
         background-image:url("../../../images/default-cover-art.png");
         background-repeat: no-repeat;
         background-position: center;
         background-origin: content-box;
-        background-size:105px;
+        background-size:43px;
         display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
         display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
         display: -ms-flexbox;      /* TWEENER - IE 10 */
@@ -284,26 +284,45 @@
                   </template>
                 </div>
                 <div flex vertical layout>
-                  <core-item>
-                    <div style="overflow:hidden;font-size: 16px;top: 16px;position: absolute;">
-                      {{artist}}
-                    </div>  
-                    <br>
-                    <div style="overflow:hidden;font-size: 20px;position: absolute;top: 42px;left: 0px;">
-                      {{album}}
-                    </div> 
-                  </core-item>
-                  <core-item style="position:absolute;top:70px;left:100px;">
+                  <core-item style="margin-top:16px;">
+                    <div flex>
+                      <div style="overflow:hidden;font-size: 12px;top: 2px;position: absolute;max-width: 350px;">
+                        {{artist}}
+                      </div>  
+                      <br>
+                      <div style="overflow:hidden;font-size: 16px;position: absolute;top: 22px;left: 0px;max-width: 350px;">
+                        {{album}}
+                      </div>   
+                    </div>
                     <paper-icon-button on-tap="{{doPlayback}}" icon="av:play-arrow"></paper-icon-button>
-                    <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add" title="{{add2PlayQueue}}"></paper-icon-button>
-                    <template if="{{!isFavorite}}">
-                      <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline" title="{{favoriteAlbum}}"></paper-icon-button>
-                    </template>
-                    <template if="{{isFavorite}}">
-                      <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
-                    </template>
-                    <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download" title="{{downloadButton}}"></paper-icon-button>
-                    <paper-icon-button on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
+                      <paper-menu-button>
+                        <paper-icon-button icon="more-vert" class="bumpMargin"></paper-icon-button>
+                        <paper-dropdown class="dropdown" halign="right" layered>
+                          <core-menu class="menu">
+                            <core-item>
+                              <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add" title="{{add2PlayQueue}}"></paper-icon-button>
+                              {{add2PlayQueue}}
+                            </core-item>
+                            <core-item>
+                              <template if="{{!isFavorite}}">
+                                <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline" title="{{favoriteAlbum}}"></paper-icon-button>
+                              </template>
+                              <template if="{{isFavorite}}">
+                                <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
+                              </template>
+                              {{favoriteAlbum}}
+                            </core-item>
+                            <core-item>
+                              <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download" title="{{downloadButton}}"></paper-icon-button>
+                              {{downloadButton}}
+                            </core-item>
+                            <core-item>
+                              <paper-icon-button on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
+                              {{albumTracklist}}
+                            </core-item>
+                          </core-menu>
+                        </paper-dropdown>
+                      </paper-menu-button>
                   </core-item>
                 </div>
               </div>
