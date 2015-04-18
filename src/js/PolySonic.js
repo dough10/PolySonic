@@ -537,8 +537,22 @@
     this.fixCoverArtForShuffle = function (obj) {
       var artId = obj.cover,
           img = this.url + '/rest/getCoverArt.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + artId;
-      this.checkForImage(artId, function(e) {
-        if (e.target.result === 0) {
+          
+      this.getDbItem(artId, function (ev) {
+        if (ev.target.result) {
+          var raw = ev.target.result,
+            imgURL = window.URL.createObjectURL(raw);
+          obj.cover = imgURL;
+          /* if cover exists then palette will as well get it also */
+          this.getDbItem(artId + '-palette', function (ev) {
+            obj.palette = ev.target.result;
+            this.playlist.push(obj);
+            this.async(function () {
+              this.doShufflePlayback();
+              this.dataLoading = false;
+            });
+          }.bind(this));
+        } else {
           this.getImageFile(img, artId, function (ev) {
             var raw = ev.target.result,
               imgURL = window.URL.createObjectURL(raw);
@@ -547,21 +561,6 @@
   
             /* finish up the work after grabbing color */
             this.shuffleColorThief(imgURL, artId, obj);
-          }.bind(this));
-        } else {
-          this.getDbItem(artId, function (ev) {
-            var raw = ev.target.result,
-              imgURL = window.URL.createObjectURL(raw);
-            obj.cover = imgURL;
-            /* if cover exists then palette will as well get it also */
-            this.getDbItem(artId + '-palette', function (ev) {
-              obj.palette = ev.target.result;
-              this.playlist.push(obj);
-              this.async(function () {
-                this.doShufflePlayback();
-                this.dataLoading = false;
-              });
-            }.bind(this));
           }.bind(this));
         }
       }.bind(this));
@@ -1057,13 +1056,6 @@
     
     this.deleteEpisode = function (event, detail, sender) {
       this.$.wall.deleteEpisode(sender.attributes.ident.value);
-    };
-    
-    this.checkForImage = function (id, callback) {
-      var transaction = this.db.transaction(["albumInfo"], "readwrite"),
-        request = transaction.objectStore("albumInfo").count(id);
-      request.onsuccess = callback;
-      request.onerror = this.dbErrorHandler;
     };
   
     this.getColor = function (image) {

@@ -327,9 +327,14 @@ Polymer('album-wall', {
 
       if (sender.attributes.cover.value) {
         /* look for image in indexeddb */
-        this.tmpl.checkForImage(sender.attributes.cover.value, function (e) {
-          if (e.target.result === 0) {
-            /* get image from subsonic */
+        this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {
+          if (ev.target.result) {
+            var imgFile = ev.target.result;
+            imgURL = window.URL.createObjectURL(imgFile);
+            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+            this.tmpl.getImageForPlayer(imgURL);
+            this.doPlay(obj, url);
+          } else {
             this.tmpl.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
               var imgFile = ev.target.result;
               imgURL = window.URL.createObjectURL(imgFile);
@@ -337,17 +342,8 @@ Polymer('album-wall', {
               this.tmpl.getImageForPlayer(imgURL);
               this.doPlay(obj, url);
             }.bind(this));
-          } else {
-            /* get image from indexeddb */
-            this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {
-              var imgFile = ev.target.result;
-              imgURL = window.URL.createObjectURL(imgFile);
-              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-              this.tmpl.getImageForPlayer(imgURL);
-              this.doPlay(obj, url);
-            }.bind(this));
           }
-        }.bind(this));
+        }.bind(this));        
       } else {
         imgURL = '../../../images/default-cover-art.png';
         obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
@@ -373,35 +369,24 @@ Polymer('album-wall', {
     this.tmpl.colorThiefBuffered = undefined;
 
     if (sender.attributes.cover.value) {
-      this.tmpl.checkForImage(sender.attributes.cover.value, function (e) {
-        if (e.target.result === 0) {
+      /* look for image in indexeddb */
+      this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {
+        if (ev.target.result) {
+          var imgFile = ev.target.result;
+          imgURL = window.URL.createObjectURL(imgFile);
+          obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+          this.tmpl.getImageForPlayer(imgURL);
+          this.doPlay(obj, url);
+        } else {
           this.tmpl.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
             var imgFile = ev.target.result;
             imgURL = window.URL.createObjectURL(imgFile);
-            if (this.audio.paused) {
-              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-              this.tmpl.getImageForPlayer(imgURL);
-              this.doPlay(obj, url);
-            } else {
-              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-              this.tmpl.playlist.push(obj);
-            }
-          }.bind(this));
-        } else {
-          this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {
-            var imgFile = ev.target.result;
-            imgURL = window.URL.createObjectURL(imgFile);
-            if (this.audio.paused) {
-              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-              this.tmpl.getImageForPlayer(imgURL);
-              this.doPlay(obj, url);
-            } else {
-              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-              this.tmpl.playlist.push(obj);
-            }
+            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+            this.tmpl.getImageForPlayer(imgURL);
+            this.doPlay(obj, url);
           }.bind(this));
         }
-      }.bind(this));
+      }.bind(this));        
     } else {
       imgURL = '../../../images/default-cover-art.png';
       if (this.audio.paused) {
