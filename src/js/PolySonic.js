@@ -680,9 +680,7 @@
   
     this.loadData = function () {
       chrome.storage.sync.get(function (result) {
-        if (result.url === undefined) {
-          this.$.firstRun.open();
-        }
+        if (result.url === undefined) this.$.firstRun.open();
         this.url = result.url;
         this.user = result.user;
         this.pass = result.pass;
@@ -691,25 +689,12 @@
         this.bitRate = result.bitRate || 320;
         this.version = '1.11.0';
         this.querySize = 60;
-        /* leaving here for performance tuning later */
-        /*if (result.querySize === undefined) {
-          chrome.storage.sync.set({
-            'querySize': 10
-          });
-          this.querySize = 10;
-        } else {
-          if (result.querySize > 20) {
-            this.querySize = 10;
-          } else {
-            this.querySize = result.querySize;
-          }
-        }*/
-        this.volume = result.volume;
+        this.volume = result.volume || 100;
         this.queryMethod = result.queryMethod || 'ID3';
         this.folder = result.mediaFolder;
         this.colorThiefEnabled = true;
         if (this.url && this.user && this.pass && this.version) {
-          var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=1.11.0&c=PolySonic&f=json',
+          var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json',
               url2;
           this.doXhr(url, 'json', function (e) {
             if (e.target.status === 200) {
@@ -939,7 +924,7 @@
           }
           wall.post.type = sender.attributes.i.value;
           wall.refreshContent();
-          wall.showing = 'cover';
+          wall.showing = this.listMode;
           wall.$.threshold.clearLower();
         }
         wall.sort = sender.attributes.i.value;

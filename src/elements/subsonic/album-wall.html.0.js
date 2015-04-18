@@ -18,7 +18,7 @@ Polymer('album-wall', {
       if (res.request === 'getPodcasts') {
         this.showing = 'podcast';
       } else if (res.request === 'getStarred2') {
-        this.showing = 'cover';
+        this.showing = this.listMode;
       } else if (res.request === 'getArtists') {
         this.showing = 'artists';
       }
@@ -281,14 +281,16 @@ Polymer('album-wall', {
     'use strict';
     if (this.listMode) {
       this.async(function () {
-        if (this.listMode === 'cover') {
-          this.showing = 'cover';
-        } else {
-          this.showing = 'list';
+        if (this.request !== 'getArtists' && this.request !== 'getPodcasts') {
+          if (this.listMode === 'cover') {
+            this.showing = 'cover';
+          } else {
+            this.showing = 'list';
+          }
+          this.async(function () {
+            this.tmpl.dataLoading = false;
+          });
         }
-        this.async(function () {
-          this.tmpl.dataLoading = false;
-        });
       });
     }
   },
