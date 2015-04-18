@@ -175,7 +175,9 @@ Polymer('album-wall', {
           'request': this.request,
           'mediaFolder': this.mediaFolder
         });
-        this.$.ajax.go();
+        this.async(function () {
+          this.$.ajax.go();
+        });
       }.bind(this));
     });
   },
@@ -198,7 +200,9 @@ Polymer('album-wall', {
           'request': this.request,
           'mediaFolder': this.mediaFolder
         });
-        this.$.ajax.go();
+        this.async(function () {
+          this.$.ajax.go();
+        });
       }.bind(this));
     });
   },
@@ -217,7 +221,9 @@ Polymer('album-wall', {
           'request': this.request,
           'mediaFolder': this.mediaFolder
         });
-        this.$.ajax.go();
+        this.async(function () {
+          this.$.ajax.go();
+        });
       }.bind(this));
     });
   },
@@ -240,7 +246,9 @@ Polymer('album-wall', {
           'request': this.request,
           'mediaFolder': this.mediaFolder
         });
-        this.$.ajax.go();
+        this.async(function () {
+          this.$.ajax.go();
+        });
       }.bind(this));
     });
   },
@@ -473,18 +481,16 @@ Polymer('album-wall', {
   
   deleteEpisode: function (id) {
     'use strict';
-    this.async(function () {
-      var url = this.url + "/rest/deletePodcastEpisode.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + id;
-      this.tmpl.doXhr(url, 'json', function (e) {
-        if (e.target.response['subsonic-response'].status === 'ok') {
-          this.clearData(function () {
-            this.async(function () {
-              this.$.ajax.go();
-            });
-          }.bind(this));
-        }
-      }.bind(this));
-    });
+    var url = this.url + "/rest/deletePodcastEpisode.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + id;
+    this.tmpl.doXhr(url, 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        this.clearData(function () {
+          this.async(function () {
+            this.$.ajax.go();
+          });
+        }.bind(this));
+      }
+    }.bind(this));
   },
   
   toggleCollapse: function (event, detail, sender) {
@@ -499,15 +505,15 @@ Polymer('album-wall', {
   },
   
   jumpToLetter: function (letter) {
-    function functiontofindIndexByKeyValue(arraytosearch, key, valuetosearch) {
+    var functiontofindIndexByKeyValue = function(arraytosearch, key, valuetosearch) {
       for (var i = 0; i < arraytosearch.length; i++) {
         if (arraytosearch[i][key] == valuetosearch) {
           return i;
         }
       }
       return null;
-    }
-    var item = functiontofindIndexByKeyValue(this.artists, 'name', letter);
+    },
+    item = functiontofindIndexByKeyValue(this.artists, 'name', letter);
     this.$.artists.scrollToItem(item);
   }
 });

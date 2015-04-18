@@ -48,7 +48,7 @@ Polymer('album-art', {
     if (this.listMode === 'list') {
       this.page = "small";
       this.width = '520px';
-      this.height = "60px";
+      this.height = "120px";
     } else if (this.listMode === 'search') {
       this.page = 'search';
       this.width = '370px';
