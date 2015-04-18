@@ -98,9 +98,7 @@ Polymer('album-art', {
   */
   slideUp: function () {
     'use strict';
-    this.async(function () {
-      this.page = "info";
-    });
+    this.page = "info";
   },
 
   /*
@@ -108,11 +106,9 @@ Polymer('album-art', {
   */
   closeSlide: function () {
     'use strict';
-    this.async(function () {
-      if (this.page === 'info') {
-        this.page = "cover";
-      }
-    });
+    if (this.page === 'info') {
+      this.page = "cover";
+    }
   },
 
   doDialog: function () {
@@ -189,8 +185,7 @@ Polymer('album-art', {
   addSingle2Playlist: function (event, detail, sender) {
     'use strict';
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
-      obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value,  duration: sender.attributes.duration.value , cover: this.imgURL};
-
+        obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value,  duration: sender.attributes.duration.value , cover: this.imgURL};
     this.tmpl.playlist.push(obj);
     if (this.audio.paused) {
       if (this.colorThiefEnabled && this.playlist[0].palette) {
