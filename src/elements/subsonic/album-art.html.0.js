@@ -67,32 +67,22 @@ Polymer('album-art', {
     console.log(e);
   },
 
-  /* counts json entrys in indexeddb with a given id */
-  checkJSONEntry: function (id, callback) {
-    'use strict';
-    var transaction = this.tmpl.db.transaction(["albumInfo"], "readwrite"),
-      request = transaction.objectStore("albumInfo").count(id);
-    request.onsuccess = callback;
-  },
-
   /* setup image  */
   setImage: function (event) {
     'use strict';
-    this.async(function () {
-      var imgFile = event.target.result,
-        imgURL = window.URL.createObjectURL(imgFile),
-        imgElement;
+    var imgFile = event.target.result,
+      imgURL = window.URL.createObjectURL(imgFile),
+      imgElement;
 
-      this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-      this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
-      this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
-      this.imgURL = imgURL;
-      Array.prototype.forEach.call(this.playlist, function (e) {
-        e.cover = imgURL;
-      }.bind(this));
-      this.async(function () {
-        this.isLoading = false;
-      });
+    this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+    this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
+    this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
+    this.imgURL = imgURL;
+    Array.prototype.forEach.call(this.playlist, function (e) {
+      e.cover = imgURL;
+    }.bind(this));
+    this.async(function () {
+      this.isLoading = false;
     });
   },
   
@@ -374,8 +364,11 @@ Polymer('album-art', {
       search indexeddb for data
     */
     this.queryingJSON = true;
-    this.checkJSONEntry(this.item, function (e) {
-      if (e.target.result === 0) {
+    this.tmpl.getDbItem(this.item, function (event) {
+      if (event.target.result) {
+        this.trackResponse = event.target.result;
+        this.processJSON(callback);
+      } else {
         var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.item;
         /*
           get the data from subsonic server
@@ -390,100 +383,82 @@ Polymer('album-art', {
             console.log('JSON Data Added to indexedDB ' + this.item);
           }.bind(this));
         }.bind(this));
-      } else {
-        /*
-          get the data from indexeddb
-        */
-        this.tmpl.getDbItem(this.item, function (event) {
-          this.trackResponse = event.target.result;
-          this.processJSON(callback);
-        }.bind(this));
       }
-    }.bind(this));
+    }.bind(this));    
   },
 
   itemChanged: function () {
-    this.async(this.updateValues);
-  },
-
-  updateValues: function () {
     'use strict';
+    var artId = "al-" + this.item,
+        url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
     if (this.item) {
       this.isLoading = true;
       this.defaultArt();
       this.playlist = null;
       this.playlist = [];
-
-      var artId = "al-" + this.item,
-          url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
-      /*
-        check indexeddb for image
-      */
-      this.tmpl.checkForImage(artId, function (e) {
-        if (e.target.result === 0) {
-          /*
-            get image from subsonic server
-          */
-          this.tmpl.getImageFile(url, artId, function (event) {
-            var imgFile = event.target.result,
-              imgURL = window.URL.createObjectURL(imgFile),
-              imgElement;
-
-            this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-            this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
-            this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
-            this.imgURL = imgURL;
-            Array.prototype.forEach.call(this.playlist, function (e) {
-              e.cover = imgURL;
-            }.bind(this));
-            this.async(function () {
-              this.isLoading = false;
-            });
-
+      this.async(function () {
+        this.tmpl.getDbItem(artId, function (e) {
+          if (e.target.result) {
+            this.setImage(e);
+          } else {
             /*
-              get dominant color from image
+              get image from subsonic server
             */
-            imgElement = new Image();
-            imgElement.src = imgURL;
-            imgElement.onload = function () {
-              var color = this.tmpl.getColor(imgElement),
-                  array = [],
-                  r = color[1][0],
-                  g = color[1][1],
-                  b = color[1][2],
-                  hex = this.tmpl.rgbToHex(r, g, b);
-
-              /*
-                array[0] fab color
-
-                array[1] fab contrasting color
-
-                array[2] progress bar buffering color
-
-                array[3] progress bar background
-              */
-              array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-              array[1]= this.tmpl.getContrast50(hex);
-              array[2]= 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
-              if (array[1] !== 'white') {
-                array[3] = '#444444';
-              } else {
-                array[3] = '#c8c8c8';
-              }
-              this.palette = array;
-              this.tmpl.putInDb(array, artId + '-palette', function () {
-                console.log('Color palette saved ' + artId);
+            this.tmpl.getImageFile(url, artId, function (event) {
+              var imgFile = event.target.result,
+                imgURL = window.URL.createObjectURL(imgFile),
+                imgElement;
+  
+              this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+              this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
+              this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
+              this.imgURL = imgURL;
+              Array.prototype.forEach.call(this.playlist, function (e) {
+                e.cover = imgURL;
               }.bind(this));
-            }.bind(this);
-
-          }.bind(this));
-        } else {
-          /*
-            get image from indexeddb
-          */
-          this.tmpl.getDbItem(artId, this.setImage.bind(this));
-        }
-      }.bind(this));
+              this.async(function () {
+                this.isLoading = false;
+              });
+  
+              /*
+                get dominant color from image
+              */
+              imgElement = new Image();
+              imgElement.src = imgURL;
+              imgElement.onload = function () {
+                var color = this.tmpl.getColor(imgElement),
+                    array = [],
+                    r = color[1][0],
+                    g = color[1][1],
+                    b = color[1][2],
+                    hex = this.tmpl.rgbToHex(r, g, b);
+  
+                /*
+                  array[0] fab color
+  
+                  array[1] fab contrasting color
+  
+                  array[2] progress bar buffering color
+  
+                  array[3] progress bar background
+                */
+                array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
+                array[1]= this.tmpl.getContrast50(hex);
+                array[2]= 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+                if (array[1] !== 'white') {
+                  array[3] = '#444444';
+                } else {
+                  array[3] = '#c8c8c8';
+                }
+                this.palette = array;
+                this.tmpl.putInDb(array, artId + '-palette', function () {
+                  console.log('Color palette saved ' + artId);
+                }.bind(this));
+              }.bind(this);
+            }.bind(this));
+          }
+        }.bind(this));
+      });
     }
   }
 });

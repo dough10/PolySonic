@@ -278,13 +278,6 @@
       }
     };
   
-    this.checkForImage = function (id, callback) {
-      var transaction = this.db.transaction(["albumInfo"], "readwrite"),
-        request = transaction.objectStore("albumInfo").count(id);
-      request.onsuccess = callback;
-      request.onerror = this.dbErrorHandler;
-    };
-  
     /* pull image from server */
     this.getImageFile = function (url, id, callback) {
       this.doXhr(url, 'blob', function (e) {
