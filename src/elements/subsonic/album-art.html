@@ -201,6 +201,9 @@
       .spinner::shadow .circle {
         border-color: #000;
       }
+      .spinnerW::shadow .circle {
+        border-color: #FFF;
+      }
       #smallCover {
         margin-left:16px;
         margin-right:8px;
@@ -280,7 +283,7 @@
               <div horizontal layout>
                 <div id="smallCover">
                   <template if="{{isLoading}}">
-                    <paper-spinner active></paper-spinner>
+                    <paper-spinner class="spinnerW" active></paper-spinner>
                   </template>
                 </div>
                 <div flex vertical layout>

@@ -74,9 +74,11 @@ Polymer('album-art', {
       imgURL = window.URL.createObjectURL(imgFile),
       imgElement;
 
-    this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-    this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
-    this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
+    this.async(function () {
+      this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
+      this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
+      this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+    });
     this.imgURL = imgURL;
     Array.prototype.forEach.call(this.playlist, function (e) {
       e.cover = imgURL;
@@ -384,14 +386,14 @@ Polymer('album-art', {
 
   itemChanged: function () {
     'use strict';
-    var artId = "al-" + this.item,
-        url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
-    if (this.item) {
-      this.isLoading = true;
-      this.defaultArt();
-      this.playlist = null;
-      this.playlist = [];
-      this.async(function () {
+    this.async(function () {
+      var artId = "al-" + this.item,
+          url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
+      if (this.item) {
+        this.isLoading = true;
+        this.defaultArt();
+        this.playlist = null;
+        this.playlist = [];
         this.tmpl.getDbItem(artId, function (e) {
           if (e.target.result) {
             this.setImage(e);
@@ -403,7 +405,7 @@ Polymer('album-art', {
               var imgFile = event.target.result,
                 imgURL = window.URL.createObjectURL(imgFile),
                 imgElement;
-  
+
               this.$.card.style.backgroundImage = "url('" + imgURL + "')";
               this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
               this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
@@ -414,7 +416,7 @@ Polymer('album-art', {
               this.async(function () {
                 this.isLoading = false;
               });
-  
+
               /*
                 get dominant color from image
               */
@@ -427,14 +429,14 @@ Polymer('album-art', {
                     g = color[1][1],
                     b = color[1][2],
                     hex = this.tmpl.rgbToHex(r, g, b);
-  
+
                 /*
                   array[0] fab color
-  
+
                   array[1] fab contrasting color
-  
+
                   array[2] progress bar buffering color
-  
+
                   array[3] progress bar background
                 */
                 array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
@@ -453,8 +455,8 @@ Polymer('album-art', {
             }.bind(this));
           }
         }.bind(this));
-      });
-    }
+      }
+    });
   }
 });
 
