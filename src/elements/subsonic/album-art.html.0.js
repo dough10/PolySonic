@@ -269,8 +269,8 @@ Polymer('album-art', {
 
   paletteChanged: function () {
     if (this.palette !== undefined) {
-      Array.prototype.forEach.call(this.playlist, function (el) {
-        el.palette = this.palette;
+      Array.prototype.forEach.call(this.playlist, function (element) {
+        element.palette = this.palette;
       }.bind(this));
     }
   },
@@ -296,36 +296,34 @@ Polymer('album-art', {
     }.bind(this));
   },
   
-  getPalette: function () {
+  getPalette: function (callback) {
     var artId = "al-" + this.item;
     this.tmpl.getDbItem(artId + '-palette', function (e) {
       this.palette = e.target.result;
+      callback();
     }.bind(this));
   },
 
   doPlayback: function () {
     this.tmpl.$.searchDialog.close();
     this.tmpl.dataLoading = true;
-    this.getPalette();
-    this.async(function () {
+    this.getPalette(function () {
       this.doQuery(this.playAlbum.bind(this));
-    });
+    }.bind(this));
   },
   
   doDetails: function () {
     this.tmpl.dataLoading = true;
-    this.getPalette();
-    this.async(function () {
+    this.getPalette(function () {
       this.doQuery(this.doDialog.bind(this));
-    });
+    }.bind(this));
   },
   
   doAdd2Playlist: function () {
     this.tmpl.dataLoading = true;
-    this.getPalette();
-    this.async(function () {
+    this.getPalette(function () {
       this.doQuery(this.add2Playlist.bind(this));
-    });
+    }.bind(this));
   },
   
   processJSON: function (callback) {
@@ -359,10 +357,11 @@ Polymer('album-art', {
   },
   
   doQuery: function (callback) {
-    /*
-      search indexeddb for data
-    */
+    'use strict';
     this.queryingJSON = true;
+    /*
+      check indexeddb
+    */
     this.tmpl.getDbItem(this.item, function (event) {
       if (event.target.result) {
         this.trackResponse = event.target.result;
@@ -409,10 +408,12 @@ Polymer('album-art', {
                   imgURL = window.URL.createObjectURL(imgFile),
                   imgElement;
   
-                this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-                this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
-                this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
-                this.imgURL = imgURL;
+                this.async(function () {
+                  this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+                  this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
+                  this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
+                  this.imgURL = imgURL;
+                });
                 Array.prototype.forEach.call(this.playlist, function (e) {
                   e.cover = imgURL;
                 }.bind(this));
