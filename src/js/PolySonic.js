@@ -620,6 +620,43 @@
       });
     };
   
+    this.playerProgress = function () {
+      var audio = this.$.audio,
+          button = this.$.avIcon,
+          progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
+          currentMins = Math.floor(audio.currentTime / 60),
+          currentSecs = Math.floor(audio.currentTime - (currentMins * 60)),
+          totalMins = Math.floor(audio.duration / 60),
+          totalSecs = Math.floor(audio.duration - (totalMins * 60));
+
+      if (audio.duration) {
+        this.async(function () {
+          this.buffer = (audio.buffered.end(0) / audio.duration) * 100;
+        });
+      }
+
+      if (!audio.paused) {
+        this.async(function () {
+          button.icon = "av:pause";
+          this.isNowPlaying = true;
+          if (!audio.duration) {
+            this.contentLoading = true;
+            this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
+            this.progress = 0;
+          } else {
+            this.contentLoading = false;
+            this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
+            this.progress = progress;
+          }
+        });
+      } else {
+        this.async(function () {
+          this.isNowPlaying = false;
+          button.icon = "av:play-arrow";
+        });
+      }
+    };
+  
     this.sizePlayer = function () {
       var height = (window.innerHeight - 256) + 'px',
         width = window.innerWidth + 'px',
@@ -634,7 +671,8 @@
       var scroller = this.appScroller(),
         audio = this.$.audio,
         maximized = chrome.app.window.current().isMaximized(),
-        button = this.$.max;
+        button = this.$.max,
+        timer;
         
       if (maximized) {
         button.icon = 'check-box-outline-blank';
@@ -661,43 +699,28 @@
   
       */
       //window.onresize = this.sizePlayer.bind(this);
-      audio.ontimeupdate = function () {
-        var button = this.$.avIcon,
-          progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
-          currentMins = Math.floor(audio.currentTime / 60),
-          currentSecs = Math.floor(audio.currentTime - (currentMins * 60)),
-          totalMins = Math.floor(audio.duration / 60),
-          totalSecs = Math.floor(audio.duration - (totalMins * 60)),
-          buffer;
-
-        if (audio.duration) {
-          this.async(function () {
-            buffer = (audio.buffered.end(0) / audio.duration) * 100;
-            this.buffer = buffer;
-          });
+      
+      audio.onwaiting = this.playerProgress.bind(this);
+      
+      audio.onstalled = function (e) {
+        timer = setInterval(function () {
+          this.playerProgress();
+        }.bind(this), 250);
+      }.bind(this); 
+      
+      audio.onplay = function (e) {
+        if (timer) {
+          clearInterval(timer);
         }
-
-        if (!audio.paused) {
-          this.async(function () {
-            button.icon = "av:pause";
-            this.isNowPlaying = true;
-            if (!audio.duration) {
-              this.contentLoading = true;
-              this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
-              this.progress = 0;
-            } else {
-              this.contentLoading = false;
-              this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
-              this.progress = progress;
-            }
-          });
-        } else {
-          this.async(function () {
-            this.isNowPlaying = false;
-            button.icon = "av:play-arrow";
-          });
-        }
-      }.bind(this);
+      }; 
+      
+      audio.onpause = function (e) {
+        timer = setInterval(function () {
+          this.playerProgress();
+        }.bind(this), 250);
+      }.bind(this); 
+      
+      audio.ontimeupdate = this.playerProgress.bind(this);
   
       audio.onended = this.nextTrack.bind(this);
   
@@ -717,7 +740,7 @@
         this.listMode = result.listMode || 'cover';
         this.bitRate = result.bitRate || 320;
         this.version = '1.11.0';
-        this.querySize = 60;
+        this.querySize = 30;
         this.volume = result.volume || 100;
         this.queryMethod = result.queryMethod || 'ID3';
         this.folder = result.mediaFolder;
@@ -886,12 +909,10 @@
     };
   
     this.back2List = function () {
+      this.dataLoading = true;
+      this.page = 0;
       this.async(function () {
-        this.dataLoading = true;
-        this.page = 0;
-        this.async(function () {
-          this.dataLoading = false;
-        });
+        this.dataLoading = false;
       });
     };
   

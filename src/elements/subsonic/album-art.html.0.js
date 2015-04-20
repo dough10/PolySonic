@@ -89,10 +89,12 @@ Polymer('album-art', {
   },
   
   defaultArt: function () {
-    this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
-    this.$.smallCover.style.backgroundImage = "url('" + this.defaultImgURL + "')";
-    this.$.topper.style.backgroundImage = "url('" + this.defaultImgURL + "')";
-    this.imgURL = this.defaultImgURL;
+    this.async(function () {
+      this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      this.$.smallCover.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      this.$.topper.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      this.imgURL = this.defaultImgURL;
+    });
   },
 
   /*
@@ -394,67 +396,69 @@ Polymer('album-art', {
         this.defaultArt();
         this.playlist = null;
         this.playlist = [];
-        this.tmpl.getDbItem(artId, function (e) {
-          if (e.target.result) {
-            this.setImage(e);
-          } else {
-            /*
-              get image from subsonic server
-            */
-            this.tmpl.getImageFile(url, artId, function (event) {
-              var imgFile = event.target.result,
-                imgURL = window.URL.createObjectURL(imgFile),
-                imgElement;
-
-              this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-              this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
-              this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
-              this.imgURL = imgURL;
-              Array.prototype.forEach.call(this.playlist, function (e) {
-                e.cover = imgURL;
-              }.bind(this));
-              this.async(function () {
-                this.isLoading = false;
-              });
-
+        this.async(function () {
+          this.tmpl.getDbItem(artId, function (e) {
+            if (e.target.result) {
+              this.setImage(e);
+            } else {
               /*
-                get dominant color from image
+                get image from subsonic server
               */
-              imgElement = new Image();
-              imgElement.src = imgURL;
-              imgElement.onload = function () {
-                var color = this.tmpl.getColor(imgElement),
-                    array = [],
-                    r = color[1][0],
-                    g = color[1][1],
-                    b = color[1][2],
-                    hex = this.tmpl.rgbToHex(r, g, b);
-
-                /*
-                  array[0] fab color
-
-                  array[1] fab contrasting color
-
-                  array[2] progress bar buffering color
-
-                  array[3] progress bar background
-                */
-                array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-                array[1]= this.tmpl.getContrast50(hex);
-                array[2]= 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
-                if (array[1] !== 'white') {
-                  array[3] = '#444444';
-                } else {
-                  array[3] = '#c8c8c8';
-                }
-                this.palette = array;
-                this.tmpl.putInDb(array, artId + '-palette', function () {
-                  console.log('Color palette saved ' + artId);
+              this.tmpl.getImageFile(url, artId, function (event) {
+                var imgFile = event.target.result,
+                  imgURL = window.URL.createObjectURL(imgFile),
+                  imgElement;
+  
+                this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+                this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
+                this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
+                this.imgURL = imgURL;
+                Array.prototype.forEach.call(this.playlist, function (e) {
+                  e.cover = imgURL;
                 }.bind(this));
-              }.bind(this);
-            }.bind(this));
-          }
-        }.bind(this));
+                this.async(function () {
+                  this.isLoading = false;
+                });
+  
+                /*
+                  get dominant color from image
+                */
+                imgElement = new Image();
+                imgElement.src = imgURL;
+                imgElement.onload = function () {
+                  var color = this.tmpl.getColor(imgElement),
+                      array = [],
+                      r = color[1][0],
+                      g = color[1][1],
+                      b = color[1][2],
+                      hex = this.tmpl.rgbToHex(r, g, b);
+  
+                  /*
+                    array[0] fab color
+  
+                    array[1] fab contrasting color
+  
+                    array[2] progress bar buffering color
+  
+                    array[3] progress bar background
+                  */
+                  array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
+                  array[1]= this.tmpl.getContrast50(hex);
+                  array[2]= 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+                  if (array[1] !== 'white') {
+                    array[3] = '#444444';
+                  } else {
+                    array[3] = '#c8c8c8';
+                  }
+                  this.palette = array;
+                  this.tmpl.putInDb(array, artId + '-palette', function () {
+                    console.log('Color palette saved ' + artId);
+                  }.bind(this));
+                }.bind(this);
+              }.bind(this));
+            }
+          }.bind(this));
+        });
       }
     });
   }

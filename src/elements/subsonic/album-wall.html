@@ -74,7 +74,7 @@
               {{addAlbums}}
             </paper-shadow>
           </template>
-          <core-list id="cover" data="{{wall}}" flex grid='false' scrollTarget="{{scrollTarget}}">
+          <core-list id="cover" data="{{wall}}" scrollTarget="{{scrollTarget}}">
             <template>
               <div>
                 <album-art id='al{{model.id}}' listMode="cover" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}" colorThiefEnabled="{{colorThiefEnabled}}"></album-art>
@@ -98,7 +98,7 @@
               {{addAlbums}}
             </paper-shadow>
           </template>
-          <core-list id="list" data="{{wall}}" flex grid='false' scrollTarget="{{scrollTarget}}">
+          <core-list id="list" data="{{wall}}" scrollTarget="{{scrollTarget}}">
             <template>
               <div>
                 <album-art id='al{{model.id}}' listMode="list" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}" colorThiefEnabled="{{colorThiefEnabled}}"></album-art>
