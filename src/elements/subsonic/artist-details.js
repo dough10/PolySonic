@@ -24,7 +24,7 @@ Polymer('artist-details', {
   },
   playSomething: function (id, callback) {
     var album = this.$.all.querySelector('#' + id);
-    album.doPlayback();
+    album.playAlbum();
     callback();
   }
 });
