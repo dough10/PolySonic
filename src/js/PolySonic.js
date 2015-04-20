@@ -630,9 +630,7 @@
           totalSecs = Math.floor(audio.duration - (totalMins * 60));
 
       if (audio.duration) {
-        this.async(function () {
-          this.buffer = (audio.buffered.end(0) / audio.duration) * 100;
-        });
+        this.buffer = (audio.buffered.end(0) / audio.duration) * 100;
       }
 
       if (!audio.paused) {
@@ -734,16 +732,6 @@
         console.log('audio playback error ', e);
         this.tracker.sendEvent('Audio Playback Error', e.target);
       }.bind(this);
-
-      /* testing offline js library */
-      Offline.on('confirmed-down', function (e) {
-        console.log(e);
-      }.bind(this));
-
-      Offline.on('confirmed-up', function (e) {
-        console.log(e);
-      }.bind(this));
-      
     };
   
     this.loadData = function () {
