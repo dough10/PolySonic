@@ -75,9 +75,13 @@ Polymer('album-art', {
       imgElement;
 
     this.async(function () {
-      this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
+      if (this.page === 'cover') {
+        this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+      } else if (this.page === 'small') {
+        this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
+      }
       this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
-      this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+      
     });
     this.imgURL = imgURL;
     Array.prototype.forEach.call(this.playlist, function (e) {
@@ -90,8 +94,11 @@ Polymer('album-art', {
   
   defaultArt: function () {
     this.async(function () {
-      this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
-      this.$.smallCover.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      if (this.page === 'cover') {
+        this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      } else if (this.page === 'small') {
+        this.$.smallCover.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      }
       this.$.topper.style.backgroundImage = "url('" + this.defaultImgURL + "')";
       this.imgURL = this.defaultImgURL;
     });

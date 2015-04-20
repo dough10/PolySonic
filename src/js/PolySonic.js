@@ -703,6 +703,9 @@
       audio.onwaiting = this.playerProgress.bind(this);
       
       audio.onstalled = function (e) {
+        if (timer) {
+          clearInterval(timer);
+        }
         timer = setInterval(function () {
           this.playerProgress();
         }.bind(this), 250);
@@ -715,6 +718,9 @@
       }; 
       
       audio.onpause = function (e) {
+        if (timer) {
+          clearInterval(timer);
+        }
         timer = setInterval(function () {
           this.playerProgress();
         }.bind(this), 250);
@@ -728,6 +734,8 @@
         console.log('audio playback error ', e);
         this.tracker.sendEvent('Audio Playback Error', e.target);
       }.bind(this);
+      
+      
     };
   
     this.loadData = function () {
