@@ -734,7 +734,15 @@
         console.log('audio playback error ', e);
         this.tracker.sendEvent('Audio Playback Error', e.target);
       }.bind(this);
-      
+
+      /* testing offline js library */
+      Offline.on('confirmed-down', function (e) {
+        console.log(e);
+      }.bind(this));
+
+      Offline.on('confirmed-up', function (e) {
+        console.log(e);
+      }.bind(this));
       
     };
   
