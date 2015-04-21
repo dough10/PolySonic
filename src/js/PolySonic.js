@@ -910,10 +910,12 @@
     };
   
     this.back2List = function () {
-      this.dataLoading = true;
-      this.page = 0;
       this.async(function () {
-        this.dataLoading = false;
+        this.dataLoading = true;
+        this.page = 0;
+        this.async(function () {
+          this.dataLoading = false;
+        });
       });
     };
   
@@ -966,20 +968,21 @@
       var wall = this.$.wall;
       this.async(function () {
         this.closeDrawer();
-        if (wall.sort === sender.attributes.i.value) {
-          this.pageLimit = false;
-          if (this.queryMethod === 'ID3') {
-            wall.request = 'getAlbumList2';
-          } else {
-            wall.request = 'getAlbumList';
+        this.async(function () {
+          if (wall.sort === sender.attributes.i.value) {
+            this.pageLimit = false;
+            if (this.queryMethod === 'ID3') {
+              wall.request = 'getAlbumList2';
+            } else {
+              wall.request = 'getAlbumList';
+            }
+            wall.post.type = sender.attributes.i.value;
+            wall.refreshContent();
+            wall.showing = this.listMode;
+            wall.$.threshold.clearLower();
           }
-          wall.post.type = sender.attributes.i.value;
-          wall.refreshContent();
-          wall.showing = this.listMode;
-          wall.$.threshold.clearLower();
-        }
-        wall.sort = sender.attributes.i.value;
-        this.tracker.sendEvent('Sort By', sender.attributes.i.value);
+          wall.sort = sender.attributes.i.value;
+        });
       });
     };
     /*jslint unparam: false*/
@@ -988,8 +991,9 @@
       var wall = this.$.wall;
       this.async(function () {
         this.closeDrawer();
-        wall.getPodcast();
-        this.tracker.sendEvent('Sort By', 'Podcast');
+        this.async(function () {
+          wall.getPodcast();
+        });
       });
     };
   
@@ -997,8 +1001,9 @@
       var wall = this.$.wall;
       this.async(function () {
         this.closeDrawer();
-        wall.getStarred();
-        this.tracker.sendEvent('Sort By', 'Favorites');
+        this.async(function () {
+          wall.getStarred();
+        });
       });
     };
   
@@ -1006,8 +1011,9 @@
       var wall = this.$.wall;
       this.async(function () {
         this.closeDrawer();
-        wall.getArtist();
-        this.tracker.sendEvent('Sort By', 'Artist');
+        this.async(function () {
+          wall.getArtist();
+        });
       });
     };
   
