@@ -620,36 +620,41 @@
       });
     };
   
-    this.playerProgress = function () {
-      var audio = this.$.audio,
-          button = this.$.avIcon,
+    this.playerProgress = function (e) {
+      var audio;
+      if (e) {
+        audio = e.srcElement;
+      } else {
+        audio = this.$.audio;
+      }
+      var button = this.$.avIcon,
           progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
           currentMins = Math.floor(audio.currentTime / 60),
           currentSecs = Math.floor(audio.currentTime - (currentMins * 60)),
           totalMins = Math.floor(audio.duration / 60),
           totalSecs = Math.floor(audio.duration - (totalMins * 60));
-      this.async(function () {
-        if (audio.duration) {
-          this.buffer = (audio.buffered.end(0) / audio.duration) * 100;
-        }
+          
 
-        if (!audio.paused) {
-          button.icon = "av:pause";
-          this.isNowPlaying = true;
-          if (!audio.duration) {
-            this.contentLoading = true;
-            this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
-            this.progress = 0;
-          } else {
-            this.contentLoading = false;
-            this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
-            this.progress = progress;
-          }
+      if (audio.duration) {
+        this.buffer = (audio.buffered.end(0) / audio.duration) * 100;
+      }
+
+      if (!audio.paused) {
+        button.icon = "av:pause";
+        this.isNowPlaying = true;
+        if (!audio.duration) {
+          this.contentLoading = true;
+          this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
+          this.progress = 0;
         } else {
-          this.isNowPlaying = false;
-          button.icon = "av:play-arrow";
+          this.contentLoading = false;
+          this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
+          this.progress = progress;
         }
-      });
+      } else {
+        this.isNowPlaying = false;
+        button.icon = "av:play-arrow";
+      }
     };
   
     this.sizePlayer = function () {
@@ -674,8 +679,6 @@
       } else {
         button.icon = 'flip-to-back';
       }
-  
-      this.position = scroller.scrollTop;
   
       scroller.onscroll = function () {
         var fab = this.$.fab,
@@ -707,9 +710,7 @@
       }.bind(this); 
       
       audio.onplay = function (e) {
-        if (timer) {
-          clearInterval(timer);
-        }
+        if (timer) clearInterval(timer);
       }; 
       
       audio.onpause = function (e) {
@@ -737,14 +738,12 @@
         this.url = result.url;
         this.user = result.user;
         this.pass = result.pass;
-        this.tracker.sendEvent('ListMode', result.listMode);
         this.listMode = result.listMode || 'cover';
         this.bitRate = result.bitRate || 320;
         this.version = '1.11.0';
         this.querySize = 30;
         this.volume = result.volume || 100;
         this.queryMethod = result.queryMethod || 'ID3';
-        this.folder = result.mediaFolder;
         this.colorThiefEnabled = true;
         if (this.url && this.user && this.pass && this.version) {
           var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json',
@@ -758,6 +757,7 @@
                 console.log('Connected to Subconic loading data');
                 this.doXhr(url2, 'json', function (e) {
                   this.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                  this.folder = result.mediaFolder;
                   if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                     this.$.sortBox.style.display = 'none';
                   }
@@ -809,7 +809,7 @@
       }
       this.doXhr(url, 'json', function (e) {
         if (e.target.response['subsonic-response'].status === 'failed') {
-          console.log(e.target.response['subsonic-response']);
+          console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
           this.tracker.sendEvent('Last FM submission', 'Failed');
         }
       }.bind(this));
@@ -817,7 +817,7 @@
       audio.play();
       note.icon = image;
       note.show();
-      this.tracker.sendEvent('Audio', 'Started Playing');
+      this.tracker.sendEvent('Audio', 'Playing');
     };
   
     /*jslint unparam: true*/

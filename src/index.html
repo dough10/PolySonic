@@ -68,7 +68,7 @@
                 <paper-dropdown-menu label="{{folderSelectorLabel}}">
                   <paper-dropdown class="dropdown">
                     <core-menu class="menu" selected="{{folder}}" valueattr="i">
-                      <paper-item i="" on-tap="{{setFolder}}">{{folderSelectorLabel}}</paper-item>
+                      <paper-item i="0" on-tap="{{setFolder}}">{{folderSelectorLabel}}</paper-item>
                       <template repeat="{{mediaFolders}}">
                         <paper-item i="{{id}}" on-tap="{{setFolder}}">{{name}}</paper-item>
                       </template>

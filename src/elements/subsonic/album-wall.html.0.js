@@ -426,11 +426,9 @@ Polymer('album-wall', {
     if (this.post.offset !== 0) {
       this.post.offset = 0;
     }
-    this.async(function () {
-      this.clearData(function () {
-        this.$.ajax.go();
-      }.bind(this));
-    });
+    this.clearData(function () {
+      this.$.ajax.go();
+    }.bind(this));
   },
   
   downloadEpisode: function (event, detail, sender) {
