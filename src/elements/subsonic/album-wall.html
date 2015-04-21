@@ -58,7 +58,7 @@
     <core-scroll-threshold id="threshold" lowerThreshold="1500" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
     <div id="all">
-      <core-animated-pages selected="{{showing}}" valueattr="view">
+      <core-animated-pages selected="{{showing}}" valueattr="view" transitions="cross-fade-all">
         <div view="cover">
           <template if="{{!isLoading && !wall[0] && request === 'getStarred2'}}">
             <paper-shadow class='card' style="text-align:center;">

@@ -399,7 +399,7 @@ Polymer('album-art', {
           url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
       if (this.item) {
         this.isLoading = true;
-        this.defaultArt();
+        this.async(this.defaultArt.bind(this));
         this.playlist = null;
         this.playlist = [];
         this.async(function () {
@@ -431,38 +431,40 @@ Polymer('album-art', {
                 /*
                   get dominant color from image
                 */
-                imgElement = new Image();
-                imgElement.src = imgURL;
-                imgElement.onload = function () {
-                  var color = this.tmpl.getColor(imgElement),
-                      array = [],
-                      r = color[1][0],
-                      g = color[1][1],
-                      b = color[1][2],
-                      hex = this.tmpl.rgbToHex(r, g, b);
-  
-                  /*
-                    array[0] fab color
-  
-                    array[1] fab contrasting color
-  
-                    array[2] progress bar buffering color
-  
-                    array[3] progress bar background
-                  */
-                  array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-                  array[1]= this.tmpl.getContrast50(hex);
-                  array[2]= 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
-                  if (array[1] !== 'white') {
-                    array[3] = '#444444';
-                  } else {
-                    array[3] = '#c8c8c8';
-                  }
-                  this.palette = array;
-                  this.tmpl.putInDb(array, artId + '-palette', function () {
-                    console.log('Color palette saved ' + artId);
-                  }.bind(this));
-                }.bind(this);
+                this.async(function () {
+                  imgElement = new Image();
+                  imgElement.src = imgURL;
+                  imgElement.onload = function () {
+                    var color = this.tmpl.getColor(imgElement),
+                        array = [],
+                        r = color[1][0],
+                        g = color[1][1],
+                        b = color[1][2],
+                        hex = this.tmpl.rgbToHex(r, g, b);
+    
+                    /*
+                      array[0] fab color
+    
+                      array[1] fab contrasting color
+    
+                      array[2] progress bar buffering color
+    
+                      array[3] progress bar background
+                    */
+                    array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
+                    array[1]= this.tmpl.getContrast50(hex);
+                    array[2]= 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+                    if (array[1] !== 'white') {
+                      array[3] = '#444444';
+                    } else {
+                      array[3] = '#c8c8c8';
+                    }
+                    this.palette = array;
+                    this.tmpl.putInDb(array, artId + '-palette', function () {
+                      console.log('Color palette saved ' + artId);
+                    }.bind(this));
+                  }.bind(this);
+                });
               }.bind(this));
             }
           }.bind(this));

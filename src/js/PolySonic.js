@@ -163,10 +163,10 @@
   
     /*jslint unparam: true*/
     this.fixScroller = function (event, detail, sender) {
-      /*var scrollbar = this.appScroller();
+      var scrollbar = this.appScroller();
       if (event.type === 'core-animated-pages-transition-prepare' && event.target.id === 'main' && scrollbar.scrollTop !== 0) {
         scrollbar.scrollTop = 0;
-      }*/
+      }
     };
     /*jslint unparam: false*/
   
