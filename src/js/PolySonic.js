@@ -628,13 +628,12 @@
           currentSecs = Math.floor(audio.currentTime - (currentMins * 60)),
           totalMins = Math.floor(audio.duration / 60),
           totalSecs = Math.floor(audio.duration - (totalMins * 60));
+      this.async(function () {
+        if (audio.duration) {
+          this.buffer = (audio.buffered.end(0) / audio.duration) * 100;
+        }
 
-      if (audio.duration) {
-        this.buffer = (audio.buffered.end(0) / audio.duration) * 100;
-      }
-
-      if (!audio.paused) {
-        this.async(function () {
+        if (!audio.paused) {
           button.icon = "av:pause";
           this.isNowPlaying = true;
           if (!audio.duration) {
@@ -646,13 +645,11 @@
             this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
             this.progress = progress;
           }
-        });
-      } else {
-        this.async(function () {
+        } else {
           this.isNowPlaying = false;
           button.icon = "av:play-arrow";
-        });
-      }
+        }
+      });
     };
   
     this.sizePlayer = function () {

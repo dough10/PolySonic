@@ -15,7 +15,6 @@
     "web-animations-js": "web-animations/web-animations-js#^1.0.7",
     "core-list": "Polymer/core-list#^0.5.5",
     "core-label": "Polymer/core-label#^0.5.5",
-    "core-scroll-threshold": "Polymer/core-scroll-threshold#^0.5.5",
-    "offline": "craigshoemaker/offlinejs-simulate-ui"
+    "core-scroll-threshold": "Polymer/core-scroll-threshold#^0.5.5"
   }
 }
