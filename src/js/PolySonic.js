@@ -620,6 +620,43 @@
       });
     };
   
+    this.playerProgress = function (e) {
+      var audio;
+      if (e) {
+        audio = e.srcElement;
+      } else {
+        audio = this.$.audio;
+      }
+      var button = this.$.avIcon,
+          progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
+          currentMins = Math.floor(audio.currentTime / 60),
+          currentSecs = Math.floor(audio.currentTime - (currentMins * 60)),
+          totalMins = Math.floor(audio.duration / 60),
+          totalSecs = Math.floor(audio.duration - (totalMins * 60));
+          
+
+      if (audio.duration) {
+        this.buffer = (audio.buffered.end(0) / audio.duration) * 100;
+      }
+
+      if (!audio.paused) {
+        button.icon = "av:pause";
+        this.isNowPlaying = true;
+        if (!audio.duration) {
+          this.contentLoading = true;
+          this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
+          this.progress = 0;
+        } else {
+          this.contentLoading = false;
+          this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
+          this.progress = progress;
+        }
+      } else {
+        this.isNowPlaying = false;
+        button.icon = "av:play-arrow";
+      }
+    };
+  
     this.sizePlayer = function () {
       var height = (window.innerHeight - 256) + 'px',
         width = window.innerWidth + 'px',
@@ -634,15 +671,14 @@
       var scroller = this.appScroller(),
         audio = this.$.audio,
         maximized = chrome.app.window.current().isMaximized(),
-        button = this.$.max;
+        button = this.$.max,
+        timer;
         
       if (maximized) {
         button.icon = 'check-box-outline-blank';
       } else {
         button.icon = 'flip-to-back';
       }
-  
-      this.position = scroller.scrollTop;
   
       scroller.onscroll = function () {
         var fab = this.$.fab,
@@ -661,43 +697,32 @@
   
       */
       //window.onresize = this.sizePlayer.bind(this);
-      audio.ontimeupdate = function () {
-        var button = this.$.avIcon,
-          progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
-          currentMins = Math.floor(audio.currentTime / 60),
-          currentSecs = Math.floor(audio.currentTime - (currentMins * 60)),
-          totalMins = Math.floor(audio.duration / 60),
-          totalSecs = Math.floor(audio.duration - (totalMins * 60)),
-          buffer;
-
-        if (audio.duration) {
-          this.async(function () {
-            buffer = (audio.buffered.end(0) / audio.duration) * 100;
-            this.buffer = buffer;
-          });
+      
+      audio.onwaiting = this.playerProgress.bind(this);
+      
+      audio.onstalled = function (e) {
+        if (timer) {
+          clearInterval(timer);
         }
-
-        if (!audio.paused) {
-          this.async(function () {
-            button.icon = "av:pause";
-            this.isNowPlaying = true;
-            if (!audio.duration) {
-              this.contentLoading = true;
-              this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
-              this.progress = 0;
-            } else {
-              this.contentLoading = false;
-              this.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
-              this.progress = progress;
-            }
-          });
-        } else {
-          this.async(function () {
-            this.isNowPlaying = false;
-            button.icon = "av:play-arrow";
-          });
+        timer = setInterval(function () {
+          this.playerProgress();
+        }.bind(this), 250);
+      }.bind(this); 
+      
+      audio.onplay = function (e) {
+        if (timer) clearInterval(timer);
+      }; 
+      
+      audio.onpause = function (e) {
+        if (timer) {
+          clearInterval(timer);
         }
-      }.bind(this);
+        timer = setInterval(function () {
+          this.playerProgress();
+        }.bind(this), 250);
+      }.bind(this); 
+      
+      audio.ontimeupdate = this.playerProgress.bind(this);
   
       audio.onended = this.nextTrack.bind(this);
   
@@ -713,14 +738,12 @@
         this.url = result.url;
         this.user = result.user;
         this.pass = result.pass;
-        this.tracker.sendEvent('ListMode', result.listMode);
         this.listMode = result.listMode || 'cover';
         this.bitRate = result.bitRate || 320;
         this.version = '1.11.0';
-        this.querySize = 60;
+        this.querySize = 30;
         this.volume = result.volume || 100;
         this.queryMethod = result.queryMethod || 'ID3';
-        this.folder = result.mediaFolder;
         this.colorThiefEnabled = true;
         if (this.url && this.user && this.pass && this.version) {
           var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json',
@@ -734,6 +757,7 @@
                 console.log('Connected to Subconic loading data');
                 this.doXhr(url2, 'json', function (e) {
                   this.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                  this.folder = result.mediaFolder;
                   if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                     this.$.sortBox.style.display = 'none';
                   }
@@ -785,7 +809,7 @@
       }
       this.doXhr(url, 'json', function (e) {
         if (e.target.response['subsonic-response'].status === 'failed') {
-          console.log(e.target.response['subsonic-response']);
+          console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
           this.tracker.sendEvent('Last FM submission', 'Failed');
         }
       }.bind(this));
@@ -793,7 +817,7 @@
       audio.play();
       note.icon = image;
       note.show();
-      this.tracker.sendEvent('Audio', 'Started Playing');
+      this.tracker.sendEvent('Audio', 'Playing');
     };
   
     /*jslint unparam: true*/
@@ -944,20 +968,21 @@
       var wall = this.$.wall;
       this.async(function () {
         this.closeDrawer();
-        if (wall.sort === sender.attributes.i.value) {
-          this.pageLimit = false;
-          if (this.queryMethod === 'ID3') {
-            wall.request = 'getAlbumList2';
-          } else {
-            wall.request = 'getAlbumList';
+        this.async(function () {
+          if (wall.sort === sender.attributes.i.value) {
+            this.pageLimit = false;
+            if (this.queryMethod === 'ID3') {
+              wall.request = 'getAlbumList2';
+            } else {
+              wall.request = 'getAlbumList';
+            }
+            wall.post.type = sender.attributes.i.value;
+            wall.refreshContent();
+            wall.showing = this.listMode;
+            wall.$.threshold.clearLower();
           }
-          wall.post.type = sender.attributes.i.value;
-          wall.refreshContent();
-          wall.showing = this.listMode;
-          wall.$.threshold.clearLower();
-        }
-        wall.sort = sender.attributes.i.value;
-        this.tracker.sendEvent('Sort By', sender.attributes.i.value);
+          wall.sort = sender.attributes.i.value;
+        });
       });
     };
     /*jslint unparam: false*/
@@ -966,8 +991,9 @@
       var wall = this.$.wall;
       this.async(function () {
         this.closeDrawer();
-        wall.getPodcast();
-        this.tracker.sendEvent('Sort By', 'Podcast');
+        this.async(function () {
+          wall.getPodcast();
+        });
       });
     };
   
@@ -975,8 +1001,9 @@
       var wall = this.$.wall;
       this.async(function () {
         this.closeDrawer();
-        wall.getStarred();
-        this.tracker.sendEvent('Sort By', 'Favorites');
+        this.async(function () {
+          wall.getStarred();
+        });
       });
     };
   
@@ -984,8 +1011,9 @@
       var wall = this.$.wall;
       this.async(function () {
         this.closeDrawer();
-        wall.getArtist();
-        this.tracker.sendEvent('Sort By', 'Artist');
+        this.async(function () {
+          wall.getArtist();
+        });
       });
     };
   
