@@ -93,6 +93,7 @@ Polymer('album-art', {
   },
   
   defaultArt: function () {
+    'use strict';
     if (this.page === 'cover') {
       this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
     } else if (this.page === 'small') {
@@ -134,6 +135,7 @@ Polymer('album-art', {
   },
 
   closeDialog: function () {
+    'use strict';
     this.$.detailsDialog.close();
     this.tmpl.$.fab.state = 'off';
   },
@@ -194,7 +196,7 @@ Polymer('album-art', {
   addSingle2Playlist: function (event, detail, sender) {
     'use strict';
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
-        obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value,  duration: sender.attributes.duration.value , cover: this.imgURL};
+      obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value,  duration: sender.attributes.duration.value, cover: this.imgURL};
     this.tmpl.playlist.push(obj);
     if (this.audio.paused) {
       if (this.colorThiefEnabled && this.playlist[0].palette) {
@@ -234,7 +236,8 @@ Polymer('album-art', {
 
   addFavorite: function (event, detail, sender) {
     'use strict';
-    var animation = new CoreAnimation();
+    var animation = new CoreAnimation(),
+      url;
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
@@ -243,7 +246,7 @@ Polymer('album-art', {
     ];
     animation.target = sender;
     animation.play();
-    var url = this.url + "/rest/star.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
+    url = this.url + "/rest/star.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
     this.tmpl.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.isFavorite = true;
@@ -254,7 +257,8 @@ Polymer('album-art', {
 
   removeFavorite: function (event, detail, sender) {
     'use strict';
-    var animation = new CoreAnimation();
+    var animation = new CoreAnimation(),
+      url;
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
@@ -263,7 +267,7 @@ Polymer('album-art', {
     ];
     animation.target = sender;
     animation.play();
-    var url = this.url + "/rest/unstar.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
+    url = this.url + "/rest/unstar.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
     this.tmpl.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.isFavorite = false;
@@ -273,6 +277,7 @@ Polymer('album-art', {
   },
 
   paletteChanged: function () {
+    'use strict';
     if (this.palette !== undefined) {
       Array.prototype.forEach.call(this.playlist, function (element) {
         element.palette = this.palette;
@@ -281,12 +286,14 @@ Polymer('album-art', {
   },
   
   doSearchPlayback: function () {
+    'use strict';
     this.tmpl.$.searchDialog.close();
     this.tmpl.dataLoading = true;
     this.doQuery(this.playAlbum.bind(this));
   },
   
   doSearchDetails: function () {
+    'use strict';
     this.tmpl.$.searchDialog.close();
     this.tmpl.dataLoading = true;
     this.doQuery(function () {
@@ -297,11 +304,12 @@ Polymer('album-art', {
       if (this.colorThiefEnabled && this.playlist[0].palette) {
         this.tmpl.colorThiefAlbum = this.playlist[0].palette[0];
         this.tmpl.colorThiefAlbumOff = this.playlist[0].palette[1];
-      }      
+      }
     }.bind(this));
   },
   
   getPalette: function (callback) {
+    'use strict';
     var artId = "al-" + this.item;
     this.tmpl.getDbItem(artId + '-palette', function (e) {
       this.palette = e.target.result;
@@ -310,6 +318,7 @@ Polymer('album-art', {
   },
 
   doPlayback: function () {
+    'use strict';
     this.tmpl.$.searchDialog.close();
     this.tmpl.dataLoading = true;
     this.getPalette(function () {
@@ -318,6 +327,7 @@ Polymer('album-art', {
   },
   
   doDetails: function () {
+    'use strict';
     this.tmpl.dataLoading = true;
     this.getPalette(function () {
       this.doQuery(this.doDialog.bind(this));
@@ -325,6 +335,7 @@ Polymer('album-art', {
   },
   
   doAdd2Playlist: function () {
+    'use strict';
     this.tmpl.dataLoading = true;
     this.getPalette(function () {
       this.doQuery(this.add2Playlist.bind(this));
@@ -332,14 +343,15 @@ Polymer('album-art', {
   },
   
   processJSON: function (callback) {
+    'use strict';
     this.playlist.length = 0;
     this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
     this.tracks = this.trackResponse['subsonic-response'].album.song;
 
     /* sort tracks by diskNumber thanks Joe Shelby */
-    this.tracks.sort(function(a,b) {
-      var da = a.discNumber || 0, db = b.discNumber || 0;
-      var ta = a.track || 0, tb = b.track || 0;
+    this.tracks.sort(function (a, b) {
+      var da = a.discNumber || 0, db = b.discNumber || 0,
+        ta = a.track || 0, tb = b.track || 0;
       if (da === db) {
         // TODO - if ta === tb (no real id3 info?) consider sorting by path using localeCompare or just the < > compare operators?
         return ta - tb;
@@ -354,7 +366,7 @@ Polymer('album-art', {
           timeString = mins + ':' + ('0' + seconds).slice(-2),
           obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
         this.playlist.push(obj);
-      }.bind(this)); 
+      }.bind(this));
       this.async(function () {
         callback();
       });
@@ -387,14 +399,14 @@ Polymer('album-art', {
           }.bind(this));
         }.bind(this));
       }
-    }.bind(this));    
+    }.bind(this));
   },
 
   itemChanged: function () {
     'use strict';
     this.async(function () {
       var artId = "al-" + this.item,
-          url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
+        url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
       if (this.item) {
         this.isLoading = true;
         this.async(this.defaultArt.bind(this));
@@ -429,40 +441,38 @@ Polymer('album-art', {
                 /*
                   get dominant color from image
                 */
-                this.async(function () {
-                  imgElement = new Image();
-                  imgElement.src = imgURL;
-                  imgElement.onload = function () {
-                    var color = this.tmpl.getColor(imgElement),
-                        array = [],
-                        r = color[1][0],
-                        g = color[1][1],
-                        b = color[1][2],
-                        hex = this.tmpl.rgbToHex(r, g, b);
-    
-                    /*
-                      array[0] fab color
-    
-                      array[1] fab contrasting color
-    
-                      array[2] progress bar buffering color
-    
-                      array[3] progress bar background
-                    */
-                    array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-                    array[1]= this.tmpl.getContrast50(hex);
-                    array[2]= 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
-                    if (array[1] !== 'white') {
-                      array[3] = '#444444';
-                    } else {
-                      array[3] = '#c8c8c8';
-                    }
-                    this.palette = array;
-                    this.tmpl.putInDb(array, artId + '-palette', function () {
-                      console.log('Color palette saved ' + artId);
-                    }.bind(this));
-                  }.bind(this);
-                });
+                imgElement = new Image();
+                imgElement.src = imgURL;
+                imgElement.onload = function () {
+                  var color = this.tmpl.getColor(imgElement),
+                    array = [],
+                    r = color[1][0],
+                    g = color[1][1],
+                    b = color[1][2],
+                    hex = this.tmpl.rgbToHex(r, g, b);
+
+                  /*
+                    array[0] fab color
+
+                    array[1] fab contrasting color
+
+                    array[2] progress bar buffering color
+
+                    array[3] progress bar background
+                  */
+                  array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
+                  array[1] = this.tmpl.getContrast50(hex);
+                  array[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+                  if (array[1] !== 'white') {
+                    array[3] = '#444444';
+                  } else {
+                    array[3] = '#c8c8c8';
+                  }
+                  this.palette = array;
+                  this.tmpl.putInDb(array, artId + '-palette', function () {
+                    console.log('Color palette saved ' + artId);
+                  }.bind(this));
+                }.bind(this);
               }.bind(this));
             }
           }.bind(this));

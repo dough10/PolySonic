@@ -1,8 +1,8 @@
 /*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief, setTimeout */
 (function () {
+  'use strict';
   var tmpl = document.querySelector('#tmpl');
   tmpl.addEventListener('template-bound', function () {
-    'use strict';
   
     /*locale settings */
   
@@ -297,18 +297,17 @@
     };
   
     this.calculateStorageSize = function () {
-      navigator.webkitTemporaryStorage.queryUsageAndQuota(
-      function(used, remaining) {
+      navigator.webkitTemporaryStorage.queryUsageAndQuota(function (used, remaining) {
         var usedQuota = Math.round(10 * (((used / 1000) / 1000))) / 10,
-            remainingQuota = Math.round(10 * ((remaining / 1000) / 1000)) / 10,
-            bytes = 'MB';
+          remainingQuota = Math.round(10 * ((remaining / 1000) / 1000)) / 10,
+          bytes = 'MB';
         if (remainingQuota > 1000) {
           remainingQuota = Math.round(10 * (((remaining / 1000) / 1000) / 1000)) / 10;
           bytes = 'GB';
         }
         this.storageQuota = this.diskUsed + ": " + usedQuota  + " MB, " + this.diskRemaining + ": " + remainingQuota + " " + bytes;
-      }.bind(this), function(e) {
-        console.log('Error', e); 
+      }.bind(this), function (e) {
+        console.log('Error', e);
       });
     };
   
@@ -351,7 +350,7 @@
     
     this.savePlayQueue2Playlist = function () {
       var url = this.url + '/rest/createPlaylist.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&name=' + encodeURIComponent(this.defaultName),
-          hasRun = false;
+        hasRun = false;
       this.savingPlaylist = true;
       Array.prototype.forEach.call(this.playlist, function (item) {
         url = url + '&songId=' + item.id;
@@ -376,12 +375,12 @@
     
     this.playPlaylist = function (event, detail, sender) {
       var url = this.url + '/rest/getPlaylist.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + sender.attributes.ident.value,
-          tracks,
-          mins,
-          seconds,
-          artId,
-          obj,
-          timeString;
+        tracks,
+        mins,
+        seconds,
+        artId,
+        obj,
+        timeString;
       this.dataLoading = true;
       this.playlist = null;
       this.playlist = [];
@@ -410,7 +409,7 @@
   
     this.deletePlaylist = function (event, detail, sender) {
       var url = this.url + '/rest/deletePlaylist.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + sender.attributes.ident.value,
-          url2 = this.url + '/rest/getPlaylists.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
+        url2 = this.url + '/rest/getPlaylists.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
       this.doXhr(url, 'json', function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           this.playlistsLoading = true;
@@ -510,10 +509,10 @@
         imgElement.src = img;
         imgElement.onload = function () {
           var color = this.getColor(imgElement),
-              r = color[1][0],
-              g = color[1][1],
-              b = color[1][2],
-              array = [];
+            r = color[1][0],
+            g = color[1][1],
+            b = color[1][2],
+            array = [];
           array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
           array[1] = this.getContrast50(this.rgbToHex(r, g, b));
           array[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
@@ -525,7 +524,7 @@
           obj.palette = array;
           this.playlist.push(obj);
           this.putInDb(array, artId + '-palette', function () {
-            console.log('Color palette saved ' + artId );
+            console.log('Color palette saved ' + artId);
             this.async(function () {
               this.doShufflePlayback();
               this.dataLoading = false;
@@ -537,7 +536,7 @@
   
     this.fixCoverArtForShuffle = function (obj) {
       var artId = obj.cover,
-          img = this.url + '/rest/getCoverArt.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + artId;
+        img = this.url + '/rest/getCoverArt.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + artId;
           
       this.getDbItem(artId, function (ev) {
         if (ev.target.result) {
@@ -588,8 +587,8 @@
     this.doAction = function (event, detail, sender) {
       this.async(function () {
         var scroller = this.appScroller(),
-            wall = this.$.wall,
-            animation = new CoreAnimation();
+          wall = this.$.wall,
+          animation = new CoreAnimation();
         animation.duration = 1000;
         animation.iterations = 'Infinity';
         animation.keyframes = [
@@ -624,20 +623,18 @@
     };
   
     this.playerProgress = function (e) {
-      var audio;
+      var audio, button, progress, currentMins, currentSecs, totalMins, totalSecs;
       if (e) {
         audio = e.srcElement;
       } else {
         audio = this.$.audio;
       }
-      var button = this.$.avIcon,
-          progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100,
-          currentMins = Math.floor(audio.currentTime / 60),
-          currentSecs = Math.floor(audio.currentTime - (currentMins * 60)),
-          totalMins = Math.floor(audio.duration / 60),
-          totalSecs = Math.floor(audio.duration - (totalMins * 60));
-          
-
+      button = this.$.avIcon;
+      progress = Math.round((audio.currentTime / audio.duration * 100) * 100) / 100;
+      currentMins = Math.floor(audio.currentTime / 60);
+      currentSecs = Math.floor(audio.currentTime - (currentMins * 60));
+      totalMins = Math.floor(audio.duration / 60);
+      totalSecs = Math.floor(audio.duration - (totalMins * 60));
       if (audio.duration) {
         this.buffer = (audio.buffered.end(0) / audio.duration) * 100;
       }
@@ -710,11 +707,13 @@
         timer = setInterval(function () {
           this.playerProgress();
         }.bind(this), 250);
-      }.bind(this); 
+      }.bind(this);
       
       audio.onplay = function (e) {
-        if (timer) clearInterval(timer);
-      }; 
+        if (timer) {
+          clearInterval(timer);
+        }
+      };
       
       audio.onpause = function (e) {
         if (timer) {
@@ -723,7 +722,7 @@
         timer = setInterval(function () {
           this.playerProgress();
         }.bind(this), 250);
-      }.bind(this); 
+      }.bind(this);
       
       audio.ontimeupdate = this.playerProgress.bind(this);
   
@@ -737,7 +736,9 @@
   
     this.loadData = function () {
       chrome.storage.sync.get(function (result) {
-        if (result.url === undefined) this.$.firstRun.open();
+        if (result.url === undefined) {
+          this.$.firstRun.open();
+        }
         this.url = result.url;
         this.user = result.user;
         this.pass = result.pass;
@@ -750,7 +751,7 @@
         this.colorThiefEnabled = true;
         if (this.url && this.user && this.pass && this.version) {
           var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json',
-              url2;
+            url2;
           this.doXhr(url, 'json', function (e) {
             if (e.target.status === 200) {
               var response = e.target.response['subsonic-response'];
@@ -1032,7 +1033,7 @@
   
     this.setFolder = function (event, detail, sender) {
       this.async(function () {
-        var value = parseInt(sender.attributes.i.value);
+        var value = parseInt(sender.attributes.i.value, 10);
         this.folder = value;
         chrome.storage.sync.set({
           'mediaFolder': value
@@ -1078,7 +1079,8 @@
   
     this.refreshPodcast = function (event, detail, sender) {
       this.async(function () {
-        var animation = new CoreAnimation();
+        var animation = new CoreAnimation(),
+          url;
         animation.duration = 1000;
         animation.iterations = 'Infinity';
         animation.keyframes = [
@@ -1087,7 +1089,7 @@
         ];
         animation.target = sender;
         animation.play();
-        var url = this.url + "/rest/refreshPodcasts.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic";
+        url = this.url + "/rest/refreshPodcasts.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic";
         this.doXhr(url, 'json', function (e) {
           if (e.target.response['subsonic-response'].status === 'ok') {
             animation.cancel();
@@ -1131,13 +1133,13 @@
       return colorThief.getPalette(image, 4);
     };
   
-    this.getContrast50  = function (hexcolor){
-      return (parseInt(hexcolor, 16) > 0xffffff/2) ? 'black':'white';
+    this.getContrast50  = function (hexcolor) {
+      return (parseInt(hexcolor, 16) > 0xffffff / 2) ? 'black' : 'white';
     };
   
     this.componentToHex = function (c) {
       var hex = c.toString(16);
-      return hex.length == 1 ? "0" + hex : hex;
+      return hex.length === 1 ? "0" + hex : hex;
     };
   
     this.rgbToHex = function (r, g, b) {
@@ -1151,7 +1153,7 @@
     this.calculateStorageSize();
 
     chrome.commands.onCommand.addListener(function (command) {
-      var audio =this.$.audio;
+      var audio = this.$.audio;
       if (command === "playPauseMediaKey") {
         this.playPause();
       } else if (!audio.paused && command === "nextTrackMediaKey") {
@@ -1165,4 +1167,4 @@
   
   });
 
-})();
+}());

@@ -1,3 +1,4 @@
+/*global Polymer, console, chrome, document, Blob, window, Image, CoreAnimation */
 Polymer('album-wall', {
   created: function () {
     'use strict';
@@ -7,7 +8,7 @@ Polymer('album-wall', {
         c: 'PolySonic',
         type: res.sortType || 'newest',
         size: 20,
-        offset: 0,
+        offset: 0
       };
       this.request = res.request || 'getAlbumList2';
       this.showing = this.showing || 'cover';
@@ -27,6 +28,7 @@ Polymer('album-wall', {
   
   ready: function () {
     /* locale settings */
+    'use strict';
     this.noFavoriteHeader = chrome.i18n.getMessage("noFavoriteHeader");
     this.noFavoriteMessage = chrome.i18n.getMessage("noFavoriteMessage");
     this.addContent = chrome.i18n.getMessage("addContent");
@@ -67,6 +69,7 @@ Polymer('album-wall', {
   },
   
   mediaFolderChanged: function () {
+    'use strict';
     if (this.mediaFolder !== 0) {
       this.post.musicFolderId = this.mediaFolder;
     } else {
@@ -138,7 +141,7 @@ Polymer('album-wall', {
               this.artists.push(obj);
             }.bind(this));
           } else {
-            tmpl.pageLimit = true;
+            this.tmpl.pageLimit = true;
           }
         });
       }
@@ -153,6 +156,7 @@ Polymer('album-wall', {
   },
   
   artistDetails: function (event, detail, sender) {
+    'use strict';
     var artist = document.getElementById("aDetails");
     this.tmpl.dataLoading = true;
     artist.artistId = sender.attributes.ident.value;
@@ -299,6 +303,7 @@ Polymer('album-wall', {
   },
   
   doPlay: function (obj, url) {
+    'use strict';
     this.tmpl.playlist = [obj];
     this.tmpl.playing = 0;
     this.tmpl.playAudio('', obj.title, url, obj.cover, obj.id);
@@ -308,9 +313,9 @@ Polymer('album-wall', {
     'use strict';
     this.async(function () {
       var artURL = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.cover.value,
-          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value,
-          imgURL,
-          obj;
+        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value,
+        imgURL,
+        obj;
 
       /*removes color settings from fab */
       this.tmpl.colorThiefFab = undefined;
@@ -338,7 +343,7 @@ Polymer('album-wall', {
               this.doPlay(obj, url);
             }.bind(this));
           }
-        }.bind(this));        
+        }.bind(this));
       } else {
         imgURL = '../../../images/default-cover-art.png';
         obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
@@ -352,9 +357,9 @@ Polymer('album-wall', {
   add2Playlist: function (event, detial, sender) {
     'use strict';
     var artURL = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.cover.value,
-        imgURL,
-        obj,
-        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value;
+      imgURL,
+      obj,
+      url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value;
 
     /*removes color settings from fab */
     this.tmpl.colorThiefFab = undefined;
@@ -381,7 +386,7 @@ Polymer('album-wall', {
             this.doPlay(obj, url);
           }.bind(this));
         }
-      }.bind(this));        
+      }.bind(this));
     } else {
       imgURL = '../../../images/default-cover-art.png';
       if (this.audio.paused) {
@@ -396,6 +401,7 @@ Polymer('album-wall', {
   },
   
   showingChanged: function () {
+    'use strict';
     var fab = document.getElementById('fab');
     if (this.showing === 'podcast') {
       fab.state = 'podcast';
@@ -405,10 +411,14 @@ Polymer('album-wall', {
   },
   
   topOfPage: function () {
-    this.scrollTarget.scrollTop = 0;
+    'use strict';
+    this.async(function () {
+      this.scrollTarget.scrollTop = 0;
+    });
   },
   
   deleteDialog: function (event, detail, sender) {
+    'use strict';
     this.tmpl.delID = sender.attributes.ident.value;
     this.tmpl.$.confirmDelete.open();
   },
@@ -426,6 +436,7 @@ Polymer('album-wall', {
   },
   
   refreshContent: function () {
+    'use strict';
     if (this.post.offset !== 0) {
       this.post.offset = 0;
     }
@@ -435,6 +446,7 @@ Polymer('album-wall', {
   },
   
   downloadEpisode: function (event, detail, sender) {
+    'use strict';
     var url = this.url + "/rest/downloadPodcastEpisode.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.ident.value;
     this.tmpl.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
@@ -447,6 +459,7 @@ Polymer('album-wall', {
   },
   
   episodeDialog: function (event, detail, sender) {
+    'use strict';
     this.tmpl.delID = sender.attributes.ident.value;
     this.tmpl.$.episodeConfirm.open();
   },
@@ -464,11 +477,13 @@ Polymer('album-wall', {
   },
   
   toggleCollapse: function (event, detail, sender) {
+    'use strict';
     var id = '#' + sender.attributes.ident.value;
     this.$.all.querySelector(id).toggle();
   },
   
   playSomething: function (id, callback) {
+    'use strict';
     var album = this.$.all.querySelector('#' + id);
     album.doPlayback();
     this.async(function () {
@@ -477,14 +492,15 @@ Polymer('album-wall', {
   },
   
   jumpToLetter: function (letter) {
-    var findIndexByKeyValue = function(arraytosearch, key, valuetosearch) {
-      for (var i = 0; i < arraytosearch.length; i++) {
-        if (arraytosearch[i][key] == valuetosearch) {
+    'use strict';
+    var i, item, findIndexByKeyValue = function (arraytosearch, key, valuetosearch) {
+      for (i = 0; i < arraytosearch.length; i = i + 1) {
+        if (arraytosearch[i][key] === valuetosearch) {
           return i;
         }
       }
       return null;
-    },
+    };
     item = findIndexByKeyValue(this.artists, 'name', letter);
     this.$.artists.scrollToItem(item);
   }
