@@ -80,6 +80,7 @@ Polymer('album-wall', {
   
   clearData: function (callback) {
     'use strict';
+    this.isLoading = true;
     this.tmpl.dataLoading = true;
     if (this.scrollTarget) {
       this.scrollTarget.scrollTop = 0;
@@ -104,40 +105,42 @@ Polymer('album-wall', {
         console.log(response.error.message);
         this.tmpl.doToast(response.error.message);
       } else {
-        if (response.albumList2 && response.albumList2.album) {
-          Array.prototype.forEach.call(response.albumList2.album, function (e) {
-            var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
-            wall.push(obj);
-          }.bind(this));
-        } else if (response.albumList && response.albumList.album) {
-          Array.prototype.forEach.call(response.albumList.album, function (e) {
-            var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
-            wall.push(obj);
-          }.bind(this));
-        } else if (response.starred2 && response.starred2.album) {
-          Array.prototype.forEach.call(response.starred2.album, function (e) {
-            var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
-            wall.push(obj);
-          }.bind(this));
-        } else if (response.starred && response.starred.album) {
-          Array.prototype.forEach.call(response.starred.album, function (e) {
-            var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
-            wall.push(obj);
-          }.bind(this));
-        } else if (response.podcasts && response.podcasts.channel) {
-          Array.prototype.forEach.call(response.podcasts.channel, function (e) {
-            var art = e.episode[0].coverArt,
-              obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
-            this.podcast.push(obj);
-          }.bind(this));
-        } else if (response.artists) {
-          Array.prototype.forEach.call(response.artists.index, function (e) {
-            var obj = {name: e.name, artist: e.artist};
-            this.artists.push(obj);
-          }.bind(this));
-        } else {
-          tmpl.pageLimit = true;
-        }
+        this.async(function () {
+          if (response.albumList2 && response.albumList2.album) {
+            Array.prototype.forEach.call(response.albumList2.album, function (e) {
+              var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
+              wall.push(obj);
+            }.bind(this));
+          } else if (response.albumList && response.albumList.album) {
+            Array.prototype.forEach.call(response.albumList.album, function (e) {
+              var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
+              wall.push(obj);
+            }.bind(this));
+          } else if (response.starred2 && response.starred2.album) {
+            Array.prototype.forEach.call(response.starred2.album, function (e) {
+              var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
+              wall.push(obj);
+            }.bind(this));
+          } else if (response.starred && response.starred.album) {
+            Array.prototype.forEach.call(response.starred.album, function (e) {
+              var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
+              wall.push(obj);
+            }.bind(this));
+          } else if (response.podcasts && response.podcasts.channel) {
+            Array.prototype.forEach.call(response.podcasts.channel, function (e) {
+              var art = e.episode[0].coverArt,
+                obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
+              this.podcast.push(obj);
+            }.bind(this));
+          } else if (response.artists) {
+            Array.prototype.forEach.call(response.artists.index, function (e) {
+              var obj = {name: e.name, artist: e.artist};
+              this.artists.push(obj);
+            }.bind(this));
+          } else {
+            tmpl.pageLimit = true;
+          }
+        });
       }
       /*
         will hide loading screen overlay
@@ -468,11 +471,13 @@ Polymer('album-wall', {
   playSomething: function (id, callback) {
     var album = this.$.all.querySelector('#' + id);
     album.doPlayback();
-    callback();
+    this.async(function () {
+      callback();
+    });
   },
   
   jumpToLetter: function (letter) {
-    var functiontofindIndexByKeyValue = function(arraytosearch, key, valuetosearch) {
+    var findIndexByKeyValue = function(arraytosearch, key, valuetosearch) {
       for (var i = 0; i < arraytosearch.length; i++) {
         if (arraytosearch[i][key] == valuetosearch) {
           return i;
@@ -480,7 +485,7 @@ Polymer('album-wall', {
       }
       return null;
     },
-    item = functiontofindIndexByKeyValue(this.artists, 'name', letter);
+    item = findIndexByKeyValue(this.artists, 'name', letter);
     this.$.artists.scrollToItem(item);
   }
 });
