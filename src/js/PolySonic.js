@@ -180,6 +180,7 @@
     };
   
     this.xhrError = function (e) {
+      this.dataLoading = false;
       console.log(e);
       this.doToast(chrome.i18n.getMessage("connectionError"));
     }.bind(this);
@@ -597,7 +598,9 @@
         ];
         animation.target = sender;
         if (this.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast' && this.$.fab.state === 'bottom') {
-          scroller.scrollTop = 0;
+          this.async(function () {
+            scroller.scrollTop = 0;
+          });
         }
         if (this.page === 0 && wall.showing === 'podcast') {
           this.$.addPodcast.open();
