@@ -93,15 +93,13 @@ Polymer('album-art', {
   },
   
   defaultArt: function () {
-    this.async(function () {
-      if (this.page === 'cover') {
-        this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
-      } else if (this.page === 'small') {
-        this.$.smallCover.style.backgroundImage = "url('" + this.defaultImgURL + "')";
-      }
-      this.$.topper.style.backgroundImage = "url('" + this.defaultImgURL + "')";
-      this.imgURL = this.defaultImgURL;
-    });
+    if (this.page === 'cover') {
+      this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+    } else if (this.page === 'small') {
+      this.$.smallCover.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+    }
+    this.$.topper.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+    this.imgURL = this.defaultImgURL;
   },
 
   /*
