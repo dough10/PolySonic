@@ -105,10 +105,11 @@ Polymer('album-wall', {
       this.tmpl.dataLoading = false;
       this.tmpl.showApp();
     }.bind(this),
-    i = 0;
+    i = 0,
+    wall = this.wall,
+    response;
     if (this.response) {
-      var wall = this.wall,
-        response = this.response['subsonic-response'];
+      response = this.response['subsonic-response'];
       if (response.status === 'failed') {
         console.log(response.error.message);
         this.tmpl.doToast(response.error.message);
