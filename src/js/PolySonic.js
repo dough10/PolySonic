@@ -380,7 +380,8 @@
         seconds,
         artId,
         obj,
-        timeString;
+        timeString,
+        i = 0;
       this.dataLoading = true;
       this.playlist = null;
       this.playlist = [];
@@ -394,9 +395,10 @@
           artId = "al-" + item.albumId;
           obj = {id: item.id, artist: item.artist, title: item.title, duration: timeString, cover: artId};
           this.fixCoverArtForShuffle(obj);
-          this.async(function () {
+          i = i + 1;
+          if (i === tracks.length) {
             this.closePlaylists();
-          });
+          } 
         }.bind(this));
       }.bind(this));
     };

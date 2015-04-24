@@ -79,9 +79,9 @@ Polymer('album-art', {
         this.$.card.style.backgroundImage = "url('" + imgURL + "')";
       } else if (this.page === 'small') {
         this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
+        this.$.card.style.backgroundImage = "url('')";
       }
       this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
-      
     });
     this.imgURL = imgURL;
     Array.prototype.forEach.call(this.playlist, function (e) {
@@ -344,6 +344,7 @@ Polymer('album-art', {
   
   processJSON: function (callback) {
     'use strict';
+    var i = 0;
     this.playlist.length = 0;
     this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
     this.tracks = this.trackResponse['subsonic-response'].album.song;
@@ -366,10 +367,11 @@ Polymer('album-art', {
           timeString = mins + ':' + ('0' + seconds).slice(-2),
           obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
         this.playlist.push(obj);
+        i = i + 1;
+        if (i === this.tracks.length) {
+          callback();
+        }
       }.bind(this));
-      this.async(function () {
-        callback();
-      });
     });
   },
   
@@ -425,19 +427,20 @@ Polymer('album-art', {
                   imgURL = window.URL.createObjectURL(imgFile),
                   imgElement;
   
-                this.async(function () {
-                  this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-                  this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
-                  this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
-                  this.imgURL = imgURL;
-                });
                 Array.prototype.forEach.call(this.playlist, function (e) {
                   e.cover = imgURL;
                 }.bind(this));
                 this.async(function () {
+                  if (this.page === 'cover') {
+                    this.$.card.style.backgroundImage = "url('" + imgURL + "')";
+                  } else if (this.page === 'small') {
+                    this.$.card.style.backgroundImage = "url('')";
+                    this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
+                  }
+                  this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
+                  this.imgURL = imgURL;
                   this.isLoading = false;
                 });
-  
                 /*
                   get dominant color from image
                 */
