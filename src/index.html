@@ -207,7 +207,7 @@
                   <template if="{{volume > 66}}">
                     <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
                   </template>
-                  <template if="{{volume > 33 && volume < 66}}">
+                  <template if="{{volume >= 33 && volume <= 66}}">
                     <paper-icon-button id="volume" icon="av:volume-down" on-tap="{{toggleVolume}}"></paper-icon-button>
                   </template>
                   <template if="{{volume > 1 && volume < 33}}">
