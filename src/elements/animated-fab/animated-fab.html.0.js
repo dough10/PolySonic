@@ -15,7 +15,7 @@
         } else if (this.page === 2)  {
           pName = 'Settings';
           this.state = 'off';
-        } else if (this.page === 4) {
+        } else if (this.page === 3) {
           pName = 'Artist Details';
           this.state = 'off';
         } else {
