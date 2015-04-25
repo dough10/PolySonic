@@ -75,13 +75,7 @@ Polymer('album-art', {
       imgElement;
 
     this.async(function () {
-      if (this.page === 'cover') {
-        this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-      } else if (this.page === 'small') {
-        this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
-        this.$.card.style.backgroundImage = "url('')";
-      }
-      this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
+      this.showArt(imgURL);
     });
     this.imgURL = imgURL;
     Array.prototype.forEach.call(this.playlist, function (e) {
@@ -92,15 +86,21 @@ Polymer('album-art', {
     });
   },
   
-  defaultArt: function () {
+  showArt: function (image) {
     'use strict';
     if (this.page === 'cover') {
-      this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      this.$.card.style.backgroundImage = "url('" + image + "')";
     } else if (this.page === 'small') {
-      this.$.smallCover.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      this.$.smallCover.style.backgroundImage = "url('" + image + "')";
+      this.$.card.style.backgroundImage = null;
     }
-    this.$.topper.style.backgroundImage = "url('" + this.defaultImgURL + "')";
-    this.imgURL = this.defaultImgURL;
+    this.$.topper.style.backgroundImage = "url('" + image + "')";
+    this.imgURL = image;
+  },
+
+  defaultArt: function () {
+    'use strict';
+    this.showArt(this.defaultImgURL);
   },
 
   /*
@@ -153,13 +153,14 @@ Polymer('album-art', {
     if (this.audio.paused) {
       this.tmpl.playing = 0;
       this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL, this.playlist[0].id);
-      this.tmpl.getImageForPlayer(this.imgURL);
-      if (this.colorThiefEnabled && this.playlist[0].palette) {
-        this.tmpl.colorThiefFab = this.playlist[0].palette[0];
-        this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
-        this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
-        this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
-      }
+      this.tmpl.getImageForPlayer(this.imgURL, function () {
+        if (this.colorThiefEnabled && this.playlist[0].palette) {
+          this.tmpl.colorThiefFab = this.playlist[0].palette[0];
+          this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
+          this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
+          this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
+        }
+      }.bind(this));
     }
     Array.prototype.forEach.call(this.playlist, function (e) {
       this.tmpl.playlist.push(e);
@@ -228,10 +229,11 @@ Polymer('album-art', {
     }
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
     this.tmpl.page = 1;
-    this.tmpl.getImageForPlayer(this.imgURL);
-    this.tmpl.playlist = this.playlist;
-    this.tmpl.playing = 0;
-    this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL, this.playlist[0].id);
+    this.tmpl.getImageForPlayer(this.imgURL, function () {
+      this.tmpl.playlist = this.playlist;
+      this.tmpl.playing = 0;
+      this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL, this.playlist[0].id);
+    }.bind(this));
   },
 
   addFavorite: function (event, detail, sender) {
@@ -431,14 +433,7 @@ Polymer('album-art', {
                   e.cover = imgURL;
                 }.bind(this));
                 this.async(function () {
-                  if (this.page === 'cover') {
-                    this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-                  } else if (this.page === 'small') {
-                    this.$.card.style.backgroundImage = "url('')";
-                    this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
-                  }
-                  this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
-                  this.imgURL = imgURL;
+                  this.showArt(imgURL);
                   this.isLoading = false;
                 });
                 /*

@@ -204,7 +204,18 @@
                   <template if="{{playlist[0]}}">
                     <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
                   </template>
-                  <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
+                  <template if="{{volume > 66}}">
+                    <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
+                  </template>
+                  <template if="{{volume > 33 && volume < 66}}">
+                    <paper-icon-button id="volume" icon="av:volume-down" on-tap="{{toggleVolume}}"></paper-icon-button>
+                  </template>
+                  <template if="{{volume > 1 && volume < 33}}">
+                    <paper-icon-button id="volume" icon="av:volume-mute" on-tap="{{toggleVolume}}"></paper-icon-button>
+                  </template>
+                  <template if="{{volume === 0}}">
+                    <paper-icon-button id="volume" icon="av:volume-off" on-tap="{{toggleVolume}}"></paper-icon-button>
+                  </template>
                 </div>
               </div>
             </section>

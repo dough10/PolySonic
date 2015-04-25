@@ -122,12 +122,13 @@
       dataBase.createObjectStore("albumInfo");
     };
   
-    this.getImageForPlayer = function (url) {
+    this.getImageForPlayer = function (url, callback) {
       var art = this.$.coverArt,
         note = this.$.playNotify;
   
       art.style.backgroundImage = "url('" + url + "')";
       note.icon = url;
+      callback();
     };
   
     this.defaultPlayImage = function () {
@@ -579,10 +580,11 @@
         var art = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
         this.playing = 0;
         this.playAudio(this.playlist[0].artist, this.playlist[0].title, art, this.playlist[0].cover, this.playlist[0].id);
-        this.getImageForPlayer(this.playlist[0].cover);
-        this.page = 1;
-        this.$.shuffleOptions.close();
-        this.shuffleLoading = false;
+        this.getImageForPlayer(this.playlist[0].cover, function () {
+          this.page = 1;
+          this.$.shuffleOptions.close();
+          this.shuffleLoading = false;
+        }.bind(this));
       }
     };
   
@@ -844,7 +846,7 @@
       }
       this.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, sender.attributes.cover.value, sender.attributes.ident.value);
       if (sender.attributes.cover.value) {
-        this.getImageForPlayer(sender.attributes.cover.value);
+        this.getImageForPlayer(sender.attributes.cover.value, function () {});
       } else {
         this.defaultPlayImage();
       }
@@ -868,7 +870,7 @@
         this.playAudio(this.playlist[next].artist, this.playlist[next].title, url, this.playlist[next].cover, this.playlist[next].id);
         this.playing = next;
         if (this.playlist[next].cover) {
-          this.getImageForPlayer(this.playlist[next].cover);
+          this.getImageForPlayer(this.playlist[next].cover, function () {});
         } else {
           this.defaultPlayImage();
         }

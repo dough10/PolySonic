@@ -102,12 +102,14 @@ Polymer('album-wall', {
   responseChanged: function () {
     'use strict';
     var callback = function () {
-      this.tmpl.dataLoading = false;
-      this.tmpl.showApp();
-    }.bind(this),
-    i = 0,
-    wall = this.wall,
-    response;
+        this.async(function () {
+          this.tmpl.dataLoading = false;
+          this.tmpl.showApp();
+        });
+      }.bind(this),
+      i = 0,
+      wall = this.wall,
+      response;
     if (this.response) {
       response = this.response['subsonic-response'];
       if (response.status === 'failed') {
@@ -157,7 +159,7 @@ Polymer('album-wall', {
                 obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
               this.podcast.push(obj);
               i = i + 1;
-              if (i === response.podcast.chanel.length) {
+              if (i === response.podcasts.channel.length) {
                 callback();
               }
             }.bind(this));
@@ -317,14 +319,19 @@ Polymer('album-wall', {
           } else {
             this.showing = 'list';
           }
-          this.async(function () {
-            this.tmpl.dataLoading = false;
-          });
+          this.tmpl.dataLoading = false;
         }
       });
     }
   },
   
+  getPaletteFromDb: function (id, callback) {
+    'use strict';
+    this.tmpl.getDbItem(id + '-palette', function (e) {
+      callback(e.target.result);
+    }.bind(this));
+  },
+
   doPlay: function (obj, url) {
     'use strict';
     this.tmpl.playlist = [obj];
@@ -340,14 +347,6 @@ Polymer('album-wall', {
         imgURL,
         obj;
 
-      /*removes color settings from fab */
-      this.tmpl.colorThiefFab = undefined;
-      this.tmpl.colorThiefFabOff = undefined;
-      this.tmpl.colorThiefAlbum = undefined;
-      this.tmpl.colorThiefAlbumOff = undefined;
-      this.tmpl.colorThiefBuffered = undefined;
-      this.tmpl.colorThiefProgBg = undefined;
-
       if (sender.attributes.cover.value) {
         /* look for image in indexeddb */
         this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {
@@ -355,15 +354,25 @@ Polymer('album-wall', {
             var imgFile = ev.target.result;
             imgURL = window.URL.createObjectURL(imgFile);
             obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-            this.tmpl.getImageForPlayer(imgURL);
-            this.doPlay(obj, url);
+            this.tmpl.getImageForPlayer(imgURL, function () {
+              this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
+                obj.palette = palette;
+                this.setFabColor(palette);
+                this.doPlay(obj, url);
+              }.bind(this));
+            }.bind(this));
           } else {
             this.tmpl.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
               var imgFile = ev.target.result;
               imgURL = window.URL.createObjectURL(imgFile);
               obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-              this.tmpl.getImageForPlayer(imgURL);
-              this.doPlay(obj, url);
+              this.tmpl.getImageForPlayer(imgURL, function () {
+                this.getColorPalette(sender.attributes.cover.value, imgURL, function (array) {
+                  obj.palette = array;
+                  this.setFabColor(array);
+                  this.doPlay(obj, url);
+                }.bind(this));
+              }.bind(this));
             }.bind(this));
           }
         }.bind(this));
@@ -377,19 +386,58 @@ Polymer('album-wall', {
     });
   },
   
+  getColorPalette: function (id, imgURL, callback) {
+    'use strict';
+    var imgElement = new Image();
+    imgElement.src = imgURL;
+    imgElement.onload = function () {
+      var color = this.tmpl.getColor(imgElement),
+        array = [],
+        r = color[1][0],
+        g = color[1][1],
+        b = color[1][2],
+        hex = this.tmpl.rgbToHex(r, g, b);
+
+      /*
+        array[0] fab color
+
+        array[1] fab contrasting color
+
+        array[2] progress bar buffering color
+
+        array[3] progress bar background
+      */
+      array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
+      array[1] = this.tmpl.getContrast50(hex);
+      array[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+      if (array[1] !== 'white') {
+        array[3] = '#444444';
+      } else {
+        array[3] = '#c8c8c8';
+      }
+      this.tmpl.putInDb(array, id + '-palette', function () {
+        callback(array);
+        console.log('Color palette saved ' + id);
+      }.bind(this));
+    }.bind(this);
+  },
+
+  setFabColor: function (array) {
+    'use strict';
+    if (this.colorThiefEnabled && array) {
+      this.tmpl.colorThiefFab = array[0];
+      this.tmpl.colorThiefFabOff = array[1];
+      this.tmpl.colorThiefBuffered = array[2];
+      this.tmpl.colorThiefProgBg = array[3];
+    }
+  },
+
   add2Playlist: function (event, detial, sender) {
     'use strict';
     var artURL = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.cover.value,
       imgURL,
       obj,
       url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value;
-
-    /*removes color settings from fab */
-    this.tmpl.colorThiefFab = undefined;
-    this.tmpl.colorThiefFabOff = undefined;
-    this.tmpl.colorThiefAlbum = undefined;
-    this.tmpl.colorThiefAlbumOff = undefined;
-    this.tmpl.colorThiefBuffered = undefined;
 
     if (sender.attributes.cover.value) {
       /* look for image in indexeddb */
@@ -398,15 +446,35 @@ Polymer('album-wall', {
           var imgFile = ev.target.result;
           imgURL = window.URL.createObjectURL(imgFile);
           obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-          this.tmpl.getImageForPlayer(imgURL);
-          this.doPlay(obj, url);
+          this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
+            obj.palette = palette;
+          }.bind(this));
+          if (this.audio.paused) {
+            this.tmpl.getImageForPlayer(imgURL, function () {
+              this.setFabColor(obj.palette);
+              this.doPlay(obj, url);
+            }.bind(this));
+          } else {
+            this.tmpl.playlist.push(obj);
+            this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
+          }
         } else {
           this.tmpl.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
             var imgFile = ev.target.result;
             imgURL = window.URL.createObjectURL(imgFile);
             obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-            this.tmpl.getImageForPlayer(imgURL);
-            this.doPlay(obj, url);
+            this.getColorPalette(sender.attributes.cover.value, imgURL, function (array) {
+              obj.palette = array;
+            }.bind(this));
+            if (this.audio.paused) {
+              this.tmpl.getImageForPlayer(imgURL, function () {
+                this.setFabColor(obj.palette);
+                this.doPlay(obj, url);
+              }.bind(this));
+            } else {
+              this.tmpl.playlist.push(obj);
+              this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
+            }
           }.bind(this));
         }
       }.bind(this));
@@ -419,6 +487,7 @@ Polymer('album-wall', {
       } else {
         obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
         this.tmpl.playlist.push(obj);
+        this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
       }
     }
   },
