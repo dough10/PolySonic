@@ -11,6 +11,9 @@
         18
       ],
       timer: 0,
+      created: function () {
+        this.elementReady = false;
+      },
       ready: function () {
         'use strict';
         this.post = [];
@@ -36,6 +39,9 @@
           this.polysonicVersion = e.target.response.version;
           console.log('App version: ' + this.polysonicVersion);
         }.bind(this));
+        setTimeout(function () {
+          this.elementReady = true;
+        }.bind(this), 500);
       },
       validate: function (callback) {
         'use strict';

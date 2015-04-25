@@ -12,7 +12,7 @@
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/paper-toggle-button/paper-toggle-button.html" rel="import">
 <link href="../../bower_components/core-icon/core-icon.html" rel="import">
-</head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate querySize storageQuota queryMethod colorThiefEnabled polysonicVersion">
+</head><body><polymer-element name="settings-menu" attributes="url user pass version bitRate querySize storageQuota queryMethod colorThiefEnabled polysonicVersion analisticsEnabled">
   <template>
     <style>
       :host {
@@ -155,6 +155,12 @@
             If you try this option please send feedback on any issues you encounter <div class="link" link="https://github.com/dough10/PolySonic/issues" on-tap='{{linkGo}}'>here</div>
           </div>
         </core-collapse>-->
+
+        <!-- switch for analistics -->
+        <!--<div center horizontal layout class="switchBox">
+          Anonymous usage statistics
+          <paper-toggle-button class="redSwitch" checked="{{analisticsEnabled}}" on-change="{{analisticsToggle}}"></paper-toggle-button>
+        </div>-->
         <br>
         <paper-button on-tap="{{submit}}">
           <template if="{{isLoading}}">

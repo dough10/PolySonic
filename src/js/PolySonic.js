@@ -227,9 +227,10 @@
               this.askUser();
             } else {
               config.setTrackingPermitted(result.analistics);
+              this.analisticsEnalbed = result.analistics;
             }
-
             this.allowAnalistics = function () {
+              this.analisticsEnabled = true;
               config.setTrackingPermitted(true);
               chrome.storage.sync.set({
                 'analistics': true
@@ -237,6 +238,7 @@
             };
   
             this.disAllowAnalistics = function () {
+              this.analisticsEnabled = true;
               config.setTrackingPermitted(false);
               chrome.storage.sync.set({
                 'analistics': false
@@ -765,11 +767,12 @@
                 console.log('Connected to Subconic loading data');
                 this.doXhr(url2, 'json', function (e) {
                   this.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-                  this.folder = result.mediaFolder;
+                  /* setting mediaFolder causes a ajax call to get album wall data */
+                  this.folder = result.mediaFolder || 0;
                   if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                     this.$.sortBox.style.display = 'none';
                   }
-                  this.$.wall.doAjax();
+                  this.tracker.sendAppView('Album Wall');
                 }.bind(this));
               } else {
                 this.tracker.sendEvent('Connection Error', response.error.meessage);

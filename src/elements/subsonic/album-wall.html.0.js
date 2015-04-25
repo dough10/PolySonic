@@ -116,7 +116,7 @@ Polymer('album-wall', {
         console.log(response.error.message);
         this.tmpl.doToast(response.error.message);
       } else {
-        this.async(function () {
+
           if (response.albumList2 && response.albumList2.album) {
             Array.prototype.forEach.call(response.albumList2.album, function (e) {
               var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
@@ -175,7 +175,7 @@ Polymer('album-wall', {
           } else {
             this.tmpl.pageLimit = true;
           }
-        });
+
       }
     }
   },
@@ -256,25 +256,27 @@ Polymer('album-wall', {
   
   sortChanged: function () {
     'use strict';
-    this.clearData(function () {
-      this.tmpl.pageLimit = false;
-      if (this.queryMethod === 'ID3') {
-        this.request = 'getAlbumList2';
-      } else {
-        this.request = 'getAlbumList';
-      }
-      this.post.type = this.sort;
-      this.post.offset = 0;
-      this.showing = this.listMode;
-      chrome.storage.sync.set({
-        'sortType': this.post.type,
-        'request': this.request,
-        'mediaFolder': this.mediaFolder
-      });
-      this.async(function () {
-        this.$.ajax.go();
-      });
-    }.bind(this));
+    this.async(function () {
+      this.clearData(function () {
+        this.tmpl.pageLimit = false;
+        if (this.queryMethod === 'ID3') {
+          this.request = 'getAlbumList2';
+        } else {
+          this.request = 'getAlbumList';
+        }
+        this.post.type = this.sort;
+        this.post.offset = 0;
+        this.showing = this.listMode;
+        chrome.storage.sync.set({
+          'sortType': this.post.type,
+          'request': this.request,
+          'mediaFolder': this.mediaFolder
+        });
+        this.async(function () {
+          this.$.ajax.go();
+        });
+      }.bind(this));
+    });
   },
   
   resizeLists: function () {
