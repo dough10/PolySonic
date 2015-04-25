@@ -338,7 +338,6 @@ Polymer('album-wall', {
     this.tmpl.playing = 0;
     this.tmpl.playAudio('', obj.title, url, obj.cover, obj.id);
     this.tmpl.dataLoading = false;
-    this.tmpl.page = 1;
   },
   
   playPodcast: function (event, detial, sender) {
@@ -362,6 +361,7 @@ Polymer('album-wall', {
                 obj.palette = palette;
                 this.setFabColor(palette);
                 this.doPlay(obj, url);
+                this.tmpl.page = 1;
               }.bind(this));
             }.bind(this));
           } else {
@@ -374,6 +374,7 @@ Polymer('album-wall', {
                   obj.palette = array;
                   this.setFabColor(array);
                   this.doPlay(obj, url);
+                  this.tmpl.page = 1;
                 }.bind(this));
               }.bind(this));
             }.bind(this));
@@ -452,17 +453,18 @@ Polymer('album-wall', {
           obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
           this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
             obj.palette = palette;
+            if (this.audio.paused) {
+              this.tmpl.getImageForPlayer(imgURL, function () {
+                this.setFabColor(obj.palette);
+                this.doPlay(obj, url);
+                this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
+              }.bind(this));
+            } else {
+              this.tmpl.dataLoading = false;
+              this.tmpl.playlist.push(obj);
+              this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
+            }
           }.bind(this));
-          if (this.audio.paused) {
-            this.tmpl.getImageForPlayer(imgURL, function () {
-              this.setFabColor(obj.palette);
-              this.doPlay(obj, url);
-            }.bind(this));
-          } else {
-            this.tmpl.dataLoading = false;
-            this.tmpl.playlist.push(obj);
-            this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
-          }
         } else {
           this.tmpl.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
             var imgFile = ev.target.result;
@@ -475,6 +477,7 @@ Polymer('album-wall', {
               this.tmpl.getImageForPlayer(imgURL, function () {
                 this.setFabColor(obj.palette);
                 this.doPlay(obj, url);
+                this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
               }.bind(this));
             } else {
               this.tmpl.playlist.push(obj);
