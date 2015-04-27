@@ -72,7 +72,8 @@ Polymer('album-art', {
     'use strict';
     var imgFile = event.target.result,
       imgURL = window.URL.createObjectURL(imgFile),
-      imgElement;
+      imgElement,
+      i = 0;
 
     this.async(function () {
       this.showArt(imgURL);
@@ -439,44 +440,107 @@ Polymer('album-art', {
                 /*
                   get dominant color from image
                 */
-                imgElement = new Image();
-                imgElement.src = imgURL;
-                imgElement.onload = function () {
-                  var color = this.tmpl.getColor(imgElement),
-                    array = [],
-                    r = color[1][0],
-                    g = color[1][1],
-                    b = color[1][2],
-                    hex = this.tmpl.rgbToHex(r, g, b);
-
-                  /*
-                    array[0] fab color
-
-                    array[1] fab contrasting color
-
-                    array[2] progress bar buffering color
-
-                    array[3] progress bar background
-                  */
-                  array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-                  array[1] = this.tmpl.getContrast50(hex);
-                  array[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
-                  if (array[1] !== 'white') {
-                    array[3] = '#444444';
-                  } else {
-                    array[3] = '#c8c8c8';
-                  }
-                  this.palette = array;
-                  this.tmpl.putInDb(array, artId + '-palette', function () {
-                    console.log('Color palette saved ' + artId);
-                  }.bind(this));
-                }.bind(this);
+                this.tmpl.colorThiefHandler(imgURL, artId, function (colorArray) {});
               }.bind(this));
             }
           }.bind(this));
         });
       }
     });
+  },
+
+  /*
+    OMG its a nested nightmare!!!!!!!!!!
+    will get list of similar tracks from server then parse results match with artwork & color palette before pushing it to the this.playlist array and playing 1st result
+  */
+  moreLike: function (event, detail, sender) {
+    'use strict';
+    var id = sender.attributes.ident.value,
+      url = this.url + "/rest/getSimilarSongs.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&f=json&c=PolySonic&count=50&id=" + id,
+      i = 0,
+      array = [],
+      /* to be run @ end of loop */
+      callback = function () {
+        this.tmpl.getImageForPlayer(this.tmpl.playlist[0].cover, function () {
+          this.async(function () {
+            if (this.colorThiefEnabled && this.tmpl.playlist[0].palette) {
+              this.tmpl.colorThiefFab = this.tmpl.playlist[0].palette[0];
+              this.tmpl.colorThiefFabOff = this.tmpl.playlist[0].palette[1];
+              this.tmpl.colorThiefBuffered = this.tmpl.playlist[0].palette[2];
+              this.tmpl.colorThiefProgBg = this.tmpl.playlist[0].palette[3];
+            }
+            var playURL = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.tmpl.playlist[0].id;
+            this.tmpl.playing = 0;
+            this.tmpl.playAudio(this.tmpl.playlist[0].artist, this.tmpl.playlist[0].title, playURL, this.tmpl.playlist[0].cover, this.tmpl.playlist[0].id);
+            this.tmpl.dataLoading = false;
+            this.tmpl.page = 1;
+          });
+        }.bind(this));
+      }.bind(this);
+    this.$.detailsDialog.close();
+    this.tmpl.$.fab.state = 'off';
+    this.tmpl.dataLoading = true;
+    /* get data */
+    this.tmpl.doXhr(url, 'json', function (e) {
+      var response = e.target.response['subsonic-response'].similarSongs.song;
+      if (response) {
+        this.tmpl.$.audio.pause();
+        this.tmpl.playlist = null;
+        this.tmpl.playlist = [];
+        Array.prototype.forEach.call(response, function (element) {
+          var mins = Math.floor(element.duration / 60),
+            seconds = Math.floor(element.duration - (mins * 60)),
+            timeString = mins + ':' + ('0' + seconds).slice(-2),
+            obj = {id: element.id, artist: element.artist, title: element.title, duration: timeString},
+            artId = 'al-' + element.albumId,
+            url2 = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
+          /* check indexeddb */
+          this.tmpl.getDbItem(artId, function (ev) {
+            if (ev.target.result) {
+              var imgFile = ev.target.result,
+                imgURL = window.URL.createObjectURL(imgFile);
+              // got the image as imgURL
+              obj.cover = imgURL;
+              /* get palette if in db */
+              this.tmpl.getDbItem(artId + '-palette', function (e) {
+                obj.palette = e.target.result;
+                this.tmpl.playlist.push(obj);
+                i = i + 1;
+                if (i === response.length) {
+                  callback();
+                }
+              }.bind(this));
+            } else {
+              /*
+                get image from subsonic server
+              */
+              this.tmpl.getImageFile(url2, artId, function (event) {
+                var imgFile = event.target.result,
+                  imgURL = window.URL.createObjectURL(imgFile);
+
+
+                obj.cover = imgURL;
+
+                /*
+                  get dominant color from image
+                */
+                this.tmpl.colorThiefHandler(imgURL, artId, function (colorArray) {
+                  obj.palette = colorArray;
+                  this.tmpl.playlist.push(obj);
+                  i = i + 1;
+                  if (i === response.length) {
+                    callback();
+                  }
+                }.bind(this));
+              }.bind(this));
+            }
+          }.bind(this));
+        }.bind(this));
+      } else {
+        this.tmpl.dataLoading = false;
+        this.tmpl.doToast(chrome.i18n.getMessage("noResults"));
+      }
+    }.bind(this));
   }
 });
 

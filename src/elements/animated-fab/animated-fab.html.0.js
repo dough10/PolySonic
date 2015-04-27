@@ -25,5 +25,12 @@
           this.state = 'podcast';
         }
         document.getElementById("tmpl").tracker.sendAppView(pName);
+      },
+
+      /* listens to changes in this.playing and updates the player */
+      playingChanged: function () {
+        if (this.playing) {
+          document.getElementById('tmpl').playThis();
+        }
       }
     });

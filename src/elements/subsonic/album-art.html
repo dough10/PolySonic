@@ -423,6 +423,7 @@
           <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
         </template>
         <paper-icon-button on-tap="{{doDownload}}" title="{{downloadButton}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+        <paper-icon-button on-tap="{{moreLike}}" title="Shuffle more like this" ident="{{albumID}}" icon="av:shuffle"></paper-icon-button>
       </div>
       <div class="trackWrapper">
         <template repeat="{{track in playlist}}">

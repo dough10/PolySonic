@@ -508,34 +508,55 @@
       this.$.addPodcast.close();
     };
     
+
+    this.colorThiefHandler = function (imgURL, artId, callback) {
+      'use strict';
+      var imgElement;
+      imgElement = new Image();
+      imgElement.src = imgURL;
+      imgElement.onload = function () {
+        var color = this.getColor(imgElement),
+          colorArray = [],
+          r = color[1][0],
+          g = color[1][1],
+          b = color[1][2],
+          hex = this.rgbToHex(r, g, b);
+
+        /*
+          array[0] fab color
+
+          array[1] fab contrasting color
+
+          array[2] progress bar buffering color
+
+          array[3] progress bar background
+        */
+        colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
+        colorArray[1] = this.getContrast50(hex);
+        colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+        if (colorArray[1] !== 'white') {
+          colorArray[3] = '#444444';
+        } else {
+          colorArray[3] = '#c8c8c8';
+        }
+        this.putInDb(colorArray, artId + '-palette', function () {
+          callback(colorArray);
+          console.log('Color palette saved ' + artId);
+        }.bind(this));
+      }.bind(this);
+    };
+
     this.shuffleColorThief = function (img, artId, obj) {
       if (this.colorThiefEnabled) {
-        var imgElement = new Image();
-        imgElement.src = img;
-        imgElement.onload = function () {
-          var color = this.getColor(imgElement),
-            r = color[1][0],
-            g = color[1][1],
-            b = color[1][2],
-            array = [];
-          array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-          array[1] = this.getContrast50(this.rgbToHex(r, g, b));
-          array[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
-          if (array[1] !== 'white') {
-            array[3] = '#444444';
-          } else {
-            array[3] = '#c8c8c8';
-          }
-          obj.palette = array;
-          this.playlist.push(obj);
-          this.putInDb(array, artId + '-palette', function () {
-            console.log('Color palette saved ' + artId);
-            this.async(function () {
-              this.doShufflePlayback();
-              this.dataLoading = false;
-            });
-          }.bind(this));
-        }.bind(this);
+        this.colorThiefHandler(img, artId, function (colorArray) {
+          this.async(function () {
+            obj.palette = colorArray;
+            this.playlist.push(obj);
+            this.doShufflePlayback();
+            this.dataLoading = false;
+          });
+        }.bind(this));
+
       }
     };
   
@@ -832,24 +853,24 @@
     };
   
     /*jslint unparam: true*/
-    this.playThis = function (event, detail, sender) {
-      if (this.colorThiefEnabled) {
-        this.colorThiefFab = sender.attributes.fab.value;
-        this.colorThiefFabOff =  sender.attributes.offColor.value;
-        this.colorThiefBuffered =  sender.attributes.buffer.value;
-        this.colorThiefProgBg = sender.attributes.progBg.value;
+    this.playThis = function () {
+      if (this.colorThiefEnabled && this.playlist[this.playing].palette) {
+        this.colorThiefFab = this.playlist[this.playing].palette[0];
+        this.colorThiefFabOff = this.playlist[this.playing].palette[1];
+        this.colorThiefBuffered = this.playlist[this.playing].palette[2];
+        this.colorThiefProgBg = this.playlist[this.playing].palette[3];
       }
       var url;
-      if (sender.attributes.artist.value === '') {
+      if (this.playlist[this.playing].artist === '') {
         // is a podcast
-        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.ident.value;
+        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + this.playlist[this.playing].id;
       } else {
         // normal trascoded file type
-        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
+        url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[this.playing].id;
       }
-      this.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, sender.attributes.cover.value, sender.attributes.ident.value);
-      if (sender.attributes.cover.value) {
-        this.getImageForPlayer(sender.attributes.cover.value, function () {});
+      this.playAudio(this.playlist[this.playing].artist, this.playlist[this.playing].title, url, this.playlist[this.playing].cover, this.playlist[this.playing].id);
+      if (this.playlist[this.playing].cover) {
+        this.getImageForPlayer(this.playlist[this.playing].cover, function () {});
       } else {
         this.defaultPlayImage();
       }
@@ -857,27 +878,10 @@
     /*jslint unparam: false*/
   
     this.playNext = function (next) {
-      var url;
       if (this.playlist[next]) {
-        if (this.colorThiefEnabled && this.playlist[next].palette) {
-          this.colorThiefFab = this.playlist[next].palette[0];
-          this.colorThiefFabOff = this.playlist[next].palette[1];
-          this.colorThiefBuffered = this.playlist[next].palette[2];
-          this.colorThiefProgBg = this.playlist[next].palette[3];
-        }
-        if (this.playlist[next].artist === '') {
-          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + this.playlist[next].id;
-        } else {
-          url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[next].id;
-        }
-        this.playAudio(this.playlist[next].artist, this.playlist[next].title, url, this.playlist[next].cover, this.playlist[next].id);
         this.playing = next;
-        if (this.playlist[next].cover) {
-          this.getImageForPlayer(this.playlist[next].cover, function () {});
-        } else {
-          this.defaultPlayImage();
-        }
       } else {
+        this.$.audio.pause();
         this.clearPlayer();
       }
     };
@@ -1109,6 +1113,9 @@
   
     this.addChannel = function () {
       this.async(function () {
+        if (!this.castURL) {
+          this.doToast(this.urlError);
+        }
         if (!this.invalidURL) {
           this.addingChannel = true;
           var url = this.url + "/rest/createPodcastChannel.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&url=" + encodeURIComponent(this.castURL);
