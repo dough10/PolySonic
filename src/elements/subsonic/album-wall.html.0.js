@@ -370,9 +370,9 @@ Polymer('album-wall', {
               imgURL = window.URL.createObjectURL(imgFile);
               obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
               this.tmpl.getImageForPlayer(imgURL, function () {
-                this.getColorPalette(sender.attributes.cover.value, imgURL, function (array) {
-                  obj.palette = array;
-                  this.setFabColor(array);
+                this.tmpl.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
+                  obj.palette = colorArray;
+                  this.setFabColor(colorArray);
                   this.doPlay(obj, url);
                   this.tmpl.page = 1;
                 }.bind(this));
@@ -388,42 +388,6 @@ Polymer('album-wall', {
         this.tmpl.page = 1;
       }
     });
-  },
-  
-  getColorPalette: function (id, imgURL, callback) {
-    'use strict';
-    var imgElement = new Image();
-    imgElement.src = imgURL;
-    imgElement.onload = function () {
-      var color = this.tmpl.getColor(imgElement),
-        array = [],
-        r = color[1][0],
-        g = color[1][1],
-        b = color[1][2],
-        hex = this.tmpl.rgbToHex(r, g, b);
-
-      /*
-        array[0] fab color
-
-        array[1] fab contrasting color
-
-        array[2] progress bar buffering color
-
-        array[3] progress bar background
-      */
-      array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-      array[1] = this.tmpl.getContrast50(hex);
-      array[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
-      if (array[1] !== 'white') {
-        array[3] = '#444444';
-      } else {
-        array[3] = '#c8c8c8';
-      }
-      this.tmpl.putInDb(array, id + '-palette', function () {
-        callback(array);
-        console.log('Color palette saved ' + id);
-      }.bind(this));
-    }.bind(this);
   },
 
   setFabColor: function (array) {
@@ -457,6 +421,7 @@ Polymer('album-wall', {
               this.tmpl.getImageForPlayer(imgURL, function () {
                 this.setFabColor(obj.palette);
                 this.doPlay(obj, url);
+                this.tmpl.dataLoading = false;
                 this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
               }.bind(this));
             } else {
@@ -470,16 +435,18 @@ Polymer('album-wall', {
             var imgFile = ev.target.result;
             imgURL = window.URL.createObjectURL(imgFile);
             obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-            this.getColorPalette(sender.attributes.cover.value, imgURL, function (array) {
-              obj.palette = array;
-            }.bind(this));
+            this.tmpl.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
+              obj.palette = colorArray;
+            });
             if (this.audio.paused) {
               this.tmpl.getImageForPlayer(imgURL, function () {
+                this.tmpl.dataLoading = false;
                 this.setFabColor(obj.palette);
                 this.doPlay(obj, url);
                 this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
               }.bind(this));
             } else {
+              this.tmpl.dataLoading = false;
               this.tmpl.playlist.push(obj);
               this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
             }

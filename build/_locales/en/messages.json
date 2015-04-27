@@ -221,5 +221,8 @@
   },
   "playlistLabel": {
     "message": "Name of the playlist"
+  },
+  "noResults": {
+    "message": "No Results Returned"
   }
 }
