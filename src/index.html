@@ -86,17 +86,17 @@
               {{favoritesButton}}
             </paper-item>
             <paper-item on-tap="{{getArtist}}">
-              <core-icon icon="perm-identity"></core-icon>
+              <core-icon icon="av:recent-actors"></core-icon>
               {{artistButton}}
             </paper-item>
             <template repeat="{{sortTypes}}">
               <paper-item on-tap="{{selectAction}}" i="{{sort}}">
-                <core-icon icon="sort"></core-icon>
+                <core-icon icon="av:my-library-music"></core-icon>
                 {{name}}
               </paper-item>
             </template>
             <paper-item on-tap="{{getPodcast}}">
-              <core-icon icon="av:radio"></core-icon>
+              <core-icon icon="av:album"></core-icon>
               {{podcastButton}}
             </paper-item>
             <paper-item on-tap="{{openPlaylists}}">
@@ -223,7 +223,7 @@
             <!-- settings menu -->
             <section>
               <paper-shadow z='1' class='card'>
-                <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" storageQuota="{{storageQuota}}" queryMethod="{{queryMethod}}" colorThiefEnabled="{{colorThiefEnabled}}" analisticsEnabled="{{analisticsEnabled}}"></settings-menu>
+                <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" storageQuota="{{storageQuota}}" queryMethod="{{queryMethod}}" colorThiefEnabled="{{colorThiefEnabled}}"></settings-menu>
               </paper-shadow>
             </section>
 

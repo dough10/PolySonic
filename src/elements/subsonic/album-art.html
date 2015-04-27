@@ -102,7 +102,7 @@
         overflow:hidden;
         max-width:80%;
         pointer-events:none;
-        max-height:20px;
+        max-height:15px;
       }
       .album {
         position:relative;
@@ -423,7 +423,7 @@
           <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
         </template>
         <paper-icon-button on-tap="{{doDownload}}" title="{{downloadButton}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
-        <paper-icon-button on-tap="{{moreLike}}" title="Shuffle more like this" ident="{{albumID}}" icon="av:shuffle"></paper-icon-button>
+        <paper-icon-button on-tap="{{moreLike}}" title="Play more like this" ident="{{albumID}}" icon="av:radio"></paper-icon-button>
       </div>
       <div class="trackWrapper">
         <template repeat="{{track in playlist}}">

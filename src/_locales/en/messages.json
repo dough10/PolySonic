@@ -217,7 +217,7 @@
     "message": "Error Creating Playlist"
   },
   "createPlaylistLabel": {
-    "message": "Create Playlist"
+    "message": "Save Queue as Playlist"
   },
   "playlistLabel": {
     "message": "Name of the playlist"

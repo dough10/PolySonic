@@ -271,5 +271,11 @@
       linkGo: function (event, detail, sender) {
         var url = sender.attributes.link.value;
         window.open(url, '_blank');
+      },
+
+      analisticsToggle: function () {
+        chrome.storage.sync.set({
+          'analistics': this.tmpl.analisticsEnabled
+        });
       }
     });

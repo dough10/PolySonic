@@ -157,10 +157,13 @@
         </core-collapse>-->
 
         <!-- switch for analistics -->
-        <!--<div center horizontal layout class="switchBox">
-          Anonymous usage statistics
-          <paper-toggle-button class="redSwitch" checked="{{analisticsEnabled}}" on-change="{{analisticsToggle}}"></paper-toggle-button>
-        </div>-->
+        <br>
+        <div center horizontal layout class="switchBox">
+          <div flex class="switchLabel">
+            Anonymous usage statistics
+          </div>
+          <paper-toggle-button class="redSwitch" checked="{{tmpl.analisticsEnabled}}" on-change="{{analisticsToggle}}"></paper-toggle-button>
+        </div>
         <br>
         <paper-button on-tap="{{submit}}">
           <template if="{{isLoading}}">

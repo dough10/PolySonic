@@ -227,7 +227,7 @@
               this.askUser();
             } else {
               config.setTrackingPermitted(result.analistics);
-              this.analisticsEnalbed = result.analistics;
+              this.analisticsEnabled = result.analistics;
             }
             this.allowAnalistics = function () {
               this.analisticsEnabled = true;
