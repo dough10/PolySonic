@@ -155,7 +155,7 @@ Polymer('album-wall', {
         } else if (response.podcasts && response.podcasts.channel) {
           Array.prototype.forEach.call(response.podcasts.channel, function (e) {
             var art = e.episode[0].coverArt,
-              obj = {title: e.title, episode: e.episode, id: e.id, status: e.status}
+              obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
             this.podcast.push(obj);
             i = i + 1;
             if (i === response.podcasts.channel.length) {
@@ -359,7 +359,7 @@ Polymer('album-wall', {
             this.tmpl.getImageForPlayer(imgURL, function () {
               this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
                 obj.palette = palette;
-                this.setFabColor(palette);
+                this.tmpl.setFabColor(obj);
                 this.doPlay(obj, url);
                 this.tmpl.page = 1;
               }.bind(this));
@@ -372,7 +372,7 @@ Polymer('album-wall', {
               this.tmpl.getImageForPlayer(imgURL, function () {
                 this.tmpl.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
                   obj.palette = colorArray;
-                  this.setFabColor(colorArray);
+                  this.tmpl.setFabColor(obj);
                   this.doPlay(obj, url);
                   this.tmpl.page = 1;
                 }.bind(this));
@@ -388,16 +388,6 @@ Polymer('album-wall', {
         this.tmpl.page = 1;
       }
     });
-  },
-
-  setFabColor: function (array) {
-    'use strict';
-    if (this.colorThiefEnabled && array) {
-      this.tmpl.colorThiefFab = array[0];
-      this.tmpl.colorThiefFabOff = array[1];
-      this.tmpl.colorThiefBuffered = array[2];
-      this.tmpl.colorThiefProgBg = array[3];
-    }
   },
 
   add2Playlist: function (event, detial, sender) {
@@ -419,7 +409,7 @@ Polymer('album-wall', {
             obj.palette = palette;
             if (this.audio.paused) {
               this.tmpl.getImageForPlayer(imgURL, function () {
-                this.setFabColor(obj.palette);
+                this.tmpl.setFabColor(obj);
                 this.doPlay(obj, url);
                 this.tmpl.dataLoading = false;
                 this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
@@ -441,7 +431,7 @@ Polymer('album-wall', {
             if (this.audio.paused) {
               this.tmpl.getImageForPlayer(imgURL, function () {
                 this.tmpl.dataLoading = false;
-                this.setFabColor(obj.palette);
+                this.tmpl.setFabColor(obj);
                 this.doPlay(obj, url);
                 this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
               }.bind(this));

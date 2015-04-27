@@ -155,12 +155,7 @@ Polymer('album-art', {
       this.tmpl.playing = 0;
       this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL, this.playlist[0].id);
       this.tmpl.getImageForPlayer(this.imgURL, function () {
-        if (this.colorThiefEnabled && this.playlist[0].palette) {
-          this.tmpl.colorThiefFab = this.playlist[0].palette[0];
-          this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
-          this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
-          this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
-        }
+        this.tmpl.setFabColor(this.playlist[0]);
       }.bind(this));
     }
     Array.prototype.forEach.call(this.playlist, function (e) {
@@ -180,12 +175,7 @@ Polymer('album-art', {
 
   playTrack: function (event, detail, sender) {
     'use strict';
-    if (this.colorThiefEnabled && this.playlist[0].palette) {
-      this.tmpl.colorThiefFab = this.playlist[0].palette[0];
-      this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
-      this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
-      this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
-    }
+    this.tmpl.setFabColor(this.playlist[0]);
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
     this.$.detailsDialog.close();
     this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";
@@ -201,12 +191,7 @@ Polymer('album-art', {
       obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value,  duration: sender.attributes.duration.value, cover: this.imgURL};
     this.tmpl.playlist.push(obj);
     if (this.audio.paused) {
-      if (this.colorThiefEnabled && this.playlist[0].palette) {
-        this.tmpl.colorThiefFab = this.playlist[0].palette[0];
-        this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
-        this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
-        this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
-      }
+      this.tmpl.setFabColor(this.playlist[0]);
       this.tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, this.imgURL, sender.attributes.ident.value);
       this.tmpl.playing = 0;
       if (this.imgURL) {
@@ -222,12 +207,7 @@ Polymer('album-art', {
     'use strict';
     this.tmpl.dataLoading = false;
     this.$.detailsDialog.close();
-    if (this.colorThiefEnabled && this.playlist[0].palette) {
-      this.tmpl.colorThiefFab = this.playlist[0].palette[0];
-      this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
-      this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
-      this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
-    }
+    this.tmpl.setFabColor(this.playlist[0]);
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
     this.tmpl.page = 1;
     this.tmpl.getImageForPlayer(this.imgURL, function () {
@@ -463,12 +443,7 @@ Polymer('album-art', {
       callback = function () {
         this.tmpl.getImageForPlayer(this.tmpl.playlist[0].cover, function () {
           this.async(function () {
-            if (this.colorThiefEnabled && this.tmpl.playlist[0].palette) {
-              this.tmpl.colorThiefFab = this.tmpl.playlist[0].palette[0];
-              this.tmpl.colorThiefFabOff = this.tmpl.playlist[0].palette[1];
-              this.tmpl.colorThiefBuffered = this.tmpl.playlist[0].palette[2];
-              this.tmpl.colorThiefProgBg = this.tmpl.playlist[0].palette[3];
-            }
+            this.tmpl.setFabColor(this.playlist[0]);
             var playURL = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.tmpl.playlist[0].id;
             this.tmpl.playing = 0;
             this.tmpl.playAudio(this.tmpl.playlist[0].artist, this.tmpl.playlist[0].title, playURL, this.tmpl.playlist[0].cover, this.tmpl.playlist[0].id);

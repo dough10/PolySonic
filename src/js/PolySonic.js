@@ -397,11 +397,14 @@
           timeString = mins + ':' + ('0' + seconds).slice(-2);
           artId = "al-" + item.albumId;
           obj = {id: item.id, artist: item.artist, title: item.title, duration: timeString, cover: artId};
-          this.fixCoverArtForShuffle(obj);
-          i = i + 1;
-          if (i === tracks.length) {
-            this.closePlaylists();
-          } 
+          this.fixCoverArtForShuffle(obj, function () {
+            i = i + 1;
+            if (i === tracks.length) {
+              this.doShufflePlayback();
+              this.dataLoading = false;
+              this.closePlaylists();
+            }
+          }.bind(this));
         }.bind(this));
       }.bind(this));
     };
@@ -461,7 +464,8 @@
         obj,
         mins,
         seconds,
-        timeString;
+        timeString,
+        i = 0;
         
       if (!this.startYearInvalid && !this.endYearInvalid) {
         this.$.audio.pause();
@@ -491,7 +495,13 @@
               timeString = mins + ':' + ('0' + seconds).slice(-2);
               artId = "al-" + item.albumId;
               obj = {id: item.id, artist: item.artist, title: item.title, duration: timeString, cover: artId};
-              this.fixCoverArtForShuffle(obj);
+              this.fixCoverArtForShuffle(obj, function () {
+                i = i + 1;
+                if (i === data.randomSongs.song.length) {
+                  this.doShufflePlayback();
+                  this.dataLoading = false;
+                }
+              }.bind(this));
             }.bind(this));
           } else {
             this.doToast(chrome.i18n.getMessage("noMatch"));
@@ -510,9 +520,7 @@
     
 
     this.colorThiefHandler = function (imgURL, artId, callback) {
-      'use strict';
-      var imgElement;
-      imgElement = new Image();
+      var imgElement = new Image();
       imgElement.src = imgURL;
       imgElement.onload = function () {
         var color = this.getColor(imgElement),
@@ -560,7 +568,7 @@
       }
     };
   
-    this.fixCoverArtForShuffle = function (obj) {
+    this.fixCoverArtForShuffle = function (obj, callback) {
       var artId = obj.cover,
         img = this.url + '/rest/getCoverArt.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + artId;
           
@@ -574,8 +582,7 @@
             obj.palette = ev.target.result;
             this.playlist.push(obj);
             this.async(function () {
-              this.doShufflePlayback();
-              this.dataLoading = false;
+              callback();
             });
           }.bind(this));
         } else {
@@ -591,15 +598,19 @@
         }
       }.bind(this));
     };
+    
+    this.setFabColor = function (obj) {
+      if (this.colorThiefEnabled && obj.palette) {
+        this.colorThiefFab = obj.palette[0];
+        this.colorThiefFabOff = obj.palette[1];
+        this.colorThiefBuffered = obj.palette[2];
+        this.colorThiefProgBg = obj.palette[3];
+      }
+    };
   
     this.doShufflePlayback = function () {
       if (this.$.audio.paused) {
-        if (this.colorThiefEnabled && this.playlist[0].palette) {
-          this.colorThiefFab = this.playlist[0].palette[0];
-          this.colorThiefFabOff = this.playlist[0].palette[1];
-          this.colorThiefBuffered = this.playlist[0].palette[2];
-          this.colorThiefProgBg = this.playlist[0].palette[3];
-        }
+        this.setFabColor(this.playlist[0]);
         var art = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
         this.playing = 0;
         this.playAudio(this.playlist[0].artist, this.playlist[0].title, art, this.playlist[0].cover, this.playlist[0].id);
@@ -854,12 +865,7 @@
   
     /*jslint unparam: true*/
     this.playThis = function () {
-      if (this.colorThiefEnabled && this.playlist[this.playing].palette) {
-        this.colorThiefFab = this.playlist[this.playing].palette[0];
-        this.colorThiefFabOff = this.playlist[this.playing].palette[1];
-        this.colorThiefBuffered = this.playlist[this.playing].palette[2];
-        this.colorThiefProgBg = this.playlist[this.playing].palette[3];
-      }
+      this.setFabColor(this.playlist[this.playing]);
       var url;
       if (this.playlist[this.playing].artist === '') {
         // is a podcast
