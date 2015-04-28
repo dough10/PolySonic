@@ -190,7 +190,13 @@
             <!-- player -->
             <section>
               <div style="position:relative;">
-                <div id="coverArt"></div>
+                <div id="coverArt">
+                  <template if="{{waitingToPlay}}">
+                    <div class="waitingToPlay">
+                      <paper-spinner class="spinner" active></paper-spinner>
+                    </div>
+                  </template>
+                </div>
                 <div class="controlsWrapper">
                   <paper-progress id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
                   <div id="time">{{playTime}}</div>
@@ -498,6 +504,18 @@
         <h4>{{deleteConfirm}}</h4>
         <paper-button affirmative on-tap="{{openPlaylists}}">{{decline}}</paper-button>
         <paper-button affirmative ident="{{delID}}" on-tap="{{deletePlaylist}}">{{accept}}</paper-button>
+      </paper-action-dialog>
+      
+      <paper-action-dialog id='reloadAppDialog' autoclosedisabled backdrop transition="core-transition-center" layered>
+        <div style="min-width:280px"></div>
+        <h4>{{settingsDeleted}}</h4>
+        <paper-button affirmative style="color:#fff; background:#db4437" on-tap="{{reloadApp}}">{{reloadAppLabel}}</paper-button>
+      </paper-action-dialog>
+      
+      <paper-action-dialog id='recommendReloadDialog' transition="core-transition-center" layered>
+        <div style="min-width:280px"></div>
+        <h4>{{recommendReload}}</h4>
+        <paper-button affirmative style="color:#fff; background:#db4437" on-tap="{{reloadApp}}">{{reloadAppLabel}}</paper-button>
       </paper-action-dialog>
 
       <!--some key bindings ** half ass working** -->

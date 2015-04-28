@@ -123,6 +123,7 @@
           console.log("Couldn't delete database due to the operation being blocked");
           this.tmpl.calculateStorageSize();
         }.bind(this);
+        this.tmpl.$.recommendReloadDialog.open();
       },
       clearSettings: function () {
         chrome.storage.sync.clear();
@@ -134,6 +135,8 @@
         this.tmpl.querySize = '';
         this.post = [];
         this.tmpl.doToast("Settings Cleared");
+        this.clearCache();
+        this.tmpl.$.reloadAppDialog.open();
       },
       responseChanged: function () {
         'use strict';

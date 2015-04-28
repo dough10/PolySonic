@@ -77,6 +77,12 @@
     this.createPlaylistLabel = chrome.i18n.getMessage("createPlaylistLabel");
     
     this.playlistLabel = chrome.i18n.getMessage("playlistLabel");
+    
+    this.reloadAppLabel = chrome.i18n.getMessage("reloadApp");
+    
+    this.settingsDeleted = chrome.i18n.getMessage("settingsDeleted");
+    
+    this.recommendReload = chrome.i18n.getMessage("recommendReload");
   
     
     /* begin analistics */
@@ -240,7 +246,7 @@
             };
   
             this.disAllowAnalistics = function () {
-              this.analisticsEnabled = true;
+              this.analisticsEnabled = false;
               config.setTrackingPermitted(false);
               chrome.storage.sync.set({
                 'analistics': false
@@ -565,7 +571,6 @@
           var raw = ev.target.result,
             imgURL = window.URL.createObjectURL(raw);
           obj.cover = imgURL;
-          /* if cover exists then palette will as well get it also */
           this.getDbItem(artId + '-palette', function (ev) {
             obj.palette = ev.target.result;
             this.playlist.push(obj);
@@ -599,12 +604,12 @@
   
     this.doShufflePlayback = function () {
       if (this.$.audio.paused) {
-        this.setFabColor(this.playlist[0]);
         var art = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
         this.playing = 0;
         this.playAudio(this.playlist[0].artist, this.playlist[0].title, art, this.playlist[0].cover, this.playlist[0].id);
         this.getImageForPlayer(this.playlist[0].cover, function () {
           this.page = 1;
+          this.setFabColor(this.playlist[0]);
           this.$.shuffleOptions.close();
           this.shuffleLoading = false;
         }.bind(this));
@@ -652,6 +657,11 @@
     this.playerProgress = function (e) {
       var audio, button, progress, currentMins, currentSecs, totalMins, totalSecs;
       if (e) {
+        if (e.type === 'waiting') {
+          this.waitingToPlay = true;
+        } else if (e.type === 'timeupdate') {
+          this.waitingToPlay = false;
+        }
         audio = e.srcElement;
       } else {
         audio = this.$.audio;
@@ -664,6 +674,8 @@
       totalSecs = Math.floor(audio.duration - (totalMins * 60));
       if (audio.duration) {
         this.buffer = (audio.buffered.end(0) / audio.duration) * 100;
+      } else {
+        this.buffer = 0;
       }
 
       if (!audio.paused) {
@@ -940,6 +952,10 @@
       } else {
         audio.play();
       }
+    };
+    
+    this.reloadApp = function () {
+      chrome.runtime.reload();
     };
   
     this.minimize = function () {
