@@ -153,9 +153,10 @@
       {sort: 'recent', name: chrome.i18n.getMessage("recentButton")}
     ];
   
-    this.closeDrawer = function () {
+    this.closeDrawer = function (callback) {
       var panel = this.$.panel;
       panel.closeDrawer();
+      callback();
     };
   
     this.appScroller = function () {
@@ -172,8 +173,9 @@
     /*jslint unparam: false*/
   
     this.openSearch = function () {
-      this.closeDrawer();
-      this.$.searchDialog.toggle();
+      this.closeDrawer(function () {
+        this.$.searchDialog.toggle();
+      }.bind(this));
     };
   
     this.closeVolume = function () {
@@ -333,8 +335,7 @@
     ];
     
     this.openPlaylists = function () {
-      this.async(function () {
-        this.closeDrawer();
+      this.closeDrawer(function ()  {
         this.playlistsLoading = true;
         var url = this.url + '/rest/getPlaylists.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
         this.doXhr(url, 'json', function (e) {
@@ -342,7 +343,7 @@
           this.playlists = e.target.response['subsonic-response'].playlists.playlist;
           this.$.playlistsDialog.open();
         }.bind(this));
-      });
+      }.bind(this));
     };
     
     this.savePlayQueue = function () {
@@ -441,10 +442,11 @@
     this.shuffleOptions = function () {
       this.async(function () {
         var url = this.url + '/rest/getGenres.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json';
-        this.doXhr(url, 'json', function (e) {
-          this.genres = e.target.response['subsonic-response'].genres.genre;
-          this.$.shuffleOptions.open();
-          this.closeDrawer();
+        this.closeDrawer(function () {
+          this.doXhr(url, 'json', function (e) {
+            this.genres = e.target.response['subsonic-response'].genres.genre;
+            this.$.shuffleOptions.open();
+          }.bind(this));
         }.bind(this));
       });
     };
@@ -553,20 +555,6 @@
         }.bind(this));
       }.bind(this);
     };
-
-    this.shuffleColorThief = function (img, artId, obj) {
-      if (this.colorThiefEnabled) {
-        this.colorThiefHandler(img, artId, function (colorArray) {
-          this.async(function () {
-            obj.palette = colorArray;
-            this.playlist.push(obj);
-            this.doShufflePlayback();
-            this.dataLoading = false;
-          });
-        }.bind(this));
-
-      }
-    };
   
     this.fixCoverArtForShuffle = function (obj, callback) {
       var artId = obj.cover,
@@ -581,19 +569,20 @@
           this.getDbItem(artId + '-palette', function (ev) {
             obj.palette = ev.target.result;
             this.playlist.push(obj);
-            this.async(function () {
-              callback();
-            });
+            this.async(callback);
           }.bind(this));
         } else {
           this.getImageFile(img, artId, function (ev) {
             var raw = ev.target.result,
               imgURL = window.URL.createObjectURL(raw);
-  
             obj.cover = imgURL;
-  
-            /* finish up the work after grabbing color */
-            this.shuffleColorThief(imgURL, artId, obj);
+            this.colorThiefHandler(imgURL, artId, function (colorArray) {
+              this.async(function () {
+                obj.palette = colorArray;
+                this.playlist.push(obj);
+                this.async(callback);
+              });
+            }.bind(this));
           }.bind(this));
         }
       }.bind(this));
@@ -862,8 +851,7 @@
       note.show();
       this.tracker.sendEvent('Audio', 'Playing');
     };
-  
-    /*jslint unparam: true*/
+
     this.playThis = function () {
       this.setFabColor(this.playlist[this.playing]);
       var url;
@@ -881,7 +869,6 @@
         this.defaultPlayImage();
       }
     };
-    /*jslint unparam: false*/
   
     this.playNext = function (next) {
       if (this.playlist[next]) {
@@ -988,22 +975,23 @@
     this.selectAction = function (event, detail, sender) {
       var wall = this.$.wall;
       this.async(function () {
-        this.closeDrawer();
-        this.async(function () {
-          if (wall.sort === sender.attributes.i.value) {
-            this.pageLimit = false;
-            if (this.queryMethod === 'ID3') {
-              wall.request = 'getAlbumList2';
-            } else {
-              wall.request = 'getAlbumList';
+        this.closeDrawer(function () {
+          this.async(function () {
+            if (wall.sort === sender.attributes.i.value) {
+              this.pageLimit = false;
+              if (this.queryMethod === 'ID3') {
+                wall.request = 'getAlbumList2';
+              } else {
+                wall.request = 'getAlbumList';
+              }
+              wall.post.type = sender.attributes.i.value;
+              wall.refreshContent();
+              wall.showing = this.listMode;
+              wall.$.threshold.clearLower();
             }
-            wall.post.type = sender.attributes.i.value;
-            wall.refreshContent();
-            wall.showing = this.listMode;
-            wall.$.threshold.clearLower();
-          }
-          wall.sort = sender.attributes.i.value;
-        });
+            wall.sort = sender.attributes.i.value;
+          });
+        }.bind(this));
       });
     };
     /*jslint unparam: false*/
@@ -1011,30 +999,33 @@
     this.getPodcast = function () {
       var wall = this.$.wall;
       this.async(function () {
-        this.closeDrawer();
-        this.async(function () {
-          wall.getPodcast();
-        });
+        this.closeDrawer(function () {
+          this.async(function () {
+            wall.getPodcast();
+          });
+        }.bind(this));
       });
     };
   
     this.getStarred = function () {
       var wall = this.$.wall;
       this.async(function () {
-        this.closeDrawer();
-        this.async(function () {
-          wall.getStarred();
-        });
+        this.closeDrawer(function () {
+          this.async(function () {
+            wall.getStarred();
+          });
+        }.bind(this));
       });
     };
   
     this.getArtist = function () {
       var wall = this.$.wall;
       this.async(function () {
-        this.closeDrawer();
-        this.async(function () {
-          wall.getArtist();
-        });
+        this.closeDrawer(function () {
+          this.async(function () {
+            wall.getArtist();
+          });
+        }.bind(this));
       });
     };
   
@@ -1066,10 +1057,11 @@
     };
   
     this.gotoSettings = function () {
-      this.async(function () {
-        this.page = 2;
-        this.closeDrawer();
-      });
+      this.closeDrawer(function () {
+        this.async(function () {
+          this.page = 2;
+        });
+      }.bind(this));
     };
   
     this.volUp = function () {

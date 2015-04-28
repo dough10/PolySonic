@@ -70,15 +70,16 @@ Polymer('album-wall', {
   
   mediaFolderChanged: function () {
     'use strict';
-    if (this.mediaFolder !== 0) {
-      this.post.musicFolderId = this.mediaFolder;
-    } else {
-      delete this.post.musicFolderId;
-    }
-    this.refreshContent();
-    this.tmpl.pageLimit = false;
-    this.$.threshold.clearLower();
-    this.tmpl.closeDrawer();
+    this.tmpl.closeDrawer(function () {
+      if (this.mediaFolder !== 0) {
+        this.post.musicFolderId = this.mediaFolder;
+      } else {
+        delete this.post.musicFolderId;
+      }
+      this.refreshContent();
+      this.tmpl.pageLimit = false;
+      this.$.threshold.clearLower();
+    }.bind(this));
   },
   
   clearData: function (callback) {

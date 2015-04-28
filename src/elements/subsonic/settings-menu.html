@@ -101,7 +101,7 @@
         <br>
         <div id="showPass" on-tap="{{hidePass}}">{{showPass}}</div><br>
         <br>
-        <paper-button class="red-button" on-tap="{{submit}}">
+        <paper-button on-tap="{{submit}}">
           <template if="{{isLoading}}">
             <div id="load">
               <paper-spinner active></paper-spinner>
@@ -184,11 +184,11 @@
         {{storageQuota}}
         <br>
         <br>
-        <paper-button on-tap="{{clearCache}}">{{clearCacheLabel}}</paper-button>
+        <paper-button  class="red-button" on-tap="{{clearCache}}">{{clearCacheLabel}}</paper-button>
       </core-collapse>
       <br>
       <br>
-      <paper-button on-tap="{{clearSettings}}">{{clearSettingsLabel}}</paper-button>
+      <paper-button class="red-button" on-tap="{{clearSettings}}">{{clearSettingsLabel}}</paper-button>
     </div>
   </template>
   <script src="settings-menu.js"></script>
