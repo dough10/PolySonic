@@ -1,5 +1,24 @@
 
     Polymer('settings-menu',{
+      /* tempary object for user configurable values */
+      post: {},
+      /* app manifest object */
+      manifest: chrome.runtime.getManifest(),
+       /* locale settings */
+      urlError: chrome.i18n.getMessage("urlError"),
+      urlLabel: chrome.i18n.getMessage("urlLabel"),
+      usernameError: chrome.i18n.getMessage("usernameError"),
+      usernameLabel: chrome.i18n.getMessage("usernameLabel"),
+      passwordLabel: chrome.i18n.getMessage("passwordLabel"),
+      showPass: chrome.i18n.getMessage("showPass"),
+      hideThePass: chrome.i18n.getMessage("hidePass"),
+      submitButton: chrome.i18n.getMessage("submitButton"),
+      bitrateLabel: chrome.i18n.getMessage("bitrateLabel"),
+      cacheDetails: chrome.i18n.getMessage("cacheDetails"),
+      clearCacheLabel: chrome.i18n.getMessage("clearCacheLabel"),
+      clearSettingsLabel: chrome.i18n.getMessage("clearSettingsLabel"),
+      appName: chrome.i18n.getMessage("appName"),
+      /* avaliable bitrates */
       speeds: [
         96,
         128,
@@ -7,42 +26,26 @@
         256,
         320
       ],
-      sizes: [
-        18
-      ],
       timer: 0,
+      
       created: function () {
         this.elementReady = false;
       },
-      ready: function () {
-        'use strict';
-        this.post = [];
-        /* locale settings */
-        this.urlError = chrome.i18n.getMessage("urlError");
-        this.urlLabel = chrome.i18n.getMessage("urlLabel");
-        this.usernameError = chrome.i18n.getMessage("usernameError");
-        this.usernameLabel = chrome.i18n.getMessage("usernameLabel");
-        this.passwordLabel = chrome.i18n.getMessage("passwordLabel");
-        this.showPass = chrome.i18n.getMessage("showPass");
-        this.hideThePass = chrome.i18n.getMessage("hidePass");
-        this.submitButton = chrome.i18n.getMessage("submitButton");
-        this.bitrateLabel = chrome.i18n.getMessage("bitrateLabel");
-        this.cacheDetails = chrome.i18n.getMessage("cacheDetails");
-        this.clearCacheLabel = chrome.i18n.getMessage("clearCacheLabel");
-        this.clearSettingsLabel = chrome.i18n.getMessage("clearSettingsLabel");
-        this.appName = chrome.i18n.getMessage("appName");
-      },
+      
       domReady: function () {
         this.tmpl = document.getElementById("tmpl");
         this.wall = document.getElementById("wall");
-        this.tmpl.doXhr('manifest.json', 'json', function (e) {
-          this.polysonicVersion = e.target.response.version;
-          console.log('App version: ' + this.polysonicVersion);
-        }.bind(this));
+        this.outputVersion(this.manifest);
         setTimeout(function () {
           this.elementReady = true;
         }.bind(this), 500);
       },
+      
+      outputVersion: function (manifest) {
+        this.polysonicVersion = manifest.version;
+        console.log('App version: ' + this.polysonicVersion);
+      },
+      
       validate: function (callback) {
         'use strict';
 
@@ -55,6 +58,7 @@
         });
         callback();
       },
+      
       submit: function () {
         'use strict';
         /*
@@ -190,22 +194,6 @@
             this.tmpl.doToast("Error Connecting to Server. Check Settings");
           }
         }
-      },
-      colorThiefToggle: function () {
-        chrome.storage.sync.set({
-          'colorThiefEnabled': this.colorThiefEnabled
-        });
-        if (!this.colorThiefEnabled) {
-          this.tmpl.colorThiefFab = undefined;
-          this.tmpl.colorThiefFabOff = undefined;
-          this.tmpl.colorThiefAlbum = undefined;
-          this.tmpl.colorThiefAlbumOff = undefined;
-          this.tmpl.colorThiefBuffered = undefined;
-          this.tmpl.colorThiefProgBg = undefined;
-        }
-      },
-      thiefDetailsToggle: function () {
-        this.$.thiefCollapse.toggle();
       },
       bitRateSelect: function () {
         chrome.storage.sync.set({

@@ -1,6 +1,57 @@
 /*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief, setTimeout */
 (function () {
   'use strict';
+  
+  /*
+    cast API 
+  */
+  function onRequestSessionSuccess(e) {
+    session = e;
+    console.log(session);
+  }
+  
+  function onLaunchError(e) {
+    console.log(e.code);
+  }
+ 
+  var initializeCastApi = function() {
+    var sessionRequest = new chrome.cast.SessionRequest(chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID);
+    var apiConfig = new chrome.cast.ApiConfig(sessionRequest,
+      sessionListener,
+      receiverListener);
+    chrome.cast.initialize(apiConfig, onInitSuccess, onInitError);
+  };
+    
+  function receiverListener(e) {
+    if( e === chrome.cast.ReceiverAvailability.AVAILABLE) {
+      console.log(e);
+    }
+  }
+  
+  function sessionListener(e) {
+    session = e;
+    if (session.media.length !== 0) {
+      onMediaDiscovered('onRequestSessionSuccess', session.media[0]);
+    }
+  }
+  
+  function onInitSuccess(e) {
+    console.log('CastAPI Ready');
+  }
+  
+  function onInitError(e) {
+    console.log(e);
+  }
+  
+  window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
+    if (loaded) {
+      initializeCastApi();
+    } else {
+      console.log(errorInfo);
+    }
+  };
+
+  /* polymer auto-binding template ready */
   var tmpl = document.querySelector('#tmpl');
   tmpl.addEventListener('template-bound', function () {
   
@@ -90,6 +141,10 @@
   
     this.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
   
+  
+    this.startCast = function () {
+      chrome.cast.requestSession(onRequestSessionSuccess, onLaunchError);
+    };
   
     /* indexeddb */
     this.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
@@ -193,14 +248,6 @@
       console.log(e);
       this.doToast(chrome.i18n.getMessage("connectionError"));
     }.bind(this);
-    
-    this.xhrProgress = function (e) {
-     /* if (e.lengthComputable) {
-        console.log(e);
-        var precent = Math.round(e.loaded / e.total) * 100;
-        console.log(precent);
-      }*/
-    };
   
     this.doXhr = function (url, dataType, callback) {
       var xhr = new XMLHttpRequest();
@@ -208,7 +255,6 @@
       xhr.responseType = dataType;
       xhr.onload = callback;
       xhr.onerror = this.xhrError;
-      xhr.onprogress = this.xhrProgress;
       xhr.send();
     };
   
@@ -360,23 +406,25 @@
     
     this.savePlayQueue2Playlist = function () {
       var url = this.url + '/rest/createPlaylist.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&name=' + encodeURIComponent(this.defaultName),
-        hasRun = false;
+        hasRun = false,
+        i = 0;
       this.savingPlaylist = true;
       Array.prototype.forEach.call(this.playlist, function (item) {
         url = url + '&songId=' + item.id;
+        i = i + 1;
+        if (i === this.playlist.length) {
+          this.doXhr(url, 'json', function (e) {
+            if (e.target.response['subsonic-response'].status === 'ok') {
+              this.doToast(chrome.i18n.getMessage('playlistCreated'));
+              this.$.createPlaylist.close();
+              this.savingPlaylist = false;
+            } else {
+              this.doToast(chrome.i18n.getMessage('playlistError'));
+              this.savingPlaylist = false;
+            }
+          }.bind(this));
+        }
       }.bind(this));
-      this.async(function () {
-        this.doXhr(url, 'json', function (e) {
-          if (e.target.response['subsonic-response'].status === 'ok') {
-            this.doToast(chrome.i18n.getMessage('playlistCreated'));
-            this.$.createPlaylist.close();
-            this.savingPlaylist = false;
-          } else {
-            this.doToast(chrome.i18n.getMessage('playlistError'));
-            this.savingPlaylist = false;
-          }
-        }.bind(this));
-      });
     };
     
     this.closePlaylistSaver = function () {
