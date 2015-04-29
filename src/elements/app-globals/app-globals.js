@@ -1,59 +1,4 @@
 (function () {
-  /*
-    cast API
-  */
-  function onRequestSessionSuccess(e) {
-    session = e;
-    console.log(session);
-  }
-
-  function onLaunchError(e) {
-    console.log(e.code);
-  }
-
-  var initializeCastApi = function() {
-    var sessionRequest = new chrome.cast.SessionRequest(chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID);
-    var apiConfig = new chrome.cast.ApiConfig(sessionRequest,
-      sessionListener,
-      receiverListener);
-    chrome.cast.initialize(apiConfig, onInitSuccess, onInitError);
-  };
-
-  function receiverListener(e) {
-    if( e === chrome.cast.ReceiverAvailability.AVAILABLE) {
-      console.log(e);
-    }
-  }
-
-  function sessionListener(e) {
-    session = e;
-    if (session.media.length !== 0) {
-      onMediaDiscovered('onRequestSessionSuccess', session.media[0]);
-    }
-  }
-
-  function onInitSuccess(e) {
-    console.log('CastAPI Ready');
-  }
-
-  function onInitError(e) {
-    console.log(e);
-  }
-
-  window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
-    if (loaded) {
-      initializeCastApi();
-    } else {
-      console.log(errorInfo);
-    }
-  };
-
-  function requestSession() {
-    chrome.cast.requestSession(onRequestSessionSuccess, onLaunchError);
-  }
-
-
-
 
   /*
     indexeddb
@@ -121,7 +66,7 @@
         remainingQuota = Math.round(10 * (((remaining / 1000) / 1000) / 1000)) / 10;
         bytes = 'GB';
       }
-      storageQuota = this.diskUsed + ": " + usedQuota  + " MB, " + this.diskRemaining + ": " + remainingQuota + " " + bytes;
+      storageQuota = chrome.i18n.getMessage("diskused") + ": " + usedQuota  + " MB, " + chrome.i18n.getMessage("diskRemaining") + ": " + remainingQuota + " " + bytes;
     }, function (e) {
       console.log('Error', e);
     });
@@ -160,14 +105,17 @@
     xhr.send();
   }
 
-
   Polymer('app-globals', {
     publish: {
-      storageQuota: storageQuota
+      storageQuota: '',
+      tracker: '',
+      service: ''
     },
     ready: function () {
+      console.log('globals Ready');
       this.service = analytics.getService('PolySonic');
       this.tracker = this.service.getTracker('UA-50154238-6');
+      this.storageQuota  = storageQuota;
     }
   });
 }());
