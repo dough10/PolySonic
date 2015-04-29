@@ -4,7 +4,7 @@
   "short_name": "__MSG_appName__",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
-  "version": "0.2.1.1",
+  "version": "0.2.2",
   "minimum_chrome_version": "38",
 
   "icons": {
@@ -14,7 +14,7 @@
 
   "app": {
     "background": {
-      "scripts": ["background.js"]
+      "page": "background.html"
     }
   },
 
@@ -32,21 +32,32 @@
       "suggested_key": {
         "default": "MediaPlayPause"
       },
-      "description": "Play / Pause Music"
+      "description": "Play / Pause Music",
+      "global": true
     },
     
     "nextTrackMediaKey": {
       "suggested_key": {
         "default": "MediaNextTrack"
       },
-      "description": "Skip to Next Track"
+      "description": "Skip to Next Track",
+      "global": true
     },
     
     "lastTrackMediaKey": {
       "suggested_key": {
         "default": "MediaPrevTrack"
       },
-      "description": "Skip to Last Track"
+      "description": "Skip to Last Track",
+      "global": true
+    },
+
+    "testKey": {
+      "suggested_key": {
+        "default": "Ctrl+Space"
+      },
+      "description": "Play / Pause",
+      "global": true
     }
   }
 }

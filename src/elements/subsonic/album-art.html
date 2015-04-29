@@ -13,7 +13,7 @@
     <style shim-shadowdom>
       :host {
         display:inline-block;
-        margin-top:2px;
+        margin:2px;
       }
       #card {
         border-radius:2px;
@@ -98,22 +98,22 @@
         position:relative;
         display:inline-block;
         font-size: 10pt;
-        top:-8px;
+        top:-5px;
         overflow:hidden;
         max-width:80%;
         pointer-events:none;
-        max-height:20px;
+        max-height:15px;
       }
       .album {
         position:relative;
         display:inline-block;
         font-size: 12pt;
-        top:-13px;
+        top:-10px;
         overflow:hidden;
         max-width:80%;
         pointer-events:none;
         line-height: 150%;
-        max-height:20px;
+        max-height:23px;
       }
       .artist2 {
         position:relative;
@@ -227,6 +227,24 @@
         margin-top:16px;
         border: 1px solid #444;
       }
+      .smallArtist {
+        overflow:hidden;
+        font-size: 12px;
+        top: 2px;
+        position: absolute;
+        max-width: 350px;
+      }
+      .smallAlbum {
+        overflow:hidden;
+        font-size: 16px;
+        position: absolute;
+        top: 22px;
+        left: 0px;
+        max-width: 350px;
+      }
+      .bumpTopMargin {
+        margin-top:16px;
+      }
     </style>
     <div id="card">
       <core-animated-pages selected="{{page}}" valueattr="page" transitions="cross-fade hero-transition">
@@ -279,7 +297,7 @@
         </paper-shadow>
         <div page="small">
           <div class="wrapper">
-            <div id="overlay-high-small" hero-id="hero" hero="">
+            <div id="overlay-high-small">
               <div horizontal layout>
                 <div id="smallCover">
                   <template if="{{isLoading}}">
@@ -287,45 +305,45 @@
                   </template>
                 </div>
                 <div flex vertical layout>
-                  <core-item style="margin-top:16px;">
+                  <core-item class="bumpTopMargin">
                     <div flex>
-                      <div style="overflow:hidden;font-size: 12px;top: 2px;position: absolute;max-width: 350px;">
+                      <div class="smallArtist">
                         {{artist}}
                       </div>  
                       <br>
-                      <div style="overflow:hidden;font-size: 16px;position: absolute;top: 22px;left: 0px;max-width: 350px;">
+                      <div class="smallAlbum">
                         {{album}}
                       </div>   
                     </div>
                     <paper-icon-button on-tap="{{doPlayback}}" icon="av:play-arrow"></paper-icon-button>
-                      <paper-menu-button>
-                        <paper-icon-button icon="more-vert" class="bumpMargin"></paper-icon-button>
-                        <paper-dropdown class="dropdown" halign="right" layered>
-                          <core-menu class="menu">
-                            <core-item>
-                              <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add" title="{{add2PlayQueue}}"></paper-icon-button>
-                              {{add2PlayQueue}}
-                            </core-item>
-                            <core-item>
-                              <template if="{{!isFavorite}}">
-                                <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline" title="{{favoriteAlbum}}"></paper-icon-button>
-                              </template>
-                              <template if="{{isFavorite}}">
-                                <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
-                              </template>
-                              {{favoriteAlbum}}
-                            </core-item>
-                            <core-item>
-                              <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download" title="{{downloadButton}}"></paper-icon-button>
-                              {{downloadButton}}
-                            </core-item>
-                            <core-item>
-                              <paper-icon-button on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
-                              {{albumTracklist}}
-                            </core-item>
-                          </core-menu>
-                        </paper-dropdown>
-                      </paper-menu-button>
+                    <paper-menu-button>
+                      <paper-icon-button icon="more-vert" class="bumpMargin"></paper-icon-button>
+                      <paper-dropdown class="dropdown" halign="right" layered>
+                        <core-menu class="menu">
+                          <core-item>
+                            <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add" title="{{add2PlayQueue}}"></paper-icon-button>
+                            {{add2PlayQueue}}
+                          </core-item>
+                          <core-item>
+                            <template if="{{!isFavorite}}">
+                              <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline" title="{{favoriteAlbum}}"></paper-icon-button>
+                            </template>
+                            <template if="{{isFavorite}}">
+                              <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
+                            </template>
+                            {{favoriteAlbum}}
+                          </core-item>
+                          <core-item>
+                            <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download" title="{{downloadButton}}"></paper-icon-button>
+                            {{downloadButton}}
+                          </core-item>
+                          <core-item>
+                            <paper-icon-button on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
+                            {{albumTracklist}}
+                          </core-item>
+                        </core-menu>
+                      </paper-dropdown>
+                    </paper-menu-button>
                   </core-item>
                 </div>
               </div>
@@ -334,7 +352,7 @@
         </div>
         <div page="search">
           <div class="wrapper search">
-            <div id="overlay-full" hero-id="hero" hero="">
+            <div id="overlay-full">
               <core-item>
                 <div flex style="overflow:hidden">
                   {{artist}} - {{album}}
@@ -405,6 +423,7 @@
           <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
         </template>
         <paper-icon-button on-tap="{{doDownload}}" title="{{downloadButton}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+        <paper-icon-button on-tap="{{moreLike}}" title="Play more like this" ident="{{albumID}}" icon="av:radio"></paper-icon-button>
       </div>
       <div class="trackWrapper">
         <template repeat="{{track in playlist}}">
@@ -413,6 +432,9 @@
               <template if="{{track.disk}}">D.{{track.disk}}.</template>
               <template if="{{track.track}}">T.{{track.track}}: </template>
               {{track.title}}
+              <template if="{{tmpl.playlist[tmpl.playing].id === track.id}}">
+                <core-icon icon="av:volume-up"></core-icon>
+              </template>
             </div>
             <paper-icon-button icon="av:play-arrow" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
             <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>

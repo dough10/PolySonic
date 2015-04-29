@@ -15,7 +15,7 @@
         } else if (this.page === 2)  {
           pName = 'Settings';
           this.state = 'off';
-        } else if (this.page === 4) {
+        } else if (this.page === 3) {
           pName = 'Artist Details';
           this.state = 'off';
         } else {
@@ -25,5 +25,12 @@
           this.state = 'podcast';
         }
         document.getElementById("tmpl").tracker.sendAppView(pName);
+      },
+
+      /* listens to changes in this.playing and updates the player */
+      playingChanged: function () {
+        if (this.playing) {
+          document.getElementById('tmpl').playThis();
+        }
       }
     });

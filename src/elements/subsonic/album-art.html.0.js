@@ -72,16 +72,11 @@ Polymer('album-art', {
     'use strict';
     var imgFile = event.target.result,
       imgURL = window.URL.createObjectURL(imgFile),
-      imgElement;
+      imgElement,
+      i = 0;
 
     this.async(function () {
-      if (this.page === 'cover') {
-        this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-      } else if (this.page === 'small') {
-        this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
-      }
-      this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
-      
+      this.showArt(imgURL);
     });
     this.imgURL = imgURL;
     Array.prototype.forEach.call(this.playlist, function (e) {
@@ -92,14 +87,21 @@ Polymer('album-art', {
     });
   },
   
-  defaultArt: function () {
+  showArt: function (image) {
+    'use strict';
     if (this.page === 'cover') {
-      this.$.card.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      this.$.card.style.backgroundImage = "url('" + image + "')";
     } else if (this.page === 'small') {
-      this.$.smallCover.style.backgroundImage = "url('" + this.defaultImgURL + "')";
+      this.$.smallCover.style.backgroundImage = "url('" + image + "')";
+      this.$.card.style.backgroundImage = null;
     }
-    this.$.topper.style.backgroundImage = "url('" + this.defaultImgURL + "')";
-    this.imgURL = this.defaultImgURL;
+    this.$.topper.style.backgroundImage = "url('" + image + "')";
+    this.imgURL = image;
+  },
+
+  defaultArt: function () {
+    'use strict';
+    this.showArt(this.defaultImgURL);
   },
 
   /*
@@ -134,6 +136,7 @@ Polymer('album-art', {
   },
 
   closeDialog: function () {
+    'use strict';
     this.$.detailsDialog.close();
     this.tmpl.$.fab.state = 'off';
   },
@@ -151,13 +154,9 @@ Polymer('album-art', {
     if (this.audio.paused) {
       this.tmpl.playing = 0;
       this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL, this.playlist[0].id);
-      this.tmpl.getImageForPlayer(this.imgURL);
-      if (this.colorThiefEnabled && this.playlist[0].palette) {
-        this.tmpl.colorThiefFab = this.playlist[0].palette[0];
-        this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
-        this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
-        this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
-      }
+      this.tmpl.getImageForPlayer(this.imgURL, function () {
+        this.tmpl.setFabColor(this.playlist[0]);
+      }.bind(this));
     }
     Array.prototype.forEach.call(this.playlist, function (e) {
       this.tmpl.playlist.push(e);
@@ -176,12 +175,7 @@ Polymer('album-art', {
 
   playTrack: function (event, detail, sender) {
     'use strict';
-    if (this.colorThiefEnabled && this.playlist[0].palette) {
-      this.tmpl.colorThiefFab = this.playlist[0].palette[0];
-      this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
-      this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
-      this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
-    }
+    this.tmpl.setFabColor(this.playlist[0]);
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
     this.$.detailsDialog.close();
     this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";
@@ -194,15 +188,10 @@ Polymer('album-art', {
   addSingle2Playlist: function (event, detail, sender) {
     'use strict';
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
-        obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value,  duration: sender.attributes.duration.value , cover: this.imgURL};
+      obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value,  duration: sender.attributes.duration.value, cover: this.imgURL};
     this.tmpl.playlist.push(obj);
     if (this.audio.paused) {
-      if (this.colorThiefEnabled && this.playlist[0].palette) {
-        this.tmpl.colorThiefFab = this.playlist[0].palette[0];
-        this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
-        this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
-        this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
-      }
+      this.tmpl.setFabColor(this.playlist[0]);
       this.tmpl.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, this.imgURL, sender.attributes.ident.value);
       this.tmpl.playing = 0;
       if (this.imgURL) {
@@ -218,23 +207,20 @@ Polymer('album-art', {
     'use strict';
     this.tmpl.dataLoading = false;
     this.$.detailsDialog.close();
-    if (this.colorThiefEnabled && this.playlist[0].palette) {
-      this.tmpl.colorThiefFab = this.playlist[0].palette[0];
-      this.tmpl.colorThiefFabOff = this.playlist[0].palette[1];
-      this.tmpl.colorThiefBuffered = this.playlist[0].palette[2];
-      this.tmpl.colorThiefProgBg = this.playlist[0].palette[3];
-    }
+    this.tmpl.setFabColor(this.playlist[0]);
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.playlist[0].id;
     this.tmpl.page = 1;
-    this.tmpl.getImageForPlayer(this.imgURL);
-    this.tmpl.playlist = this.playlist;
-    this.tmpl.playing = 0;
-    this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL, this.playlist[0].id);
+    this.tmpl.getImageForPlayer(this.imgURL, function () {
+      this.tmpl.playlist = this.playlist;
+      this.tmpl.playing = 0;
+      this.tmpl.playAudio(this.playlist[0].artist, this.playlist[0].title, url, this.imgURL, this.playlist[0].id);
+    }.bind(this));
   },
 
   addFavorite: function (event, detail, sender) {
     'use strict';
-    var animation = new CoreAnimation();
+    var animation = new CoreAnimation(),
+      url;
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
@@ -243,7 +229,7 @@ Polymer('album-art', {
     ];
     animation.target = sender;
     animation.play();
-    var url = this.url + "/rest/star.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
+    url = this.url + "/rest/star.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
     this.tmpl.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.isFavorite = true;
@@ -254,7 +240,8 @@ Polymer('album-art', {
 
   removeFavorite: function (event, detail, sender) {
     'use strict';
-    var animation = new CoreAnimation();
+    var animation = new CoreAnimation(),
+      url;
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
@@ -263,7 +250,7 @@ Polymer('album-art', {
     ];
     animation.target = sender;
     animation.play();
-    var url = this.url + "/rest/unstar.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
+    url = this.url + "/rest/unstar.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&albumId=" + sender.attributes.ident.value;
     this.tmpl.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.isFavorite = false;
@@ -273,6 +260,7 @@ Polymer('album-art', {
   },
 
   paletteChanged: function () {
+    'use strict';
     if (this.palette !== undefined) {
       Array.prototype.forEach.call(this.playlist, function (element) {
         element.palette = this.palette;
@@ -281,12 +269,14 @@ Polymer('album-art', {
   },
   
   doSearchPlayback: function () {
+    'use strict';
     this.tmpl.$.searchDialog.close();
     this.tmpl.dataLoading = true;
     this.doQuery(this.playAlbum.bind(this));
   },
   
   doSearchDetails: function () {
+    'use strict';
     this.tmpl.$.searchDialog.close();
     this.tmpl.dataLoading = true;
     this.doQuery(function () {
@@ -297,11 +287,12 @@ Polymer('album-art', {
       if (this.colorThiefEnabled && this.playlist[0].palette) {
         this.tmpl.colorThiefAlbum = this.playlist[0].palette[0];
         this.tmpl.colorThiefAlbumOff = this.playlist[0].palette[1];
-      }      
+      }
     }.bind(this));
   },
   
   getPalette: function (callback) {
+    'use strict';
     var artId = "al-" + this.item;
     this.tmpl.getDbItem(artId + '-palette', function (e) {
       this.palette = e.target.result;
@@ -310,6 +301,7 @@ Polymer('album-art', {
   },
 
   doPlayback: function () {
+    'use strict';
     this.tmpl.$.searchDialog.close();
     this.tmpl.dataLoading = true;
     this.getPalette(function () {
@@ -318,6 +310,7 @@ Polymer('album-art', {
   },
   
   doDetails: function () {
+    'use strict';
     this.tmpl.dataLoading = true;
     this.getPalette(function () {
       this.doQuery(this.doDialog.bind(this));
@@ -325,6 +318,7 @@ Polymer('album-art', {
   },
   
   doAdd2Playlist: function () {
+    'use strict';
     this.tmpl.dataLoading = true;
     this.getPalette(function () {
       this.doQuery(this.add2Playlist.bind(this));
@@ -332,14 +326,16 @@ Polymer('album-art', {
   },
   
   processJSON: function (callback) {
+    'use strict';
+    var i = 0;
     this.playlist.length = 0;
     this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
     this.tracks = this.trackResponse['subsonic-response'].album.song;
 
     /* sort tracks by diskNumber thanks Joe Shelby */
-    this.tracks.sort(function(a,b) {
-      var da = a.discNumber || 0, db = b.discNumber || 0;
-      var ta = a.track || 0, tb = b.track || 0;
+    this.tracks.sort(function (a, b) {
+      var da = a.discNumber || 0, db = b.discNumber || 0,
+        ta = a.track || 0, tb = b.track || 0;
       if (da === db) {
         // TODO - if ta === tb (no real id3 info?) consider sorting by path using localeCompare or just the < > compare operators?
         return ta - tb;
@@ -354,10 +350,11 @@ Polymer('album-art', {
           timeString = mins + ':' + ('0' + seconds).slice(-2),
           obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
         this.playlist.push(obj);
-      }.bind(this)); 
-      this.async(function () {
-        callback();
-      });
+        i = i + 1;
+        if (i === this.tracks.length) {
+          callback();
+        }
+      }.bind(this));
     });
   },
   
@@ -387,14 +384,14 @@ Polymer('album-art', {
           }.bind(this));
         }.bind(this));
       }
-    }.bind(this));    
+    }.bind(this));
   },
 
   itemChanged: function () {
     'use strict';
     this.async(function () {
       var artId = "al-" + this.item,
-          url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
+        url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
       if (this.item) {
         this.isLoading = true;
         this.async(this.defaultArt.bind(this));
@@ -413,62 +410,112 @@ Polymer('album-art', {
                   imgURL = window.URL.createObjectURL(imgFile),
                   imgElement;
   
-                this.async(function () {
-                  this.$.card.style.backgroundImage = "url('" + imgURL + "')";
-                  this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
-                  this.$.topper.style.backgroundImage = "url('" + imgURL + "')";
-                  this.imgURL = imgURL;
-                });
                 Array.prototype.forEach.call(this.playlist, function (e) {
                   e.cover = imgURL;
                 }.bind(this));
                 this.async(function () {
+                  this.showArt(imgURL);
                   this.isLoading = false;
                 });
-  
                 /*
                   get dominant color from image
                 */
-                this.async(function () {
-                  imgElement = new Image();
-                  imgElement.src = imgURL;
-                  imgElement.onload = function () {
-                    var color = this.tmpl.getColor(imgElement),
-                        array = [],
-                        r = color[1][0],
-                        g = color[1][1],
-                        b = color[1][2],
-                        hex = this.tmpl.rgbToHex(r, g, b);
-    
-                    /*
-                      array[0] fab color
-    
-                      array[1] fab contrasting color
-    
-                      array[2] progress bar buffering color
-    
-                      array[3] progress bar background
-                    */
-                    array[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-                    array[1]= this.tmpl.getContrast50(hex);
-                    array[2]= 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
-                    if (array[1] !== 'white') {
-                      array[3] = '#444444';
-                    } else {
-                      array[3] = '#c8c8c8';
-                    }
-                    this.palette = array;
-                    this.tmpl.putInDb(array, artId + '-palette', function () {
-                      console.log('Color palette saved ' + artId);
-                    }.bind(this));
-                  }.bind(this);
-                });
+                this.tmpl.colorThiefHandler(imgURL, artId, function (colorArray) {});
               }.bind(this));
             }
           }.bind(this));
         });
       }
     });
+  },
+
+  /*
+    OMG its a nested nightmare!!!!!!!!!!
+    will get list of similar tracks from server then parse results match with artwork & color palette before pushing it to the this.playlist array and playing 1st result
+  */
+  moreLike: function (event, detail, sender) {
+    'use strict';
+    var id = sender.attributes.ident.value,
+      url = this.url + "/rest/getSimilarSongs.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&f=json&c=PolySonic&count=50&id=" + id,
+      i = 0,
+      array = [],
+      /* to be run @ end of loop */
+      callback = function () {
+        this.tmpl.getImageForPlayer(this.tmpl.playlist[0].cover, function () {
+          this.async(function () {
+            this.tmpl.setFabColor(this.playlist[0]);
+            var playURL = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.tmpl.playlist[0].id;
+            this.tmpl.playing = 0;
+            this.tmpl.playAudio(this.tmpl.playlist[0].artist, this.tmpl.playlist[0].title, playURL, this.tmpl.playlist[0].cover, this.tmpl.playlist[0].id);
+            this.tmpl.dataLoading = false;
+            this.tmpl.page = 1;
+          });
+        }.bind(this));
+      }.bind(this);
+    this.$.detailsDialog.close();
+    this.tmpl.$.fab.state = 'off';
+    this.tmpl.dataLoading = true;
+    /* get data */
+    this.tmpl.doXhr(url, 'json', function (e) {
+      var response = e.target.response['subsonic-response'].similarSongs.song;
+      if (response) {
+        this.tmpl.$.audio.pause();
+        this.tmpl.playlist = null;
+        this.tmpl.playlist = [];
+        Array.prototype.forEach.call(response, function (element) {
+          var mins = Math.floor(element.duration / 60),
+            seconds = Math.floor(element.duration - (mins * 60)),
+            timeString = mins + ':' + ('0' + seconds).slice(-2),
+            obj = {id: element.id, artist: element.artist, title: element.title, duration: timeString},
+            artId = 'al-' + element.albumId,
+            url2 = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
+          /* check indexeddb */
+          this.tmpl.getDbItem(artId, function (ev) {
+            if (ev.target.result) {
+              var imgFile = ev.target.result,
+                imgURL = window.URL.createObjectURL(imgFile);
+              // got the image as imgURL
+              obj.cover = imgURL;
+              /* get palette if in db */
+              this.tmpl.getDbItem(artId + '-palette', function (e) {
+                obj.palette = e.target.result;
+                this.tmpl.playlist.push(obj);
+                i = i + 1;
+                if (i === response.length) {
+                  callback();
+                }
+              }.bind(this));
+            } else {
+              /*
+                get image from subsonic server
+              */
+              this.tmpl.getImageFile(url2, artId, function (event) {
+                var imgFile = event.target.result,
+                  imgURL = window.URL.createObjectURL(imgFile);
+
+
+                obj.cover = imgURL;
+
+                /*
+                  get dominant color from image
+                */
+                this.tmpl.colorThiefHandler(imgURL, artId, function (colorArray) {
+                  obj.palette = colorArray;
+                  this.tmpl.playlist.push(obj);
+                  i = i + 1;
+                  if (i === response.length) {
+                    callback();
+                  }
+                }.bind(this));
+              }.bind(this));
+            }
+          }.bind(this));
+        }.bind(this));
+      } else {
+        this.tmpl.dataLoading = false;
+        this.tmpl.doToast(chrome.i18n.getMessage("noResults"));
+      }
+    }.bind(this));
   }
 });
 
