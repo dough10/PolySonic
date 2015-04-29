@@ -1,56 +1,6 @@
 /*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief, setTimeout */
 (function () {
   'use strict';
-  
-  /*
-    cast API 
-  */
-  function onRequestSessionSuccess(e) {
-    session = e;
-    console.log(session);
-  }
-  
-  function onLaunchError(e) {
-    console.log(e.code);
-  }
- 
-  var initializeCastApi = function() {
-    var sessionRequest = new chrome.cast.SessionRequest(chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID);
-    var apiConfig = new chrome.cast.ApiConfig(sessionRequest,
-      sessionListener,
-      receiverListener);
-    chrome.cast.initialize(apiConfig, onInitSuccess, onInitError);
-  };
-    
-  function receiverListener(e) {
-    if( e === chrome.cast.ReceiverAvailability.AVAILABLE) {
-      console.log(e);
-    }
-  }
-  
-  function sessionListener(e) {
-    session = e;
-    if (session.media.length !== 0) {
-      onMediaDiscovered('onRequestSessionSuccess', session.media[0]);
-    }
-  }
-  
-  function onInitSuccess(e) {
-    console.log('CastAPI Ready');
-  }
-  
-  function onInitError(e) {
-    console.log(e);
-  }
-  
-  window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
-    if (loaded) {
-      initializeCastApi();
-    } else {
-      console.log(errorInfo);
-    }
-  };
-
   /* polymer auto-binding template ready */
   var tmpl = document.querySelector('#tmpl');
   tmpl.addEventListener('template-bound', function () {
@@ -753,123 +703,7 @@
       art.style.height = height;
       art.style.backgroundSize = width;
     };
-  
-    this.loadListeners = function () {
-      var scroller = this.appScroller(),
-        audio = this.$.audio,
-        maximized = chrome.app.window.current().isMaximized(),
-        button = this.$.max,
-        timer;
-        
-      if (maximized) {
-        button.icon = 'check-box-outline-blank';
-      } else {
-        button.icon = 'flip-to-back';
-      }
-  
-      scroller.onscroll = function () {
-        var fab = this.$.fab,
-          wall = this.$.wall;
-  
-        if (this.page === 0 && fab.state !== 'off' && scroller.scrollTop < this.position && wall.showing !== 'podcast') {
-          fab.state = 'off';
-        } else if (this.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > this.position && wall.showing !== 'podcast') {
-          fab.state = 'bottom';
-        }
-        this.position = scroller.scrollTop;
-      }.bind(this);
-  
-      /*
-        only needed if fullscreen enabled
-  
-      */
-      //window.onresize = this.sizePlayer.bind(this);
-      
-      audio.onwaiting = this.playerProgress.bind(this);
-      
-      audio.onstalled = function (e) {
-        if (timer) {
-          clearInterval(timer);
-        }
-        timer = setInterval(function () {
-          this.playerProgress();
-        }.bind(this), 250);
-      }.bind(this);
-      
-      audio.onplay = function (e) {
-        if (timer) {
-          clearInterval(timer);
-        }
-      };
-      
-      audio.onpause = function (e) {
-        if (timer) {
-          clearInterval(timer);
-        }
-        timer = setInterval(function () {
-          this.playerProgress();
-        }.bind(this), 250);
-      }.bind(this);
-      
-      audio.ontimeupdate = this.playerProgress.bind(this);
-  
-      audio.onended = this.nextTrack.bind(this);
-  
-      audio.onerror = function (e) {
-        console.log('audio playback error ', e);
-        this.tracker.sendEvent('Audio Playback Error', e.target);
-      }.bind(this);
-    };
-  
-    this.loadData = function () {
-      chrome.storage.sync.get(function (result) {
-        if (result.url === undefined) {
-          this.$.firstRun.open();
-        }
-        this.url = result.url;
-        this.user = result.user;
-        this.pass = result.pass;
-        this.listMode = result.listMode || 'cover';
-        this.bitRate = result.bitRate || 320;
-        this.version = '1.11.0';
-        this.querySize = 30;
-        this.volume = result.volume || 100;
-        this.queryMethod = result.queryMethod || 'ID3';
-        this.colorThiefEnabled = true;
-        if (this.url && this.user && this.pass && this.version) {
-          var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json',
-            url2;
-          this.doXhr(url, 'json', function (e) {
-            if (e.target.status === 200) {
-              var response = e.target.response['subsonic-response'];
-              this.version = response.version;
-              url2 = this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic";
-              if (response.status === 'ok') {
-                console.log('Connected to Subconic loading data');
-                this.doXhr(url2, 'json', function (e) {
-                  this.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-                  /* setting mediaFolder causes a ajax call to get album wall data */
-                  this.folder = result.mediaFolder || 0;
-                  if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
-                    this.$.sortBox.style.display = 'none';
-                  }
-                  this.tracker.sendAppView('Album Wall');
-                }.bind(this));
-              } else {
-                this.tracker.sendEvent('Connection Error', response.error.meessage);
-                this.$.firstRun.toggle();
-                this.doToast(response.error.meessage);
-              }
-            } else {
-              this.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-              this.$.firstRun.toggle();
-              this.doToast(e.target.response['subsonic-response'].error.meessage);
-            }
-          }.bind(this));
-        }
-      }.bind(this));
-    };
-  
+
     this.closeSearch = function () {
       this.$.searchDialog.close();
     };
@@ -1223,21 +1057,128 @@
     };
   
     this.dataLoading = false;
-    this.loadListeners();
-    this.loadData();
     this.sizePlayer();
     this.calculateStorageSize();
 
-    chrome.commands.onCommand.addListener(function (command) {
-      var audio = this.$.audio;
-      if (command === "playPauseMediaKey") {
+    /* load app settings from local storage */
+    chrome.storage.sync.get(function (result) {
+      if (result.url === undefined) {
+        this.$.firstRun.open();
+      }
+      this.url = result.url;
+      this.user = result.user;
+      this.pass = result.pass;
+      this.listMode = result.listMode || 'cover';
+      this.bitRate = result.bitRate || 320;
+      this.version = '1.11.0';
+      this.querySize = 30;
+      this.volume = result.volume || 100;
+      this.queryMethod = result.queryMethod || 'ID3';
+      this.colorThiefEnabled = true;
+      if (this.url && this.user && this.pass && this.version) {
+        var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json',
+          url2;
+        this.doXhr(url, 'json', function (e) {
+          if (e.target.status === 200) {
+            var response = e.target.response['subsonic-response'];
+            this.version = response.version;
+            url2 = this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic";
+            if (response.status === 'ok') {
+              console.log('Connected to Subconic loading data');
+              this.doXhr(url2, 'json', function (e) {
+                this.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                /* setting mediaFolder causes a ajax call to get album wall data */
+                this.folder = result.mediaFolder || 0;
+                if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+                  this.$.sortBox.style.display = 'none';
+                }
+                this.tracker.sendAppView('Album Wall');
+              }.bind(this));
+            } else {
+              this.tracker.sendEvent('Connection Error', response.error.meessage);
+              this.$.firstRun.toggle();
+              this.doToast(response.error.meessage);
+            }
+          } else {
+            this.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
+            this.$.firstRun.toggle();
+            this.doToast(e.target.response['subsonic-response'].error.meessage);
+          }
+        }.bind(this));
+      }
+    }.bind(this));
+
+    /* listeners and event handlers */
+    var scroller = this.appScroller(),
+      audio = this.$.audio,
+      maximized = chrome.app.window.current().isMaximized(),
+      button = this.$.max,
+      timer;
+
+    if (maximized) {
+      button.icon = 'check-box-outline-blank';
+    } else {
+      button.icon = 'flip-to-back';
+    }
+
+    scroller.onscroll = function () {
+      var fab = this.$.fab,
+        wall = this.$.wall;
+
+      if (this.page === 0 && fab.state !== 'off' && scroller.scrollTop < this.position && wall.showing !== 'podcast') {
+        fab.state = 'off';
+      } else if (this.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > this.position && wall.showing !== 'podcast') {
+        fab.state = 'bottom';
+      }
+      this.position = scroller.scrollTop;
+    }.bind(this);
+
+    /*
+      only needed if fullscreen enabled
+
+    */
+    //window.onresize = this.sizePlayer.bind(this);
+
+    audio.onwaiting = this.playerProgress.bind(this);
+
+    audio.onstalled = function (e) {
+      if (timer) {
+        clearInterval(timer);
+      }
+      timer = setInterval(function () {
+        this.playerProgress();
+      }.bind(this), 250);
+    }.bind(this);
+
+    audio.onplay = function (e) {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+
+    audio.onpause = function (e) {
+      if (timer) {
+        clearInterval(timer);
+      }
+      timer = setInterval(function () {
+        this.playerProgress();
+      }.bind(this), 250);
+    }.bind(this);
+
+    audio.ontimeupdate = this.playerProgress.bind(this);
+
+    audio.onended = this.nextTrack.bind(this);
+
+    audio.onerror = function (e) {
+      console.log('audio playback error ', e);
+      this.doToast('Audio Playback Error');
+      this.tracker.sendEvent('Audio Playback Error', e.target);
+    }.bind(this);
+
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+      if (request.command == "play") {
         this.playPause();
-      } else if (!audio.paused && command === "nextTrackMediaKey") {
-        this.nextTrack();
-      } else if (!audio.paused && command === "lastTrackMediaKey") {
-        this.lastTrack();
-      } else if (!audio.paused && command === "MediaPlayPause") {
-        this.playPause();
+        sendResponse({farewell: "Command Sent"});
       }
     }.bind(this));
   

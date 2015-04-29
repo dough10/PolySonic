@@ -224,5 +224,14 @@
   },
   "noResults": {
     "message": "No Results Returned"
+  },
+  "settingsDeleted": {
+    "message": "Settings Deleted Please Reload"
+  },
+  "reloadApp": {
+    "message": "Reload App"
+  },
+  "recommendReload": {
+    "message": "It is recommended to reload after clearing cache"
   }
 }

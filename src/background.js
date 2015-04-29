@@ -18,3 +18,22 @@ chrome.app.runtime.onLaunched.addListener(function() {
     }
   });
 });
+function sendMessage() {
+  chrome.runtime.sendMessage({command: "play"}, function(response) {
+    console.log(response.farewell);
+  });
+}
+chrome.commands.onCommand.addListener(function (command) {
+  if (command === "playPauseMediaKey") {
+    //
+  } else if (command === "nextTrackMediaKey") {
+    //
+  } else if (command === "lastTrackMediaKey") {
+    //
+  } else if (command === "MediaPlayPause") {
+    //
+  } else if (commane === "testKey") {
+    sendMessage();
+  }
+});
+

@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
+    <link href="bower_components/core-a11y-keys/core-a11y-keys.html" rel="import">
+  </head>
+  <body>
+    <template id="app" is="auto-binding">
+      <!--some key bindings ** half ass working** -->
+      <core-a11y-keys keys="space" on-keys-pressed="sendMessage();"></core-a11y-keys>
+      <core-a11y-keys keys="left" on-keys-pressed="{{lastTrack}}"></core-a11y-keys>
+      <core-a11y-keys keys="right"on-keys-pressed="{{nextTrack}}"></core-a11y-keys>
+      <core-a11y-keys keys="up" on-keys-pressed="{{volUp}}"></core-a11y-keys>
+      <core-a11y-keys keys="down" on-keys-pressed="{{volDown}}"></core-a11y-keys>
+    </template>
+    <script src="background.js"></script>
+  </body>
+</html>
