@@ -46,9 +46,9 @@ Polymer('album-wall', {
   
   domReady: function () {
     'use strict';
-    this.tmpl = document.getElementById("tmpl");
+    this.app = document.getElementById("tmpl");
     this.audio = document.getElementById("audio");
-    this.scrollTarget = this.tmpl.appScroller();
+    this.scrollTarget = this.app.appScroller();
   },
   
   userChanged: function () {
@@ -70,14 +70,14 @@ Polymer('album-wall', {
   
   mediaFolderChanged: function () {
     'use strict';
-    this.tmpl.closeDrawer(function () {
+    this.app.closeDrawer(function () {
       if (this.mediaFolder !== 0) {
         this.post.musicFolderId = this.mediaFolder;
       } else {
         delete this.post.musicFolderId;
       }
       this.refreshContent();
-      this.tmpl.pageLimit = false;
+      this.app.pageLimit = false;
       this.$.threshold.clearLower();
     }.bind(this));
   },
@@ -85,7 +85,7 @@ Polymer('album-wall', {
   clearData: function (callback) {
     'use strict';
     this.isLoading = true;
-    this.tmpl.dataLoading = true;
+    this.app.dataLoading = true;
     if (this.scrollTarget) {
       this.scrollTarget.scrollTop = 0;
     }
@@ -104,8 +104,8 @@ Polymer('album-wall', {
     'use strict';
     var callback = function () {
         this.async(function () {
-          this.tmpl.dataLoading = false;
-          this.tmpl.showApp();
+          this.app.dataLoading = false;
+          this.app.showApp();
         });
       }.bind(this),
       i = 0,
@@ -115,7 +115,7 @@ Polymer('album-wall', {
       response = this.response['subsonic-response'];
       if (response.status === 'failed') {
         console.log(response.error.message);
-        this.tmpl.doToast(response.error.message);
+        this.app.doToast(response.error.message);
       } else {
         if (response.albumList2 && response.albumList2.album) {
           Array.prototype.forEach.call(response.albumList2.album, function (e) {
@@ -173,7 +173,7 @@ Polymer('album-wall', {
             }
           }.bind(this));
         } else {
-          this.tmpl.pageLimit = true;
+          this.app.pageLimit = true;
         }
       }
     }
@@ -182,7 +182,7 @@ Polymer('album-wall', {
   artistDetails: function (event, detail, sender) {
     'use strict';
     var artist = document.getElementById("aDetails");
-    this.tmpl.dataLoading = true;
+    this.app.dataLoading = true;
     artist.artistId = sender.attributes.ident.value;
     artist.queryData();
   },
@@ -195,7 +195,7 @@ Polymer('album-wall', {
   getPodcast: function () {
     'use strict';
     this.clearData(function () {
-      this.tmpl.pageLimit = false;
+      this.app.pageLimit = false;
       this.request = 'getPodcasts';
       this.post.type = '';
       this.post.offset = 0;
@@ -214,7 +214,7 @@ Polymer('album-wall', {
   getStarred: function () {
     'use strict';
     this.clearData(function () {
-      this.tmpl.pageLimit = false;
+      this.app.pageLimit = false;
       if (this.queryMethod === 'ID3') {
         this.request = 'getStarred2';
       } else {
@@ -237,7 +237,7 @@ Polymer('album-wall', {
   getArtist: function () {
     'use strict';
     this.clearData(function () {
-      this.tmpl.pageLimit = false;
+      this.app.pageLimit = false;
       this.request = 'getArtists';
       this.post.type = '';
       this.post.offset = 0;
@@ -257,7 +257,7 @@ Polymer('album-wall', {
     'use strict';
     this.async(function () {
       this.clearData(function () {
-        this.tmpl.pageLimit = false;
+        this.app.pageLimit = false;
         if (this.queryMethod === 'ID3') {
           this.request = 'getAlbumList2';
         } else {
@@ -288,8 +288,8 @@ Polymer('album-wall', {
   errorChanged: function () {
     'use strict';
     if (this.error) {
-      console.log(this.error);
-      this.tmpl.doToast(chrome.i18n.getMessage("connectionError"));
+      console.error(this.error);
+      this.app.doToast(chrome.i18n.getMessage("connectionError"));
     }
   },
   
@@ -297,7 +297,7 @@ Polymer('album-wall', {
     'use strict';
     this.async(function () {
       this.$.threshold.clearLower();
-      if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.tmpl.pageLimit && this.tmpl.page === 0) {
+      if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.app.pageLimit && this.app.page === 0) {
         this.isLoading = true;
         this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
         this.$.ajax.go();
@@ -320,7 +320,7 @@ Polymer('album-wall', {
           } else {
             this.showing = 'list';
           }
-          this.tmpl.dataLoading = false;
+          this.app.dataLoading = false;
         }
       });
     }
@@ -328,54 +328,52 @@ Polymer('album-wall', {
   
   getPaletteFromDb: function (id, callback) {
     'use strict';
-    this.tmpl.getDbItem(id + '-palette', function (e) {
+    this.app.getDbItem(id + '-palette', function (e) {
       callback(e.target.result);
     }.bind(this));
   },
 
   doPlay: function (obj, url) {
     'use strict';
-    this.tmpl.playlist = [obj];
-    this.tmpl.playing = 0;
-    this.tmpl.playAudio('', obj.title, url, obj.cover, obj.id);
-    this.tmpl.dataLoading = false;
+    this.app.playlist = [obj];
+    this.app.playing = 0;
+    this.app.playAudio('', obj.title, url, obj.cover, obj.id);
+    this.app.dataLoading = false;
   },
   
   playPodcast: function (event, detial, sender) {
     'use strict';
-    this.tmpl.dataLoading = true;
+    this.app.dataLoading = true;
     this.async(function () {
       var artURL = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.cover.value,
         url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value,
         imgURL,
         obj;
-
       if (sender.attributes.cover.value) {
-        /* look for image in indexeddb */
-        this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {
+        this.app.getDbItem(sender.attributes.cover.value, function (ev) {
           if (ev.target.result) {
             var imgFile = ev.target.result;
             imgURL = window.URL.createObjectURL(imgFile);
             obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-            this.tmpl.getImageForPlayer(imgURL, function () {
+            this.app.getImageForPlayer(imgURL, function () {
               this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
                 obj.palette = palette;
-                this.tmpl.setFabColor(obj);
+                this.app.setFabColor(obj);
                 this.doPlay(obj, url);
-                this.tmpl.page = 1;
+                this.app.page = 1;
               }.bind(this));
             }.bind(this));
           } else {
-            this.tmpl.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
+            this.app.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
               var imgFile = ev.target.result;
               imgURL = window.URL.createObjectURL(imgFile);
               obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-              this.tmpl.getImageForPlayer(imgURL, function () {
-                this.tmpl.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
+              this.app.getImageForPlayer(imgURL, function () {
+                this.app.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
                   obj.palette = colorArray;
-                  this.tmpl.setFabColor(obj);
+                  this.app.setFabColor(obj);
                   this.doPlay(obj, url);
-                  this.tmpl.page = 1;
+                  this.app.page = 1;
                 }.bind(this));
               }.bind(this));
             }.bind(this));
@@ -384,9 +382,9 @@ Polymer('album-wall', {
       } else {
         imgURL = '../../../images/default-cover-art.png';
         obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-        this.tmpl.getImageForPlayer(imgURL);
+        this.app.getImageForPlayer(imgURL);
         this.doPlay(obj, url);
-        this.tmpl.page = 1;
+        this.app.page = 1;
       }
     });
   },
@@ -397,11 +395,9 @@ Polymer('album-wall', {
       imgURL,
       obj,
       url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + sender.attributes.streamId.value;
-
-    this.tmpl.dataLoading = true;
+    this.app.dataLoading = true;
     if (sender.attributes.cover.value) {
-      /* look for image in indexeddb */
-      this.tmpl.getDbItem(sender.attributes.cover.value, function (ev) {
+      this.app.getDbItem(sender.attributes.cover.value, function (ev) {
         if (ev.target.result) {
           var imgFile = ev.target.result;
           imgURL = window.URL.createObjectURL(imgFile);
@@ -409,37 +405,37 @@ Polymer('album-wall', {
           this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
             obj.palette = palette;
             if (this.audio.paused) {
-              this.tmpl.getImageForPlayer(imgURL, function () {
-                this.tmpl.setFabColor(obj);
+              this.app.getImageForPlayer(imgURL, function () {
+                this.app.setFabColor(obj);
                 this.doPlay(obj, url);
-                this.tmpl.dataLoading = false;
-                this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
+                this.app.dataLoading = false;
+                this.app.doToast(chrome.i18n.getMessage("added2Queue"));
               }.bind(this));
             } else {
-              this.tmpl.dataLoading = false;
-              this.tmpl.playlist.push(obj);
-              this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
+              this.app.dataLoading = false;
+              this.app.playlist.push(obj);
+              this.app.doToast(chrome.i18n.getMessage("added2Queue"));
             }
           }.bind(this));
         } else {
-          this.tmpl.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
+          this.app.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
             var imgFile = ev.target.result;
             imgURL = window.URL.createObjectURL(imgFile);
             obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-            this.tmpl.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
+            this.app.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
               obj.palette = colorArray;
             });
             if (this.audio.paused) {
-              this.tmpl.getImageForPlayer(imgURL, function () {
-                this.tmpl.dataLoading = false;
-                this.tmpl.setFabColor(obj);
+              this.app.getImageForPlayer(imgURL, function () {
+                this.app.dataLoading = false;
+                this.app.setFabColor(obj);
                 this.doPlay(obj, url);
-                this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
+                this.app.doToast(chrome.i18n.getMessage("added2Queue"));
               }.bind(this));
             } else {
-              this.tmpl.dataLoading = false;
-              this.tmpl.playlist.push(obj);
-              this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
+              this.app.dataLoading = false;
+              this.app.playlist.push(obj);
+              this.app.doToast(chrome.i18n.getMessage("added2Queue"));
             }
           }.bind(this));
         }
@@ -448,12 +444,12 @@ Polymer('album-wall', {
       imgURL = '../../../images/default-cover-art.png';
       if (this.audio.paused) {
         obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-        this.tmpl.getImageForPlayer(imgURL);
+        this.app.getImageForPlayer(imgURL);
         this.doPlay(obj, url);
       } else {
         obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
-        this.tmpl.playlist.push(obj);
-        this.tmpl.doToast(chrome.i18n.getMessage("added2Queue"));
+        this.app.playlist.push(obj);
+        this.app.doToast(chrome.i18n.getMessage("added2Queue"));
       }
     }
   },
@@ -477,14 +473,14 @@ Polymer('album-wall', {
   
   deleteDialog: function (event, detail, sender) {
     'use strict';
-    this.tmpl.delID = sender.attributes.ident.value;
-    this.tmpl.$.confirmDelete.open();
+    this.app.delID = sender.attributes.ident.value;
+    this.app.$.confirmDelete.open();
   },
   
   deleteChannel: function (id) {
     'use strict';
     var url = this.url + "/rest/deletePodcastChannel.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + id;
-    this.tmpl.doXhr(url, 'json', function (e) {
+    this.app.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.clearData(function () {
           this.$.ajax.go();
@@ -506,11 +502,11 @@ Polymer('album-wall', {
   downloadEpisode: function (event, detail, sender) {
     'use strict';
     var url = this.url + "/rest/downloadPodcastEpisode.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.ident.value;
-    this.tmpl.doXhr(url, 'json', function (e) {
+    this.app.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.clearData(function () {
           this.$.ajax.go();
-          this.tmpl.doToast(chrome.i18n.getMessage("downloadPodcast"));
+          this.app.doToast(chrome.i18n.getMessage("downloadPodcast"));
         }.bind(this));
       }
     }.bind(this));
@@ -518,14 +514,14 @@ Polymer('album-wall', {
   
   episodeDialog: function (event, detail, sender) {
     'use strict';
-    this.tmpl.delID = sender.attributes.ident.value;
-    this.tmpl.$.episodeConfirm.open();
+    this.app.delID = sender.attributes.ident.value;
+    this.app.$.episodeConfirm.open();
   },
   
   deleteEpisode: function (id) {
     'use strict';
     var url = this.url + "/rest/deletePodcastEpisode.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + id;
-    this.tmpl.doXhr(url, 'json', function (e) {
+    this.app.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.clearData(function () {
           this.$.ajax.go();
@@ -551,7 +547,7 @@ Polymer('album-wall', {
   
   jumpToLetter: function (letter) {
     'use strict';
-    var i, item, findIndexByKeyValue = function (arraytosearch, key, valuetosearch) {
+    var i, findIndexByKeyValue = function (arraytosearch, key, valuetosearch) {
       for (i = 0; i < arraytosearch.length; i = i + 1) {
         if (arraytosearch[i][key] === valuetosearch) {
           return i;
@@ -559,8 +555,7 @@ Polymer('album-wall', {
       }
       return null;
     };
-    item = findIndexByKeyValue(this.artists, 'name', letter);
-    this.$.artists.scrollToItem(item);
+    this.$.artists.scrollToItem(findIndexByKeyValue(this.artists, 'name', letter));
   }
 });
 
