@@ -1,81 +1,9 @@
 /*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief, setTimeout */
 (function () {
   'use strict';
-
-  /* polymer auto-binding template ready */
   var app = document.querySelector('#tmpl');
   app.addEventListener('template-bound', function () {
-    /* load app settings from local storage */
     this.loadData();
-
-    /* listeners and event handlers */
-    var scroller = app.appScroller(),
-      audio = app.$.audio,
-      maximized = chrome.app.window.current().isMaximized(),
-      button = app.$.max,
-      timer;
-
-    if (maximized) {
-      button.icon = 'check-box-outline-blank';
-    } else {
-      button.icon = 'flip-to-back';
-    }
-
-    scroller.onscroll = function () {
-     var fab = app.$.fab,
-        wall = app.$.wall;
-
-      if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
-        fab.state = 'off';
-      } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
-        fab.state = 'bottom';
-      }
-      app.position = scroller.scrollTop;
-    };
-
-    /*
-      only needed if fullscreen enabled
-
-    */
-    //window.onresize = this.sizePlayer;
-
-    audio.onwaiting = app.playerProgress;
-
-    audio.onstalled = function (e) {
-      if (timer) {
-        clearInterval(timer);
-      }
-      timer = setInterval(function () {
-        app.playerProgress();
-      }, 250);
-    };
-
-    audio.onplay = function (e) {
-      if (timer) {
-        clearInterval(timer);
-      }
-    };
-
-    audio.onpause = function (e) {
-      if (timer) {
-        clearInterval(timer);
-      }
-      timer = setInterval(function () {
-        app.playerProgress();
-      }, 250);
-    };
-
-    audio.ontimeupdate = app.playerProgress;
-
-    audio.onended = app.nextTrack;
-
-    audio.onerror = function (e) {
-      app.page = 0;
-      console.error('audio playback error ', e);
-      app.doToast('Audio Playback Error');
-      app.tracker.sendEvent('Audio Playback Error', e.target);
-    };
-
   });
 
   /*
@@ -85,8 +13,6 @@
     app.service = analytics.getService('PolySonic');
     app.tracker = app.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
   };
-
-
 
   /*
     locale settings
@@ -870,6 +796,72 @@
         });
       }
     });
+    
+    var scroller = app.appScroller(),
+      audio = app.$.audio,
+      maximized = chrome.app.window.current().isMaximized(),
+      button = app.$.max,
+      timer;
+      
+    if (maximized) {
+      button.icon = 'check-box-outline-blank';
+    } else {
+      button.icon = 'flip-to-back';
+    }
+    scroller.onscroll = function () {
+     var fab = app.$.fab,
+        wall = app.$.wall;
+  
+      if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
+        fab.state = 'off';
+      } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
+        fab.state = 'bottom';
+      }
+      app.position = scroller.scrollTop;
+    };
+  
+    /*
+      only needed if fullscreen enabled
+  
+    */
+    //window.onresize = this.sizePlayer;
+  
+    audio.onwaiting = app.playerProgress;
+  
+    audio.onstalled = function (e) {
+      if (timer) {
+        clearInterval(timer);
+      }
+      timer = setInterval(function () {
+        app.playerProgress();
+      }, 250);
+    };
+  
+    audio.onplay = function (e) {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+  
+    audio.onpause = function (e) {
+      if (timer) {
+        clearInterval(timer);
+      }
+      timer = setInterval(function () {
+        app.playerProgress();
+      }, 250);
+    };
+  
+    audio.ontimeupdate = app.playerProgress;
+  
+    audio.onended = app.nextTrack;
+  
+    audio.onerror = function (e) {
+      app.page = 0;
+      console.error('audio playback error ', e);
+      app.doToast('Audio Playback Error');
+      app.tracker.sendEvent('Audio Playback Error', e.target);
+    };
   };
 
   /*
