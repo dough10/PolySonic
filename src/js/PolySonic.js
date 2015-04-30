@@ -381,7 +381,7 @@
       note = app.$.playNotify,
       time = new Date(),
       now = time.getTime(),
-      url = app.url + '/rest/scrobble.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&id=' + id + '&time=' + now;
+      url;
     if (artist === '') {
       app.currentPlaying = title;
       note.title = title;
@@ -389,12 +389,15 @@
       app.currentPlaying = artist + ' - ' + title;
       note.title = artist + ' - ' + title;
     }
-    app.doXhr(url, 'json', function (e) {
-      if (e.target.response['subsonic-response'].status === 'failed') {
-        console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
-        app.tracker.sendEvent('Last FM submission', 'Failed');
-      }
-    });
+    if (app.activeUser.scrobblingEnabled) {
+      url = app.url + '/rest/scrobble.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&id=' + id + '&time=' + now;
+      app.doXhr(url, 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 'failed') {
+          console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
+          app.tracker.sendEvent('Last FM submission', 'Failed');
+        }
+      });
+    }
     audio.src = src;
     audio.play();
     note.icon = image;
@@ -841,9 +844,9 @@
         app.doXhr(url, 'json', function (e) {
           if (e.target.status === 200) {
             app.version = e.target.response['subsonic-response'].version;
-            app.userDetails();
             url2 = app.url + "/rest/getMusicFolders.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic";
             if (e.target.response['subsonic-response'].status === 'ok') {
+              app.userDetails();
               console.log('Connected to Subconic loading data');
               app.doXhr(url2, 'json', function (e) {
                 app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
@@ -1185,7 +1188,7 @@
     app.doXhr(url, 'json', function (e) {
       var response = e.target.response['subsonic-response'];
       if (response.status === 'ok') {
-        app.serverLicense = response.license
+        app.serverLicense = response.license;
         app.$.licenseDialog.open();
         callback();
       }
