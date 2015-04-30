@@ -179,7 +179,15 @@ Polymer('album-art', {
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value;
     this.$.detailsDialog.close();
     this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";
-    this.app.playlist = [{artist: sender.attributes.artist.value, title: sender.attributes.title.value, cover: this.imgURL, duration: sender.attributes.duration.value, id: sender.attributes.ident.value}];
+    this.app.playlist = [
+      {
+        artist: sender.attributes.artist.value,
+        title: sender.attributes.title.value,
+        cover: this.imgURL,
+        duration: sender.attributes.duration.value,
+        id: sender.attributes.ident.value
+      }
+    ];
     this.app.playing = 0;
     this.app.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, this.imgURL, sender.attributes.ident.value);
     this.app.page = 1;
