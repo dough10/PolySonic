@@ -33,7 +33,7 @@
       },
       
       domReady: function () {
-        this.tmpl = document.getElementById("tmpl");
+        this.app = document.getElementById("tmpl");
         this.wall = document.getElementById("wall");
         this.outputVersion(this.manifest);
         setTimeout(function () {
@@ -69,13 +69,13 @@
             invalid2 = this.$.input2.classList.contains("invalid"),
             invalid3 = this.$.input3.classList.contains("invalid");
           if (invalid1 && invalid2 && this.post.version === undefined) {
-            this.tmpl.doToast("URL, Username & Version Required");
+            this.app.doToast("URL, Username & Version Required");
           } else if (invalid1) {
-            this.tmpl.doToast("URL Required");
+            this.app.doToast("URL Required");
           } else if (invalid2) {
-            this.tmpl.doToast("Username Required");
+            this.app.doToast("Username Required");
           } else if (this.version === undefined) {
-            this.tmpl.doToast("Version Required");
+            this.app.doToast("Version Required");
           }
           if (!invalid1 && !invalid2 && !invalid3 && this.post.version !== undefined && this.post.bitRate !== undefined) {
             var lastChar = this.post.url.substr(-1); // Selects the last character
@@ -112,35 +112,40 @@
           }.bind(this), 15000);
         }
       },
-      clearCache: function () {
+      doClearCache: function () {
+        this.clearCache(function () {
+          this.app.$.recommendReloadDialog.open();
+        }.bind(this));
+      },
+      clearCache: function (callback) {
         var req = indexedDB.deleteDatabase('albumInfo');
         req.onsuccess = function () {
           console.log("Deleted database successfully");
-          this.tmpl.createObjectStore();
-          this.tmpl.calculateStorageSize();
+          this.app.createObjectStore();
+          this.app.calculateStorageSize();
         }.bind(this);
         req.onerror = function () {
           console.log("Error deleting database");
-          this.tmpl.calculateStorageSize();
+          this.app.calculateStorageSize();
         }.bind(this);
         req.onblocked = function () {
           console.log("Couldn't delete database due to the operation being blocked");
-          this.tmpl.calculateStorageSize();
+          this.app.calculateStorageSize();
         }.bind(this);
-        this.tmpl.$.recommendReloadDialog.open();
+        callback();
       },
       clearSettings: function () {
         chrome.storage.sync.clear();
-        this.tmpl.url = '';
-        this.tmpl.user = '';
-        this.tmpl.pass = '';
-        this.tmpl.version = '';
-        this.tmpl.bitRate = '';
-        this.tmpl.querySize = '';
+        this.app.url = '';
+        this.app.user = '';
+        this.app.pass = '';
+        this.app.version = '';
+        this.app.bitRate = '';
+        this.app.querySize = '';
         this.post = [];
-        this.tmpl.doToast("Settings Cleared");
-        this.clearCache();
-        this.tmpl.$.reloadAppDialog.open();
+        this.clearCache(function () {
+          this.app.$.reloadAppDialog.open();
+        }.bind(this));
       },
       responseChanged: function () {
         'use strict';
@@ -153,7 +158,7 @@
               var req = indexedDB.deleteDatabase('albumInfo');
               req.onsuccess = function () {
                 console.log("Deleted database successfully");
-                this.tmpl.createObjectStore();
+                this.app.createObjectStore();
               };
               req.onerror = function () {
                 console.log("Error deleting database");
@@ -173,25 +178,25 @@
               'queryMethod': this.post.queryMethod
             });
 
-            this.tmpl.url = this.post.url;
+            this.app.url = this.post.url;
 
-            this.tmpl.user = this.post.user;
+            this.app.user = this.post.user;
 
-            this.tmpl.pass = this.post.pass;
+            this.app.pass = this.post.pass;
 
-            this.tmpl.version = this.response['subsonic-response'].version;
+            this.app.version = this.response['subsonic-response'].version;
 
-            this.tmpl.bitRate = this.post.bitRate;
+            this.app.bitRate = this.post.bitRate;
 
-            this.tmpl.querySize = this.post.querySize;
+            this.app.querySize = this.post.querySize;
 
-            this.tmpl.queryMethod = this.post.queryMethod;
+            this.app.queryMethod = this.post.queryMethod;
 
-            this.tmpl.doToast("Settings Saved");
+            this.app.doToast("Settings Saved");
           } else if (this.response['subsonic-response'].status === 'failed') {
-            this.tmpl.doToast(this.response['subsonic-response'].error.message);
+            this.app.doToast(this.response['subsonic-response'].error.message);
           } else  {
-            this.tmpl.doToast("Error Connecting to Server. Check Settings");
+            this.app.doToast("Error Connecting to Server. Check Settings");
           }
         }
       },
@@ -199,21 +204,21 @@
         chrome.storage.sync.set({
           'bitRate': this.post.bitRate
         });
-        this.tmpl.bitRate = this.post.bitRate;
+        this.app.bitRate = this.post.bitRate;
         console.log('Bitrate: ' + this.post.bitRate);
       },
       querySelect: function () {
         chrome.storage.sync.set({
           'querySize': this.post.querySize
         });
-        this.tmpl.querySize = this.post.querySize;
+        this.app.querySize = this.post.querySize;
         console.log('Query Size: ' + this.post.querySize);
       },
       methodSelect: function () {
         chrome.storage.sync.set({
           'queryMethod': this.post.queryMethod
         });
-        this.tmpl.queryMethod = this.post.queryMethod;
+        this.app.queryMethod = this.post.queryMethod;
         console.log('Query Method: ' + this.post.queryMethod);
       },
       errorChanged: function () {
@@ -222,7 +227,7 @@
           will display any ajax error in a toast
         */
         if (this.error.statusCode === 0) {
-          this.tmpl.doToast(chrome.i18n.getMessage('connectionError'));
+          this.app.doToast(chrome.i18n.getMessage('connectionError'));
         }
       },
 
@@ -255,7 +260,7 @@
       },
 
       showQuota: function () {
-        this.tmpl.calculateStorageSize();
+        this.app.calculateStorageSize();
         this.$.quota.toggle();
       },
 
@@ -266,7 +271,22 @@
 
       analisticsToggle: function () {
         chrome.storage.sync.set({
-          'analistics': this.tmpl.analisticsEnabled
+          'analistics': this.app.analisticsEnabled
+        });
+      },
+
+      getLicense: function (event, detail, sender) {
+        var animation = new CoreAnimation();
+        animation.duration = 1000;
+        animation.iterations = 'Infinity';
+        animation.keyframes = [
+          {opacity: 1},
+          {opacity: 0}
+        ];
+        animation.target = sender;
+        animation.play();
+        this.app.getLicense(function () {
+          animation.cancel();
         });
       }
     });

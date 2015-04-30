@@ -68,6 +68,7 @@
             this.tmpl.url = this.post.url;
             this.tmpl.user = this.post.user;
             this.tmpl.pass = this.post.pass;
+            this.tmpl.userDetails();
             this.tmpl.version = this.response['subsonic-response'].version;
             this.tmpl.doToast("Loading Data");
             this.tmpl.tracker.sendEvent('API Version', this.response['subsonic-response'].version);

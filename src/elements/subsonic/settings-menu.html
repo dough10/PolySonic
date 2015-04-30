@@ -81,12 +81,18 @@
         background:#db4437;
         color:#ffffff;
       }
+      #serverLicense {
+        font-size:8pt;
+        cursor:pointer;
+        display:inline-block;
+      }
     </style>
     <core-ajax id="ajax" auto="false" method="GET" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v=1.11.0&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
     </core-ajax>
     <div id="validate">
       <core-label>
         <h4>{{appName}} {{polysonicVersion}}</h4>
+        <div id="serverLicense" on-tap="{{getLicense}}">Subsonic License Info</div>
         <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
           <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
         </paper-input-decorator>
@@ -156,7 +162,7 @@
           <div flex class="switchLabel">
             Anonymous usage statistics
           </div>
-          <paper-toggle-button class="redSwitch" checked="{{tmpl.analisticsEnabled}}" on-change="{{analisticsToggle}}"></paper-toggle-button>
+          <paper-toggle-button class="redSwitch" checked="{{app.analisticsEnabled}}" on-change="{{analisticsToggle}}"></paper-toggle-button>
         </div>
       </core-label>
       <br>
@@ -165,7 +171,7 @@
         {{storageQuota}}
         <br>
         <br>
-        <paper-button  class="red-button" on-tap="{{clearCache}}">{{clearCacheLabel}}</paper-button>
+        <paper-button  class="red-button" on-tap="{{doClearCache}}">{{clearCacheLabel}}</paper-button>
       </core-collapse>
       <br>
       <br>

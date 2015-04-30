@@ -284,10 +284,12 @@
                 </template>
                 {{favoriteAlbum}}
               </core-item>
-              <core-item>
-                <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download" title="{{downloadButton}}"></paper-icon-button>
-                {{downloadButton}}
-              </core-item>
+              <template if="{{app.activeUser.downloadRole}}">
+                <core-item>
+                  <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download" title="{{downloadButton}}"></paper-icon-button>
+                  {{downloadButton}}
+                </core-item>
+              </template>
               <core-item>
                 <paper-icon-button on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
                 {{albumTracklist}}
@@ -333,10 +335,12 @@
                             </template>
                             {{favoriteAlbum}}
                           </core-item>
-                          <core-item>
-                            <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download" title="{{downloadButton}}"></paper-icon-button>
-                            {{downloadButton}}
-                          </core-item>
+                          <template if="{{app.activeUser.downloadRole}}">
+                            <core-item>
+                              <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download" title="{{downloadButton}}"></paper-icon-button>
+                              {{downloadButton}}
+                            </core-item>
+                          </template>
                           <core-item>
                             <paper-icon-button on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
                             {{albumTracklist}}
@@ -384,8 +388,8 @@
           z-index:5;
           left:16px;
           top:16px;
-          color:{{tmpl.colorThiefAlbum}};
-          background:{{tmpl.colorThiefAlbumOff}};
+          color:{{app.colorThiefAlbum}};
+          background:{{app.colorThiefAlbumOff}};
           border-radius: 50%;
           opacity:0.5;
         }
@@ -422,7 +426,9 @@
         <template if="{{isFavorite}}">
           <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite" title="{{favoriteAlbum}}"></paper-icon-button>
         </template>
-        <paper-icon-button on-tap="{{doDownload}}" title="{{downloadButton}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+        <template if="{{app.activeUser.downloadRole}}">
+          <paper-icon-button on-tap="{{doDownload}}" title="{{downloadButton}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+        </template>
         <paper-icon-button on-tap="{{moreLike}}" title="Play more like this" ident="{{albumID}}" icon="av:radio"></paper-icon-button>
       </div>
       <div class="trackWrapper">
@@ -432,13 +438,15 @@
               <template if="{{track.disk}}">D.{{track.disk}}.</template>
               <template if="{{track.track}}">T.{{track.track}}: </template>
               {{track.title}}
-              <template if="{{tmpl.playlist[tmpl.playing].id === track.id}}">
+              <template if="{{app.playlist[app.playing].id === track.id}}">
                 <core-icon icon="av:volume-up"></core-icon>
               </template>
             </div>
             <paper-icon-button icon="av:play-arrow" on-tap="{{playTrack}}" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
             <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" title="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
-            <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
+            <template if="{{app.activeUser.downloadRole}}">
+              <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
+            </template>
           </core-item>
         </template>
       </div>

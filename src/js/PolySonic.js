@@ -6,62 +6,13 @@
   var app = document.querySelector('#tmpl');
   app.addEventListener('template-bound', function () {
     /* load app settings from local storage */
-    chrome.storage.sync.get(function (result) {
-      if (result.url === undefined) {
-        this.$.firstRun.open();
-      }
-      this.url = result.url;
-      this.user = result.user;
-      this.pass = result.pass;
-      this.listMode = result.listMode || 'cover';
-      this.bitRate = result.bitRate || 320;
-      this.shuffleSize = this.shuffleSize || '50';
-      this.version = '1.11.0';
-      this.querySize = 30;
-      this.volume = result.volume || 100;
-      this.queryMethod = result.queryMethod || 'ID3';
-      this.colorThiefEnabled = true;
-      this.dataLoading = false;
-      this.sizePlayer();
-      this.calculateStorageSize();
-      if (this.url && this.user && this.pass && this.version) {
-        var url = this.url + '/rest/ping.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json',
-          url2;
-        this.doXhr(url, 'json', function (e) {
-          if (e.target.status === 200) {
-            var response = e.target.response['subsonic-response'];
-            this.version = response.version;
-            url2 = this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic";
-            if (response.status === 'ok') {
-              console.log('Connected to Subconic loading data');
-              this.doXhr(url2, 'json', function (e) {
-                this.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-                /* setting mediaFolder causes a ajax call to get album wall data */
-                this.folder = result.mediaFolder || 0;
-                if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
-                  this.$.sortBox.style.display = 'none';
-                }
-                this.tracker.sendAppView('Album Wall');
-              }.bind(this));
-            } else {
-              this.tracker.sendEvent('Connection Error', response.error.meessage);
-              this.$.firstRun.toggle();
-              this.doToast(response.error.meessage);
-            }
-          } else {
-            this.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-            this.$.firstRun.toggle();
-            this.doToast(e.target.response['subsonic-response'].error.meessage);
-          }
-        }.bind(this));
-      }
-    }.bind(this));
+    this.loadData();
 
     /* listeners and event handlers */
-    var scroller = this.appScroller(),
-      audio = this.$.audio,
+    var scroller = app.appScroller(),
+      audio = app.$.audio,
       maximized = chrome.app.window.current().isMaximized(),
-      button = this.$.max,
+      button = app.$.max,
       timer;
 
     if (maximized) {
@@ -71,32 +22,33 @@
     }
 
     scroller.onscroll = function () {
-      var fab = this.$.fab,
-        wall = this.$.wall;
+     var fab = app.$.fab,
+        wall = app.$.wall;
 
-      if (this.page === 0 && fab.state !== 'off' && scroller.scrollTop < this.position && wall.showing !== 'podcast') {
+      if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
         fab.state = 'off';
-      } else if (this.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > this.position && wall.showing !== 'podcast') {
+      } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
         fab.state = 'bottom';
       }
-    }.bind(this);
+      app.position = scroller.scrollTop;
+    };
 
     /*
       only needed if fullscreen enabled
 
     */
-    //window.onresize = this.sizePlayer.bind(this);
+    //window.onresize = this.sizePlayer;
 
-    audio.onwaiting = this.playerProgress.bind(this);
+    audio.onwaiting = app.playerProgress;
 
     audio.onstalled = function (e) {
       if (timer) {
         clearInterval(timer);
       }
       timer = setInterval(function () {
-        this.playerProgress();
-      }.bind(this), 250);
-    }.bind(this);
+        app.playerProgress();
+      }, 250);
+    };
 
     audio.onplay = function (e) {
       if (timer) {
@@ -109,20 +61,20 @@
         clearInterval(timer);
       }
       timer = setInterval(function () {
-        this.playerProgress();
-      }.bind(this), 250);
-    }.bind(this);
+        app.playerProgress();
+      }, 250);
+    };
 
-    audio.ontimeupdate = this.playerProgress.bind(this);
+    audio.ontimeupdate = app.playerProgress;
 
-    audio.onended = this.nextTrack.bind(this);
+    audio.onended = app.nextTrack;
 
     audio.onerror = function (e) {
       app.page = 0;
       console.error('audio playback error ', e);
-      this.doToast('Audio Playback Error');
-      this.tracker.sendEvent('Audio Playback Error', e.target);
-    }.bind(this);
+      app.doToast('Audio Playback Error');
+      app.tracker.sendEvent('Audio Playback Error', e.target);
+    };
 
   });
 
@@ -297,7 +249,7 @@
     app.dataLoading = false;
     console.log(e);
     app.doToast(chrome.i18n.getMessage("connectionError"));
-  }.bind(this);
+  };
 
   app.doXhr = function (url, dataType, callback) {
     var xhr = new XMLHttpRequest();
@@ -442,7 +394,7 @@
         console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
         this.tracker.sendEvent('Last FM submission', 'Failed');
       }
-    }.bind(this));
+    });
     audio.src = src;
     audio.play();
     note.icon = image;
@@ -862,6 +814,62 @@
   };
 
   /*
+    load data
+  */
+  app.loadData = function () {
+    chrome.storage.sync.get(function (result) {
+      if (result.url === undefined) {
+        app.$.firstRun.open();
+      }
+      app.url = result.url;
+      app.user = result.user;
+      app.pass = result.pass;
+      app.listMode = result.listMode || 'cover';
+      app.bitRate = result.bitRate || 320;
+      app.shuffleSize = app.shuffleSize || '50';
+      app.version = '1.11.0';
+      app.querySize = 30;
+      app.volume = result.volume || 100;
+      app.queryMethod = result.queryMethod || 'ID3';
+      app.colorThiefEnabled = true;
+      app.dataLoading = false;
+      app.sizePlayer();
+      app.calculateStorageSize();
+      if (app.url && app.user && app.pass && app.version) {
+        var url = app.url + '/rest/ping.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json',
+          url2;
+        app.doXhr(url, 'json', function (e) {
+          if (e.target.status === 200) {
+            app.version = e.target.response['subsonic-response'].version;
+            app.userDetails();
+            url2 = app.url + "/rest/getMusicFolders.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic";
+            if (e.target.response['subsonic-response'].status === 'ok') {
+              console.log('Connected to Subconic loading data');
+              app.doXhr(url2, 'json', function (e) {
+                app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                /* setting mediaFolder causes a ajax call to get album wall data */
+                app.folder = result.mediaFolder || 0;
+                if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+                  app.$.sortBox.style.display = 'none';
+                }
+                app.tracker.sendAppView('Album Wall');
+              });
+            } else {
+              app.tracker.sendEvent('Connection Error', response.error.meessage);
+              app.$.firstRun.toggle();
+              app.doToast(response.error.meessage);
+            }
+          } else {
+            app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
+            app.$.firstRun.toggle();
+            app.doToast(e.target.response['subsonic-response'].error.meessage);
+          }
+        });
+      }
+    });
+  };
+
+  /*
     action fab
   */
   app.doAction = function (event, detail, sender) {
@@ -1072,7 +1080,7 @@
           }
           wall.sort = sender.attributes.i.value;
         });
-      }.bind(this));
+      });
     });
   };
   /*jslint unparam: false*/
@@ -1084,7 +1092,7 @@
         app.async(function () {
           wall.getPodcast();
         });
-      }.bind(this));
+      });
     });
   };
 
@@ -1095,7 +1103,7 @@
         app.async(function () {
           wall.getStarred();
         });
-      }.bind(this));
+      });
     });
   };
 
@@ -1106,7 +1114,7 @@
         app.async(function () {
           wall.getArtist();
         });
-      }.bind(this));
+      });
     });
   };
 
@@ -1172,16 +1180,43 @@
     app.$.wall.deleteEpisode(sender.attributes.ident.value);
   };
 
+  app.getLicense = function (callback) {
+    var url = app.url + "/rest/getLicense.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic";
+    app.doXhr(url, 'json', function (e) {
+      var response = e.target.response['subsonic-response'];
+      if (response.status === 'ok') {
+        app.serverLicense = response.license
+        app.$.licenseDialog.open();
+        callback();
+      }
+    });
+  };
+
+  app.licenseDialogClose = function () {
+    app.$.licenseDialog.close();
+  };
+
+  app.userDetails = function () {
+    var url = app.url + "/rest/getUser.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic&username=" + app.user;
+    app.doXhr(url, 'json', function (e) {
+      var response = e.target.response['subsonic-response'];
+      if (response.status === 'ok') {
+        app.activeUser = response.user;
+      }
+    });
+  };
+
   /*
     cast API
   */
   function onRequestSessionSuccess(e) {
+    console.log('request run');
     session = e;
-    console.log(session);
+    console.log(e);
   }
 
   function onLaunchError(e) {
-    console.log(e.code);
+    console.error(e.code);
   }
 
   var initializeCastApi = function() {

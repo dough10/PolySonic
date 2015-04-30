@@ -95,14 +95,18 @@
                 {{name}}
               </paper-item>
             </template>
-            <paper-item on-tap="{{getPodcast}}">
-              <core-icon icon="av:album"></core-icon>
-              {{podcastButton}}
-            </paper-item>
-            <paper-item on-tap="{{openPlaylists}}">
-              <core-icon icon="av:queue-music"></core-icon>
-              {{playlistsButton}}
-            </paper-item>
+            <template if="{{activeUser.podcastRole}}">
+              <paper-item on-tap="{{getPodcast}}">
+                <core-icon icon="av:album"></core-icon>
+                {{podcastButton}}
+              </paper-item>
+            </template>
+            <template if="{{activeUser.playlistRole}}">
+              <paper-item on-tap="{{openPlaylists}}">
+                <core-icon icon="av:queue-music"></core-icon>
+                {{playlistsButton}}
+              </paper-item>
+            </template>
             <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
               {{settingsButton}}
@@ -259,10 +263,12 @@
               <paper-icon-button icon="more-vert"></paper-icon-button>
               <paper-dropdown class="dropdown" halign="right">
                 <core-menu class="menu">
-                  <paper-item on-tap="{{savePlayQueue}}">
-                    <core-icon icon="create" style="margin-right:24px; color:#57BA67;"></core-icon>
-                    {{createPlaylistLabel}}
-                  </paper-item>
+                  <template if="{{activeUser.playlistRole}}">
+                    <paper-item on-tap="{{savePlayQueue}}">
+                      <core-icon icon="create" style="margin-right:24px; color:#57BA67;"></core-icon>
+                      {{createPlaylistLabel}}
+                    </paper-item>
+                  </template>
                   <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
                     <core-icon icon="av:not-interested" style="margin-right:24px; color:#db4437;"></core-icon>
                     {{clearQueue}}
@@ -516,6 +522,22 @@
         <div style="min-width:280px"></div>
         <h4>{{recommendReload}}</h4>
         <paper-button affirmative style="color:#fff; background:#db4437" on-tap="{{reloadApp}}">{{reloadAppLabel}}</paper-button>
+      </paper-action-dialog>
+
+      <paper-action-dialog id='licenseDialog' transition="core-transition-center" layered>
+        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{licenseDialogClose}}"></paper-icon-button>
+        <div style="min-width:280px">
+          <template if="{{serverLicense.valid}}">
+            <core-icon icon="check" style="color:#57BA67; margin-right:24px;"></core-icon> <b>License Valid</b>
+          </template>
+          <template if="{{!serverLicense.valid}}">
+            <core-icon icon="av:not-interested" style="color:#db4437; margin-right:24px;"></core-icon> <b>License Invalid</b>
+          </template>
+          <br><br>
+          <b>Registered e-mail:</b> {{serverLicense.email}}<br><br>
+          <b>Lisense Key:</b> {{serverLicense.key}}<br><br>
+          <b>Key Date:</b> {{serverLicense.date}}<br><br>
+        </div>
       </paper-action-dialog>
 
       <x-notification id="playNotify" timeout='5000' tag="tag"></x-notification>
