@@ -377,29 +377,29 @@
     play functions
   */
   app.playAudio = function (artist, title, src, image, id) {
-    var audio = this.$.audio,
-      note = this.$.playNotify,
+    var audio = app.$.audio,
+      note = app.$.playNotify,
       time = new Date(),
       now = time.getTime(),
-      url = this.url + '/rest/scrobble.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&f=json&id=' + id + '&time=' + now;
+      url = app.url + '/rest/scrobble.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&id=' + id + '&time=' + now;
     if (artist === '') {
-      this.currentPlaying = title;
+      app.currentPlaying = title;
       note.title = title;
     } else {
-      this.currentPlaying = artist + ' - ' + title;
+      app.currentPlaying = artist + ' - ' + title;
       note.title = artist + ' - ' + title;
     }
-    this.doXhr(url, 'json', function (e) {
+    app.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'failed') {
         console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
-        this.tracker.sendEvent('Last FM submission', 'Failed');
+        app.tracker.sendEvent('Last FM submission', 'Failed');
       }
     });
     audio.src = src;
     audio.play();
     note.icon = image;
     note.show();
-    this.tracker.sendEvent('Audio', 'Playing');
+    app.tracker.sendEvent('Audio', 'Playing');
   };
 
   app.playNext = function (next) {
