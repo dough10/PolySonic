@@ -45,21 +45,21 @@
       <h3>{{appName}}</h3>
       {{appDesc}}
       <div id="validate">
-        <paper-input-decorator id="input1" autoValidate isInvalid="{{invalid1}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
-          <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
+        <paper-input-decorator id="input1" disabled?="{{isLoading}}" autoValidate isInvalid="{{invalid1}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
+          <input is="core-input"  disabled?="{{isLoading}}" id="address" type="URL" value="{{post.url}}" required="">
         </paper-input-decorator>
         <br>
-        <paper-input-decorator id="input2" autoValidate isInvalid="{{inValid2}}" labelvisible="" floatinglabel="" error="{{usernameError}}" label="{{usernameLabel}}">
-          <input is="core-input" type="text" value="{{post.user}}" required="">
+        <paper-input-decorator id="input2" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid2}}" labelvisible="" floatinglabel="" error="{{usernameError}}" label="{{usernameLabel}}">
+          <input is="core-input"  disabled?="{{isLoading}}" type="text" value="{{post.user}}" required="">
         </paper-input-decorator>
         <br>
-        <paper-input-decorator id="input3" autoValidate isInvalid="{{inValid3}}" labelvisible="" floatinglabel="" label="{{passwordLabel}}">
-          <input is="core-input" id="password" type="password" value="{{post.pass}}">
+        <paper-input-decorator id="input3" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid3}}" labelvisible="" floatinglabel="" label="{{passwordLabel}}">
+          <input is="core-input"  disabled?="{{isLoading}}" id="password" type="password" value="{{post.pass}}">
         </paper-input-decorator>
         <br>
         <div id="showPass" on-tap="{{hidePass}}">{{showPass}}</div><br>
         <br>
-        <paper-button on-tap="{{submit}}" affirmative>
+        <paper-button on-tap="{{submit}}" disabled?="{{isLoading}}">
           <template if="{{isLoading}}">
             <div id="load">
               <paper-spinner active=""></paper-spinner>

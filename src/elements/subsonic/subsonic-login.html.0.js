@@ -4,7 +4,7 @@
       ready: function () {
         'use strict';
         this.post = [];
-        this.tmpl = document.getElementById("tmpl");
+        this.app = document.getElementById("tmpl");
         this.urlError = chrome.i18n.getMessage("urlError");
         this.urlLabel = chrome.i18n.getMessage("urlLabel");
         this.usernameError = chrome.i18n.getMessage("usernameError");
@@ -17,11 +17,11 @@
       submit: function () {
         'use strict';
         if (this.invalid1 && this.invalid2 && this.post.version === undefined) {
-          this.tmpl.doToast("URL, Username & Version Required");
+          this.app.doToast("URL, Username & Version Required");
         } else if (this.invalid1) {
-          this.tmpl.doToast("URL Required");
+          this.app.doToast("URL Required");
         } else if (this.invalid2) {
-          this.tmpl.doToast("Username Required");
+          this.app.doToast("Username Required");
         } else if (!this.invalid1 && !this.invalid2 && !this.invalid3) {
           /* trim off trailing forward slash */
           var lastChar = this.post.url.substr(-1); // Selects the last character
@@ -65,18 +65,18 @@
               'user': this.post.user,
               'pass': this.post.pass,
             });
-            this.tmpl.url = this.post.url;
-            this.tmpl.user = this.post.user;
-            this.tmpl.pass = this.post.pass;
-            this.tmpl.userDetails();
-            this.tmpl.version = this.response['subsonic-response'].version;
-            this.tmpl.doToast("Loading Data");
-            this.tmpl.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
-            this.tmpl.$.firstRun.close();
-            this.tmpl.doXhr(this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic", 'json', function (e) {
-              this.tmpl.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+            this.app.url = this.post.url;
+            this.app.user = this.post.user;
+            this.app.pass = this.post.pass;
+            this.app.userDetails();
+            this.app.version = this.response['subsonic-response'].version;
+            this.app.doToast("Loading Data");
+            this.app.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
+            this.app.$.firstRun.close();
+            this.app.doXhr(this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic", 'json', function (e) {
+              this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
               if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
-                this.tmpl.$.sortBox.style.display = 'none';
+                this.app.$.sortBox.style.display = 'none';
               }
             }.bind(this));
             setTimeout(function () {
@@ -84,7 +84,7 @@
             }, 100);
           } else {
             console.log(this.response);
-            this.tmpl.doToast(this.response['subsonic-response'].error.message);
+            this.app.doToast(this.response['subsonic-response'].error.message);
           }
         }
       },
@@ -94,7 +94,7 @@
           will display any ajax error in a toast
         */
         if (this.error.statusCode === 0) {
-          this.tmpl.doToast(chrome.i18n.getMessage('connectionError'));
+          this.app.doToast(chrome.i18n.getMessage('connectionError'));
         }
       },
       

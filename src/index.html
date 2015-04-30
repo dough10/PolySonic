@@ -371,13 +371,13 @@
 
       <!-- shuffle options -->
       <paper-dialog id="shuffleOptions" style="height:400px; width:300px;" transition="core-transition-center">
-        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closeShuffleOptions}}"></paper-icon-button>
+        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" disabled?="{{shuffleLoading}}" title="Close" on-tap="{{closeShuffleOptions}}"></paper-icon-button>
         <div style="text-align:center">
           <core-label>
             <h3>{{shuffleOptionsLabel}}</h3>
             <core-label>
               {{genreLabel}}:
-              <paper-dropdown-menu label="{{optional}}">
+              <paper-dropdown-menu label="{{optional}}" disabled?="{{shuffleLoading}}">
                 <paper-dropdown layered class="dropdown">
                   <core-menu selected="{{genreFilter}}" valueattr="i" class="menu">
                     <paper-item i="">{{optional}}</paper-item>
@@ -391,7 +391,7 @@
             <br>
             <core-label>
               {{songReturn}}:
-              <paper-dropdown-menu label="">
+              <paper-dropdown-menu label="" disabled?="{{shuffleLoading}}">
                 <paper-dropdown layered class="dropdown">
                   <core-menu selected="{{shuffleSize}}" valueattr="i" class="menu">
                     <template repeat="{{shuffleSizes}}">
@@ -401,15 +401,15 @@
                 </paper-dropdown>
               </paper-dropdown-menu>
             </core-label>
-            <paper-input-decorator id="startYearValidate" autoValidate isInvalid="{{startYearInvalid}}" labelvisible="" floatinglabel="" error="{{yearError}}" label="{{releasedAfter}}">
-              <input is="core-input" type="text" pattern='[0-9]{4}' value="{{startingYear}}">
+            <paper-input-decorator id="startYearValidate"  disabled?="{{shuffleLoading}}" autoValidate isInvalid="{{startYearInvalid}}" labelvisible="" floatinglabel="" error="{{yearError}}" label="{{releasedAfter}}">
+              <input is="core-input" disabled?="{{shuffleLoading}}" type="text" pattern='[0-9]{4}' value="{{startingYear}}">
             </paper-input-decorator>
-            <paper-input-decorator id="endYearValidate" autoValidate isInvalid="{{endYearInvalid}}" labelvisible="" floatinglabel="" error="{{yearError}}" label="{{releasedBefore}}">
-              <input is="core-input" type="text" pattern='[0-9]{4}' value="{{endingYear}}">
+            <paper-input-decorator id="endYearValidate" disabled?="{{shuffleLoading}}" autoValidate isInvalid="{{endYearInvalid}}" labelvisible="" floatinglabel="" error="{{yearError}}" label="{{releasedBefore}}">
+              <input is="core-input" disabled?="{{shuffleLoading}}" type="text" pattern='[0-9]{4}' value="{{endingYear}}">
             </paper-input-decorator>
           </core-label>
           <br>
-          <paper-button on-tap="{{shufflePlay}}">
+          <paper-button on-tap="{{shufflePlay}}" disabled?="{{shuffleLoading}}">
             {{playButton}}
             <template if="{{shuffleLoading}}">
               <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
@@ -422,12 +422,12 @@
 
       <!-- add podcast -->
       <paper-dialog id="addPodcast" transition="core-transition-bottom">
-        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePodcastDialog}}"></paper-icon-button>
+        <paper-icon-button icon="close" disabled?="{{addingChannel}}" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePodcastDialog}}"></paper-icon-button>
         <div style="text-align:center;">
-          <paper-input-decorator style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{podcastSubmissionLabel}}">
+          <paper-input-decoratordisabled?="{{addingChannel}}" style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{podcastSubmissionLabel}}">
             <input is="core-input" type="URL" value="{{castURL}}" required="">
           </paper-input-decorator>
-          <paper-button on-tap="{{addChannel}}">
+          <paper-button on-tap="{{addChannel}}" disabled?="{{addingChannel}}">
             {{submitButton}}
             <template if="{{addingChannel}}">
               <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
@@ -470,13 +470,13 @@
       
       <!-- create playlist dialog -->
       <paper-dialog id="createPlaylist" style="min-width:300px;" transition="core-transition-center">
-        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePlaylistSaver}}"></paper-icon-button>
+        <paper-icon-button icon="close" disabled?="{{savingPlaylist}}" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePlaylistSaver}}"></paper-icon-button>
         <div style="text-align:center; margin:auto;">
           <core-label>
             <h4>{{createPlaylistLabel}}</h4>
-            <paper-input style="min-width:280px;" floatingLabel label="{{playlistLabel}}" value="{{defaultName}}"></paper-input>
+            <paper-input style="min-width:280px;" disabled?="{{savingPlaylist}}" floatingLabel label="{{playlistLabel}}" value="{{defaultName}}"></paper-input>
             <br>
-            <paper-button on-tap="{{savePlayQueue2Playlist}}">
+            <paper-button on-tap="{{savePlayQueue2Playlist}}" disabled?="{{savingPlaylist}}">
               {{submitButton}}
               <template if="{{savingPlaylist}}">
                 <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
@@ -550,4 +550,4 @@
   <script src="js/PolySonic.js"></script>
   <script src="js/google-analytics-bundle.js"></script>
   <script src="js/color-thief.min.js"></script>
-</body>
+</bo    
