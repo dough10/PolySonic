@@ -142,14 +142,18 @@
             <template if="{{page === 0}}">
               <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
               <div flex  class="bottom alignLeft">{{appName}}</div>
-              <template if="{{showing === 'cover'}}">
-                <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="view-stream" class="bottom"></paper-icon-button>
-              </template>
-              <template if="{{showing === 'list'}}">
-                <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="view-module" class="bottom"></paper-icon-button>
-              </template>
+              <core-tooltip label="Change View" class="bottom">
+                <template if="{{showing === 'cover'}}">
+                  <paper-icon-button on-tap="{{toggleWall}}" icon="view-stream"></paper-icon-button>
+                </template>
+                <template if="{{showing === 'list'}}">
+                  <paper-icon-button on-tap="{{toggleWall}}" icon="view-module"></paper-icon-button>
+                </template>
+              </core-tooltip>
               <template if="{{showing === 'podcast'}}">
-                <paper-icon-button title="Refresh Podcast" on-tap="{{refreshPodcast}}" icon="autorenew" class="bottom"></paper-icon-button>
+                <core-tooltip label="{{refreshPodcastLabel}}" class="bottom">
+                  <paper-icon-button on-tap="{{refreshPodcast}}" icon="autorenew"></paper-icon-button>
+                </core-tooltip>
               </template>
             </template>
             <template if="{{page !== 0}}">
@@ -167,12 +171,11 @@
            <template if="{{page === 4}}">
               <div flex class="bottom"></div>
             </template>
-            <!--<template if="{{page === 0}}">
-              <paper-icon-button class="bottom" icon="search" on-tap="{{openSearch}}" title="{{searchButton}}"></paper-icon-button>
-            </template>-->
             <template if="{{page === 0 && showing === 'artists'}}">
               <paper-menu-button class="bottom">
-                <paper-icon-button icon="arrow-drop-down"></paper-icon-button>
+                <core-tooltip label="{{jumpToLabel}}">
+                  <paper-icon-button icon="arrow-drop-down"></paper-icon-button>
+                </core-tooltip>
                 <paper-dropdown class="dropdown" halign="right">
                   <core-menu class="menu">
                     <template repeat="{{artists}}">
@@ -186,7 +189,9 @@
             </template>
             <template if="{{page !== 1}}">
               <template if="{{isNowPlaying}}">
-                <paper-icon-button title="{{nowPlayingLabel}}" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
+                <core-tooltip label="{{nowPlayingLabel}}" class="bottom">
+                  <paper-icon-button on-tap="{{nowPlaying}}" icon="av:hearing"></paper-icon-button>
+                </core-tooltip>
               </template>
             </template>
           </core-toolbar>
@@ -222,18 +227,20 @@
                   <template if="{{playlist[0]}}">
                     <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
                   </template>
-                  <template if="{{volume > 66}}">
-                    <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
-                  <template if="{{volume >= 33 && volume <= 66}}">
-                    <paper-icon-button id="volume" icon="av:volume-down" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
-                  <template if="{{volume > 1 && volume < 33}}">
-                    <paper-icon-button id="volume" icon="av:volume-mute" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
-                  <template if="{{volume === 0}}">
-                    <paper-icon-button id="volume" icon="av:volume-off" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
+                  <core-tooltip label="{{adjustVolumeLabel}}" id="volume" position="left">
+                    <template if="{{volume > 66}}">
+                      <paper-icon-button icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
+                    </template>
+                    <template if="{{volume >= 33 && volume <= 66}}">
+                      <paper-icon-button icon="av:volume-down" on-tap="{{toggleVolume}}"></paper-icon-button>
+                    </template>
+                    <template if="{{volume > 1 && volume < 33}}">
+                      <paper-icon-button icon="av:volume-mute" on-tap="{{toggleVolume}}"></paper-icon-button>
+                    </template>
+                    <template if="{{volume === 0}}">
+                      <paper-icon-button icon="av:volume-off" on-tap="{{toggleVolume}}"></paper-icon-button>
+                    </template>
+                  </core-tooltip>
                 </div>
               </div>
             </section>
@@ -264,11 +271,28 @@
 
       <!-- playlist -->
       <paper-dialog id="playlistDialog" style="min-height:695px; min-width:471px;" transition="core-transition-top">
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
         <div horizontal layout>
           <div flex></div>
           <div>
             <paper-menu-button>
-              <paper-icon-button icon="more-vert"></paper-icon-button>
+              <core-tooltip position="left" label="{{moreOptionsLabel}}">
+                <paper-icon-button icon="more-vert"></paper-icon-button>
+              </core-tooltip>
               <paper-dropdown class="dropdown" halign="right">
                 <core-menu class="menu">
                   <template if="{{activeUser.playlistRole}}">
@@ -284,13 +308,15 @@
                 </core-menu>
               </paper-dropdown>
             </paper-menu-button>
-            <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closePlaylist}}"></paper-icon-button>
+            <core-tooltip position="left" label="{{closeLabel}}">
+              <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closePlaylist}}"></paper-icon-button>
+            </core-tooltip>
           </div>
         </div>
         <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
           <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
             <template repeat="{{playlist}}">
-              <paper-item on-tap="{{playThis}}" title="{{artist}} - {{title}} / {{duration}}" style="color:#000000">
+              <paper-item on-tap="{{playThis}}" style="color:#000000">
                 <div flex style="overflow:hidden">
                   {{artist}} - {{title}}
                 </div>
@@ -308,7 +334,24 @@
 
       <!-- volume -->
       <paper-dialog id="volumeDialog" transition="core-transition-bottom">
-        <paper-icon-button style='color:#db4437; position:absolute; top:8px; right:8px;' icon="close" title="Close" on-tap="{{closeVolume}}"></paper-icon-button>
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
+        <core-tooltip style=" position:absolute; top:8px; right:8px;" position="left" label="{{closeLabel}}">
+          <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeVolume}}"></paper-icon-button>
+        </core-tooltip>
         {{volumeLabel}}
         <br>
         <volume-slider volume="{{volume}}"></volume-slider>
@@ -329,7 +372,24 @@
 
       <!-- shuffle options -->
       <paper-dialog id="shuffleOptions" style="height:400px; width:300px;" transition="core-transition-center">
-        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" disabled?="{{shuffleLoading}}" title="Close" on-tap="{{closeShuffleOptions}}"></paper-icon-button>
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
+        <core-tooltip style="position:absolute; right:8px; top:8px;" position="left" label="{{closeLabel}}">
+          <paper-icon-button icon="close" style="color:#db4437;" disabled?="{{shuffleLoading}}" on-tap="{{closeShuffleOptions}}"></paper-icon-button>
+        </core-tooltip>
         <div style="text-align:center">
           <core-label>
             <h3>{{shuffleOptionsLabel}}</h3>
@@ -380,7 +440,24 @@
 
       <!-- add podcast -->
       <paper-dialog id="addPodcast" transition="core-transition-bottom">
-        <paper-icon-button icon="close" disabled?="{{addingChannel}}" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePodcastDialog}}"></paper-icon-button>
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
+        <core-tooltip label="{{closeLabel}}" style="position:absolute; right:8px; top:8px;" position="left">
+          <paper-icon-button icon="close" disabled?="{{addingChannel}}" style="color:#db4437;" on-tap="{{closePodcastDialog}}"></paper-icon-button>
+        </core-tooltip>
         <div style="text-align:center;">
           <paper-input-decorator disabled?="{{addingChannel}}" style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{podcastSubmissionLabel}}">
             <input is="core-input" type="URL" value="{{castURL}}" required="">
@@ -398,10 +475,27 @@
       
       <!-- playlists dialog -->
       <paper-dialog id="playlistsDialog" style="min-height:600px; min-width:471px;" transition="core-transition-center">
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
         <div horizontal layout>
           <div flex></div>
           <div>
-            <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closePlaylists}}"></paper-icon-button>
+            <core-tooltip label="{{closeLabel}}" position="left">
+              <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closePlaylists}}"></paper-icon-button>
+            </core-tooltip>
           </div>
         </div>
         <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
@@ -428,7 +522,24 @@
       
       <!-- create playlist dialog -->
       <paper-dialog id="createPlaylist" style="min-width:300px;" transition="core-transition-center">
-        <paper-icon-button icon="close" disabled?="{{savingPlaylist}}" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePlaylistSaver}}"></paper-icon-button>
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
+        <core-tooltip position="left" label="{{closeLabel}}" style="position:absolute; right:8px; top:8px;">
+          <paper-icon-button icon="close" disabled?="{{savingPlaylist}}" style="color:#db4437;" on-tap="{{closePlaylistSaver}}"></paper-icon-button>
+        </core-tooltip>
         <div style="text-align:center; margin:auto;">
           <core-label>
             <h4>{{createPlaylistLabel}}</h4>
@@ -483,18 +594,35 @@
       </paper-action-dialog>
 
       <paper-action-dialog id='licenseDialog' transition="core-transition-center" layered>
-        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{licenseDialogClose}}"></paper-icon-button>
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
+        <core-tooltip label="{{closeLabel}}" style="position:absolute; right:8px; top:8px;" position="left">
+          <paper-icon-button icon="close" style="color:#db4437;" on-tap="{{licenseDialogClose}}"></paper-icon-button>
+        </core-tooltip>
         <div style="min-width:280px">
           <template if="{{serverLicense.valid}}">
-            <core-icon icon="check" style="color:#57BA67; margin-right:24px;"></core-icon> <b>License Valid</b>
+            <core-icon icon="check" style="color:#57BA67; margin-right:24px;"></core-icon> <b>{{validLicense}}</b>
           </template>
           <template if="{{!serverLicense.valid}}">
-            <core-icon icon="av:not-interested" style="color:#db4437; margin-right:24px;"></core-icon> <b>License Invalid</b>
+            <core-icon icon="av:not-interested" style="color:#db4437; margin-right:24px;"></core-icon> <b>{{invalidLicense}}</b>
           </template>
           <br><br>
-          <b>Registered e-mail:</b> {{serverLicense.email}}<br><br>
-          <b>Lisense Key:</b> {{serverLicense.key}}<br><br>
-          <b>Key Date:</b> {{serverLicense.date}}<br><br>
+          <b>{{registeredEmail}}:</b> {{serverLicense.email}}<br><br>
+          <b>{{licenseKey}}:</b> {{serverLicense.key}}<br><br>
+          <b>{{keyDate}}:</b> {{serverLicense.date}}<br><br>
         </div>
       </paper-action-dialog>
 

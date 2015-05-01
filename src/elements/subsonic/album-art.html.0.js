@@ -1,5 +1,10 @@
 /*global Polymer, console, chrome, document, Blob, window, Image, CoreAnimation */
 Polymer('album-art', {
+  moreLikeThis: chrome.i18n.getMessage("moreLikeThis"),
+  backButton: chrome.i18n.getMessage("backButton"),
+  playTrackLabel: chrome.i18n.getMessage("playTrack"),
+  moreOptionsLabel: chrome.i18n.getMessage("moreOptionsLabel"),
+  closeLabel: chrome.i18n.getMessage("closeLabel"),
   /*
     method ran when element is created in dom
   */
@@ -182,25 +187,25 @@ Polymer('album-art', {
     this.app.playlist = [
       {
         artist: sender.attributes.artist.value,
-        title: sender.attributes.title.value,
+        title: sender.attributes.trackTitle.value,
         cover: this.imgURL,
         duration: sender.attributes.duration.value,
         id: sender.attributes.ident.value
       }
     ];
     this.app.playing = 0;
-    this.app.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, this.imgURL, sender.attributes.ident.value);
+    this.app.playAudio(sender.attributes.artist.value, sender.attributes.trackTitle.value, url, this.imgURL, sender.attributes.ident.value);
     this.app.page = 1;
   },
 
   addSingle2Playlist: function (event, detail, sender) {
     'use strict';
     var url = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + sender.attributes.ident.value,
-      obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.title.value,  duration: sender.attributes.duration.value, cover: this.imgURL};
+      obj = {id: sender.attributes.ident.value, artist: sender.attributes.artist.value, title: sender.attributes.trackTitle.value,  duration: sender.attributes.duration.value, cover: this.imgURL};
     this.app.playlist.push(obj);
     if (this.audio.paused) {
       this.app.setFabColor(this.playlist[0]);
-      this.app.playAudio(sender.attributes.artist.value, sender.attributes.title.value, url, this.imgURL, sender.attributes.ident.value);
+      this.app.playAudio(sender.attributes.artist.value, sender.attributes.trackTitle.value, url, this.imgURL, sender.attributes.ident.value);
       this.app.playing = 0;
       if (this.imgURL) {
         this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";

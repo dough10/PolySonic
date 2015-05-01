@@ -56,6 +56,16 @@
   app.reloadAppLabel = chrome.i18n.getMessage("reloadApp");
   app.settingsDeleted = chrome.i18n.getMessage("settingsDeleted");
   app.recommendReload = chrome.i18n.getMessage("recommendReload");
+  app.jumpToLabel = chrome.i18n.getMessage("jumpToLabel");
+  app.closeLabel = chrome.i18n.getMessage("closeLabel");
+  app.moreOptionsLabel = chrome.i18n.getMessage("moreOptionsLabel");
+  app.refreshPodcastLabel = chrome.i18n.getMessage("refreshPodcast");
+  app.registeredEmail = chrome.i18n.getMessage("registeredEmail");
+  app.licenseKey = chrome.i18n.getMessage("licenseKey");
+  app.keyDate = chrome.i18n.getMessage("keyDate");
+  app.validLicense = chrome.i18n.getMessage("validLicense");
+  app.invalidLicense = chrome.i18n.getMessage("invalidLicense");
+  app.adjustVolumeLabel = chrome.i18n.getMessage("adjustVolumeLabel");
 
 
   /*
@@ -912,15 +922,6 @@
   };
   /*jslint unparam: false*/
 
-  app.openSearch = function () {
-    app.closeDrawer(function () {
-      app.$.searchDialog.toggle();
-    });
-  };
-
-  app.closeSearch = function () {
-    app.$.searchDialog.close();
-  };
 
   app.doSearch = function () {
     if (app.searchQuery) {

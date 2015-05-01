@@ -18,6 +18,7 @@
       clearCacheLabel: chrome.i18n.getMessage("clearCacheLabel"),
       clearSettingsLabel: chrome.i18n.getMessage("clearSettingsLabel"),
       appName: chrome.i18n.getMessage("appName"),
+      licenseInfoLink: chrome.i18n.getMessage("licenseInfoLink"),
       /* avaliable bitrates */
       speeds: [
         96,
