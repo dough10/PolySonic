@@ -424,7 +424,7 @@
       <paper-dialog id="addPodcast" transition="core-transition-bottom">
         <paper-icon-button icon="close" disabled?="{{addingChannel}}" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePodcastDialog}}"></paper-icon-button>
         <div style="text-align:center;">
-          <paper-input-decoratordisabled?="{{addingChannel}}" style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{podcastSubmissionLabel}}">
+          <paper-input-decorator disabled?="{{addingChannel}}" style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{podcastSubmissionLabel}}">
             <input is="core-input" type="URL" value="{{castURL}}" required="">
           </paper-input-decorator>
           <paper-button on-tap="{{addChannel}}" disabled?="{{addingChannel}}">
@@ -455,7 +455,7 @@
           <template if="{{!playlistsLoading}}">
             <template repeat="{{playlists}}">
               <core-item>
-                <div flex style="font-size: 16px; margin-left: 16px;">
+                <div flex style="font-size: 16px; margin-left: 16px; overflow:hidden;">
                   {{name}}
                 </div>
                 <div>

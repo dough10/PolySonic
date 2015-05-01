@@ -155,8 +155,7 @@ Polymer('album-wall', {
           }.bind(this));
         } else if (response.podcasts && response.podcasts.channel) {
           Array.prototype.forEach.call(response.podcasts.channel, function (e) {
-            var art = e.episode[0].coverArt,
-              obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
+            var obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
             this.podcast.push(obj);
             i = i + 1;
             if (i === response.podcasts.channel.length) {
