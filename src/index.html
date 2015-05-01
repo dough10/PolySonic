@@ -57,11 +57,19 @@
       <core-drawer-panel id="panel" narrow="{{narrow}}" forceNarrow disableSwipe?="{{page !== 0}}">
 
         <!-- menu -->
-        <core-scroll-header-panel drawer flex mode="seamed">
+        <core-header-panel drawer flex>
+          <core-toolbar class="medium-tall">
+            <div class="sysbar" horizontal layout></div>
+            <div class="bottom" horizontal layout>
+              <div flex style="text-align: center;">
+                <paper-input class="search-box" label="Search" value="{{searchQuery}}" style="width: 175px;"></paper-input>
+              </div>
+              <div>
+                <paper-icon-button on-tap="{{doSearch}}" title="Search" icon="search"></paper-icon-button>
+              </div>
+            </div>
+          </core-toolbar>
           <core-menu id="menu" selected="{{selected}}" valueattr="i">
-            <core-toolbar class="medium-tall">
-              <div class="sysbar" horizontal layout></div>
-            </core-toolbar>
             <div id="sortBox">
               <core-label>
                 {{folderSelector}}:
@@ -112,10 +120,10 @@
               {{settingsButton}}
             </paper-item>
           </core-menu>
-        </core-scroll-header-panel>
+        </core-header-panel>
 
         <!-- body -->
-        <core-header-panel id="headerPanel" main flex mode="seamed">
+        <core-header-panel id="headerPanel" main flex mode="waterfall">
 
           <!--app toolbar-->
           <core-toolbar id="toolbar" class="medium-tall">
@@ -318,56 +326,6 @@
         <paper-button affirmative on-tap="{{disAllowAnalistics}}">{{decline}}</paper-button>
         <paper-button affirmative on-tap="{{allowAnalistics}}">{{accept}}</paper-button>
       </paper-action-dialog>
-
-      <!-- search -->
-      <paper-dialog id="searchDialog" header="Search" style="height:480px; width:400px;" transition="core-transition-center">
-        <div horizontal layout>
-          <div flex style="text-align: center;">
-            <paper-input value="{{searchQuery}}" style="width: 250px;"></paper-input>
-          </div>
-          <div>
-            <paper-icon-button on-tap="{{doSearch}}" title="Search" icon="search"></paper-icon-button>
-            <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closeSearch}}"></paper-icon-button>
-          </div>
-        </div>
-        <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto; text-align: center;">
-          <template if="{{searching}}">
-            <paper-spinner active></paper-spinner>
-            <br>
-          </template>
-          <div id="all">
-            <template if="{{searchResults.artist}}">
-              <h3>{{artistLabel}}</h3>
-              <template repeat="{{searchResults.artist}}">
-                <paper-item on-tap="{{artistDetails}}" i="{{id}}">{{name}}</paper-item>
-              </template>
-            </template>
-            <template if="{{searchResults.album[0]}}">
-              <h3>{{albumLabel}}</h3>
-              <template repeat="{{searchResults.album}}">
-                <album-art listMode="search" bitRate="{{bitRate}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" isFavorite="{{starred}}"></album-art>
-              </template>
-            </template>
-            <!--<template if="{{searchResults.song}}">
-              <h3>Songs</h3>
-              <template repeat="{{searchResults.song}}">
-                <core-item>
-                  <div flex style="text-align:left; overflow:hidden;">
-                    {{title}}
-                  </div>
-                  <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{title}}" artist="{{artist}}" ident="{{id}}" cover="{{cover}}"></paper-icon-button>
-                  <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" title="{{title}}" artist="{{artist}}" ident="{{id}}" cover="{{cover}}"></paper-icon-button>
-                  <paper-icon-button on-tap="{{doDownload}}" ident="{{id}}"  icon="file-download"></paper-icon-button>
-                </core-item>
-              </template>
-            </template>-->
-          </div>
-          <template if="{{!searchResults.artist && !searchResults.album[0] && searchResults.song}}">
-            {{noResults}}
-          </template>
-        </div>
-      </paper-dialog>
-
 
       <!-- shuffle options -->
       <paper-dialog id="shuffleOptions" style="height:400px; width:300px;" transition="core-transition-center">

@@ -171,6 +171,17 @@ Polymer('album-wall', {
               callback();
             }
           }.bind(this));
+        } else if (response.searchResult3 && response.searchResult3.album) {
+          Array.prototype.forEach.call(response.searchResult3.album, function (e) {
+            var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
+            if (!this.containsObject(obj, wall)) {
+              wall.push(obj);
+            }
+            i = i + 1;
+            if (i === response.searchResult3.album.length) {
+              callback();
+            }
+          }.bind(this));
         } else {
           this.app.pageLimit = true;
         }
@@ -558,6 +569,16 @@ Polymer('album-wall', {
       return null;
     };
     this.$.artists.scrollToItem(findIndexByKeyValue(this.artists, 'name', letter));
+  },
+  
+  containsObject: function (obj, list) {
+    var i;
+    for (i = 0; i < list.length; i++) {
+      if (list[i].id === obj.id) {
+        return true;
+      }
+    }
+    return false;
   }
 });
 

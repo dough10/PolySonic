@@ -248,7 +248,7 @@
     </style>
     <div id="card">
       <core-animated-pages selected="{{page}}" valueattr="page" transitions="cross-fade hero-transition">
-        <paper-shadow page="cover">
+        <paper-shadow z="1" page="cover">
           <div class="wrapper">
             <template if="{{isLoading}}">
               <div class="spinWrapper">

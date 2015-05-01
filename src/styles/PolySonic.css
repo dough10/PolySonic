@@ -255,3 +255,10 @@ core-menu core-icon {
   right:8px;
   z-index:2;
 }
+.search-box /deep/ .floated-label .label-text {
+  color:#ffffff;
+  background:#ffffff;
+}
+.search-box /deep/ .focused-underline {
+  background-color: #ffffff;
+}

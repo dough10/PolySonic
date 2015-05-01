@@ -276,29 +276,6 @@ Polymer('album-art', {
     }
   },
   
-  doSearchPlayback: function () {
-    'use strict';
-    this.app.$.searchDialog.close();
-    this.app.dataLoading = true;
-    this.doQuery(this.playAlbum.bind(this));
-  },
-  
-  doSearchDetails: function () {
-    'use strict';
-    this.app.$.searchDialog.close();
-    this.app.dataLoading = true;
-    this.doQuery(function () {
-      this.app.dataLoading = false;
-      this.$.detailsDialog.open();
-      this.app.$.fab.state = 'mid';
-      this.app.$.fab.ident = this.id;
-      if (this.colorThiefEnabled && this.playlist[0].palette) {
-        this.app.colorThiefAlbum = this.playlist[0].palette[0];
-        this.app.colorThiefAlbumOff = this.playlist[0].palette[1];
-      }
-    }.bind(this));
-  },
-  
   getPalette: function (callback) {
     'use strict';
     var artId = "al-" + this.item;
@@ -310,7 +287,6 @@ Polymer('album-art', {
 
   doPlayback: function () {
     'use strict';
-    this.app.$.searchDialog.close();
     this.app.dataLoading = true;
     this.getPalette(function () {
       this.doQuery(this.playAlbum.bind(this));

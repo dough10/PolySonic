@@ -924,23 +924,21 @@
 
   app.doSearch = function () {
     if (app.searchQuery) {
-      app.searching = true;
-      var url = app.url + '/rest/search3.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&query=' + encodeURIComponent(app.searchQuery);
-      app.doXhr(url, 'json', function (e) {
-        if (e.target.response['subsonic-response'].status === 'ok') {
-          app.searching = false;
-          var response = e.target.response['subsonic-response'];
-          app.searchResults = [];
-          app.searchResults.artist = response.searchResult3.artist;
-          app.searchResults.album = [];
-          app.searchResults.song = response.searchResult3.song;
-          if (response.searchResult3.album !== null && response.searchResult3.album !== undefined) {
-            Array.prototype.forEach.call(response.searchResult3.album, function (e) {
-              var data = {artist: e.artist, coverArt: e.coverArt, id: e.id, name: e.name, url: app.url, user: app.user, pass: app.pass, version: app.version, bitRate: app.bitRate, listMode: 'cover'};
-              app.searchResults.album.push(data);
+      app.closeDrawer(function () {
+        app.dataLoading = true;
+        var url = app.url + '/rest/search3.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&query=' + encodeURIComponent(app.searchQuery);
+        app.doXhr(url, 'json', function (e) {
+          if (e.target.response['subsonic-response'].status === 'ok') {
+            app.searchQuery = '';
+            var response = e.target.response;
+            app.$.wall.clearData(function () {
+              app.$.wall.response = response;
+              app.async(function () {
+                app.showing = app.listMode;
+              });
             });
           }
-        }
+        });
       });
     } else {
       app.doToast(chrome.i18n.getMessage("noSearch"));
