@@ -794,9 +794,9 @@
                 app.tracker.sendAppView('Album Wall');
               });
             } else {
-              app.tracker.sendEvent('Connection Error', response.error.meessage);
+              app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
               app.$.firstRun.toggle();
-              app.doToast(response.error.meessage);
+              app.doToast( e.target.response['subsonic-response'].error.meessage);
             }
           } else {
             app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
