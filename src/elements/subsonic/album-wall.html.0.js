@@ -122,17 +122,11 @@ Polymer('album-wall', {
     'use strict';
     var callback = function () {
         this.async(function () {
-          this.wall = wall;
-          this.podcast = podcast;
-          this.artists = artists;
           this.app.dataLoading = false;
           this.app.showApp();
         });
       }.bind(this),
       i = 0,
-      wall = [],
-      podcast = [],
-      artists = [],
       response;
     if (this.response) {
       response = this.response['subsonic-response'];
@@ -143,7 +137,7 @@ Polymer('album-wall', {
         if (response.albumList2 && response.albumList2.album) {
           Array.prototype.forEach.call(response.albumList2.album, function (e) {
             var obj = this.buildObject(e);
-            wall.push(obj);
+            this.wall.push(obj);
             i = i + 1;
             if (i === response.albumList2.album.length) {
               callback();
@@ -152,7 +146,7 @@ Polymer('album-wall', {
         } else if (response.albumList && response.albumList.album) {
           Array.prototype.forEach.call(response.albumList.album, function (e) {
             var obj = this.buildObject(e);
-            wall.push(obj);
+            this.wall.push(obj);
             i = i + 1;
             if (i === response.albumList.album.length) {
               callback();
@@ -161,7 +155,7 @@ Polymer('album-wall', {
         } else if (response.starred2 && response.starred2.album) {
           Array.prototype.forEach.call(response.starred2.album, function (e) {
             var obj = this.buildObject(e);
-            wall.push(obj);
+            this.wall.push(obj);
             i = i + 1;
             if (i === response.starred2.album.length) {
               callback();
@@ -170,7 +164,7 @@ Polymer('album-wall', {
         } else if (response.starred && response.starred.album) {
           Array.prototype.forEach.call(response.starred.album, function (e) {
             var obj = this.buildObject(e);
-            wall.push(obj);
+            this.wall.push(obj);
             i = i + 1;
             if (i === response.starred.album.length) {
               callback();
@@ -179,7 +173,7 @@ Polymer('album-wall', {
         } else if (response.podcasts && response.podcasts.channel) {
           Array.prototype.forEach.call(response.podcasts.channel, function (e) {
             var obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
-            podcast.push(obj);
+            this.podcast.push(obj);
             i = i + 1;
             if (i === response.podcasts.channel.length) {
               callback();
@@ -188,7 +182,7 @@ Polymer('album-wall', {
         } else if (response.artists) {
           Array.prototype.forEach.call(response.artists.index, function (e) {
             var obj = {name: e.name, artist: e.artist};
-            artists.push(obj);
+            this.artists.push(obj);
             i = i + 1;
             if (i === response.artists.index.length) {
               callback();
@@ -198,7 +192,7 @@ Polymer('album-wall', {
           Array.prototype.forEach.call(response.searchResult3.album, function (e) {
             var obj = this.buildObject(e);
             if (!this.containsObject(obj, wall)) {
-              wall.push(obj);
+              this.wall.push(obj);
             }
             i = i + 1;
             if (i === response.searchResult3.album.length) {
