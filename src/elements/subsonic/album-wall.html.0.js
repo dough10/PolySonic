@@ -121,11 +121,18 @@ Polymer('album-wall', {
   responseChanged: function () {
     'use strict';
     var callback = function () {
-        this.app.dataLoading = false;
-        this.app.showApp();
+        this.async(function () {
+          this.wall = wall;
+          this.podcast = podcast;
+          this.artists = artists;
+          this.app.dataLoading = false;
+          this.app.showApp();
+        });
       }.bind(this),
       i = 0,
-      wall = this.wall,
+      wall = [],
+      podcast = [],
+      artists = [],
       response;
     if (this.response) {
       response = this.response['subsonic-response'];
@@ -172,7 +179,7 @@ Polymer('album-wall', {
         } else if (response.podcasts && response.podcasts.channel) {
           Array.prototype.forEach.call(response.podcasts.channel, function (e) {
             var obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
-            this.podcast.push(obj);
+            podcast.push(obj);
             i = i + 1;
             if (i === response.podcasts.channel.length) {
               callback();
@@ -181,7 +188,7 @@ Polymer('album-wall', {
         } else if (response.artists) {
           Array.prototype.forEach.call(response.artists.index, function (e) {
             var obj = {name: e.name, artist: e.artist};
-            this.artists.push(obj);
+            artists.push(obj);
             i = i + 1;
             if (i === response.artists.index.length) {
               callback();
@@ -224,17 +231,17 @@ Polymer('album-wall', {
   getPodcast: function () {
     'use strict';
     this.clearData(function () {
-      this.app.pageLimit = false;
-      this.request = 'getPodcasts';
-      this.post.type = '';
-      this.post.offset = 0;
-      this.showing = 'podcast';
-      chrome.storage.sync.set({
-        'sortType': this.post.type,
-        'request': this.request,
-        'mediaFolder': this.mediaFolder
-      });
       this.async(function () {
+        this.app.pageLimit = false;
+        this.request = 'getPodcasts';
+        this.post.type = '';
+        this.post.offset = 0;
+        this.showing = 'podcast';
+        chrome.storage.sync.set({
+          'sortType': this.post.type,
+          'request': this.request,
+          'mediaFolder': this.mediaFolder
+        });
         this.$.ajax.go();
       });
     }.bind(this));
@@ -243,21 +250,21 @@ Polymer('album-wall', {
   getStarred: function () {
     'use strict';
     this.clearData(function () {
-      this.app.pageLimit = false;
-      if (this.queryMethod === 'ID3') {
-        this.request = 'getStarred2';
-      } else {
-        this.request = 'getStarred';
-      }
-      this.post.type = '';
-      this.post.offset = 0;
-      this.showing = this.listMode;
-      chrome.storage.sync.set({
-        'sortType': this.post.type,
-        'request': this.request,
-        'mediaFolder': this.mediaFolder
-      });
       this.async(function () {
+        this.app.pageLimit = false;
+        if (this.queryMethod === 'ID3') {
+          this.request = 'getStarred2';
+        } else {
+          this.request = 'getStarred';
+        }
+        this.post.type = '';
+        this.post.offset = 0;
+        this.showing = this.listMode;
+        chrome.storage.sync.set({
+          'sortType': this.post.type,
+          'request': this.request,
+          'mediaFolder': this.mediaFolder
+        });
         this.$.ajax.go();
       });
     }.bind(this));
@@ -266,17 +273,17 @@ Polymer('album-wall', {
   getArtist: function () {
     'use strict';
     this.clearData(function () {
-      this.app.pageLimit = false;
-      this.request = 'getArtists';
-      this.post.type = '';
-      this.post.offset = 0;
-      this.showing = 'artists';
-      chrome.storage.sync.set({
-        'sortType': this.post.type,
-        'request': this.request,
-        'mediaFolder': this.mediaFolder
-      });
       this.async(function () {
+        this.app.pageLimit = false;
+        this.request = 'getArtists';
+        this.post.type = '';
+        this.post.offset = 0;
+        this.showing = 'artists';
+        chrome.storage.sync.set({
+          'sortType': this.post.type,
+          'request': this.request,
+          'mediaFolder': this.mediaFolder
+        });
         this.$.ajax.go();
       });
     }.bind(this));
@@ -284,8 +291,8 @@ Polymer('album-wall', {
   
   sortChanged: function () {
     'use strict';
-    this.async(function () {
-      this.clearData(function () {
+    this.clearData(function () {
+      this.async(function () {
         this.app.pageLimit = false;
         if (this.queryMethod === 'ID3') {
           this.request = 'getAlbumList2';
@@ -300,11 +307,9 @@ Polymer('album-wall', {
           'request': this.request,
           'mediaFolder': this.mediaFolder
         });
-        this.async(function () {
-          this.$.ajax.go();
-        });
-      }.bind(this));
-    });
+        this.$.ajax.go();
+      });
+    }.bind(this));
   },
   
   resizeLists: function () {

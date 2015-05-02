@@ -1052,58 +1052,56 @@
   /*jslint unparam: true*/
   app.selectAction = function (event, detail, sender) {
     var wall = app.$.wall;
-    app.async(function () {
-      app.closeDrawer(function () {
-        app.async(function () {
-          if (wall.sort === sender.attributes.i.value) {
-            app.pageLimit = false;
-            if (app.queryMethod === 'ID3') {
-              wall.request = 'getAlbumList2';
-            } else {
-              wall.request = 'getAlbumList';
-            }
-            wall.post.type = sender.attributes.i.value;
-            wall.refreshContent();
-            wall.showing = app.listMode;
-            wall.$.threshold.clearLower();
+    app.dataLoading = true;
+    app.closeDrawer(function () {
+      app.async(function () {
+        if (wall.sort === sender.attributes.i.value) {
+          app.pageLimit = false;
+          if (app.queryMethod === 'ID3') {
+            wall.request = 'getAlbumList2';
+          } else {
+            wall.request = 'getAlbumList';
           }
-          wall.sort = sender.attributes.i.value;
-        });
-      });
+          wall.post.type = sender.attributes.i.value;
+          wall.refreshContent();
+          wall.showing = app.listMode;
+          app.async(function () {
+            wall.$.threshold.clearLower();
+          });
+        }
+        wall.sort = sender.attributes.i.value;
+      }, null, 300);
     });
   };
   /*jslint unparam: false*/
 
   app.getPodcast = function () {
     var wall = app.$.wall;
-    app.async(function () {
-      app.closeDrawer(function () {
-        app.async(function () {
-          wall.getPodcast();
-        });
-      });
+    app.dataLoading = true;
+    app.closeDrawer(function () {
+      app.async(function () {
+        wall.getPodcast();
+      }, null, 300);
     });
   };
 
   app.getStarred = function () {
     var wall = app.$.wall;
-    app.async(function () {
-      app.closeDrawer(function () {
-        app.async(function () {
-          wall.getStarred();
-        });
+    app.dataLoading = true;
+    app.closeDrawer(function () {
+      app.async(function () {
+        wall.getStarred();
       });
-    });
+    }, null, 300);
   };
 
   app.getArtist = function () {
     var wall = app.$.wall;
-    app.async(function () {
-      app.closeDrawer(function () {
-        app.async(function () {
-          wall.getArtist();
-        });
-      });
+    app.dataLoading = true;
+    app.closeDrawer(function () {
+      app.async(function () {
+        wall.getArtist();
+      }, null, 300);
     });
   };
 
@@ -1196,7 +1194,7 @@
       }
     });
   };
-
+  
   /*
     cast API
   */

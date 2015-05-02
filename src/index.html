@@ -140,24 +140,24 @@
 
             <!-- logic for toolbar -->
             <template if="{{page === 0}}">
-              <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
+              <paper-icon-button icon="menu" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
               <div flex  class="bottom alignLeft">{{appName}}</div>
               <core-tooltip label="Change View" class="bottom">
                 <template if="{{showing === 'cover'}}">
-                  <paper-icon-button on-tap="{{toggleWall}}" icon="view-stream"></paper-icon-button>
+                  <paper-icon-button on-tap="{{toggleWall}}" disabled?="{{dataLoading || shuffleLoading}}" icon="view-stream"></paper-icon-button>
                 </template>
                 <template if="{{showing === 'list'}}">
-                  <paper-icon-button on-tap="{{toggleWall}}" icon="view-module"></paper-icon-button>
+                  <paper-icon-button on-tap="{{toggleWall}}" disabled?="{{dataLoading || shuffleLoading}}" icon="view-module"></paper-icon-button>
                 </template>
               </core-tooltip>
               <template if="{{showing === 'podcast'}}">
                 <core-tooltip label="{{refreshPodcastLabel}}" class="bottom">
-                  <paper-icon-button on-tap="{{refreshPodcast}}" icon="autorenew"></paper-icon-button>
+                  <paper-icon-button on-tap="{{refreshPodcast}}" disabled?="{{dataLoading || shuffleLoading}}" icon="autorenew"></paper-icon-button>
                 </core-tooltip>
               </template>
             </template>
             <template if="{{page !== 0}}">
-              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
+              <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
             </template>
             <template if="{{page === 1}}">
               <div class="bottom" flex>{{currentPlaying}}</div>
@@ -172,7 +172,7 @@
               <div flex class="bottom"></div>
             </template>
             <template if="{{page === 0 && showing === 'artists'}}">
-              <paper-menu-button class="bottom">
+              <paper-menu-button class="bottom" disabled?="{{dataLoading || shuffleLoading}}">
                 <core-tooltip label="{{jumpToLabel}}">
                   <paper-icon-button icon="arrow-drop-down"></paper-icon-button>
                 </core-tooltip>
@@ -190,7 +190,7 @@
             <template if="{{page !== 1}}">
               <template if="{{isNowPlaying}}">
                 <core-tooltip label="{{nowPlayingLabel}}" class="bottom">
-                  <paper-icon-button on-tap="{{nowPlaying}}" icon="av:hearing"></paper-icon-button>
+                  <paper-icon-button on-tap="{{nowPlaying}}" disabled?="{{dataLoading || shuffleLoading}}" icon="av:hearing"></paper-icon-button>
                 </core-tooltip>
               </template>
             </template>
