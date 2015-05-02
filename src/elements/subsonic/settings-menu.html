@@ -92,7 +92,9 @@
     <div id="validate">
       <core-label>
         <h4>{{appName}} {{polysonicVersion}}</h4>
-        <div id="serverLicense" on-tap="{{getLicense}}">{{licenseInfoLink}}</div>
+        <core-tooltip label="{{showLicenseLabel}}">
+          <div id="serverLicense" on-tap="{{getLicense}}">{{licenseInfoLink}}</div>
+        </core-tooltip>
         <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
           <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
         </paper-input-decorator>

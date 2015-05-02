@@ -276,6 +276,9 @@
   "licenseInfoLink": {
     "message": "Subsonic License Info"
   },
+  "showLicenseLabel": {
+    "message": "Show License"
+  },
   "addPodcastLabel": {
     "message": "Add Podcast"
   },
