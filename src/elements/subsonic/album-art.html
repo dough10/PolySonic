@@ -439,10 +439,10 @@
         <div style="font-size:14pt; margin:8px; margin-right: 30px; max-height:30px;">
           {{artist}} / {{album}}
         </div>
-        <core-tooltip label="{{add2PlayQueue}}" layered>
+        <core-tooltip label="{{add2PlayQueue}}" position="right">
           <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add"></paper-icon-button>
         </core-tooltip>
-        <core-tooltip label="{{favoriteAlbum}}" layered>
+        <core-tooltip label="{{favoriteAlbum}}" position="right">
           <template if="{{!isFavorite}}">
             <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
           </template>
@@ -451,11 +451,11 @@
           </template>
         </core-tooltip>
         <template if="{{app.activeUser.downloadRole}}">
-          <core-tooltip label="{{downloadButton}}" layered>
+          <core-tooltip label="{{downloadButton}}" position="right">
             <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
           </core-tooltip>
         </template>
-        <core-tooltip label="{{moreLikeThis}}" layered>
+        <core-tooltip label="{{moreLikeThis}}" position="right">
           <paper-icon-button on-tap="{{moreLike}}" ident="{{albumID}}" icon="av:radio"></paper-icon-button>
         </core-tooltip>
       </div>

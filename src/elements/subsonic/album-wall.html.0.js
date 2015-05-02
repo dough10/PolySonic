@@ -36,6 +36,9 @@ Polymer('album-wall', {
     this.addPodcast = chrome.i18n.getMessage("addPodcast");
     this.foundHere = chrome.i18n.getMessage("foundHere");
     this.deleteLabel = chrome.i18n.getMessage("deleteLabel");
+    this.downloadButton = chrome.i18n.getMessage("downloadButton");
+    this.playPodcastLabel = chrome.i18n.getMessage("playPodcast");
+    this.add2PlayQueue = chrome.i18n.getMessage("add2PlayQueue");
     this.$.cover.grid = true;
     this.$.cover.width = '260';
     this.$.cover.height = '260';
@@ -100,13 +103,26 @@ Polymer('album-wall', {
     });
   },
   
+  buildObject: function (e) {
+    return {
+      id: e.id, 
+      coverArt: e.coverArt, 
+      artist: e.artist, 
+      name: e.name, 
+      starred: e.starred, 
+      url: this.url, 
+      user: this.user, 
+      pass: this.pass, 
+      version: this.version, 
+      bitRate: this.bitRate
+    };
+  },
+  
   responseChanged: function () {
     'use strict';
     var callback = function () {
-        this.async(function () {
-          this.app.dataLoading = false;
-          this.app.showApp();
-        });
+        this.app.dataLoading = false;
+        this.app.showApp();
       }.bind(this),
       i = 0,
       wall = this.wall,
@@ -119,7 +135,7 @@ Polymer('album-wall', {
       } else {
         if (response.albumList2 && response.albumList2.album) {
           Array.prototype.forEach.call(response.albumList2.album, function (e) {
-            var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
+            var obj = this.buildObject(e);
             wall.push(obj);
             i = i + 1;
             if (i === response.albumList2.album.length) {
@@ -128,7 +144,7 @@ Polymer('album-wall', {
           }.bind(this));
         } else if (response.albumList && response.albumList.album) {
           Array.prototype.forEach.call(response.albumList.album, function (e) {
-            var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
+            var obj = this.buildObject(e);
             wall.push(obj);
             i = i + 1;
             if (i === response.albumList.album.length) {
@@ -137,7 +153,7 @@ Polymer('album-wall', {
           }.bind(this));
         } else if (response.starred2 && response.starred2.album) {
           Array.prototype.forEach.call(response.starred2.album, function (e) {
-            var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
+            var obj = this.buildObject(e);
             wall.push(obj);
             i = i + 1;
             if (i === response.starred2.album.length) {
@@ -146,7 +162,7 @@ Polymer('album-wall', {
           }.bind(this));
         } else if (response.starred && response.starred.album) {
           Array.prototype.forEach.call(response.starred.album, function (e) {
-            var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
+            var obj = this.buildObject(e);
             wall.push(obj);
             i = i + 1;
             if (i === response.starred.album.length) {
@@ -173,7 +189,7 @@ Polymer('album-wall', {
           }.bind(this));
         } else if (response.searchResult3 && response.searchResult3.album) {
           Array.prototype.forEach.call(response.searchResult3.album, function (e) {
-            var obj = {id: e.id, coverArt: e.coverArt, artist: e.artist, name: e.name, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, bitRate: this.bitRate};
+            var obj = this.buildObject(e);
             if (!this.containsObject(obj, wall)) {
               wall.push(obj);
             }
@@ -367,7 +383,7 @@ Polymer('album-wall', {
           if (ev.target.result) {
             var imgFile = ev.target.result;
             imgURL = window.URL.createObjectURL(imgFile);
-            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
             this.app.getImageForPlayer(imgURL, function () {
               this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
                 obj.palette = palette;
@@ -380,7 +396,7 @@ Polymer('album-wall', {
             this.app.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
               var imgFile = ev.target.result;
               imgURL = window.URL.createObjectURL(imgFile);
-              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+              obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
               this.app.getImageForPlayer(imgURL, function () {
                 this.app.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
                   obj.palette = colorArray;
@@ -394,7 +410,7 @@ Polymer('album-wall', {
         }.bind(this));
       } else {
         imgURL = '../../../images/default-cover-art.png';
-        obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+        obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
         this.app.getImageForPlayer(imgURL);
         this.doPlay(obj, url);
         this.app.page = 1;
@@ -414,7 +430,7 @@ Polymer('album-wall', {
         if (ev.target.result) {
           var imgFile = ev.target.result;
           imgURL = window.URL.createObjectURL(imgFile);
-          obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+          obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
           this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
             obj.palette = palette;
             if (this.audio.paused) {
@@ -434,7 +450,7 @@ Polymer('album-wall', {
           this.app.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
             var imgFile = ev.target.result;
             imgURL = window.URL.createObjectURL(imgFile);
-            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
             this.app.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
               obj.palette = colorArray;
             });
@@ -456,11 +472,11 @@ Polymer('album-wall', {
     } else {
       imgURL = '../../../images/default-cover-art.png';
       if (this.audio.paused) {
-        obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+        obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
         this.app.getImageForPlayer(imgURL);
         this.doPlay(obj, url);
       } else {
-        obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.title.value, cover: imgURL};
+        obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
         this.app.playlist.push(obj);
         this.app.doToast(chrome.i18n.getMessage("added2Queue"));
       }

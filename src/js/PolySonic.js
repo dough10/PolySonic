@@ -4,15 +4,10 @@
   var app = document.querySelector('#tmpl');
   app.addEventListener('template-bound', function () {
     this.loadData();
+    this.service = analytics.getService('PolySonic');
+    this.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
   });
 
-  /*
-    begin analistics on window load
-  */
-  window.onload = function () {
-    app.service = analytics.getService('PolySonic');
-    app.tracker = app.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
-  };
 
   /*
     locale settings
@@ -1196,6 +1191,8 @@
       var response = e.target.response['subsonic-response'];
       if (response.status === 'ok') {
         app.activeUser = response.user;
+      } else {
+        console.error('Error getting User details');
       }
     });
   };
@@ -1234,7 +1231,7 @@
     }
   }
 
-  function onInitSuccess(e) {
+  function onInitSuccess() {
     console.log('CastAPI Ready');
   }
 

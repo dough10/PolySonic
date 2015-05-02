@@ -159,6 +159,9 @@
    "playButton": {
     "message": "Play"
   },
+  "playPodcast": {
+    "message": "Play Podcast"
+  },
   "yearError": {
     "message": "Please enter a valid year"
   },
