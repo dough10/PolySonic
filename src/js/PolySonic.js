@@ -679,7 +679,7 @@
         app.getDbItem(artId + '-palette', function (ev) {
           obj.palette = ev.target.result;
           app.playlist.push(obj);
-          app.async(callback);
+          callback();
         });
       } else {
         app.getImageFile(img, artId, function (ev) {
@@ -689,7 +689,7 @@
           app.colorThiefHandler(imgURL, artId, function (colorArray) {
             obj.palette = colorArray;
             app.playlist.push(obj);
-            app.async(callback);
+            callback();
           });
         });
       }
@@ -884,9 +884,7 @@
     ];
     animation.target = sender;
     if (app.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast' && app.$.fab.state === 'bottom') {
-      app.async(function () {
-        scroller.scrollTop = 0;
-      });
+      scroller.scrollTop = 0;
     }
     if (app.page === 0 && wall.showing === 'podcast') {
       app.$.addPodcast.open();
@@ -929,9 +927,7 @@
             var response = e.target.response;
             app.$.wall.clearData(function () {
               app.$.wall.response = response;
-              app.async(function () {
-                app.showing = app.listMode;
-              });
+              app.showing = app.listMode;
             });
           }
         });
@@ -995,13 +991,11 @@
   };
 
   app.shuffleOptions = function () {
-    app.async(function () {
-      var url = app.url + '/rest/getGenres.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json';
-      app.closeDrawer(function () {
-        app.doXhr(url, 'json', function (e) {
-          app.genres = e.target.response['subsonic-response'].genres.genre;
-          app.$.shuffleOptions.open();
-        });
+    var url = app.url + '/rest/getGenres.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json';
+    app.closeDrawer(function () {
+      app.doXhr(url, 'json', function (e) {
+        app.genres = e.target.response['subsonic-response'].genres.genre;
+        app.$.shuffleOptions.open();
       });
     });
   };
@@ -1012,21 +1006,19 @@
 
   app.toggleWall = function () {
     app.dataLoading = true;
-    app.async(function () {
-      var wall = app.$.wall;
-      if (wall.listMode === 'cover') {
-        wall.listMode = 'list';
-        chrome.storage.sync.set({
-          'listMode': 'list'
-        });
-      } else {
-        wall.listMode = 'cover';
-        chrome.storage.sync.set({
-          'listMode': 'cover'
-        });
-      }
-      app.tracker.sendEvent('ListMode Changed', wall.listMode);
-    });
+    var wall = app.$.wall;
+    if (wall.listMode === 'cover') {
+      wall.listMode = 'list';
+      chrome.storage.sync.set({
+        'listMode': 'list'
+      });
+    } else {
+      wall.listMode = 'cover';
+      chrome.storage.sync.set({
+        'listMode': 'cover'
+      });
+    }
+    app.tracker.sendEvent('ListMode Changed', wall.listMode);
   };
 
   app.requestSession = function () {
@@ -1034,19 +1026,15 @@
   };
 
   app.back2List = function () {
-    app.async(function () {
-      app.dataLoading = true;
-      app.page = 0;
-      app.async(function () {
-        app.dataLoading = false;
-      });
-    });
+    app.dataLoading = true;
+    app.page = 0;
+    app.dataLoading = false;
   };
 
   app.nowPlaying = function () {
-    app.async(function () {
-      app.page = 1;
-    });
+    app.dataLoading = true;
+    app.page = 1;
+    app.dataLoading = false;
   };
 
   /*jslint unparam: true*/
@@ -1054,23 +1042,19 @@
     var wall = app.$.wall;
     app.dataLoading = true;
     app.closeDrawer(function () {
-      app.async(function () {
-        if (wall.sort === sender.attributes.i.value) {
-          app.pageLimit = false;
-          if (app.queryMethod === 'ID3') {
-            wall.request = 'getAlbumList2';
-          } else {
-            wall.request = 'getAlbumList';
-          }
-          wall.post.type = sender.attributes.i.value;
-          wall.refreshContent();
-          wall.showing = app.listMode;
-          app.async(function () {
-            wall.$.threshold.clearLower();
-          });
+      if (wall.sort === sender.attributes.i.value) {
+        app.pageLimit = false;
+        if (app.queryMethod === 'ID3') {
+          wall.request = 'getAlbumList2';
+        } else {
+          wall.request = 'getAlbumList';
         }
-        wall.sort = sender.attributes.i.value;
-      }, null, 300);
+        wall.post.type = sender.attributes.i.value;
+        wall.refreshContent();
+        wall.showing = app.listMode;
+        wall.$.threshold.clearLower();
+      }
+      wall.sort = sender.attributes.i.value;
     });
   };
   /*jslint unparam: false*/
@@ -1079,9 +1063,7 @@
     var wall = app.$.wall;
     app.dataLoading = true;
     app.closeDrawer(function () {
-      app.async(function () {
-        wall.getPodcast();
-      }, null, 300);
+      wall.getPodcast();
     });
   };
 
@@ -1089,74 +1071,64 @@
     var wall = app.$.wall;
     app.dataLoading = true;
     app.closeDrawer(function () {
-      app.async(function () {
-        wall.getStarred();
-      });
-    }, null, 300);
+      wall.getStarred();
+    });
   };
 
   app.getArtist = function () {
     var wall = app.$.wall;
     app.dataLoading = true;
     app.closeDrawer(function () {
-      app.async(function () {
-        wall.getArtist();
-      }, null, 300);
+      wall.getArtist();
     });
   };
 
   app.gotoSettings = function () {
     app.closeDrawer(function () {
-      app.async(function () {
-        app.page = 2;
-      });
+      app.page = 2;
     });
   };
 
   app.refreshPodcast = function (event, detail, sender) {
-    app.async(function () {
-      var animation = new CoreAnimation(),
-        url;
-      animation.duration = 1000;
-      animation.iterations = 'Infinity';
-      animation.keyframes = [
-        {opacity: 1},
-        {opacity: 0}
-      ];
-      animation.target = sender;
-      animation.play();
-      url = app.url + "/rest/refreshPodcasts.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic";
-      app.doXhr(url, 'json', function (e) {
-        if (e.target.response['subsonic-response'].status === 'ok') {
-          animation.cancel();
-          app.$.wall.refreshContent();
-          app.doToast(chrome.i18n.getMessage("podcastCheck"));
-        }
-      });
+    var animation = new CoreAnimation(),
+      url;
+    animation.duration = 1000;
+    animation.iterations = 'Infinity';
+    animation.keyframes = [
+      {opacity: 1},
+      {opacity: 0}
+    ];
+    animation.target = sender;
+    animation.play();
+    url = app.url + "/rest/refreshPodcasts.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic";
+    app.doXhr(url, 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        animation.cancel();
+        app.$.wall.refreshContent();
+        app.doToast(chrome.i18n.getMessage("podcastCheck"));
+      }
     });
   };
 
   app.addChannel = function () {
-    app.async(function () {
-      if (!app.castURL) {
-        app.doToast(app.urlError);
-      }
-      if (!app.invalidURL) {
-        app.addingChannel = true;
-        var url = app.url + "/rest/createPodcastChannel.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic&url=" + encodeURIComponent(app.castURL);
-        app.doXhr(url, 'json', function (e) {
-          if (e.target.response['subsonic-response'].status === 'ok') {
-            app.addingChannel = false;
-            app.$.addPodcast.close();
-            app.$.wall.refreshContent();
-            app.doToast(chrome.i18n.getMessage("channelAdded"));
-            app.castURL = '';
-          } else {
-            app.doToast(chrome.i18n.getMessage("podcastError"));
-          }
-        });
-      }
-    });
+    if (!app.castURL) {
+      app.doToast(app.urlError);
+    }
+    if (!app.invalidURL) {
+      app.addingChannel = true;
+      var url = app.url + "/rest/createPodcastChannel.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic&url=" + encodeURIComponent(app.castURL);
+      app.doXhr(url, 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 'ok') {
+          app.addingChannel = false;
+          app.$.addPodcast.close();
+          app.$.wall.refreshContent();
+          app.doToast(chrome.i18n.getMessage("channelAdded"));
+          app.castURL = '';
+        } else {
+          app.doToast(chrome.i18n.getMessage("podcastError"));
+        }
+      });
+    }
   };
 
   app.doDelete = function (event, detail, sender) {

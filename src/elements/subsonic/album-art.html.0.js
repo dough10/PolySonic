@@ -80,16 +80,13 @@ Polymer('album-art', {
       imgElement,
       i = 0;
 
-    this.async(function () {
-      this.showArt(imgURL);
-    });
+
+    this.showArt(imgURL);
+    this.isLoading = false;
     this.imgURL = imgURL;
     Array.prototype.forEach.call(this.playlist, function (e) {
       e.cover = imgURL;
     }.bind(this));
-    this.async(function () {
-      this.isLoading = false;
-    });
   },
   
   showArt: function (image) {
@@ -332,19 +329,17 @@ Polymer('album-art', {
         return da - db;
       }
     });
-    this.async(function () {
-      Array.prototype.forEach.call(this.tracks, function (e) {
-        var mins = Math.floor(e.duration / 60),
-          seconds = Math.floor(e.duration - (mins * 60)),
-          timeString = mins + ':' + ('0' + seconds).slice(-2),
-          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
-        this.playlist.push(obj);
-        i = i + 1;
-        if (i === this.tracks.length) {
-          callback();
-        }
-      }.bind(this));
-    });
+    Array.prototype.forEach.call(this.tracks, function (e) {
+      var mins = Math.floor(e.duration / 60),
+        seconds = Math.floor(e.duration - (mins * 60)),
+        timeString = mins + ':' + ('0' + seconds).slice(-2),
+        obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
+      this.playlist.push(obj);
+      i = i + 1;
+      if (i === this.tracks.length) {
+        callback();
+      }
+    }.bind(this));
   },
   
   doQuery: function (callback) {
@@ -378,44 +373,38 @@ Polymer('album-art', {
 
   itemChanged: function () {
     'use strict';
-    this.async(function () {
-      var artId = "al-" + this.item,
-        url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
-      if (this.item) {
-        this.isLoading = true;
-        this.async(this.defaultArt.bind(this));
-        this.playlist = null;
-        this.playlist = [];
-        this.async(function () {
-          this.app.getDbItem(artId, function (e) {
-            if (e.target.result) {
-              this.setImage(e);
-            } else {
-              /*
-                get image from subsonic server
-              */
-              this.app.getImageFile(url, artId, function (event) {
-                var imgFile = event.target.result,
-                  imgURL = window.URL.createObjectURL(imgFile),
-                  imgElement;
-  
-                Array.prototype.forEach.call(this.playlist, function (e) {
-                  e.cover = imgURL;
-                }.bind(this));
-                this.async(function () {
-                  this.showArt(imgURL);
-                  this.isLoading = false;
-                });
-                /*
-                  get dominant color from image
-                */
-                this.app.colorThiefHandler(imgURL, artId, function (colorArray) {});
-              }.bind(this));
-            }
+    var artId = "al-" + this.item,
+      url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
+    if (this.item) {
+      this.isLoading = true;
+      this.defaultArt();
+      this.playlist = null;
+      this.playlist = [];
+      this.app.getDbItem(artId, function (e) {
+        if (e.target.result) {
+          this.setImage(e);
+        } else {
+          /*
+            get image from subsonic server
+          */
+          this.app.getImageFile(url, artId, function (event) {
+            var imgFile = event.target.result,
+              imgURL = window.URL.createObjectURL(imgFile),
+              imgElement;
+
+            this.showArt(imgURL);
+            this.isLoading = false;
+            Array.prototype.forEach.call(this.playlist, function (e) {
+              e.cover = imgURL;
+            }.bind(this));
+            /*
+              get dominant color from image
+            */
+            this.app.colorThiefHandler(imgURL, artId, function (colorArray) {});
           }.bind(this));
-        });
-      }
-    });
+        }
+      }.bind(this));
+    }
   },
 
   /*
@@ -431,14 +420,12 @@ Polymer('album-art', {
       /* to be run @ end of loop */
       callback = function () {
         this.app.getImageForPlayer(this.app.playlist[0].cover, function () {
-          this.async(function () {
-            this.app.setFabColor(this.playlist[0]);
-            var playURL = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.app.playlist[0].id;
-            this.app.playing = 0;
-            this.app.playAudio(this.app.playlist[0].artist, this.app.playlist[0].title, playURL, this.app.playlist[0].cover, this.app.playlist[0].id);
-            this.app.dataLoading = false;
-            this.app.page = 1;
-          });
+          this.app.setFabColor(this.playlist[0]);
+          var playURL = this.url + '/rest/stream.view?u=' + this.user + '&p=' + this.pass + '&v=' + this.version + '&c=PolySonic&maxBitRate=' + this.bitRate + '&id=' + this.app.playlist[0].id;
+          this.app.playing = 0;
+          this.app.playAudio(this.app.playlist[0].artist, this.app.playlist[0].title, playURL, this.app.playlist[0].cover, this.app.playlist[0].id);
+          this.app.dataLoading = false;
+          this.app.page = 1;
         }.bind(this));
       }.bind(this);
     this.$.detailsDialog.close();
