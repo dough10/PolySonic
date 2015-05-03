@@ -70,7 +70,7 @@
       }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
-    <core-scroll-threshold id="threshold" lowerThreshold="1500" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
+    <core-scroll-threshold id="threshold" lowerThreshold="1000" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
     <div id="all">
       <core-animated-pages selected="{{showing}}" valueattr="view">

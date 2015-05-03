@@ -54,14 +54,12 @@ Polymer('album-art', {
       this.page = "small";
       this.width = '520px';
       this.height = "75px";
-    } else if (this.listMode === 'search') {
-      this.page = 'search';
-      this.width = '370px';
-      this.height = '60px';
+      this.style.margin = '0px';
     } else {
       this.page = "cover";
       this.width = "250px";
       this.height = "250px";
+      this.style.margin = '2px';
     }
   },
 
@@ -73,7 +71,7 @@ Polymer('album-art', {
   },
 
   /* setup image  */
-  setImage: function (event) {
+  setImage: function (event, callback) {
     'use strict';
     var imgFile = event.target.result,
       imgURL = window.URL.createObjectURL(imgFile),
@@ -81,21 +79,36 @@ Polymer('album-art', {
       i = 0;
 
 
-    this.async(this.showArt(imgURL));
+    this.showArt(imgURL);
     this.isLoading = false;
     this.imgURL = imgURL;
-    Array.prototype.forEach.call(this.playlist, function (e) {
-      e.cover = imgURL;
-    }.bind(this));
+  },
+
+  setImageWithCallback: function (imgFile, callback) {
+    'use strict';
+    var imgFile = event.target.result,
+      imgURL = window.URL.createObjectURL(imgFile),
+      imgElement,
+      i = 0;
+
+
+    this.showArt(imgURL);
+    this.isLoading = false;
+    this.imgURL = imgURL;
+    callback(imgURL);
   },
   
   showArt: function (image) {
     'use strict';
     if (this.page === 'cover') {
-      this.$.card.style.backgroundImage = "url('" + image + "')";
+      this.async(function () {
+        this.$.card.style.backgroundImage = "url('" + image + "')";
+      });
     } else if (this.page === 'small') {
-      this.$.smallCover.style.backgroundImage = "url('" + image + "')";
-      this.$.card.style.backgroundImage = '';
+      this.async(function () {
+        this.$.smallCover.style.backgroundImage = "url('" + image + "')";
+        this.$.card.style.backgroundImage = '';
+      });
     }
     this.$.topper.style.backgroundImage = "url('" + image + "')";
     this.imgURL = image;
@@ -103,7 +116,7 @@ Polymer('album-art', {
 
   defaultArt: function () {
     'use strict';
-    this.async(this.showArt(this.defaultImgURL));
+    this.showArt(this.defaultImgURL);
   },
 
   /*
@@ -168,10 +181,19 @@ Polymer('album-art', {
 
   doDownload: function (event, detail, sender) {
     'use strict';
-    this.app.dataLoading = true;
+    var animation = new CoreAnimation(),
+      url;
+    animation.duration = 1000;
+    animation.iterations = 'Infinity';
+    animation.keyframes = [
+      {opacity: 1},
+      {opacity: 0}
+    ];
+    animation.target = sender;
+    animation.play();
     this.doQuery(function () {
-      this.app.dataLoading = false;
-      window.open(this.url + "/rest/download.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + sender.attributes.ident.value, '_blank');
+      animation.cancel();
+      window.open(this.url + "/rest/download.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.albumID, '_blank');
     }.bind(this));
   },
 
@@ -387,11 +409,13 @@ Polymer('album-art', {
           /*
             get image from subsonic server
           */
-          this.setImage(event);
-          /*
-            get dominant color from image
-          */
-          this.app.colorThiefHandler(imgURL, artId, function (colorArray) {});
+          this.app.getImageFile(url, artId, function (event) {
+            this.setImageWithCallback(event, function (imgURL) {
+              this.async(function () {
+                this.app.colorThiefHandler(imgURL, artId, function (colorArray) {});
+              });
+            }.bind(this));
+          }.bind(this));
         }
       }.bind(this));
     }
