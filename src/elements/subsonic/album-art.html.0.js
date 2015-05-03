@@ -81,7 +81,7 @@ Polymer('album-art', {
       i = 0;
 
 
-    this.showArt(imgURL);
+    this.async(this.showArt(imgURL));
     this.isLoading = false;
     this.imgURL = imgURL;
     Array.prototype.forEach.call(this.playlist, function (e) {
@@ -95,7 +95,7 @@ Polymer('album-art', {
       this.$.card.style.backgroundImage = "url('" + image + "')";
     } else if (this.page === 'small') {
       this.$.smallCover.style.backgroundImage = "url('" + image + "')";
-      this.$.card.style.backgroundImage = null;
+      this.$.card.style.backgroundImage = '';
     }
     this.$.topper.style.backgroundImage = "url('" + image + "')";
     this.imgURL = image;
@@ -103,7 +103,7 @@ Polymer('album-art', {
 
   defaultArt: function () {
     'use strict';
-    this.showArt(this.defaultImgURL);
+    this.async(this.showArt(this.defaultImgURL));
   },
 
   /*
@@ -387,21 +387,11 @@ Polymer('album-art', {
           /*
             get image from subsonic server
           */
-          this.app.getImageFile(url, artId, function (event) {
-            var imgFile = event.target.result,
-              imgURL = window.URL.createObjectURL(imgFile),
-              imgElement;
-
-            this.showArt(imgURL);
-            this.isLoading = false;
-            Array.prototype.forEach.call(this.playlist, function (e) {
-              e.cover = imgURL;
-            }.bind(this));
-            /*
-              get dominant color from image
-            */
-            this.app.colorThiefHandler(imgURL, artId, function (colorArray) {});
-          }.bind(this));
+          this.setImage(event);
+          /*
+            get dominant color from image
+          */
+          this.app.colorThiefHandler(imgURL, artId, function (colorArray) {});
         }
       }.bind(this));
     }
