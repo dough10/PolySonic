@@ -78,24 +78,12 @@ Polymer('album-art', {
       imgElement,
       i = 0;
 
-
     this.showArt(imgURL);
     this.isLoading = false;
     this.imgURL = imgURL;
-  },
-
-  setImageWithCallback: function (imgFile, callback) {
-    'use strict';
-    var imgFile = event.target.result,
-      imgURL = window.URL.createObjectURL(imgFile),
-      imgElement,
-      i = 0;
-
-
-    this.showArt(imgURL);
-    this.isLoading = false;
-    this.imgURL = imgURL;
-    callback(imgURL);
+    if (callback) {
+      callback(imgURL);
+    }
   },
   
   showArt: function (image) {
@@ -412,7 +400,7 @@ Polymer('album-art', {
             get image from subsonic server
           */
           this.app.getImageFile(url, artId, function (event) {
-            this.setImageWithCallback(event, function (imgURL) {
+            this.setImage(event, function (imgURL) {
               this.async(function () {
                 this.app.colorThiefHandler(imgURL, artId, function (colorArray) {});
               });
