@@ -65,7 +65,7 @@
                 <paper-input class="search-box" label="Search" value="{{searchQuery}}" style="width: 175px;"></paper-input>
               </div>
               <div>
-                <paper-icon-button on-tap="{{doSearch}}" title="Search" icon="search"></paper-icon-button>
+                <paper-icon-button on-tap="{{doSearch}}" title="Search" disabled?="{{dataLoading || shuffleLoading}}" icon="search"></paper-icon-button>
               </div>
             </div>
           </core-toolbar>

@@ -133,7 +133,9 @@ Polymer('album-wall', {
         if (response.albumList2 && response.albumList2.album) {
           Array.prototype.forEach.call(response.albumList2.album, function (e) {
             var obj = this.buildObject(e);
-            this.wall.push(obj);
+            this.async(function () {
+              this.wall.push(obj);
+            });
             i = i + 1;
             if (i === response.albumList2.album.length) {
               callback();
@@ -142,7 +144,9 @@ Polymer('album-wall', {
         } else if (response.albumList && response.albumList.album) {
           Array.prototype.forEach.call(response.albumList.album, function (e) {
             var obj = this.buildObject(e);
-            this.wall.push(obj);
+            this.async(function () {
+              this.wall.push(obj);
+            });
             i = i + 1;
             if (i === response.albumList.album.length) {
               callback();
@@ -151,7 +155,9 @@ Polymer('album-wall', {
         } else if (response.starred2 && response.starred2.album) {
           Array.prototype.forEach.call(response.starred2.album, function (e) {
             var obj = this.buildObject(e);
-            this.wall.push(obj);
+            this.async(function () {
+              this.wall.push(obj);
+            });
             i = i + 1;
             if (i === response.starred2.album.length) {
               callback();
@@ -160,7 +166,9 @@ Polymer('album-wall', {
         } else if (response.starred && response.starred.album) {
           Array.prototype.forEach.call(response.starred.album, function (e) {
             var obj = this.buildObject(e);
-            this.wall.push(obj);
+            this.async(function () {
+              this.wall.push(obj);
+            });
             i = i + 1;
             if (i === response.starred.album.length) {
               callback();
@@ -169,7 +177,9 @@ Polymer('album-wall', {
         } else if (response.podcasts && response.podcasts.channel) {
           Array.prototype.forEach.call(response.podcasts.channel, function (e) {
             var obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
-            this.podcast.push(obj);
+            this.async(function () {
+              this.podcast.push(obj);
+            });
             i = i + 1;
             if (i === response.podcasts.channel.length) {
               callback();
@@ -178,7 +188,9 @@ Polymer('album-wall', {
         } else if (response.artists) {
           Array.prototype.forEach.call(response.artists.index, function (e) {
             var obj = {name: e.name, artist: e.artist};
-            this.artists.push(obj);
+            this.async(function () {
+              this.artists.push(obj);
+            });
             i = i + 1;
             if (i === response.artists.index.length) {
               callback();
@@ -187,9 +199,11 @@ Polymer('album-wall', {
         } else if (response.searchResult3 && response.searchResult3.album) {
           Array.prototype.forEach.call(response.searchResult3.album, function (e) {
             var obj = this.buildObject(e);
-            if (!this.containsObject(obj, wall)) {
-              this.wall.push(obj);
-            }
+            this.async(function () {
+              if (!this.containsObject(obj, this.wall)) {
+                this.wall.push(obj);
+              }
+            });
             i = i + 1;
             if (i === response.searchResult3.album.length) {
               callback();
@@ -315,7 +329,9 @@ Polymer('album-wall', {
     if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.app.pageLimit && this.app.page === 0) {
       this.isLoading = true;
       this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
-      this.$.ajax.go();
+      this.async(function () {
+        this.$.ajax.go();
+      });
     }
   },
   

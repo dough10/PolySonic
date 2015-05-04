@@ -140,14 +140,16 @@ Polymer('album-art', {
   doDialog: function () {
     'use strict';
     this.app.dataLoading = false;
-    this.closeSlide();
-    this.$.detailsDialog.open();
-    this.app.$.fab.state = 'mid';
-    this.app.$.fab.ident = this.id;
-    if (this.colorThiefEnabled && this.playlist[0].palette) {
-      this.app.colorThiefAlbum = this.playlist[0].palette[0];
-      this.app.colorThiefAlbumOff = this.playlist[0].palette[1];
-    }
+    this.async(function () {
+      this.closeSlide();
+      this.$.detailsDialog.open();
+      this.app.$.fab.state = 'mid';
+      this.app.$.fab.ident = this.id;
+      if (this.colorThiefEnabled && this.playlist[0].palette) {
+        this.app.colorThiefAlbum = this.playlist[0].palette[0];
+        this.app.colorThiefAlbumOff = this.playlist[0].palette[1];
+      }
+    });
   },
 
   closeDialog: function () {

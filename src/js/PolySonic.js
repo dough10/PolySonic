@@ -270,9 +270,9 @@
   };
 
   /*
-    colorArray[0] fab color
+    colorArray[0] accent color
 
-    colorArray[1] fab contrasting color
+    colorArray[1] accent contrasting color
 
     colorArray[2] progress bar buffering color
 
@@ -290,7 +290,7 @@
         hex = app.rgbToHex(r, g, b);
       colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
       colorArray[1] = app.getContrast50(hex);
-      colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.5);';
+      colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4);';
       if (colorArray[1] !== 'white') {
         colorArray[3] = '#444444';
       } else {
@@ -579,11 +579,9 @@
       button.icon = "av:pause";
       app.isNowPlaying = true;
       if (!audio.duration) {
-        app.contentLoading = true;
         app.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
         app.progress = 0;
       } else {
-        app.contentLoading = false;
         app.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
         app.progress = progress;
       }
@@ -602,10 +600,12 @@
       box = document.getElementById("box");
 
     if (!visible) {
-      loader.classList.add('hide');
-      box.classList.add('hide');
-      box.classList.add('hide');
-      app.askAnalistics();
+      this.async(function () {
+        loader.classList.add('hide');
+        box.classList.add('hide');
+        box.classList.add('hide');
+        app.askAnalistics();
+      });
     }
   };
 
@@ -762,7 +762,7 @@
       app.bitRate = result.bitRate || 320;
       app.shuffleSize = app.shuffleSize || '50';
       app.version = '1.11.0';
-      app.querySize = 30;
+      app.querySize = 24;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.colorThiefEnabled = true;
