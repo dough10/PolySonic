@@ -161,10 +161,10 @@
                           {{title}}
                         </div>
                         <template if="{{status === 'completed'}}">
-                          <core-tooltip label="{{playPodcastLabel}}" position="left">
+                          <core-tooltip label="{{labels.playPodcastLabel}}" position="left">
                             <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
                           </core-tooltip>
-                          <core-tooltip label="{{add2PlayQueue}}" position="left">
+                          <core-tooltip label="{{labels.add2PlayQueue}}" position="left">
                             <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
                           </core-tooltip>
                           <paper-icon-button on-tap="{{toggleCollapse}}" icon="more-vert" ident="collapse{{id}}"></paper-icon-button>

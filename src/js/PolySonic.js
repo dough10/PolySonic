@@ -229,7 +229,9 @@
   app.closeDrawer = function (callback) {
     var panel = app.$.panel;
     panel.closeDrawer();
-    callback();
+    if (callback) {
+      app.async(callback);
+    }
   };
 
   app.openPanel = function () {
@@ -297,7 +299,9 @@
         colorArray[3] = '#c8c8c8';
       }
       app.putInDb(colorArray, artId + '-palette', function () {
-        callback(colorArray);
+        if (callback) {
+          callback(colorArray);
+        }
         console.log('Color palette saved ' + artId);
       });
     };
@@ -368,7 +372,7 @@
     }
     app.playAudio(app.playlist[app.playing].artist, app.playlist[app.playing].title, url, app.playlist[app.playing].cover, app.playlist[app.playing].id);
     if (app.playlist[app.playing].cover) {
-      app.getImageForPlayer(app.playlist[app.playing].cover, function () {});
+      app.getImageForPlayer(app.playlist[app.playing].cover);
     } else {
       app.defaultPlayImage();
     }
@@ -538,7 +542,9 @@
       note = app.$.playNotify;
     art.style.backgroundImage = "url('" + url + "')";
     note.icon = url;
-    callback();
+    if (callback) {
+      app.async(callback);
+    }
   };
 
   app.defaultPlayImage = function () {
@@ -555,9 +561,9 @@
     var audio, button, progress, currentMins, currentSecs, totalMins, totalSecs;
     if (e) {
       if (e.type === 'waiting') {
-        app.waitingToPlay = true;
+        app.waitingToPlay = true;   // spinner on album art shown
       } else if (e.type === 'timeupdate') {
-        app.waitingToPlay = false;
+        app.waitingToPlay = false;   // spinner on album art hidden
       }
       audio = e.srcElement;
     } else {
@@ -577,7 +583,7 @@
 
     if (!audio.paused) {
       button.icon = "av:pause";
-      app.isNowPlaying = true;
+      app.isNowPlaying = true; // shows the now playing button
       if (!audio.duration) {
         app.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
         app.progress = 0;
@@ -586,7 +592,7 @@
         app.progress = progress;
       }
     } else {
-      app.isNowPlaying = false;
+      app.isNowPlaying = false;   // hides the now playing button
       button.icon = "av:play-arrow";
     }
   };
@@ -600,12 +606,10 @@
       box = document.getElementById("box");
 
     if (!visible) {
-      this.async(function () {
-        loader.classList.add('hide');
-        box.classList.add('hide');
-        box.classList.add('hide');
-        app.askAnalistics();
-      });
+      loader.classList.add('hide');
+      box.classList.add('hide');
+      box.classList.add('hide');
+      app.askAnalistics();
     }
   };
 
@@ -619,10 +623,6 @@
     art.style.backgroundSize = width;
   };
 
-  app.askUser = function () {
-    app.$.analistics.open();
-  };
-
   /* request premission for analistics */
   app.askAnalistics = function () {
     chrome.storage.sync.get(function (result) {
@@ -630,7 +630,7 @@
         /** @param {!analytics.Config} config */
         function (config) {
           if (result.analistics === undefined) {
-            app.askUser();
+            app.$.analistics.open();
           } else {
             config.setTrackingPermitted(result.analistics);
             app.analisticsEnabled = result.analistics;
@@ -679,7 +679,7 @@
         app.getDbItem(artId + '-palette', function (ev) {
           obj.palette = ev.target.result;
           app.playlist.push(obj);
-          callback();
+          app.async(callback);
         });
       } else {
         app.getImageFile(img, artId, function (ev) {
@@ -689,19 +689,19 @@
           app.colorThiefHandler(imgURL, artId, function (colorArray) {
             obj.palette = colorArray;
             app.playlist.push(obj);
-            callback();
+            app.async(callback);
           });
         });
       }
     });
   };
 
-  app.setFabColor = function (obj) {
-    if (app.colorThiefEnabled && obj.palette) {
-      app.colorThiefFab = obj.palette[0];
-      app.colorThiefFabOff = obj.palette[1];
-      app.colorThiefBuffered = obj.palette[2];
-      app.colorThiefProgBg = obj.palette[3];
+  app.setFabColor = function (array) {
+    if (app.colorThiefEnabled && array.palette) {
+      app.colorThiefFab = array.palette[0];
+      app.colorThiefFabOff = array.palette[1];
+      app.colorThiefBuffered = array.palette[2];
+      app.colorThiefProgBg = array.palette[3];
     }
   };
 
@@ -762,7 +762,7 @@
       app.bitRate = result.bitRate || 320;
       app.shuffleSize = app.shuffleSize || '50';
       app.version = '1.11.0';
-      app.querySize = 24;
+      app.querySize = 40;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.colorThiefEnabled = true;
@@ -833,6 +833,10 @@
   
     audio.onwaiting = app.playerProgress;
   
+
+    /*
+      when buffering i want the buffering bar up update
+    */
     audio.onstalled = function (e) {
       if (timer) {
         clearInterval(timer);
@@ -842,12 +846,18 @@
       }, 250);
     };
   
+    /*
+      stop the timer as song shoule either be waiting or timeupdating
+    */
     audio.onplay = function (e) {
       if (timer) {
         clearInterval(timer);
       }
     };
   
+    /*
+      when paused i still want the buffering to update
+    */
     audio.onpause = function (e) {
       if (timer) {
         clearInterval(timer);
@@ -918,18 +928,24 @@
 
   app.doSearch = function () {
     if (app.searchQuery) {
-      app.closeDrawer(function () {
-        app.dataLoading = true;
-        var url = app.url + '/rest/search3.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&query=' + encodeURIComponent(app.searchQuery);
-        app.doXhr(url, 'json', function (e) {
-          if (e.target.response['subsonic-response'].status === 'ok') {
-            app.searchQuery = '';
-            var response = e.target.response;
-            app.$.wall.clearData(function () {
-              app.$.wall.response = response;
-              app.showing = app.listMode;
+      app.async(function () {
+        app.closeDrawer(function () {
+          var url = app.url + '/rest/search3.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&query=' + encodeURIComponent(app.searchQuery);
+          app.async(function () {
+            app.doXhr(url, 'json', function (e) {
+              app.dataLoading = true;
+              if (e.target.response['subsonic-response'].status === 'ok') {
+                app.searchQuery = '';
+                var response = e.target.response;
+                app.$.wall.clearData(function () {
+                  app.async(function () {
+                    app.$.wall.response = response;
+                    app.showing = app.listMode;
+                  });
+                });
+              }
             });
-          }
+          });
         });
       });
     } else {
@@ -939,12 +955,16 @@
 
   app.showPlaylist = function () {
     var dialog = app.$.playlistDialog;
-    dialog.toggle();
+    app.async(function () {
+      dialog.toggle();
+    });
   };
 
   app.closePlaylist = function () {
-  var dialog = app.$.playlistDialog;
-    dialog.close();
+    var dialog = app.$.playlistDialog;
+    app.async(function () {
+      dialog.close();
+    });
   };
 
   app.openPlaylists = function () {
@@ -1040,46 +1060,58 @@
   /*jslint unparam: true*/
   app.selectAction = function (event, detail, sender) {
     var wall = app.$.wall;
-    app.dataLoading = true;
-    app.closeDrawer(function () {
-      if (wall.sort === sender.attributes.i.value) {
-        app.pageLimit = false;
-        if (app.queryMethod === 'ID3') {
-          wall.request = 'getAlbumList2';
-        } else {
-          wall.request = 'getAlbumList';
-        }
-        wall.post.type = sender.attributes.i.value;
-        wall.refreshContent();
-        wall.showing = app.listMode;
-        wall.$.threshold.clearLower();
-      }
-      wall.sort = sender.attributes.i.value;
+    app.async(function () {
+      app.closeDrawer(function () {
+        app.async(function () {
+          if (wall.sort === sender.attributes.i.value) {
+            app.pageLimit = false;
+            if (app.queryMethod === 'ID3') {
+              wall.request = 'getAlbumList2';
+            } else {
+              wall.request = 'getAlbumList';
+            }
+            wall.post.type = sender.attributes.i.value;
+            wall.refreshContent();
+            wall.showing = app.listMode;
+            wall.$.threshold.clearLower();
+          }
+          wall.sort = sender.attributes.i.value;
+        }, null, 250);
+      });
     });
   };
   /*jslint unparam: false*/
 
   app.getPodcast = function () {
     var wall = app.$.wall;
-    app.dataLoading = true;
-    app.closeDrawer(function () {
-      wall.getPodcast();
+    app.async(function () {
+      app.closeDrawer(function () {
+        app.async(function () {
+          wall.getPodcast();
+        }, null, 250);
+      });
     });
   };
 
   app.getStarred = function () {
     var wall = app.$.wall;
-    app.dataLoading = true;
-    app.closeDrawer(function () {
-      wall.getStarred();
+    app.async(function () {
+      app.closeDrawer(function () {
+        app.async(function () {
+          wall.getStarred();
+        }, null, 250);
+      });
     });
   };
 
   app.getArtist = function () {
     var wall = app.$.wall;
-    app.dataLoading = true;
-    app.closeDrawer(function () {
-      wall.getArtist();
+    app.async(function () {
+      app.closeDrawer(function () {
+        app.async(function () {
+          wall.getArtist();
+        }, null, 250);
+      });
     });
   };
 
@@ -1146,7 +1178,7 @@
       if (response.status === 'ok') {
         app.serverLicense = response.license;
         app.$.licenseDialog.open();
-        callback();
+        app.async(callback);
       }
     });
   };
@@ -1170,7 +1202,7 @@
   /*
     cast API
   */
-  function onRequestSessionSuccess(e) {
+/*  function onRequestSessionSuccess(e) {
     console.log('request run');
     session = e;
     console.log(e);
@@ -1221,6 +1253,6 @@
     if (request.command == "play") {
       sendResponse({farewell: "Command Sent"});
     }
-  });
+  });*/
 
 }());

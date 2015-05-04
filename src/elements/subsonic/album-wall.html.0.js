@@ -98,7 +98,7 @@ Polymer('album-wall', {
     this.wall = [];
     this.podcast = null;
     this.podcast = [];
-    callback();
+    this.async(callback, null, 50);
   },
   
   buildObject: function (e) {
@@ -133,20 +133,16 @@ Polymer('album-wall', {
         if (response.albumList2 && response.albumList2.album) {
           Array.prototype.forEach.call(response.albumList2.album, function (e) {
             var obj = this.buildObject(e);
-            this.async(function () {
-              this.wall.push(obj);
-            });
+            this.wall.push(obj);
             i = i + 1;
             if (i === response.albumList2.album.length) {
-              callback();
+              this.async(callback);
             }
           }.bind(this));
         } else if (response.albumList && response.albumList.album) {
           Array.prototype.forEach.call(response.albumList.album, function (e) {
             var obj = this.buildObject(e);
-            this.async(function () {
-              this.wall.push(obj);
-            });
+            this.wall.push(obj);
             i = i + 1;
             if (i === response.albumList.album.length) {
               callback();
@@ -160,15 +156,13 @@ Polymer('album-wall', {
             });
             i = i + 1;
             if (i === response.starred2.album.length) {
-              callback();
+              this.async(callback);
             }
           }.bind(this));
         } else if (response.starred && response.starred.album) {
           Array.prototype.forEach.call(response.starred.album, function (e) {
             var obj = this.buildObject(e);
-            this.async(function () {
-              this.wall.push(obj);
-            });
+            this.wall.push(obj);
             i = i + 1;
             if (i === response.starred.album.length) {
               callback();
@@ -177,36 +171,30 @@ Polymer('album-wall', {
         } else if (response.podcasts && response.podcasts.channel) {
           Array.prototype.forEach.call(response.podcasts.channel, function (e) {
             var obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
-            this.async(function () {
-              this.podcast.push(obj);
-            });
+            this.podcast.push(obj);
             i = i + 1;
             if (i === response.podcasts.channel.length) {
-              callback();
+              this.async(callback);
             }
           }.bind(this));
         } else if (response.artists) {
           Array.prototype.forEach.call(response.artists.index, function (e) {
             var obj = {name: e.name, artist: e.artist};
-            this.async(function () {
-              this.artists.push(obj);
-            });
+            this.artists.push(obj);
             i = i + 1;
             if (i === response.artists.index.length) {
-              callback();
+              this.async(callback);
             }
           }.bind(this));
         } else if (response.searchResult3 && response.searchResult3.album) {
           Array.prototype.forEach.call(response.searchResult3.album, function (e) {
             var obj = this.buildObject(e);
-            this.async(function () {
-              if (!this.containsObject(obj, this.wall)) {
-                this.wall.push(obj);
-              }
-            });
+            if (!this.containsObject(obj, this.wall)) {
+              this.wall.push(obj);
+            }
             i = i + 1;
             if (i === response.searchResult3.album.length) {
-              callback();
+              this.async(callback);
             }
           }.bind(this));
         } else {
@@ -245,7 +233,9 @@ Polymer('album-wall', {
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.$.ajax.go();
+      this.async(function () {
+        this.$.ajax.go();
+      });
     }.bind(this));
   },
   
@@ -266,7 +256,9 @@ Polymer('album-wall', {
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.$.ajax.go();
+      this.async(function () {
+        this.$.ajax.go();
+      });
     }.bind(this));
   },
   
@@ -283,7 +275,9 @@ Polymer('album-wall', {
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.$.ajax.go();
+      this.async(function () {
+        this.$.ajax.go();
+      });
     }.bind(this));
   },
   
@@ -304,7 +298,9 @@ Polymer('album-wall', {
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.$.ajax.go();
+      this.async(function () {
+        this.$.ajax.go();
+      });
     }.bind(this));
   },
   
@@ -331,7 +327,7 @@ Polymer('album-wall', {
       this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
       this.async(function () {
         this.$.ajax.go();
-      });
+      }, null, 50);
     }
   },
   
@@ -342,22 +338,24 @@ Polymer('album-wall', {
   
   listModeChanged: function () {
     'use strict';
-    if (this.listMode) {
-      if (this.request !== 'getArtists' && this.request !== 'getPodcasts') {
-        if (this.listMode === 'cover') {
-          this.showing = 'cover';
-        } else {
-          this.showing = 'list';
+    this.async(function () {
+      if (this.listMode) {
+        if (this.request !== 'getArtists' && this.request !== 'getPodcasts') {
+          if (this.listMode === 'cover') {
+            this.showing = 'cover';
+          } else {
+            this.showing = 'list';
+          }
+          this.app.dataLoading = false;
         }
-        this.app.dataLoading = false;
       }
-    }
+    });
   },
   
   getPaletteFromDb: function (id, callback) {
     'use strict';
     this.app.getDbItem(id + '-palette', function (e) {
-      callback(e.target.result);
+      this.async(callback(e.target.result));
     }.bind(this));
   },
 

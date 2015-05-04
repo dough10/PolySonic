@@ -50,17 +50,19 @@ Polymer('album-art', {
   */
   listModeChanged: function () {
     'use strict';
-    if (this.listMode === 'list') {
-      this.page = "small";
-      this.width = '520px';
-      this.height = "75px";
-      this.style.margin = '0px';
-    } else {
-      this.page = "cover";
-      this.width = "250px";
-      this.height = "250px";
-      this.style.margin = '2px';
-    }
+    this.async(function () {
+      if (this.listMode === 'list') {
+        this.page = "small";
+        this.width = '520px';
+        this.height = "75px";
+        this.style.margin = '0px';
+      } else {
+        this.page = "cover";
+        this.width = "250px";
+        this.height = "250px";
+        this.style.margin = '2px';
+      }
+    });
   },
 
   /* error handler for indexeddb calls */
@@ -127,8 +129,9 @@ Polymer('album-art', {
 
   doDialog: function () {
     'use strict';
-    this.app.dataLoading = false;
     this.async(function () {
+      this.app.tracker.sendAppView('Album Details');
+      this.app.dataLoading = false;
       this.closeSlide();
       this.$.detailsDialog.open();
       this.app.$.fab.state = 'mid';
@@ -142,6 +145,7 @@ Polymer('album-art', {
 
   closeDialog: function () {
     'use strict';
+    this.app.tracker.sendAppView('Album Wall');
     this.$.detailsDialog.close();
     this.app.$.fab.state = 'off';
   },
@@ -225,6 +229,7 @@ Polymer('album-art', {
     this.app.doToast(chrome.i18n.getMessage("added2Queue"));
   },
 
+
   playAlbum: function () {
     'use strict';
     this.app.dataLoading = false;
@@ -295,7 +300,7 @@ Polymer('album-art', {
     var artId = "al-" + this.item;
     this.app.getDbItem(artId + '-palette', function (e) {
       this.palette = e.target.result;
-      callback();
+      this.async(callback);
     }.bind(this));
   },
 
@@ -349,7 +354,7 @@ Polymer('album-art', {
       this.playlist.push(obj);
       i = i + 1;
       if (i === this.tracks.length) {
-        callback();
+        this.async(callback);
       }
     }.bind(this));
   },
@@ -363,7 +368,9 @@ Polymer('album-art', {
     this.app.getDbItem(this.item, function (event) {
       if (event.target.result) {
         this.trackResponse = event.target.result;
-        this.processJSON(callback);
+        this.async(function () {
+          this.processJSON(callback);
+        });
       } else {
         var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.item;
         /*
@@ -375,7 +382,9 @@ Polymer('album-art', {
             place json in indexeddb
           */
           this.app.putInDb(this.trackResponse, this.item, function () {
-            this.processJSON(callback);
+            this.async(function () {
+              this.processJSON(callback);
+            });
             console.log('JSON Data Added to indexedDB ' + this.item);
           }.bind(this));
         }.bind(this));
@@ -385,30 +394,30 @@ Polymer('album-art', {
 
   itemChanged: function () {
     'use strict';
-    var artId = "al-" + this.item,
-      url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
-    if (this.item) {
-      this.isLoading = true;
-      this.defaultArt();
-      this.playlist = null;
-      this.playlist = [];
-      this.app.getDbItem(artId, function (e) {
-        if (e.target.result) {
-          this.setImage(e);
-        } else {
-          /*
-            get image from subsonic server
-          */
-          this.app.getImageFile(url, artId, function (event) {
-            this.setImage(event, function (imgURL) {
-              this.async(function () {
-                this.app.colorThiefHandler(imgURL, artId, function (colorArray) {});
-              });
+    this.async(function () {
+      var artId = "al-" + this.item,
+        url = this.url + "/rest/getCoverArt.view?u=" + this.user + "&p=" + this.pass + "&v=" + this.version + "&c=PolySonic&size=550&id=" + artId;
+      if (this.item) {
+        this.isLoading = true;
+        this.defaultArt();
+        this.playlist = null;
+        this.playlist = [];
+        this.app.getDbItem(artId, function (e) {
+          if (e.target.result) {
+            this.setImage(e);
+          } else {
+            /*
+              get image from subsonic server
+            */
+            this.app.getImageFile(url, artId, function (event) {
+              this.setImage(event, function (imgURL) {
+                this.app.colorThiefHandler(imgURL, artId);
+              }.bind(this));
             }.bind(this));
-          }.bind(this));
-        }
-      }.bind(this));
-    }
+          }
+        }.bind(this));
+      }
+    });
   },
 
   /*
