@@ -746,6 +746,7 @@
   app.closePlaylistSaver = function () {
     app.$.createPlaylist.close();
   };
+  
 
   /*
     load data
@@ -1046,15 +1047,15 @@
   };
 
   app.back2List = function () {
-    app.dataLoading = true;
-    app.page = 0;
-    app.dataLoading = false;
+    app.async(function () {
+      app.page = 0;
+    });
   };
 
   app.nowPlaying = function () {
-    app.dataLoading = true;
-    app.page = 1;
-    app.dataLoading = false;
+    app.async(function () {
+      app.page = 1;
+    });
   };
 
   /*jslint unparam: true*/
