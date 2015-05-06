@@ -938,12 +938,19 @@
               if (e.target.response['subsonic-response'].status === 'ok') {
                 app.searchQuery = '';
                 var response = e.target.response;
-                app.$.wall.clearData(function () {
+                if (response['subsonic-response'].searchResult3.album) {
                   app.async(function () {
-                    app.$.wall.response = response;
-                    app.showing = app.listMode;
+                    app.$.wall.clearData(function () {
+                      app.async(function () {
+                        app.$.wall.response = response;
+                        app.showing = app.listMode;
+                      });
+                    });
                   });
-                });
+                } else {
+                  app.dataLoading = false;
+                  app.doToast(chrome.i18n.getMessage('noResults'));
+                }
               }
             });
           });

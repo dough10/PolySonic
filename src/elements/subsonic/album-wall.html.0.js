@@ -87,18 +87,20 @@ Polymer('album-wall', {
   
   clearData: function (callback) {
     'use strict';
-    this.isLoading = true;
-    this.app.dataLoading = true;
-    if (this.scrollTarget) {
-      this.scrollTarget.scrollTop = 0;
-    }
-    this.artists = null;
-    this.artists = [];
-    this.wall = null;
-    this.wall = [];
-    this.podcast = null;
-    this.podcast = [];
-    this.async(callback, null, 50);
+    this.async(function () {
+      this.isLoading = true;
+      this.app.dataLoading = true;
+      if (this.scrollTarget) {
+        this.scrollTarget.scrollTop = 0;
+      }
+      this.artists = null;
+      this.artists = [];
+      this.wall = null;
+      this.wall = [];
+      this.podcast = null;
+      this.podcast = [];
+      this.async(callback);
+    });
   },
   
   buildObject: function (e) {
@@ -124,87 +126,89 @@ Polymer('album-wall', {
       }.bind(this),
       i = 0,
       response;
-    if (this.response) {
-      response = this.response['subsonic-response'];
-      if (response.status === 'failed') {
-        console.log(response.error.message);
-        this.app.doToast(response.error.message);
-      } else {
-        if (response.albumList2 && response.albumList2.album) {
-          Array.prototype.forEach.call(response.albumList2.album, function (e) {
-            var obj = this.buildObject(e);
-            this.wall.push(obj);
-            i = i + 1;
-            if (i === response.albumList2.album.length) {
-              this.async(callback);
-            }
-          }.bind(this));
-        } else if (response.albumList && response.albumList.album) {
-          Array.prototype.forEach.call(response.albumList.album, function (e) {
-            var obj = this.buildObject(e);
-            this.wall.push(obj);
-            i = i + 1;
-            if (i === response.albumList.album.length) {
-              callback();
-            }
-          }.bind(this));
-        } else if (response.starred2 && response.starred2.album) {
-          Array.prototype.forEach.call(response.starred2.album, function (e) {
-            var obj = this.buildObject(e);
-            this.async(function () {
-              this.wall.push(obj);
-            });
-            i = i + 1;
-            if (i === response.starred2.album.length) {
-              this.async(callback);
-            }
-          }.bind(this));
-        } else if (response.starred && response.starred.album) {
-          Array.prototype.forEach.call(response.starred.album, function (e) {
-            var obj = this.buildObject(e);
-            this.wall.push(obj);
-            i = i + 1;
-            if (i === response.starred.album.length) {
-              callback();
-            }
-          }.bind(this));
-        } else if (response.podcasts && response.podcasts.channel) {
-          Array.prototype.forEach.call(response.podcasts.channel, function (e) {
-            var obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
-            this.podcast.push(obj);
-            i = i + 1;
-            if (i === response.podcasts.channel.length) {
-              this.async(callback);
-            }
-          }.bind(this));
-        } else if (response.artists) {
-          Array.prototype.forEach.call(response.artists.index, function (e) {
-            var obj = {name: e.name, artist: e.artist};
-            this.artists.push(obj);
-            i = i + 1;
-            if (i === response.artists.index.length) {
-              this.async(callback);
-            }
-          }.bind(this));
-        } else if (response.searchResult3 && response.searchResult3.album) {
-          Array.prototype.forEach.call(response.searchResult3.album, function (e) {
-            var obj = this.buildObject(e);
-            if (!this.containsObject(obj, this.wall)) {
-              this.wall.push(obj);
-            }
-            i = i + 1;
-            if (i === response.searchResult3.album.length) {
-              this.async(callback);
-            }
-          }.bind(this));
+    this.async(function () {
+      if (this.response) {
+        response = this.response['subsonic-response'];
+        if (response.status === 'failed') {
+          console.log(response.error.message);
+          this.app.doToast(response.error.message);
         } else {
-          this.app.pageLimit = true;
-        }
-        if (!this.isLoading && !this.wall[0]) {
-          this.app.dataLoading = false;
+          if (response.albumList2 && response.albumList2.album) {
+            Array.prototype.forEach.call(response.albumList2.album, function (e) {
+              var obj = this.buildObject(e);
+              this.wall.push(obj);
+              i = i + 1;
+              if (i === response.albumList2.album.length) {
+                this.async(callback);
+              }
+            }.bind(this));
+          } else if (response.albumList && response.albumList.album) {
+            Array.prototype.forEach.call(response.albumList.album, function (e) {
+              var obj = this.buildObject(e);
+              this.wall.push(obj);
+              i = i + 1;
+              if (i === response.albumList.album.length) {
+                callback();
+              }
+            }.bind(this));
+          } else if (response.starred2 && response.starred2.album) {
+            Array.prototype.forEach.call(response.starred2.album, function (e) {
+              var obj = this.buildObject(e);
+              this.async(function () {
+                this.wall.push(obj);
+              });
+              i = i + 1;
+              if (i === response.starred2.album.length) {
+                this.async(callback);
+              }
+            }.bind(this));
+          } else if (response.starred && response.starred.album) {
+            Array.prototype.forEach.call(response.starred.album, function (e) {
+              var obj = this.buildObject(e);
+              this.wall.push(obj);
+              i = i + 1;
+              if (i === response.starred.album.length) {
+                callback();
+              }
+            }.bind(this));
+          } else if (response.podcasts && response.podcasts.channel) {
+            Array.prototype.forEach.call(response.podcasts.channel, function (e) {
+              var obj = {title: e.title, episode: e.episode, id: e.id, status: e.status};
+              this.podcast.push(obj);
+              i = i + 1;
+              if (i === response.podcasts.channel.length) {
+                this.async(callback);
+              }
+            }.bind(this));
+          } else if (response.artists) {
+            Array.prototype.forEach.call(response.artists.index, function (e) {
+              var obj = {name: e.name, artist: e.artist};
+              this.artists.push(obj);
+              i = i + 1;
+              if (i === response.artists.index.length) {
+                this.async(callback);
+              }
+            }.bind(this));
+          } else if (response.searchResult3 && response.searchResult3.album) {
+            Array.prototype.forEach.call(response.searchResult3.album, function (e) {
+              var obj = this.buildObject(e);
+              if (!this.containsObject(obj, this.wall)) {
+                this.wall.push(obj);
+              }
+              i = i + 1;
+              if (i === response.searchResult3.album.length) {
+                this.async(callback);
+              }
+            }.bind(this));
+          } else {
+            this.app.pageLimit = true;
+          }
+          if (!this.isLoading && !this.wall[0]) {
+            this.app.dataLoading = false;
+          }
         }
       }
-    }
+    });
   },
   
   artistDetails: function (event, detail, sender) {
@@ -223,11 +227,11 @@ Polymer('album-wall', {
   getPodcast: function () {
     'use strict';
     this.clearData(function () {
+      this.showing = 'podcast';
       this.app.pageLimit = false;
       this.request = 'getPodcasts';
       this.post.type = '';
       this.post.offset = 0;
-      this.showing = 'podcast';
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
@@ -242,6 +246,7 @@ Polymer('album-wall', {
   getStarred: function () {
     'use strict';
     this.clearData(function () {
+      this.showing = this.listMode;
       this.app.pageLimit = false;
       if (this.queryMethod === 'ID3') {
         this.request = 'getStarred2';
@@ -250,7 +255,6 @@ Polymer('album-wall', {
       }
       this.post.type = '';
       this.post.offset = 0;
-      this.showing = this.listMode;
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
@@ -265,11 +269,11 @@ Polymer('album-wall', {
   getArtist: function () {
     'use strict';
     this.clearData(function () {
+      this.showing = 'artists';
       this.app.pageLimit = false;
       this.request = 'getArtists';
       this.post.type = '';
       this.post.offset = 0;
-      this.showing = 'artists';
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
@@ -284,6 +288,7 @@ Polymer('album-wall', {
   sortChanged: function () {
     'use strict';
     this.clearData(function () {
+      this.showing = this.listMode;
       this.app.pageLimit = false;
       if (this.queryMethod === 'ID3') {
         this.request = 'getAlbumList2';
@@ -292,7 +297,6 @@ Polymer('album-wall', {
       }
       this.post.type = this.sort;
       this.post.offset = 0;
-      this.showing = this.listMode;
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
@@ -327,7 +331,7 @@ Polymer('album-wall', {
       this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
       this.async(function () {
         this.$.ajax.go();
-      }, null, 50);
+      });
     }
   },
   
@@ -580,7 +584,7 @@ Polymer('album-wall', {
   
   containsObject: function (obj, list) {
     var i;
-    for (i = 0; i < list.length; i++) {
+    for (i = 0; i < list.length; i = i + 1) {
       if (list[i].id === obj.id) {
         return true;
       }

@@ -130,12 +130,12 @@ Polymer('album-art', {
   doDialog: function () {
     'use strict';
     this.async(function () {
-      this.app.tracker.sendAppView('Album Details');
-      this.app.dataLoading = false;
       this.closeSlide();
       this.$.detailsDialog.open();
       this.app.$.fab.state = 'mid';
       this.app.$.fab.ident = this.id;
+      this.app.dataLoading = false;
+      this.app.tracker.sendAppView('Album Details');
       if (this.colorThiefEnabled && this.playlist[0].palette) {
         this.app.colorThiefAlbum = this.playlist[0].palette[0];
         this.app.colorThiefAlbumOff = this.playlist[0].palette[1];
@@ -346,22 +346,23 @@ Polymer('album-art', {
         return da - db;
       }
     });
-    Array.prototype.forEach.call(this.tracks, function (e) {
-      var mins = Math.floor(e.duration / 60),
-        seconds = Math.floor(e.duration - (mins * 60)),
-        timeString = mins + ':' + ('0' + seconds).slice(-2),
-        obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
-      this.playlist.push(obj);
-      i = i + 1;
-      if (i === this.tracks.length) {
-        this.async(callback);
-      }
-    }.bind(this));
+    this.async(function () {
+      Array.prototype.forEach.call(this.tracks, function (e) {
+        var mins = Math.floor(e.duration / 60),
+          seconds = Math.floor(e.duration - (mins * 60)),
+          timeString = mins + ':' + ('0' + seconds).slice(-2),
+          obj = {id: e.id, artist: e.artist, title: e.title, duration: timeString, cover: this.imgURL, palette: this.palette, disk: e.diskNumber, track: e.track};
+        this.playlist.push(obj);
+        i = i + 1;
+        if (i === this.tracks.length) {
+          this.async(callback);
+        }
+      }.bind(this));
+    });
   },
   
   doQuery: function (callback) {
     'use strict';
-    this.queryingJSON = true;
     /*
       check indexeddb
     */
@@ -376,18 +377,22 @@ Polymer('album-art', {
         /*
           get the data from subsonic server
         */
-        this.app.doXhr(url, 'json', function (e) {
-          this.trackResponse = e.target.response;
-          /*
-            place json in indexeddb
-          */
-          this.app.putInDb(this.trackResponse, this.item, function () {
+        this.async(function () {
+          this.app.doXhr(url, 'json', function (e) {
+            this.trackResponse = e.target.response;
+            /*
+              place json in indexeddb
+            */
             this.async(function () {
-              this.processJSON(callback);
+              this.app.putInDb(this.trackResponse, this.item, function () {
+                this.async(function () {
+                  this.processJSON(callback);
+                });
+                console.log('JSON Data Added to indexedDB ' + this.item);
+              }.bind(this));
             });
-            console.log('JSON Data Added to indexedDB ' + this.item);
           }.bind(this));
-        }.bind(this));
+        });
       }
     }.bind(this));
   },
@@ -411,7 +416,9 @@ Polymer('album-art', {
             */
             this.app.getImageFile(url, artId, function (event) {
               this.setImage(event, function (imgURL) {
-                this.app.colorThiefHandler(imgURL, artId);
+                this.async(function () {
+                  this.app.colorThiefHandler(imgURL, artId);
+                });
               }.bind(this));
             }.bind(this));
           }
@@ -465,7 +472,7 @@ Polymer('album-art', {
                 imgURL = window.URL.createObjectURL(imgFile);
               // got the image as imgURL
               obj.cover = imgURL;
-              /* get palette if in db */
+              /* get palette from db */
               this.app.getDbItem(artId + '-palette', function (e) {
                 obj.palette = e.target.result;
                 this.app.playlist.push(obj);
@@ -476,7 +483,7 @@ Polymer('album-art', {
               }.bind(this));
             } else {
               /*
-                get image from subsonic server
+                get image from subsonic server and save in db
               */
               this.app.getImageFile(url2, artId, function (event) {
                 var imgFile = event.target.result,
@@ -486,7 +493,7 @@ Polymer('album-art', {
                 obj.cover = imgURL;
 
                 /*
-                  get dominant color from image
+                  put palette in db
                 */
                 this.app.colorThiefHandler(imgURL, artId, function (colorArray) {
                   obj.palette = colorArray;
