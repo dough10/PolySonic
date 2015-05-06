@@ -126,8 +126,8 @@ Polymer('album-wall', {
       }.bind(this),
       i = 0,
       response;
-    this.async(function () {
-      if (this.response) {
+    if (this.response) {
+      this.async(function () {
         response = this.response['subsonic-response'];
         if (response.status === 'failed') {
           console.log(response.error.message);
@@ -148,15 +148,13 @@ Polymer('album-wall', {
               this.wall.push(obj);
               i = i + 1;
               if (i === response.albumList.album.length) {
-                callback();
+               this.async(callback);
               }
             }.bind(this));
           } else if (response.starred2 && response.starred2.album) {
             Array.prototype.forEach.call(response.starred2.album, function (e) {
               var obj = this.buildObject(e);
-              this.async(function () {
-                this.wall.push(obj);
-              });
+              this.wall.push(obj);
               i = i + 1;
               if (i === response.starred2.album.length) {
                 this.async(callback);
@@ -181,6 +179,7 @@ Polymer('album-wall', {
               }
             }.bind(this));
           } else if (response.artists) {
+            this.artists = [];
             Array.prototype.forEach.call(response.artists.index, function (e) {
               var obj = {name: e.name, artist: e.artist};
               this.artists.push(obj);
@@ -207,8 +206,8 @@ Polymer('album-wall', {
             this.app.dataLoading = false;
           }
         }
-      }
-    });
+      });
+    }
   },
   
   artistDetails: function (event, detail, sender) {
@@ -565,7 +564,7 @@ Polymer('album-wall', {
   playSomething: function (id, callback) {
     'use strict';
     var album = this.$.all.querySelector('#' + id);
-    album.doPlayback();
+    album.playAlbum();
     callback();
   },
   

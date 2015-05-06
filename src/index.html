@@ -142,14 +142,14 @@
             <template if="{{page === 0}}">
               <paper-icon-button icon="menu" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
               <div flex  class="bottom alignLeft">{{appName}}</div>
-              <core-tooltip label="Change View" class="bottom">
+              <!--<core-tooltip label="Change View" class="bottom">
                 <template if="{{showing === 'cover'}}">
                   <paper-icon-button on-tap="{{toggleWall}}" disabled?="{{dataLoading || shuffleLoading}}" icon="view-stream"></paper-icon-button>
                 </template>
                 <template if="{{showing === 'list'}}">
                   <paper-icon-button on-tap="{{toggleWall}}" disabled?="{{dataLoading || shuffleLoading}}" icon="view-module"></paper-icon-button>
                 </template>
-              </core-tooltip>
+              </core-tooltip>-->
               <template if="{{showing === 'podcast'}}">
                 <core-tooltip label="{{refreshPodcastLabel}}" class="bottom">
                   <paper-icon-button on-tap="{{refreshPodcast}}" disabled?="{{dataLoading || shuffleLoading}}" icon="autorenew"></paper-icon-button>
@@ -174,7 +174,7 @@
             <template if="{{page === 0 && showing === 'artists'}}">
               <paper-menu-button class="bottom" disabled?="{{dataLoading || shuffleLoading}}">
                 <core-tooltip label="{{jumpToLabel}}">
-                  <paper-icon-button icon="arrow-drop-down"></paper-icon-button>
+                  <paper-icon-button disabled?="{{dataLoading || shuffleLoading}}" icon="arrow-drop-down"></paper-icon-button>
                 </core-tooltip>
                 <paper-dropdown class="dropdown" halign="right">
                   <core-menu class="menu">

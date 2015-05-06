@@ -132,14 +132,14 @@ Polymer('album-art', {
     this.async(function () {
       this.closeSlide();
       this.$.detailsDialog.open();
-      this.app.$.fab.state = 'mid';
-      this.app.$.fab.ident = this.id;
       this.app.dataLoading = false;
       this.app.tracker.sendAppView('Album Details');
       if (this.colorThiefEnabled && this.playlist[0].palette) {
         this.app.colorThiefAlbum = this.playlist[0].palette[0];
         this.app.colorThiefAlbumOff = this.playlist[0].palette[1];
       }
+      this.app.$.fab.state = 'mid';
+      this.app.$.fab.ident = this.id;
     });
   },
 
@@ -366,35 +366,37 @@ Polymer('album-art', {
     /*
       check indexeddb
     */
-    this.app.getDbItem(this.item, function (event) {
-      if (event.target.result) {
-        this.trackResponse = event.target.result;
-        this.async(function () {
-          this.processJSON(callback);
-        });
-      } else {
-        var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.item;
-        /*
-          get the data from subsonic server
-        */
-        this.async(function () {
-          this.app.doXhr(url, 'json', function (e) {
-            this.trackResponse = e.target.response;
-            /*
-              place json in indexeddb
-            */
-            this.async(function () {
-              this.app.putInDb(this.trackResponse, this.item, function () {
-                this.async(function () {
-                  this.processJSON(callback);
-                });
-                console.log('JSON Data Added to indexedDB ' + this.item);
-              }.bind(this));
-            });
-          }.bind(this));
-        });
-      }
-    }.bind(this));
+    this.async(function () {
+      this.app.getDbItem(this.item, function (event) {
+        if (event.target.result) {
+          this.trackResponse = event.target.result;
+          this.async(function () {
+            this.processJSON(callback);
+          });
+        } else {
+          var url = this.url + "/rest/getAlbum.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.item;
+          /*
+            get the data from subsonic server
+          */
+          this.async(function () {
+            this.app.doXhr(url, 'json', function (e) {
+              this.trackResponse = e.target.response;
+              /*
+                place json in indexeddb
+              */
+              this.async(function () {
+                this.app.putInDb(this.trackResponse, this.item, function () {
+                  this.async(function () {
+                    this.processJSON(callback);
+                  });
+                  console.log('JSON Data Added to indexedDB ' + this.item);
+                }.bind(this));
+              });
+            }.bind(this));
+          });
+        }
+      }.bind(this));
+    });
   },
 
   itemChanged: function () {

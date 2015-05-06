@@ -759,7 +759,8 @@
       app.url = result.url;
       app.user = result.user;
       app.pass = result.pass;
-      app.listMode = result.listMode || 'cover';
+      /*app.listMode = result.listMode || 'cover';*/
+      app.listMode = 'cover';
       app.bitRate = result.bitRate || 320;
       app.shuffleSize = app.shuffleSize || '50';
       app.version = '1.11.0';
@@ -1181,13 +1182,15 @@
 
   app.getLicense = function (callback) {
     var url = app.url + "/rest/getLicense.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic";
-    app.doXhr(url, 'json', function (e) {
-      var response = e.target.response['subsonic-response'];
-      if (response.status === 'ok') {
-        app.serverLicense = response.license;
-        app.$.licenseDialog.open();
-        app.async(callback);
-      }
+    app.async(function () {
+      app.doXhr(url, 'json', function (e) {
+        var response = e.target.response['subsonic-response'];
+        if (response.status === 'ok') {
+          app.serverLicense = response.license;
+          app.$.licenseDialog.open();
+          app.async(callback);
+        }
+      });
     });
   };
 
@@ -1197,13 +1200,15 @@
 
   app.userDetails = function () {
     var url = app.url + "/rest/getUser.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic&username=" + app.user;
-    app.doXhr(url, 'json', function (e) {
-      var response = e.target.response['subsonic-response'];
-      if (response.status === 'ok') {
-        app.activeUser = response.user;
-      } else {
-        console.error('Error getting User details');
-      }
+    app.async(function () {
+      app.doXhr(url, 'json', function (e) {
+        var response = e.target.response['subsonic-response'];
+        if (response.status === 'ok') {
+          app.activeUser = response.user;
+        } else {
+          console.error('Error getting User details');
+        }
+      });
     });
   };
   
