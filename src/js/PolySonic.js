@@ -576,7 +576,7 @@
     totalMins = Math.floor(audio.duration / 60);
     totalSecs = Math.floor(audio.duration - (totalMins * 60));
     if (audio.duration) {
-      app.buffer = (audio.buffered.end(0) / audio.duration) * 100;
+      app.buffer = Math.floor((audio.buffered.end(0) / audio.duration) * 100);
     } else {
       app.buffer = 0;
     }
@@ -764,7 +764,7 @@
       app.bitRate = result.bitRate || 320;
       app.shuffleSize = app.shuffleSize || '50';
       app.version = '1.11.0';
-      app.querySize = 40;
+      app.querySize = 30;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.colorThiefEnabled = true;
@@ -1085,7 +1085,7 @@
             wall.$.threshold.clearLower();
           }
           wall.sort = sender.attributes.i.value;
-        }, null, 250);
+        });
       });
     });
   };
@@ -1097,7 +1097,7 @@
       app.closeDrawer(function () {
         app.async(function () {
           wall.getPodcast();
-        }, null, 250);
+        });
       });
     });
   };
@@ -1108,7 +1108,7 @@
       app.closeDrawer(function () {
         app.async(function () {
           wall.getStarred();
-        }, null, 250);
+        });
       });
     });
   };
@@ -1119,7 +1119,7 @@
       app.closeDrawer(function () {
         app.async(function () {
           wall.getArtist();
-        }, null, 250);
+        });
       });
     });
   };

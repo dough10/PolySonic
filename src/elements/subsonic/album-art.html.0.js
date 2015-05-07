@@ -130,14 +130,14 @@ Polymer('album-art', {
   doDialog: function () {
     'use strict';
     this.async(function () {
-      this.closeSlide();
-      this.$.detailsDialog.open();
       this.app.dataLoading = false;
       this.app.tracker.sendAppView('Album Details');
       if (this.colorThiefEnabled && this.playlist[0].palette) {
         this.app.colorThiefAlbum = this.playlist[0].palette[0];
         this.app.colorThiefAlbumOff = this.playlist[0].palette[1];
       }
+      this.closeSlide();
+      this.$.detailsDialog.open();
       this.app.$.fab.state = 'mid';
       this.app.$.fab.ident = this.id;
     });
@@ -409,22 +409,26 @@ Polymer('album-art', {
         this.defaultArt();
         this.playlist = null;
         this.playlist = [];
-        this.app.getDbItem(artId, function (e) {
-          if (e.target.result) {
-            this.setImage(e);
-          } else {
-            /*
-              get image from subsonic server
-            */
-            this.app.getImageFile(url, artId, function (event) {
-              this.setImage(event, function (imgURL) {
-                this.async(function () {
-                  this.app.colorThiefHandler(imgURL, artId);
-                });
-              }.bind(this));
-            }.bind(this));
-          }
-        }.bind(this));
+        this.async(function () {
+          this.app.getDbItem(artId, function (e) {
+            if (e.target.result) {
+              this.setImage(e);
+            } else {
+              /*
+                get image from subsonic server
+              */
+              this.async(function () {
+                this.app.getImageFile(url, artId, function (event) {
+                  this.setImage(event, function (imgURL) {
+                    this.async(function () {
+                      this.app.colorThiefHandler(imgURL, artId);
+                    });
+                  }.bind(this));
+                }.bind(this));
+              });
+            }
+          }.bind(this));
+        });
       }
     });
   },
