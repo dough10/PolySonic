@@ -115,9 +115,8 @@ paper-progress::shadow #secondaryProgress {
   position: absolute;
   bottom:0;
   right:0;
-  top: 78px;
+  top: 40px;
   left: 0;
-  height:100%;
   background: #e5e5e5;
   display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
   display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
@@ -255,4 +254,25 @@ core-menu core-icon {
   position:fixed;
   right:8px;
   z-index:2;
+}
+.search-box /deep/ .floated-label .label-text {
+  color:#ffffff;
+  background:#ffffff;
+}
+.search-box /deep/ .focused-underline {
+  background-color: #ffffff;
+}
+core-tooltip::shadow .core-tooltip {
+  opacity: 0;
+  -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+  transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+  -webkit-transform: translate3d(0, -10px, 0);
+  transform: translate3d(0, -10px, 0);
+}
+
+core-tooltip:hover::shadow .core-tooltip,
+core-tooltip:focus::shadow .core-tooltip {
+  opacity: 1;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }

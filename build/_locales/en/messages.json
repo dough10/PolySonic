@@ -159,6 +159,9 @@
    "playButton": {
     "message": "Play"
   },
+  "playPodcast": {
+    "message": "Play Podcast"
+  },
   "yearError": {
     "message": "Please enter a valid year"
   },
@@ -173,6 +176,9 @@
   },
   "deleteError": {
     "message": "Error Deleting"
+  },
+  "backButton": {
+    "message": "Back"
   },
   "noResults": {
     "message": "No results"
@@ -204,6 +210,9 @@
   "volumeLabel": {
     "message": "Volume"
   },
+  "adjustVolumeLabel": {
+    "message": "Adjust Volume"
+  },
   "diskUsed": {
     "message": "Disk Used"
   },
@@ -215,6 +224,9 @@
   },
   "playlistError": {
     "message": "Error Creating Playlist"
+  },
+  "playTrack": {
+    "message": "Play Track"
   },
   "createPlaylistLabel": {
     "message": "Save Queue as Playlist"
@@ -233,5 +245,47 @@
   },
   "recommendReload": {
     "message": "It is recommended to reload after clearing cache"
+  },
+  "nowPlayingLabel": {
+    "message": "Now Playing"
+  },
+  "jumpToLabel": {
+    "message": "Jump To"
+  },
+  "closeLabel": {
+    "message": "Close"
+  },
+  "moreOptionsLabel": {
+    "message": "More Options"
+  },
+  "refreshPodcast": {
+    "message": "Refresh Podcast"
+  },
+  "registeredEmail": {
+    "message": "Registered Email"
+  },
+  "licenseKey": {
+    "message": "License Key"
+  },
+  "keyDate": {
+    "message": "Key Date"
+  },
+  "validLicense": {
+    "message": "License Valid"
+  },
+  "invalidLicense": {
+    "message": "License Invalid"
+  },
+  "licenseInfoLink": {
+    "message": "Subsonic License Info"
+  },
+  "showLicenseLabel": {
+    "message": "Show License"
+  },
+  "addPodcastLabel": {
+    "message": "Add Podcast"
+  },
+  "moreLikeThis": {
+    "message": "Play More Like This"
   }
 }

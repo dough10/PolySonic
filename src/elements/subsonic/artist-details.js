@@ -10,17 +10,23 @@ Polymer('artist-details', {
     this.tmpl.page = 3;
     this.data = null;
     this.data = [];
-    var url = this.url + "/rest/getArtist.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.artistId;
-    this.tmpl.doXhr(url, 'json', function (event) {
-      var response = event.target.response['subsonic-response'];
-      Array.prototype.forEach.call(response.artist.album, function (e) {
-        var obj = {name: e.name, artist: e.artist, coverArt: e.coverArt, id: e.id, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, listMode: this.listMode, bitRate: this.bitRate, colorThiefEnabled: this.colorThiefEnabled};
-        this.data.push(obj);
+    var url = this.url + "/rest/getArtist.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.artistId,
+      i = 0;
+    this.async(function () {
+      this.tmpl.doXhr(url, 'json', function (event) {
+        var response = event.target.response['subsonic-response'];
         this.async(function () {
-          this.tmpl.dataLoading = false;
+          Array.prototype.forEach.call(response.artist.album, function (e) {
+            var obj = {name: e.name, artist: e.artist, coverArt: e.coverArt, id: e.id, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, listMode: this.listMode, bitRate: this.bitRate, colorThiefEnabled: this.colorThiefEnabled};
+            this.data.push(obj);
+            i = i + 1;
+            if (i === response.artist.album.length) {
+              this.tmpl.dataLoading = false;
+            }
+          }.bind(this));
         });
       }.bind(this));
-    }.bind(this));
+    });
   },
   playSomething: function (id, callback) {
     var album = this.$.all.querySelector('#' + id);

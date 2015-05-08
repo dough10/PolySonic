@@ -7,6 +7,7 @@
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/core-scroll-threshold/core-scroll-threshold.html" rel="import">
 <link href="../../bower_components/core-animation/core-animation.html" rel="import">
+<link href="../../bower_components/core-tooltip/core-tooltip.html" rel="import">
 </head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize isLoading showing queryMethod mediaFolder request post colorThiefEnabled artists">
   <template>
     <style>
@@ -53,9 +54,23 @@
       .black::shadow .circle {
         border-color: #000;
       }
+      core-tooltip::shadow .core-tooltip {
+        opacity: 0;
+        -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+        transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+        -webkit-transform: translate3d(0, -10px, 0);
+        transform: translate3d(0, -10px, 0);
+      }
+      
+      core-tooltip:hover::shadow .core-tooltip,
+      core-tooltip:focus::shadow .core-tooltip {
+        opacity: 1;
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+      }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
-    <core-scroll-threshold id="threshold" lowerThreshold="1500" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
+    <core-scroll-threshold id="threshold" lowerThreshold="1000" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
     <div id="all">
       <core-animated-pages selected="{{showing}}" valueattr="view">
@@ -124,7 +139,7 @@
                     <div flex class="heading">
                       {{model.title}}
                       <template if="{{model.status === 'downloading' && model.title === undefined}}">
-                        <paper-spinner class="black" active title="Downloading"></paper-spinner>
+                        <paper-spinner class="black" active></paper-spinner>
                       </template>
                     </div>
                     <paper-menu-button>
@@ -146,8 +161,12 @@
                           {{title}}
                         </div>
                         <template if="{{status === 'completed'}}">
-                          <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" title="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
-                          <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" title="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
+                          <core-tooltip label="{{labels.playPodcastLabel}}" position="left">
+                            <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
+                          </core-tooltip>
+                          <core-tooltip label="{{labels.add2PlayQueue}}" position="left">
+                            <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
+                          </core-tooltip>
                           <paper-icon-button on-tap="{{toggleCollapse}}" icon="more-vert" ident="collapse{{id}}"></paper-icon-button>
                         </template>
                         <template if="{{status === 'downloading'}}">
@@ -169,7 +188,9 @@
                         <div flex class="title">
                           {{title}}
                         </div>
-                        <paper-icon-button on-tap="{{downloadEpisode}}" icon="file-download" title="{{title}}" ident="{{id}}"></paper-icon-button>
+                        <core-tooltip label="{{downloadButton}}" position="left">
+                          <paper-icon-button on-tap="{{downloadEpisode}}" icon="file-download" ident="{{id}}"></paper-icon-button>
+                        </core-tooltip>
                       </core-item>
                     </template>
                   </template>
@@ -206,7 +227,6 @@
               </div>
             </template>
           </core-list>
-          <div class="foot"></div>
         </div>
       </core-animated-pages>
     </div>

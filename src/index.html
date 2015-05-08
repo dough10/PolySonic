@@ -31,9 +31,6 @@
 
     <!-- begin databindings -->
     <template is="auto-binding" id="tmpl">
-      
-      <!-- global functions and variables -->
-      <!--<app-globals id="global"></app-globals>-->
 
       <style>
         paper-progress::shadow #progressContainer {
@@ -60,11 +57,19 @@
       <core-drawer-panel id="panel" narrow="{{narrow}}" forceNarrow disableSwipe?="{{page !== 0}}">
 
         <!-- menu -->
-        <core-scroll-header-panel drawer flex mode="seamed">
+        <core-header-panel drawer flex mode="waterfall">
+          <core-toolbar class="medium-tall">
+            <div class="sysbar" horizontal layout></div>
+            <div class="bottom" horizontal layout>
+              <div flex style="text-align: center;">
+                <paper-input class="search-box" label="Search" value="{{searchQuery}}" style="width: 175px;"></paper-input>
+              </div>
+              <div>
+                <paper-icon-button on-tap="{{doSearch}}" title="Search" disabled?="{{dataLoading || shuffleLoading}}" icon="search"></paper-icon-button>
+              </div>
+            </div>
+          </core-toolbar>
           <core-menu id="menu" selected="{{selected}}" valueattr="i">
-            <core-toolbar class="medium-tall">
-              <div class="sysbar" horizontal layout></div>
-            </core-toolbar>
             <div id="sortBox">
               <core-label>
                 {{folderSelector}}:
@@ -98,23 +103,27 @@
                 {{name}}
               </paper-item>
             </template>
-            <paper-item on-tap="{{getPodcast}}">
-              <core-icon icon="av:album"></core-icon>
-              {{podcastButton}}
-            </paper-item>
-            <paper-item on-tap="{{openPlaylists}}">
-              <core-icon icon="av:queue-music"></core-icon>
-              {{playlistsButton}}
-            </paper-item>
+            <template if="{{activeUser.podcastRole}}">
+              <paper-item on-tap="{{getPodcast}}">
+                <core-icon icon="av:album"></core-icon>
+                {{podcastButton}}
+              </paper-item>
+            </template>
+            <template if="{{activeUser.playlistRole}}">
+              <paper-item on-tap="{{openPlaylists}}">
+                <core-icon icon="av:queue-music"></core-icon>
+                {{playlistsButton}}
+              </paper-item>
+            </template>
             <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
               {{settingsButton}}
             </paper-item>
           </core-menu>
-        </core-scroll-header-panel>
+        </core-header-panel>
 
         <!-- body -->
-        <core-header-panel id="headerPanel" main flex mode="seamed">
+        <core-header-panel id="headerPanel" main flex mode="waterfall">
 
           <!--app toolbar-->
           <core-toolbar id="toolbar" class="medium-tall">
@@ -131,20 +140,24 @@
 
             <!-- logic for toolbar -->
             <template if="{{page === 0}}">
-              <paper-icon-button icon="menu" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
+              <paper-icon-button icon="menu" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
               <div flex  class="bottom alignLeft">{{appName}}</div>
-              <template if="{{showing === 'cover'}}">
-                <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="view-stream" class="bottom"></paper-icon-button>
-              </template>
-              <template if="{{showing === 'list'}}">
-                <paper-icon-button title="Change View" on-tap="{{toggleWall}}" icon="view-module" class="bottom"></paper-icon-button>
-              </template>
+              <!--<core-tooltip label="Change View" class="bottom">
+                <template if="{{showing === 'cover'}}">
+                  <paper-icon-button on-tap="{{toggleWall}}" disabled?="{{dataLoading || shuffleLoading}}" icon="view-stream"></paper-icon-button>
+                </template>
+                <template if="{{showing === 'list'}}">
+                  <paper-icon-button on-tap="{{toggleWall}}" disabled?="{{dataLoading || shuffleLoading}}" icon="view-module"></paper-icon-button>
+                </template>
+              </core-tooltip>-->
               <template if="{{showing === 'podcast'}}">
-                <paper-icon-button title="Refresh Podcast" on-tap="{{refreshPodcast}}" icon="autorenew" class="bottom"></paper-icon-button>
+                <core-tooltip label="{{refreshPodcastLabel}}" class="bottom">
+                  <paper-icon-button on-tap="{{refreshPodcast}}" disabled?="{{dataLoading || shuffleLoading}}" icon="autorenew"></paper-icon-button>
+                </core-tooltip>
               </template>
             </template>
             <template if="{{page !== 0}}">
-              <paper-icon-button class="bottom" icon="arrow-back" on-tap="{{back2List}}"></paper-icon-button>
+              <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
             </template>
             <template if="{{page === 1}}">
               <div class="bottom" flex>{{currentPlaying}}</div>
@@ -158,12 +171,11 @@
            <template if="{{page === 4}}">
               <div flex class="bottom"></div>
             </template>
-            <!--<template if="{{page === 0}}">
-              <paper-icon-button class="bottom" icon="search" on-tap="{{openSearch}}" title="{{searchButton}}"></paper-icon-button>
-            </template>-->
             <template if="{{page === 0 && showing === 'artists'}}">
-              <paper-menu-button class="bottom">
-                <paper-icon-button icon="arrow-drop-down"></paper-icon-button>
+              <paper-menu-button class="bottom" disabled?="{{dataLoading || shuffleLoading}}">
+                <core-tooltip label="{{jumpToLabel}}">
+                  <paper-icon-button disabled?="{{dataLoading || shuffleLoading}}" icon="arrow-drop-down"></paper-icon-button>
+                </core-tooltip>
                 <paper-dropdown class="dropdown" halign="right">
                   <core-menu class="menu">
                     <template repeat="{{artists}}">
@@ -177,13 +189,15 @@
             </template>
             <template if="{{page !== 1}}">
               <template if="{{isNowPlaying}}">
-                <paper-icon-button title="{{nowPlayingLabel}}" on-tap="{{nowPlaying}}" icon="av:hearing" class="bottom"></paper-icon-button>
+                <core-tooltip label="{{nowPlayingLabel}}" class="bottom">
+                  <paper-icon-button on-tap="{{nowPlaying}}" disabled?="{{dataLoading || shuffleLoading}}" icon="av:hearing"></paper-icon-button>
+                </core-tooltip>
               </template>
             </template>
           </core-toolbar>
 
           <!-- app main page animations -->
-          <core-animated-pages id="main" on-core-animated-pages-transition-prepare="{{fixScroller}}" on-core-animated-pages-transition-end="{{fixScroller}}" selected="{{page}}">
+          <core-animated-pages selected="{{page}}">
 
             <!-- main content album wall, podcast, artist -->
             <section>
@@ -213,18 +227,20 @@
                   <template if="{{playlist[0]}}">
                     <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
                   </template>
-                  <template if="{{volume > 66}}">
-                    <paper-icon-button id="volume" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
-                  <template if="{{volume >= 33 && volume <= 66}}">
-                    <paper-icon-button id="volume" icon="av:volume-down" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
-                  <template if="{{volume > 1 && volume < 33}}">
-                    <paper-icon-button id="volume" icon="av:volume-mute" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
-                  <template if="{{volume === 0}}">
-                    <paper-icon-button id="volume" icon="av:volume-off" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
+                  <core-tooltip label="{{adjustVolumeLabel}}" id="volume" position="left">
+                    <template if="{{volume > 66}}">
+                      <paper-icon-button icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
+                    </template>
+                    <template if="{{volume >= 33 && volume <= 66}}">
+                      <paper-icon-button icon="av:volume-down" on-tap="{{toggleVolume}}"></paper-icon-button>
+                    </template>
+                    <template if="{{volume > 1 && volume < 33}}">
+                      <paper-icon-button icon="av:volume-mute" on-tap="{{toggleVolume}}"></paper-icon-button>
+                    </template>
+                    <template if="{{volume === 0}}">
+                      <paper-icon-button icon="av:volume-off" on-tap="{{toggleVolume}}"></paper-icon-button>
+                    </template>
+                  </core-tooltip>
                 </div>
               </div>
             </section>
@@ -255,17 +271,36 @@
 
       <!-- playlist -->
       <paper-dialog id="playlistDialog" style="min-height:695px; min-width:471px;" transition="core-transition-top">
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
         <div horizontal layout>
           <div flex></div>
           <div>
             <paper-menu-button>
-              <paper-icon-button icon="more-vert"></paper-icon-button>
+              <core-tooltip position="left" label="{{moreOptionsLabel}}">
+                <paper-icon-button icon="more-vert"></paper-icon-button>
+              </core-tooltip>
               <paper-dropdown class="dropdown" halign="right">
                 <core-menu class="menu">
-                  <paper-item on-tap="{{savePlayQueue}}">
-                    <core-icon icon="create" style="margin-right:24px; color:#57BA67;"></core-icon>
-                    {{createPlaylistLabel}}
-                  </paper-item>
+                  <template if="{{activeUser.playlistRole}}">
+                    <paper-item on-tap="{{savePlayQueue}}">
+                      <core-icon icon="create" style="margin-right:24px; color:#57BA67;"></core-icon>
+                      {{createPlaylistLabel}}
+                    </paper-item>
+                  </template>
                   <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
                     <core-icon icon="av:not-interested" style="margin-right:24px; color:#db4437;"></core-icon>
                     {{clearQueue}}
@@ -273,13 +308,15 @@
                 </core-menu>
               </paper-dropdown>
             </paper-menu-button>
-            <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closePlaylist}}"></paper-icon-button>
+            <core-tooltip position="left" label="{{closeLabel}}">
+              <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closePlaylist}}"></paper-icon-button>
+            </core-tooltip>
           </div>
         </div>
         <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
           <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
             <template repeat="{{playlist}}">
-              <paper-item on-tap="{{playThis}}" title="{{artist}} - {{title}} / {{duration}}" style="color:#000000">
+              <paper-item on-tap="{{playThis}}" style="color:#000000">
                 <div flex style="overflow:hidden">
                   {{artist}} - {{title}}
                 </div>
@@ -297,7 +334,24 @@
 
       <!-- volume -->
       <paper-dialog id="volumeDialog" transition="core-transition-bottom">
-        <paper-icon-button style='color:#db4437; position:absolute; top:8px; right:8px;' icon="close" title="Close" on-tap="{{closeVolume}}"></paper-icon-button>
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
+        <core-tooltip style=" position:absolute; top:8px; right:8px;" position="left" label="{{closeLabel}}">
+          <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeVolume}}"></paper-icon-button>
+        </core-tooltip>
         {{volumeLabel}}
         <br>
         <volume-slider volume="{{volume}}"></volume-slider>
@@ -316,65 +370,32 @@
         <paper-button affirmative on-tap="{{allowAnalistics}}">{{accept}}</paper-button>
       </paper-action-dialog>
 
-      <!-- search -->
-      <paper-dialog id="searchDialog" header="Search" style="height:480px; width:400px;" transition="core-transition-center">
-        <div horizontal layout>
-          <div flex style="text-align: center;">
-            <paper-input value="{{searchQuery}}" style="width: 250px;"></paper-input>
-          </div>
-          <div>
-            <paper-icon-button on-tap="{{doSearch}}" title="Search" icon="search"></paper-icon-button>
-            <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closeSearch}}"></paper-icon-button>
-          </div>
-        </div>
-        <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto; text-align: center;">
-          <template if="{{searching}}">
-            <paper-spinner active></paper-spinner>
-            <br>
-          </template>
-          <div id="all">
-            <template if="{{searchResults.artist}}">
-              <h3>{{artistLabel}}</h3>
-              <template repeat="{{searchResults.artist}}">
-                <paper-item on-tap="{{artistDetails}}" i="{{id}}">{{name}}</paper-item>
-              </template>
-            </template>
-            <template if="{{searchResults.album[0]}}">
-              <h3>{{albumLabel}}</h3>
-              <template repeat="{{searchResults.album}}">
-                <album-art listMode="search" bitRate="{{bitRate}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" isFavorite="{{starred}}"></album-art>
-              </template>
-            </template>
-            <!--<template if="{{searchResults.song}}">
-              <h3>Songs</h3>
-              <template repeat="{{searchResults.song}}">
-                <core-item>
-                  <div flex style="text-align:left; overflow:hidden;">
-                    {{title}}
-                  </div>
-                  <paper-icon-button icon="av:play-arrow" dismissive="" on-tap="{{playTrack}}" title="{{title}}" artist="{{artist}}" ident="{{id}}" cover="{{cover}}"></paper-icon-button>
-                  <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" title="{{title}}" artist="{{artist}}" ident="{{id}}" cover="{{cover}}"></paper-icon-button>
-                  <paper-icon-button on-tap="{{doDownload}}" ident="{{id}}"  icon="file-download"></paper-icon-button>
-                </core-item>
-              </template>
-            </template>-->
-          </div>
-          <template if="{{!searchResults.artist && !searchResults.album[0] && searchResults.song}}">
-            {{noResults}}
-          </template>
-        </div>
-      </paper-dialog>
-
-
       <!-- shuffle options -->
       <paper-dialog id="shuffleOptions" style="height:400px; width:300px;" transition="core-transition-center">
-        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closeShuffleOptions}}"></paper-icon-button>
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
+        <core-tooltip style="position:absolute; right:8px; top:8px;" position="left" label="{{closeLabel}}">
+          <paper-icon-button icon="close" style="color:#db4437;" disabled?="{{shuffleLoading}}" on-tap="{{closeShuffleOptions}}"></paper-icon-button>
+        </core-tooltip>
         <div style="text-align:center">
           <core-label>
             <h3>{{shuffleOptionsLabel}}</h3>
             <core-label>
               {{genreLabel}}:
-              <paper-dropdown-menu label="{{optional}}">
+              <paper-dropdown-menu label="{{optional}}" disabled?="{{shuffleLoading}}">
                 <paper-dropdown layered class="dropdown">
                   <core-menu selected="{{genreFilter}}" valueattr="i" class="menu">
                     <paper-item i="">{{optional}}</paper-item>
@@ -388,7 +409,7 @@
             <br>
             <core-label>
               {{songReturn}}:
-              <paper-dropdown-menu label="">
+              <paper-dropdown-menu label="" disabled?="{{shuffleLoading}}">
                 <paper-dropdown layered class="dropdown">
                   <core-menu selected="{{shuffleSize}}" valueattr="i" class="menu">
                     <template repeat="{{shuffleSizes}}">
@@ -398,15 +419,15 @@
                 </paper-dropdown>
               </paper-dropdown-menu>
             </core-label>
-            <paper-input-decorator id="startYearValidate" autoValidate isInvalid="{{startYearInvalid}}" labelvisible="" floatinglabel="" error="{{yearError}}" label="{{releasedAfter}}">
-              <input is="core-input" type="text" pattern='[0-9]{4}' value="{{startingYear}}">
+            <paper-input-decorator id="startYearValidate"  disabled?="{{shuffleLoading}}" autoValidate isInvalid="{{startYearInvalid}}" labelvisible="" floatinglabel="" error="{{yearError}}" label="{{releasedAfter}}">
+              <input is="core-input" disabled?="{{shuffleLoading}}" type="text" pattern='[0-9]{4}' value="{{startingYear}}">
             </paper-input-decorator>
-            <paper-input-decorator id="endYearValidate" autoValidate isInvalid="{{endYearInvalid}}" labelvisible="" floatinglabel="" error="{{yearError}}" label="{{releasedBefore}}">
-              <input is="core-input" type="text" pattern='[0-9]{4}' value="{{endingYear}}">
+            <paper-input-decorator id="endYearValidate" disabled?="{{shuffleLoading}}" autoValidate isInvalid="{{endYearInvalid}}" labelvisible="" floatinglabel="" error="{{yearError}}" label="{{releasedBefore}}">
+              <input is="core-input" disabled?="{{shuffleLoading}}" type="text" pattern='[0-9]{4}' value="{{endingYear}}">
             </paper-input-decorator>
           </core-label>
           <br>
-          <paper-button on-tap="{{shufflePlay}}">
+          <paper-button on-tap="{{shufflePlay}}" disabled?="{{shuffleLoading}}">
             {{playButton}}
             <template if="{{shuffleLoading}}">
               <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
@@ -419,12 +440,29 @@
 
       <!-- add podcast -->
       <paper-dialog id="addPodcast" transition="core-transition-bottom">
-        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePodcastDialog}}"></paper-icon-button>
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
+        <core-tooltip label="{{closeLabel}}" style="position:absolute; right:8px; top:8px;" position="left">
+          <paper-icon-button icon="close" disabled?="{{addingChannel}}" style="color:#db4437;" on-tap="{{closePodcastDialog}}"></paper-icon-button>
+        </core-tooltip>
         <div style="text-align:center;">
-          <paper-input-decorator style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{podcastSubmissionLabel}}">
+          <paper-input-decorator disabled?="{{addingChannel}}" style="min-width:280px;" id="podcastChannelURL" autoValidate isInvalid="{{invalidURL}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{podcastSubmissionLabel}}">
             <input is="core-input" type="URL" value="{{castURL}}" required="">
           </paper-input-decorator>
-          <paper-button on-tap="{{addChannel}}">
+          <paper-button on-tap="{{addChannel}}" disabled?="{{addingChannel}}">
             {{submitButton}}
             <template if="{{addingChannel}}">
               <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
@@ -437,10 +475,27 @@
       
       <!-- playlists dialog -->
       <paper-dialog id="playlistsDialog" style="min-height:600px; min-width:471px;" transition="core-transition-center">
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
         <div horizontal layout>
           <div flex></div>
           <div>
-            <paper-icon-button style='color:#db4437;' icon="close" title="Close" on-tap="{{closePlaylists}}"></paper-icon-button>
+            <core-tooltip label="{{closeLabel}}" position="left">
+              <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closePlaylists}}"></paper-icon-button>
+            </core-tooltip>
           </div>
         </div>
         <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
@@ -452,7 +507,7 @@
           <template if="{{!playlistsLoading}}">
             <template repeat="{{playlists}}">
               <core-item>
-                <div flex style="font-size: 16px; margin-left: 16px;">
+                <div flex style="font-size: 16px; margin-left: 16px; overflow:hidden;">
                   {{name}}
                 </div>
                 <div>
@@ -467,13 +522,30 @@
       
       <!-- create playlist dialog -->
       <paper-dialog id="createPlaylist" style="min-width:300px;" transition="core-transition-center">
-        <paper-icon-button icon="close" style="position:absolute; right:8px; top:8px; color:#db4437;" title="Close" on-tap="{{closePlaylistSaver}}"></paper-icon-button>
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
+        <core-tooltip position="left" label="{{closeLabel}}" style="position:absolute; right:8px; top:8px;">
+          <paper-icon-button icon="close" disabled?="{{savingPlaylist}}" style="color:#db4437;" on-tap="{{closePlaylistSaver}}"></paper-icon-button>
+        </core-tooltip>
         <div style="text-align:center; margin:auto;">
           <core-label>
             <h4>{{createPlaylistLabel}}</h4>
-            <paper-input style="min-width:280px;" floatingLabel label="{{playlistLabel}}" value="{{defaultName}}"></paper-input>
+            <paper-input style="min-width:280px;" disabled?="{{savingPlaylist}}" floatingLabel label="{{playlistLabel}}" value="{{defaultName}}"></paper-input>
             <br>
-            <paper-button on-tap="{{savePlayQueue2Playlist}}">
+            <paper-button on-tap="{{savePlayQueue2Playlist}}" disabled?="{{savingPlaylist}}">
               {{submitButton}}
               <template if="{{savingPlaylist}}">
                 <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
@@ -521,6 +593,39 @@
         <paper-button affirmative style="color:#fff; background:#db4437" on-tap="{{reloadApp}}">{{reloadAppLabel}}</paper-button>
       </paper-action-dialog>
 
+      <paper-action-dialog id='licenseDialog' transition="core-transition-center" layered>
+        <style>
+          core-tooltip::shadow .core-tooltip {
+            opacity: 0;
+            -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+            -webkit-transform: translate3d(0, -10px, 0);
+            transform: translate3d(0, -10px, 0);
+          }
+          core-tooltip:hover::shadow .core-tooltip,
+          core-tooltip:focus::shadow .core-tooltip {
+            opacity: 1;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        </style>
+        <core-tooltip label="{{closeLabel}}" style="position:absolute; right:8px; top:8px;" position="left">
+          <paper-icon-button icon="close" style="color:#db4437;" on-tap="{{licenseDialogClose}}"></paper-icon-button>
+        </core-tooltip>
+        <div style="min-width:280px">
+          <template if="{{serverLicense.valid}}">
+            <core-icon icon="check" style="color:#57BA67; margin-right:24px;"></core-icon> <b>{{validLicense}}</b>
+          </template>
+          <template if="{{!serverLicense.valid}}">
+            <core-icon icon="av:not-interested" style="color:#db4437; margin-right:24px;"></core-icon> <b>{{invalidLicense}}</b>
+          </template>
+          <br><br>
+          <b>{{registeredEmail}}:</b> {{serverLicense.email}}<br><br>
+          <b>{{licenseKey}}:</b> {{serverLicense.key}}<br><br>
+          <b>{{keyDate}}:</b> {{serverLicense.date}}<br><br>
+        </div>
+      </paper-action-dialog>
+
       <x-notification id="playNotify" timeout='5000' tag="tag"></x-notification>
 
       <!-- where the magic happens -->
@@ -531,4 +636,4 @@
   <script src="js/PolySonic.js"></script>
   <script src="js/google-analytics-bundle.js"></script>
   <script src="js/color-thief.min.js"></script>
-</body>
+</bo    
