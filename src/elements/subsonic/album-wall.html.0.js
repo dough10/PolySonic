@@ -87,18 +87,16 @@ Polymer('album-wall', {
   
   clearData: function (callback) {
     'use strict';
-    this.async(function () {
-      this.isLoading = true;
-      this.app.dataLoading = true;
-      this.artist = null;
-      this.podcast = null;
-      this.wall = null;
-      this.artists = [];
-      this.wall = [];
-      this.podcast = [];
-      this.resizeLists();
-      this.async(callback);
-    });
+    this.isLoading = true;
+    this.app.dataLoading = true;
+    this.artist = null;
+    this.podcast = null;
+    this.wall = null;
+    this.artists = [];
+    this.wall = [];
+    this.podcast = [];
+    this.resizeLists();
+    this.async(callback);
   },
   
   buildObject: function (e) {
@@ -223,6 +221,7 @@ Polymer('album-wall', {
   
   getPodcast: function () {
     'use strict';
+    this.showing = 'podcast';
     this.clearData(function () {
       this.app.pageLimit = false;
       this.request = 'getPodcasts';
@@ -233,15 +232,13 @@ Polymer('album-wall', {
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.showing = 'podcast';
-      this.async(function () {
-        this.$.ajax.go();
-      });
+      this.$.ajax.go();
     }.bind(this));
   },
   
   getStarred: function () {
     'use strict';
+    this.showing = this.listMode;
     this.clearData(function () {
       this.app.pageLimit = false;
       if (this.queryMethod === 'ID3') {
@@ -256,10 +253,7 @@ Polymer('album-wall', {
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.showing = this.listMode;
-      this.async(function () {
-        this.$.ajax.go();
-      });
+      this.$.ajax.go();
     }.bind(this));
   },
   
@@ -276,14 +270,13 @@ Polymer('album-wall', {
         'mediaFolder': this.mediaFolder
       });
       this.showing = 'artists';
-      this.async(function () {
-        this.$.ajax.go();
-      });
+      this.$.ajax.go();
     }.bind(this));
   },
   
   sortChanged: function () {
     'use strict';
+    this.showing = this.listMode;
     this.clearData(function () {
       this.app.pageLimit = false;
       if (this.queryMethod === 'ID3') {
@@ -298,10 +291,7 @@ Polymer('album-wall', {
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.showing = this.listMode;
-      this.async(function () {
-        this.$.ajax.go();
-      });
+      this.$.ajax.go();
     }.bind(this));
   },
   

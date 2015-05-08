@@ -764,7 +764,7 @@
       app.bitRate = result.bitRate || 320;
       app.shuffleSize = app.shuffleSize || '50';
       app.version = '1.11.0';
-      app.querySize = 30;
+      app.querySize = 40;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.colorThiefEnabled = true;
