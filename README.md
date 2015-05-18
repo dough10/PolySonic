@@ -1,6 +1,12 @@
 # PolySonic
 HTML5 Subsonic client
 
+<img src="https://lh3.googleusercontent.com/mmNqprtIDiGfJF4HN7-q3MLS50ZaeP6jXWFBF119tOG1jARxeBZh00pfuCbSIX39oGGEYptQ9A4=s640-h400-e365-rw">
+
+<a href="https://chrome.google.com/webstore/detail/polysonic/dmijgonnbeadbncajpphnlidgjkgmblf" target="_blank">
+  <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png">
+</a>
+
 Changelog
 
 0.2.3
