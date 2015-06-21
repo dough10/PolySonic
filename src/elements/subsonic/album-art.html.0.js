@@ -118,9 +118,10 @@ Polymer('album-art', {
         this.app.setFabColor(this.playlist[0]);
       }.bind(this));
     }
-    Array.prototype.forEach.call(this.playlist, function (e) {
-      this.app.playlist.push(e);
-    }.bind(this));
+    var length = this.playlist.length;
+    for (var i = 0; i < length; i++) {
+      this.app.playlist.push(this.playlist[i]);
+    }
     this.app.doToast(chrome.i18n.getMessage("added2Queue"));
   },
 
@@ -273,9 +274,10 @@ Polymer('album-art', {
   paletteChanged: function () {
     'use strict';
     if (this.palette !== undefined) {
-      Array.prototype.forEach.call(this.playlist, function (element) {
-        element.palette = this.palette;
-      }.bind(this));
+      var length = this.playlist.length;
+      for (var i = 0; i < length; i++) {
+        this.playlist[i].palette = this.palette;
+      }
     }
   },
   

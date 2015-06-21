@@ -122,9 +122,6 @@
           </core-menu>
         </core-header-panel>
 
-
-
-
         <core-animated-pages main  class="pages" selected="{{page}}" transitions="cross-fade-all">
 
           <section>
@@ -144,40 +141,33 @@
                 <paper-icon-button icon="menu" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
                 <div flex  class="bottom alignLeft">{{appName}}</div>
 
-                <template if="{{showing === 'podcast'}}">
-                  <core-tooltip label="{{refreshPodcastLabel}}" class="bottom">
-                    <paper-icon-button on-tap="{{refreshPodcast}}" disabled?="{{dataLoading || shuffleLoading}}" icon="autorenew"></paper-icon-button>
-                  </core-tooltip>
-                </template>
+                <core-tooltip hidden?="{{showing !== 'podcast'}}" label="{{refreshPodcastLabel}}" class="bottom">
+                  <paper-icon-button on-tap="{{refreshPodcast}}" disabled?="{{dataLoading || shuffleLoading}}" icon="autorenew"></paper-icon-button>
+                </core-tooltip>
 
-                <template if="{{showing === 'artists'}}">
-                  <paper-menu-button class="bottom" disabled?="{{dataLoading || shuffleLoading}}">
-                    <core-tooltip label="{{jumpToLabel}}">
-                      <paper-icon-button disabled?="{{dataLoading || shuffleLoading}}" icon="arrow-drop-down"></paper-icon-button>
-                    </core-tooltip>
-                    <paper-dropdown class="dropdown" halign="right">
-                      <core-menu class="menu">
-                        <template repeat="{{artist}}">
-                          <paper-item on-tap="{{jumpTo}}" it="{{name}}" style="color:#000">
-                            {{name}}
-                          </paper-item>
-                        </template>
-                      </core-menu>
-                    </paper-dropdown>
-                  </paper-menu-button>
-                </template>
-
-                <template if="{{isDownloading}}">
-                  <core-tooltip class="bottom" label="{{showDownloads}}">
-                    <paper-icon-button icon="file-download" on-tap="{{openDownloads}}" disabled?="{{dataLoading || shuffleLoading}}"></paper-icon-button>
+                <paper-menu-button hidden?="{{showing !== 'artists'}}" class="bottom" disabled?="{{dataLoading || shuffleLoading}}">
+                  <core-tooltip label="{{jumpToLabel}}">
+                    <paper-icon-button disabled?="{{dataLoading || shuffleLoading}}" icon="arrow-drop-down"></paper-icon-button>
                   </core-tooltip>
-                </template>
+                  <paper-dropdown class="dropdown" halign="right">
+                    <core-menu class="menu">
+                      <template repeat="{{artist}}">
+                        <paper-item on-tap="{{jumpTo}}" it="{{name}}" style="color:#000">
+                          {{name}}
+                        </paper-item>
+                      </template>
+                    </core-menu>
+                  </paper-dropdown>
+                </paper-menu-button>
 
-                <template if="{{isNowPlaying}}">
-                  <core-tooltip label="{{nowPlayingLabel}}" class="bottom">
-                    <paper-icon-button on-tap="{{nowPlaying}}" disabled?="{{dataLoading || shuffleLoading}}" icon="av:hearing"></paper-icon-button>
-                  </core-tooltip>
-                </template>
+                <core-tooltip hidden?="{{!isDownloading}}" class="bottom" label="{{showDownloads}}">
+                  <paper-icon-button icon="file-download" on-tap="{{openDownloads}}" disabled?="{{dataLoading || shuffleLoading}}"></paper-icon-button>
+                </core-tooltip>
+
+                <core-tooltip hidden?="{{!isNowPlaying}}" label="{{nowPlayingLabel}}" class="bottom">
+                  <paper-icon-button on-tap="{{nowPlaying}}" disabled?="{{dataLoading || shuffleLoading}}" icon="av:hearing"></paper-icon-button>
+                </core-tooltip>
+
               </core-toolbar>
               <album-wall id="wall" listMode="{{listMode}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}" queryMethod="{{queryMethod}}" mediaFolder="{{folder}}" colorThiefEnabled="{{colorThiefEnabled}}" artists="{{artists}}"></album-wall>
             </core-header-panel>
@@ -198,11 +188,9 @@
             </core-toolbar>
             <div style="position:relative;">
               <div id="coverArt">
-                <template if="{{waitingToPlay}}">
-                  <div class="waitingToPlay">
-                    <paper-spinner class="spinner" active></paper-spinner>
-                  </div>
-                </template>
+                <div hidden?="{{!waitingToPlay}}" class="waitingToPlay">
+                  <paper-spinner class="spinner" active></paper-spinner>
+                </div>
               </div>
               <div class="controlsWrapper">
                 <paper-progress id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
@@ -440,11 +428,9 @@
           <br>
           <paper-button on-tap="{{shufflePlay}}" disabled?="{{shuffleLoading}}">
             {{playButton}}
-            <template if="{{shuffleLoading}}">
-              <div style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
-                <paper-spinner active=""></paper-spinner>
-              </div>
-            </template>
+            <div hidden?="{{!shuffleLoading}}" style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
+              <paper-spinner active=""></paper-spinner>
+            </div>
           </paper-button>
         </div>
       </paper-dialog>

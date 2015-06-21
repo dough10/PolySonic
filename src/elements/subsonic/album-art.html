@@ -24,6 +24,7 @@
         background-position: center;
         background-origin: content-box;
         background-size:{{width}};
+        will-change:transform;
       }
       core-animated-pages {
         height:100%;
@@ -174,6 +175,7 @@
         position:absolute;
         top: 70px;
         left: 70px;
+        will-change:transform;
       }
       .spinWrapper {
         background:rgba(255,255,255,0.6);
@@ -192,7 +194,7 @@
         -webkit-align-items: center;
         justify-content: center;
         align-items: center;
-        pinter-events:none;
+        pointer-events:none;
       }
       .spinner {
         z-index:2;

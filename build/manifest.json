@@ -22,8 +22,14 @@
     "https://www.google-analytics.com/",
     "storage",
     "notifications",
-    "fileSystem",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    {
+      "fileSystem": [
+        "write",
+        "retainEntries",
+        "directory"
+      ]
+    }
   ],
 
   "commands": {

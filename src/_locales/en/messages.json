@@ -292,7 +292,7 @@
     "message": "Play More Like This"
   },
   "downloadStarted": {
-    "message": "Your Download has Started"
+    "message": "Download Started"
   },
   "showDownloads": {
     "message": "Show Downloads"
@@ -308,5 +308,8 @@
   },
   "abortDownload": {
     "message": "Abort Download"
+  },
+  "reconnecting": {
+    "message": "Attempting Reconnect"
   }
 }
