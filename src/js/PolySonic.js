@@ -7,7 +7,7 @@
     this.service = analytics.getService('PolySonic');
     this.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
   });
-
+  app.shuffleSettings = {};
 
   /*
     locale settings
@@ -210,27 +210,27 @@
     chrome.app.window.current().minimize();
   };
 
-  app.maximize = function () {
-    var maximized = chrome.app.window.current().isMaximized(),
-      button = this.$.max;
-    if (maximized) {
-      button.icon = 'check-box-outline-blank';
-      chrome.app.window.current().restore();
-    } else {
-      button.icon = 'flip-to-back';
-      chrome.app.window.current().maximize();
-    }
+  app.close = function () {
+    app.checkUnsavedDownloads(function () {
+      window.close();
+    }, function () {
+      this.$.unsavedDownloads.open();
+    }.bind(this));
   };
 
-  app.close = function () {
-    window.close();
+  app.openDownloads = function () {
+    app.$.downloadDialog.open();
+  };
+
+  app.closeDownloads = function () {
+    app.$.downloadDialog.close();
   };
 
   app.closeDrawer = function (callback) {
-    var panel = app.$.panel;
-    panel.closeDrawer();
+    app.dataLoading = true;
+    app.$.panel.closeDrawer();
     if (callback) {
-      app.async(callback);
+      app.async(callback, null, 500);
     }
   };
 
@@ -249,6 +249,26 @@
     toast.show();
   };
 
+  app.checkUnsavedDownloads = function (callback, haveUnsaved) {
+    if (this.$.downloads.childElementCount !== 0) {
+      var downloads = this.$.downloads.querySelectorAll('download-manager');
+      var count = 0;
+      var i = 0;
+      Array.prototype.forEach.call(downloads, function (item) {
+        if (!item.hasSaved) {
+          count = (count + 1);
+        }
+        i = (i + 1);
+        if (i === downloads.length && count === 0) {
+          callback();
+        } else {
+          haveUnsaved();
+        }
+      }.bind(this));
+    } else {
+      callback();
+    }
+  };
 
   /*
     color thief functions
@@ -314,9 +334,7 @@
   app.playAudio = function (artist, title, src, image, id) {
     var audio = app.$.audio,
       note = app.$.playNotify,
-      time = new Date(),
-      now = time.getTime(),
-      url;
+      now = new Date().getTime();
     if (artist === '') {
       app.currentPlaying = title;
       note.title = title;
@@ -325,8 +343,7 @@
       note.title = artist + ' - ' + title;
     }
     if (app.activeUser.scrobblingEnabled) {
-      url = app.url + '/rest/scrobble.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&id=' + id + '&time=' + now;
-      app.doXhr(url, 'json', function (e) {
+      app.doXhr(app.buildUrl('scrobble', {id: id, time: now}), 'json', function (e) {
         if (e.target.response['subsonic-response'].status === 'failed') {
           console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
           app.tracker.sendEvent('Last FM submission', 'Failed');
@@ -365,10 +382,10 @@
     var url;
     if (app.playlist[app.playing].artist === '') {
       // is a podcast
-      url = this.url + '/rest/stream.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&format=raw&estimateContentLength=true&id=' + app.playlist[this.playing].id;
+      url = app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: app.playlist[this.playing].id});
     } else {
       // normal trascoded file type
-      url = this.url + '/rest/stream.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&maxBitRate=' + app.bitRate + '&id=' + app.playlist[this.playing].id;
+      url = app.buildUrl('stream', {maxBitRate: app.bitRate, id: app.playlist[app.playing].id});
     }
     app.playAudio(app.playlist[app.playing].artist, app.playlist[app.playing].title, url, app.playlist[app.playing].cover, app.playlist[app.playing].id);
     if (app.playlist[app.playing].cover) {
@@ -388,8 +405,7 @@
   };
 
   app.playPlaylist = function (event, detail, sender) {
-    var url = app.url + '/rest/getPlaylist.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&id=' + sender.attributes.ident.value,
-      tracks,
+    var tracks,
       mins,
       seconds,
       artId,
@@ -400,7 +416,7 @@
     app.playlist = null;
     app.playlist = [];
     app.$.audio.pause();
-    app.doXhr(url, 'json', function (e) {
+    app.doXhr(app.buildUrl('getPlaylist', {id: sender.attributes.ident.value}), 'json', function (e) {
       tracks = e.target.response['subsonic-response'].playlist.entry;
       Array.prototype.forEach.call(tracks, function (item) {
         mins = Math.floor(item.duration / 60);
@@ -436,24 +452,7 @@
 
     if (!app.startYearInvalid && !app.endYearInvalid) {
       app.$.audio.pause();
-      if (app.endingYear && app.startingYear && app.genreFilter) {
-        url = app.url + '/rest/getRandomSongs.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&size=' + app.shuffleSize + '&genre=' + encodeURIComponent(app.genreFilter) + '&fromYear=' + app.startingYear + '&toYear=' + app.endingYear;
-      } else if (app.endingYear && app.startingYear) {
-        url = app.url + '/rest/getRandomSongs.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&size=' + app.shuffleSize + '&fromYear=' + app.startingYear + '&toYear=' + app.endingYear;
-      } else if (app.endingYear && app.genreFilter) {
-        url = app.url + '/rest/getRandomSongs.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&size=' + app.shuffleSize + '&genre=' + encodeURIComponent(app.genreFilter) + '&toYear=' + app.endingYear;
-      } else if (app.startingYear && app.genreFilter) {
-        url = app.url + '/rest/getRandomSongs.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&size=' + app.shuffleSize + '&genre=' + encodeURIComponent(app.genreFilter) + '&fromYear=' + app.startingYear;
-      } else if (app.genreFilter) {
-        url = app.url + '/rest/getRandomSongs.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&size=' + app.shuffleSize + '&genre=' + encodeURIComponent(app.genreFilter);
-      } else if (app.startingYear) {
-        url = app.url + '/rest/getRandomSongs.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&size=' + app.shuffleSize + '&fromYear=' + app.startingYear;
-      } else if (app.endingYear) {
-        url = app.url + '/rest/getRandomSongs.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&size=' + app.shuffleSize + '&toYear=' + app.endingYear;
-      } else {
-        url = app.url + '/rest/getRandomSongs.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&size=' + app.shuffleSize;
-      }
-      app.doXhr(url, 'json', function (event) {
+      app.doXhr(app.buildUrl('getRandomSongs', app.shuffleSettings), 'json', function (event) {
         var data = event.target.response['subsonic-response'];
         if (data.randomSongs.song) {
           Array.prototype.forEach.call(data.randomSongs.song, function (item) {
@@ -717,18 +716,17 @@
   app.savePlayQueue = function () {
     app.$.playlistDialog.close();
     app.$.createPlaylist.open();
-    app.defaultName = new Date();
+    app.defaultName = new Date().toGMTString();
   };
 
   app.savePlayQueue2Playlist = function () {
-    var url = app.url + '/rest/createPlaylist.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&name=' + encodeURIComponent(app.defaultName),
+    var url = app.buildUrl('createPlaylist', {name: app.defaultName}),
       hasRun = false,
-      i = 0;
+      length = app.playlist.length;
     app.savingPlaylist = true;
-    Array.prototype.forEach.call(app.playlist, function (item) {
-      url = url + '&songId=' + item.id;
-      i = i + 1;
-      if (i === app.playlist.length) {
+    for (var i = 0; i < length; i++) {
+      url = url + '&songId=' + app.playlist[i].id;
+      if (i === length - 1) {
         app.doXhr(url, 'json', function (e) {
           if (e.target.response['subsonic-response'].status === 'ok') {
             app.doToast(chrome.i18n.getMessage('playlistCreated'));
@@ -740,7 +738,7 @@
           }
         });
       }
-    });
+    }
   };
 
   app.closePlaylistSaver = function () {
@@ -762,7 +760,7 @@
       /*app.listMode = result.listMode || 'cover';*/
       app.listMode = 'cover';
       app.bitRate = result.bitRate || 320;
-      app.shuffleSize = app.shuffleSize || '50';
+      app.shuffleSettings.size = app.shuffleSettings.size || '50';
       app.version = '1.11.0';
       app.querySize = 40;
       app.volume = result.volume || 100;
@@ -771,17 +769,20 @@
       app.dataLoading = false;
       app.sizePlayer();
       app.calculateStorageSize();
+      app.params = {
+        u: app.user,
+        v: app.version,
+        c: 'PolySonic',
+        f: 'json'
+      };
       if (app.url && app.user && app.pass && app.version) {
-        var url = app.url + '/rest/ping.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json',
-          url2;
-        app.doXhr(url, 'json', function (e) {
+        app.doXhr(app.buildUrl('ping', ''), 'json', function (e) {
           if (e.target.status === 200) {
             app.version = e.target.response['subsonic-response'].version;
-            url2 = app.url + "/rest/getMusicFolders.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic";
             if (e.target.response['subsonic-response'].status === 'ok') {
               app.userDetails();
               console.log('Connected to Subconic loading data');
-              app.doXhr(url2, 'json', function (e) {
+              app.doXhr(app.buildUrl('getMusicFolders', ''), 'json', function (e) {
                 app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                 /* setting mediaFolder causes a ajax call to get album wall data */
                 app.folder = result.mediaFolder || 0;
@@ -806,15 +807,8 @@
     
     var scroller = app.appScroller(),
       audio = app.$.audio,
-      maximized = chrome.app.window.current().isMaximized(),
-      button = app.$.max,
       timer;
-      
-    if (maximized) {
-      button.icon = 'check-box-outline-blank';
-    } else {
-      button.icon = 'flip-to-back';
-    }
+
     scroller.onscroll = function () {
      var fab = app.$.fab,
         wall = app.$.wall;
@@ -826,48 +820,10 @@
       }
       app.position = scroller.scrollTop;
     };
-  
-    /*
-      only needed if fullscreen enabled
-  
-    */
-    //window.onresize = this.sizePlayer;
-  
-    audio.onwaiting = app.playerProgress;
-  
 
-    /*
-      when buffering i want the buffering bar up update
-    */
-    audio.onstalled = function (e) {
-      if (timer) {
-        clearInterval(timer);
-      }
-      timer = setInterval(function () {
-        app.playerProgress();
-      }, 250);
-    };
-  
-    /*
-      stop the timer as song shoule either be waiting or timeupdating
-    */
-    audio.onplay = function (e) {
-      if (timer) {
-        clearInterval(timer);
-      }
-    };
-  
-    /*
-      when paused i still want the buffering to update
-    */
-    audio.onpause = function (e) {
-      if (timer) {
-        clearInterval(timer);
-      }
-      timer = setInterval(function () {
-        app.playerProgress();
-      }, 250);
-    };
+    audio.onwaiting = app.playerProgress;
+
+    audio.onprogress = app.playerProgress;
   
     audio.ontimeupdate = app.playerProgress;
   
@@ -932,7 +888,7 @@
     if (app.searchQuery) {
       app.async(function () {
         app.closeDrawer(function () {
-          var url = app.url + '/rest/search3.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&query=' + encodeURIComponent(app.searchQuery);
+          var url = app.buildUrl('search3', {query: encodeURIComponent(app.searchQuery)});
           app.async(function () {
             app.doXhr(url, 'json', function (e) {
               app.dataLoading = true;
@@ -978,9 +934,9 @@
 
   app.openPlaylists = function () {
     app.closeDrawer(function ()  {
+      app.dataLoading = false;
       app.playlistsLoading = true;
-      var url = app.url + '/rest/getPlaylists.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json';
-      app.doXhr(url, 'json', function (e) {
+      app.doXhr(app.buildUrl('getPlaylists', ''), 'json', function (e) {
         app.playlistsLoading = false;
         app.playlists = e.target.response['subsonic-response'].playlists.playlist;
         app.$.playlistsDialog.open();
@@ -999,12 +955,10 @@
   };
 
   app.deletePlaylist = function (event, detail, sender) {
-    var url = app.url + '/rest/deletePlaylist.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json&id=' + sender.attributes.ident.value,
-      url2 = app.url + '/rest/getPlaylists.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json';
-    app.doXhr(url, 'json', function (e) {
+    app.doXhr(app.buildUrl('deletePlaylist', {id: sender.attributes.ident.value}), 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         app.playlistsLoading = true;
-        app.doXhr(url2, 'json', function (e) {
+        app.doXhr(app.buildUrl('getPlaylists', ''), 'json', function (e) {
           app.playlistsLoading = false;
           app.playlists = e.target.response['subsonic-response'].playlists.playlist;
           app.$.playlistsDialog.open();
@@ -1020,9 +974,8 @@
   };
 
   app.shuffleOptions = function () {
-    var url = app.url + '/rest/getGenres.view?u=' + app.user + '&p=' + app.pass + '&v=' + app.version + '&c=PolySonic&f=json';
     app.closeDrawer(function () {
-      app.doXhr(url, 'json', function (e) {
+      app.doXhr(app.buildUrl('getGenres', ''), 'json', function (e) {
         app.genres = e.target.response['subsonic-response'].genres.genre;
         app.$.shuffleOptions.open();
       });
@@ -1069,64 +1022,46 @@
   /*jslint unparam: true*/
   app.selectAction = function (event, detail, sender) {
     var wall = app.$.wall;
-    app.async(function () {
-      app.closeDrawer(function () {
-        app.async(function () {
-          if (wall.sort === sender.attributes.i.value) {
-            app.pageLimit = false;
-            if (app.queryMethod === 'ID3') {
-              wall.request = 'getAlbumList2';
-            } else {
-              wall.request = 'getAlbumList';
-            }
-            wall.post.type = sender.attributes.i.value;
-            wall.refreshContent();
-            wall.showing = app.listMode;
-            wall.$.threshold.clearLower();
-          }
-          wall.sort = sender.attributes.i.value;
-        });
-      });
+    app.closeDrawer(function () {
+      if (wall.sort === sender.attributes.i.value) {
+        app.pageLimit = false;
+        if (app.queryMethod === 'ID3') {
+          wall.request = 'getAlbumList2';
+        } else {
+          wall.request = 'getAlbumList';
+        }
+        wall.post.type = sender.attributes.i.value;
+        wall.refreshContent();
+        wall.showing = app.listMode;
+        wall.$.threshold.clearLower();
+      }
+      wall.sort = sender.attributes.i.value;
     });
   };
   /*jslint unparam: false*/
 
   app.getPodcast = function () {
-    var wall = app.$.wall;
-    app.async(function () {
-      app.closeDrawer(function () {
-        app.async(function () {
-          wall.getPodcast();
-        });
-      });
+    app.closeDrawer(function () {
+      app.$.wall.getPodcast();
     });
   };
 
   app.getStarred = function () {
-    var wall = app.$.wall;
-    app.async(function () {
-      app.closeDrawer(function () {
-        app.async(function () {
-          wall.getStarred();
-        });
-      });
+    app.closeDrawer(function () {
+      app.$.wall.getStarred();
     });
   };
 
   app.getArtist = function () {
-    var wall = app.$.wall;
-    app.async(function () {
-      app.closeDrawer(function () {
-        app.async(function () {
-          wall.getArtist();
-        });
-      });
+    app.closeDrawer(function () {
+      app.$.wall.getArtist();
     });
   };
 
   app.gotoSettings = function () {
     app.closeDrawer(function () {
       app.page = 2;
+      app.dataLoading = false;
     });
   };
 
@@ -1141,8 +1076,7 @@
     ];
     animation.target = sender;
     animation.play();
-    url = app.url + "/rest/refreshPodcasts.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic";
-    app.doXhr(url, 'json', function (e) {
+    app.doXhr(app.buildUrl('refreshPodcasts', ''), 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         animation.cancel();
         app.$.wall.refreshContent();
@@ -1157,8 +1091,7 @@
     }
     if (!app.invalidURL) {
       app.addingChannel = true;
-      var url = app.url + "/rest/createPodcastChannel.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic&url=" + encodeURIComponent(app.castURL);
-      app.doXhr(url, 'json', function (e) {
+      app.doXhr(app.buildUrl('createPodcastChannel', {url: encodeURIComponent(app.castURL)}), 'json', function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           app.addingChannel = false;
           app.$.addPodcast.close();
@@ -1181,12 +1114,25 @@
   };
 
   app.getLicense = function (callback) {
-    var url = app.url + "/rest/getLicense.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic";
     app.async(function () {
-      app.doXhr(url, 'json', function (e) {
+      app.doXhr(app.buildUrl('getLicense', ''), 'json', function (e) {
         var response = e.target.response['subsonic-response'];
         if (response.status === 'ok') {
           app.serverLicense = response.license;
+          var fromServer = new Date(app.serverLicense.date);
+          var nextYear = Math.floor(fromServer.getFullYear() + 1);
+          var expires = new Date(fromServer.setFullYear(nextYear));
+          var now = new Date();
+          var minute = 1000 * 60;
+          var hour = minute * 60;
+          var day = hour * 24;
+          var daysLeft = Math.ceil((expires.getTime() - now.getTime())/(day));
+          var hoursLeft = Math.ceil((expires.getTime() - now.getTime())/(hour));
+          if (daysLeft > 0) {
+            app.serverLicense.daysLeft = daysLeft + ' days';
+          } else {
+            app.serverLicense.daysLeft = hoursLeft + 'hours';
+          }
           app.$.licenseDialog.open();
           app.async(callback);
         }
@@ -1199,7 +1145,7 @@
   };
 
   app.userDetails = function () {
-    var url = app.url + "/rest/getUser.view?u=" + app.user + "&p=" + app.pass + "&f=json&v=" + app.version + "&c=PolySonic&username=" + app.user;
+    var url = app.buildUrl('getUser', {username: app.user});
     app.async(function () {
       app.doXhr(url, 'json', function (e) {
         var response = e.target.response['subsonic-response'];
@@ -1211,61 +1157,59 @@
       });
     });
   };
-  
-  /*
-    cast API
-  */
-/*  function onRequestSessionSuccess(e) {
-    console.log('request run');
-    session = e;
-    console.log(e);
+
+  function toQueryString(params) {
+    var r = [];
+    for (var n in params) {
+      n = encodeURIComponent(n);
+      r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
+    }
+    return r.join('&');
   }
 
-  function onLaunchError(e) {
-    console.error(e.code);
-  }
-
-  var initializeCastApi = function() {
-    var sessionRequest = new chrome.cast.SessionRequest(chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID);
-    var apiConfig = new chrome.cast.ApiConfig(sessionRequest,
-      sessionListener,
-      receiverListener);
-    chrome.cast.initialize(apiConfig, onInitSuccess, onInitError);
+  String.prototype.hexEncode = function () {
+    var r = '';
+    var i = 0;
+    var h;
+    while (i<this.length) {
+      h = this.charCodeAt(i++).toString(16);
+      while (h.length<2) {
+        h = h;
+      }
+      r += h;
+    }
+    return 'enc:'+r;
   };
 
-  function receiverListener(e) {
-    if( e === chrome.cast.ReceiverAvailability.AVAILABLE) {
-      console.log(e);
+  function makeSalt(length) {
+    var text = "";
+    var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < length; i++ )
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+  }
+
+  app.buildUrl = function(method, options) {
+    if (options !== null && typeof options === 'object') {
+      options = '&' + toQueryString(options);
     }
-  }
-
-  function sessionListener(e) {
-    session = e;
-    if (session.media.length !== 0) {
-      onMediaDiscovered('onRequestSessionSuccess', session.media[0]);
+    if (app.user !== app.params.u) {
+      app.params.u = app.user;
     }
-  }
-
-  function onInitSuccess() {
-    console.log('CastAPI Ready');
-  }
-
-  function onInitError(e) {
-    console.log(e);
-  }
-
-  window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
-    if (loaded) {
-      initializeCastApi();
+    if (app.version !== app.params.v) {
+      app.params.v = app.version;
+    }
+    if (parseFloat(app.version, 10) <= 1.12) {
+      app.params.p = app.pass.hexEncode();
+      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
     } else {
-      console.log(errorInfo);
+      app.params.s = makeSalt(16);
+      app.params.t = md5(app.pass + app.params.s);
+      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
     }
   };
 
-  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.command == "play") {
-      sendResponse({farewell: "Command Sent"});
-    }
-  });*/
 
 }());

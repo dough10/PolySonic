@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <link href="../../bower_components/polymer/polymer.html" rel="import">
+  </head>
+  <body>
+    <polymer-element name="download-manager" constructor="DownloadManager" arrtibutes="hasSaved">
+      <template>
+        <app-globals id="globals"></app-globals>
+        <div horizontal layout class="text">
+          <div flex vertical layout>
+            <div style="font-size:16px; min-height:36px;">{{fileName}}</div>
+            <div horizontal layout>
+              <div flex>{{output}}</div><div>{{rate}}</div>
+            </div>
+          </div>
+          <div>
+            <core-tooltip label="{{pauseDownload}}" disabled?="{{!isDownloading}}">
+              <paper-icon-button icon="av:stop" on-tap="{{abortDownload}}" disabled?="{{!isDownloading}}"></paper-icon-button>
+            </core-tooltip>
+            <core-tooltip label="{{saveFileLabel}}" disabled?="{{hasSaved || isDownloading}}">
+              <paper-icon-button icon="save" on-tap="{{doSave}}" id="saveButton"
+                            style="margin-top:5px;" disabled?="{{hasSaved || isDownloading}}">
+              </paper-icon-button>
+            </core-tooltip>
+            <core-tooltip label="{{removeDownloadLabel}}" disabled?="{{isDownloading}}">
+              <paper-icon-button icon="remove" id="removeButton"
+                                 on-tap="{{removeThis}}" style="margin-top:5px;" disabled?="{{isDownloading}}">
+              </paper-icon-button>
+            </core-tooltip>
+          </div>
+        </div>
+        <core-tooltip style="width:100%;" label="{{progress}}%">
+          <paper-progress value="{{progress}}" style="width:100%; height:8px;"></paper-progress>
+        </core-tooltip>
+      </template>
+      <script src="download-manager.js"></script>
+    </polymer-element>
+  </body>
+</html>

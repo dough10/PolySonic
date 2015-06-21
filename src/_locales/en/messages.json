@@ -244,7 +244,7 @@
     "message": "Reload App"
   },
   "recommendReload": {
-    "message": "It is recommended to reload after clearing cache"
+    "message": "Cache cleared it is recommended to reload"
   },
   "nowPlayingLabel": {
     "message": "Now Playing"
@@ -268,7 +268,7 @@
     "message": "License Key"
   },
   "keyDate": {
-    "message": "Key Date"
+    "message": "Expires in "
   },
   "validLicense": {
     "message": "License Valid"
@@ -285,7 +285,28 @@
   "addPodcastLabel": {
     "message": "Add Podcast"
   },
+   "downloadPodcast": {
+    "message": "Downloading Episode"
+   },
   "moreLikeThis": {
     "message": "Play More Like This"
+  },
+  "downloadStarted": {
+    "message": "Your Download has Started"
+  },
+  "showDownloads": {
+    "message": "Show Downloads"
+  },
+  "downloadFinished": {
+    "message": "Download Finished"
+  },
+  "saveFileLabel": {
+    "message" : "Save File"
+  },
+  "removeDownloadLabel": {
+    "message": "Remove"
+  },
+  "abortDownload": {
+    "message": "Abort Download"
   }
 }

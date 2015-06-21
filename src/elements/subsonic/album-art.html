@@ -8,12 +8,13 @@
 <link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
 <link href="../../bower_components/core-item/core-item.html" rel="import">
 <link href="../../bower_components/core-animation/core-animation.html" rel="import">
-</head><body><polymer-element name="album-art" attributes="artist album cover item user pass url version isFavorite listMode bitRate colorThiefEnabled">
+</head><body><polymer-element name="album-art" attributes="artist album cover item isFavorite listMode bitRate colorThiefEnabled">
   <template>
     <style shim-shadowdom>
       :host {
         display:inline-block;
         margin:2px;
+        will-change:transform;
       }
       #card {
         border-radius:2px;
@@ -303,7 +304,7 @@
               </core-item>
               <template if="{{app.activeUser.downloadRole}}">
                 <core-item>
-                  <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+                  <paper-icon-button on-tap="{{doAlbumDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
                   {{downloadButton}}
                 </core-item>
               </template>
@@ -314,63 +315,6 @@
             </div>
           </div>
         </paper-shadow>
-        <div page="small">
-          <div class="wrapper">
-            <div id="overlay-high-small">
-              <div horizontal layout>
-                <div id="smallCover">
-                  <template if="{{isLoading}}">
-                    <paper-spinner class="spinnerW" active></paper-spinner>
-                  </template>
-                </div>
-                <div flex vertical layout>
-                  <core-item class="bumpTopMargin">
-                    <div flex>
-                      <div class="smallArtist">
-                        {{artist}}
-                      </div>  
-                      <br>
-                      <div class="smallAlbum">
-                        {{album}}
-                      </div>   
-                    </div>
-                    <paper-icon-button on-tap="{{doPlayback}}" icon="av:play-arrow"></paper-icon-button>
-                    <paper-menu-button>
-                      <paper-icon-button icon="more-vert" class="bumpMargin"></paper-icon-button>
-                      <paper-dropdown class="dropdown" halign="right" layered>
-                        <core-menu class="menu">
-                          <core-item>
-                            <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add"></paper-icon-button>
-                            {{add2PlayQueue}}
-                          </core-item>
-                          <core-item>
-                            <template if="{{!isFavorite}}">
-                              <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
-                            </template>
-                            <template if="{{isFavorite}}">
-                              <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
-                            </template>
-                            {{favoriteAlbum}}
-                          </core-item>
-                          <template if="{{app.activeUser.downloadRole}}">
-                            <core-item>
-                              <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
-                              {{downloadButton}}
-                            </core-item>
-                          </template>
-                          <core-item>
-                            <paper-icon-button on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
-                            {{albumTracklist}}
-                          </core-item>
-                        </core-menu>
-                      </paper-dropdown>
-                    </paper-menu-button>
-                  </core-item>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </core-animated-pages>
     </div>
     <paper-dialog id="detailsDialog" style="min-height:695px; min-width:471px;" backdrop autoclosedisabled transition="core-transition-center">
@@ -449,7 +393,7 @@
         </core-tooltip>
         <template if="{{app.activeUser.downloadRole}}">
           <core-tooltip label="{{downloadButton}}" position="right">
-            <paper-icon-button on-tap="{{doDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+            <paper-icon-button on-tap="{{doAlbumDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
           </core-tooltip>
         </template>
         <core-tooltip label="{{moreLikeThis}}" position="right">
@@ -475,7 +419,7 @@
             </core-tooltip>
             <template if="{{app.activeUser.downloadRole}}">
               <core-tooltip label="{{downloadButton}}" position="left">
-                <paper-icon-button on-tap="{{doDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
+                <paper-icon-button on-tap="{{doTrackDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
               </core-tooltip>
             </template>
           </core-item>
