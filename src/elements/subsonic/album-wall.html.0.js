@@ -275,6 +275,14 @@ Polymer('album-wall', {
     this.app.dataLoading = false;
   },
   
+  mouseIn: function (event, detail, sender) {
+    sender.setZ(2);
+  },
+  
+  mouseOut: function (event, detail, sender) {
+    sender.setZ(1);
+  },
+  
   playPodcast: function (event, detial, sender) {
     'use strict';
     this.app.dataLoading = true;
@@ -468,17 +476,18 @@ Polymer('album-wall', {
     callback();
   },
   
+  findIndexByKeyValue: function (arraytosearch, key, valuetosearch) {
+    for (var i = 0; i < arraytosearch.length; i = i + 1) {
+      if (arraytosearch[i][key] === valuetosearch) {
+        return i;
+      }
+    }
+    return null;
+  },
+  
   jumpToLetter: function (letter) {
     'use strict';
-    var i, findIndexByKeyValue = function (arraytosearch, key, valuetosearch) {
-      for (i = 0; i < arraytosearch.length; i = i + 1) {
-        if (arraytosearch[i][key] === valuetosearch) {
-          return i;
-        }
-      }
-      return null;
-    };
-    this.$.artists.scrollToItem(findIndexByKeyValue(this.artists, 'name', letter));
+    this.$.artists.scrollToItem(this.findIndexByKeyValue(this.artist, 'name', letter));
   },
   
   containsObject: function (obj, list) {

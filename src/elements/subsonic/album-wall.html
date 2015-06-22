@@ -110,7 +110,7 @@
           <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
             <template>
               <div>
-                <paper-shadow class="card">
+                <paper-shadow class="card" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
                   <core-item>
                     <div flex class="heading">
                       {{model.title}}
@@ -191,7 +191,7 @@
           <core-list id="artists" data="{{artist}}" flex scrollTarget="{{scrollTarget}}">
             <template>
               <div>
-                <paper-shadow class="card">
+                <paper-shadow class="card" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
                   <div class="heading center">{{model.name}}</div>
                   <template repeat="{{model.artist}}">
                     <paper-item class='title' on-tap="{{artistDetails}}" ident="{{id}}">

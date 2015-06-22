@@ -3,6 +3,7 @@
   'use strict';
   var app = document.querySelector('#tmpl');
   app.addEventListener('template-bound', function () {
+    app.sizePlayer();
     chrome.storage.sync.get(function (result) {
       if (result.url === undefined) {
         app.$.firstRun.open();
@@ -19,8 +20,6 @@
       app.queryMethod = result.queryMethod || 'ID3';
       app.colorThiefEnabled = true;
       app.dataLoading = false;
-      app.sizePlayer();
-      app.calculateStorageSize();
       app.params = {
         u: app.user,
         v: app.version,
@@ -209,8 +208,7 @@
 
   app.getImageFile = function (url, id, callback) {
     app.doXhr(url, 'blob', function (e) {
-      var blob = new Blob([e.target.response], {type: 'image/jpeg'});
-      app.putInDb(blob, id, callback);
+      app.putInDb(new Blob([e.target.response], {type: 'image/jpeg'}), id, callback);
       console.log('Image Added to indexedDB ' + id);
     });
   };
@@ -223,16 +221,16 @@
     }
   };
 
+  function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' Bytes';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+    else if (bytes < 1073741824) return (bytes / 1048576).toFixed(2) + ' MB';
+    else return (bytes / 1073741824).toFixed(2) + ' GB';
+  }
+  
   app.calculateStorageSize = function () {
     navigator.webkitTemporaryStorage.queryUsageAndQuota(function (used, remaining) {
-      var usedQuota = Math.round(10 * (((used / 1000) / 1000))) / 10,
-        remainingQuota = Math.round(10 * ((remaining / 1000) / 1000)) / 10,
-        bytes = 'MB';
-      if (remainingQuota > 1000) {
-        remainingQuota = Math.round(10 * (((remaining / 1000) / 1000) / 1000)) / 10;
-        bytes = 'GB';
-      }
-      app.storageQuota = app.diskUsed + ": " + usedQuota  + " MB, " + app.diskRemaining + ": " + remainingQuota + " " + bytes;
+      app.storageQuota = app.diskUsed + ": " + formatBytes(used) + ', ' + app.diskRemaining + ": " + formatBytes(remaining);
     }, function (e) {
       console.log('Error', e);
     });
@@ -277,14 +275,6 @@
     chrome.app.window.current().minimize();
   };
 
-  app.close = function () {
-    app.checkUnsavedDownloads(function () {
-      window.close();
-    }, function () {
-      this.$.unsavedDownloads.open();
-    }.bind(this));
-  };
-
   app.openDownloads = function () {
     app.$.downloadDialog.open();
   };
@@ -315,6 +305,14 @@
     toast.show();
   };
 
+  app.close = function () {
+    app.checkUnsavedDownloads(function () {
+      window.close();
+    }, function () {
+      this.$.unsavedDownloads.open();
+    }.bind(this));
+  };
+  
   app.checkUnsavedDownloads = function (callback, haveUnsaved) {
     if (this.$.downloads.childElementCount !== 0) {
       var downloads = this.$.downloads.querySelectorAll('download-manager');
@@ -415,23 +413,20 @@
   };
 
   app.playNext = function (next) {
-    var audio = app.$.audio;
     if (app.playlist[next]) {
       app.playing = next;
     } else {
-      audio.pause();
+      app.$.audio.pause();
       app.clearPlaylist();
     }
   };
 
   app.nextTrack = function () {
-    var next = app.playing + 1;
-    app.playNext(next);
+    app.playNext(app.playing + 1);
   };
 
   app.lastTrack = function () {
-    var next = app.playing - 1;
-    app.playNext(next);
+    app.playNext(app.playing - 1);
   };
 
   app.playThis = function () {
@@ -651,15 +646,11 @@
     }
   };
 
-  /*
-    UI events
-  */
   app.showApp = function () {
     var loader = document.getElementById("loader"),
-      visible = loader.classList.contains("hide"),
       box = document.getElementById("box");
 
-    if (!visible) {
+    if (!loader.classList.contains("hide")) {
       loader.classList.add('hide');
       box.classList.add('hide');
       box.classList.add('hide');
@@ -769,6 +760,17 @@
     app.$.createPlaylist.open();
     app.defaultName = new Date().toGMTString();
   };
+  
+  function save2PlayQueueCallback(e) {
+    if (e.target.response['subsonic-response'].status === 'ok') {
+      app.doToast(chrome.i18n.getMessage('playlistCreated'));
+      app.$.createPlaylist.close();
+      app.savingPlaylist = false;
+    } else {
+      app.doToast(chrome.i18n.getMessage('playlistError'));
+      app.savingPlaylist = false;
+    }
+  }
 
   app.savePlayQueue2Playlist = function () {
     var url = app.buildUrl('createPlaylist', {name: app.defaultName}),
@@ -778,16 +780,7 @@
     for (var i = 0; i < length; i++) {
       url = url + '&songId=' + app.playlist[i].id;
       if (i === length - 1) {
-        app.doXhr(url, 'json', function (e) {
-          if (e.target.response['subsonic-response'].status === 'ok') {
-            app.doToast(chrome.i18n.getMessage('playlistCreated'));
-            app.$.createPlaylist.close();
-            app.savingPlaylist = false;
-          } else {
-            app.doToast(chrome.i18n.getMessage('playlistError'));
-            app.savingPlaylist = false;
-          }
-        });
+        app.doXhr(url, 'json', save2PlayQueueCallback);
       }
     }
   };
