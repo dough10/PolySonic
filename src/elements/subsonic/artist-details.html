@@ -8,11 +8,11 @@
 <link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
 <link href="../../bower_components/core-item/core-item.html" rel="import">
   <link href="../../bower_components/core-list/core-list.html" rel="import">
-</head><body><polymer-element name="artist-details" attributes="url user pass artistId version bitRate listMode colorThiefEnabled">
+</head><body><polymer-element name="artist-details" attributes="artistId listMode">
   <template>
     <div id="all">
       <template repeat="{{data}}">
-        <album-art id='al{{model.id}}' listMode="{{listMode}}" bitRate="{{bitRate}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" isFavorite="{{starred}}" colorThiefEnabled="{{colorThiefEnabled}}"></album-art>
+        <album-art id='ac{{model.id}}' listMode="cover" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" isFavorite="{{starred}}"></album-art>
       </template>
       <div style="min-height:150px"></div>
     </div>

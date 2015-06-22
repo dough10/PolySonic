@@ -85,7 +85,7 @@ Polymer('album-art', {
     this.async(function () {
       this.app.dataLoading = false;
       this.app.tracker.sendAppView('Album Details');
-      if (this.colorThiefEnabled && this.playlist[0].palette) {
+      if (this.app.colorThiefEnabled && this.playlist[0].palette) {
         this.app.colorThiefAlbum = this.playlist[0].palette[0];
         this.app.colorThiefAlbumOff = this.playlist[0].palette[1];
       }
@@ -116,7 +116,7 @@ Polymer('album-art', {
       this.app.playAudio(
         this.playlist[0].artist, 
         this.playlist[0].title, 
-        this.app.buildUrl('stream', {maxBitRate: this.bitRate, id: this.playlist[0].id}), 
+        this.app.buildUrl('stream', {maxBitRate: this.app.bitRate, id: this.playlist[0].id}), 
         this.imgURL, 
         this.playlist[0].id
       );
@@ -200,7 +200,7 @@ Polymer('album-art', {
     this.app.playAudio(
       sender.attributes.artist.value, 
       sender.attributes.trackTitle.value, 
-      this.app.buildUrl('stream', {maxBitRate: this.bitRate, id: sender.attributes.ident.value}), 
+      this.app.buildUrl('stream', {maxBitRate: this.app.bitRate, id: sender.attributes.ident.value}), 
       this.imgURL, 
       sender.attributes.ident.value
     );
@@ -222,7 +222,7 @@ Polymer('album-art', {
       this.app.playAudio(
         sender.attributes.artist.value, 
         sender.attributes.trackTitle.value, 
-        this.app.buildUrl('stream', {maxBitRate: this.bitRate, id: sender.attributes.ident.value}), 
+        this.app.buildUrl('stream', {maxBitRate: this.app.bitRate, id: sender.attributes.ident.value}), 
         this.imgURL, 
         sender.attributes.ident.value
       );
@@ -249,7 +249,7 @@ Polymer('album-art', {
       this.app.playAudio(
         this.playlist[0].artist, 
         this.playlist[0].title, 
-        this.app.buildUrl('stream', {maxBitRate: this.bitRate, id: this.playlist[0].id}), 
+        this.app.buildUrl('stream', {maxBitRate: this.app.bitRate, id: this.playlist[0].id}), 
         this.imgURL, 
         this.playlist[0].id
       );
@@ -406,8 +406,7 @@ Polymer('album-art', {
       if (this.item) {
         this.isLoading = true;
         this.showArt(this.defaultImgURL);
-        this.playlist = null;
-        this.playlist = [];
+        this.playlist.length = 0;
         this.async(function () {
           this.app.getDbItem(artId, function (e) {
             if (e.target.result) {
@@ -439,7 +438,7 @@ Polymer('album-art', {
         this.app.getImageForPlayer(this.app.playlist[0].cover, function () {
           this.app.playing = 0;
           this.app.setFabColor(this.app.playlist[0]);
-          this.app.playAudio(this.app.playlist[0].artist, this.app.playlist[0].title, this.app.buildUrl('stream', {maxBitRate: this.bitRate, id: this.app.playlist[0].id}), this.app.playlist[0].cover, this.app.playlist[0].id);
+          this.app.playAudio(this.app.playlist[0].artist, this.app.playlist[0].title, this.app.buildUrl('stream', {maxBitRate: this.app.bitRate, id: this.app.playlist[0].id}), this.app.playlist[0].cover, this.app.playlist[0].id);
           this.app.dataLoading = false;
           this.app.page = 1;
         }.bind(this));

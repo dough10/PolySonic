@@ -8,7 +8,7 @@
 <link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
 <link href="../../bower_components/core-item/core-item.html" rel="import">
 <link href="../../bower_components/core-animation/core-animation.html" rel="import">
-</head><body><polymer-element name="album-art" attributes="artist album cover item isFavorite listMode bitRate colorThiefEnabled">
+</head><body><polymer-element name="album-art" attributes="artist album cover item isFavorite listMode">
   <template>
     <style shim-shadowdom>
       :host {
@@ -282,7 +282,7 @@
             </div>
           </div>
         </paper-shadow>
-        <paper-shadow z="1" page="info">
+        <paper-shadow z="1" page="info" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
           <div class="wrapper">
             <div id="overlay-high" hero-id="hero" hero="">
               <core-tooltip label="{{closeLabel}}" class="left-icon" id="icon">

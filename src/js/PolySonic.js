@@ -705,8 +705,7 @@
   };
 
   app.setFolder = function (event, detail, sender) {
-    var value = parseInt(sender.attributes.i.value, 10);
-    app.folder = value;
+    app.folder = parseInt(sender.attributes.i.value, 10);
     chrome.storage.sync.set({
       'mediaFolder': value
     });
@@ -747,12 +746,9 @@
   };
 
   app.progressClick = function (event) {
-    var audio = app.$.audio,
-      clicked = (event.x / window.innerWidth),
-      sum = audio.duration - (audio.duration - (audio.duration * clicked)),
-      bar = app.$.progress;
-    bar.value = clicked * 100;
-    audio.currentTime = sum;
+    var clicked = (event.x / window.innerWidth);
+    app.$.progress.value = clicked * 100;
+    app.$.audio.currentTime = audio.duration - (audio.duration - (audio.duration * clicked));
   };
 
   app.savePlayQueue = function () {
