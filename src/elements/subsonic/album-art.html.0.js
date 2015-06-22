@@ -406,7 +406,7 @@ Polymer('album-art', {
       if (this.item) {
         this.isLoading = true;
         this.showArt(this.defaultImgURL);
-        this.playlist.length = 0;
+        this.playlist = [];
         this.async(function () {
           this.app.getDbItem(artId, function (e) {
             if (e.target.result) {
