@@ -109,8 +109,19 @@ Polymer('album-wall', {
             this.artist = this.artist.concat(response.artists.index);
             this.async(callback);
           } else if (response.searchResult3 && response.searchResult3.album) {
-            this.wall = this.wall.concat(response.searchResult3.album);
-            this.async(callback);
+            var data = response.searchResult3.album;
+            var length = response.searchResult3.album.length;
+            var array = [];
+            for  (var i = 0; i < length; i++) {
+              console.log(!this.containsObject(data[i], array));
+              if (!this.containsObject(data[i], array)) {
+                array.push(data[i]);
+              }
+              if (i === length - 1) {
+                this.wall = this.wall.concat(array);
+                this.async(callback);
+              }
+            }
           } else {
             this.app.pageLimit = true;
           }
@@ -491,8 +502,7 @@ Polymer('album-wall', {
   },
   
   containsObject: function (obj, list) {
-    var i;
-    for (i = 0; i < list.length; i = i + 1) {
+    for (var i = 0; i < list.length; i = i + 1) {
       if (list[i].id === obj.id) {
         return true;
       }
