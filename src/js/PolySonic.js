@@ -912,6 +912,7 @@
       app.doXhr(app.buildUrl('getGenres', ''), 'json', function (e) {
         app.genres = e.target.response['subsonic-response'].genres.genre;
         app.$.shuffleOptions.open();
+        app.dataLoading = false;
       });
     });
   };
