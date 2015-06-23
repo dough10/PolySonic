@@ -113,7 +113,6 @@ Polymer('album-wall', {
             var length = response.searchResult3.album.length;
             var array = [];
             for  (var i = 0; i < length; i++) {
-              console.log(!this.containsObject(data[i], array));
               if (!this.containsObject(data[i], array)) {
                 array.push(data[i]);
               }
