@@ -14,7 +14,6 @@ Polymer('album-art', {
   width: "250px",
   height: "250px",
   albumSize: 0,
-  playlist: [],
   /*
     element is ready
   */
@@ -406,7 +405,7 @@ Polymer('album-art', {
       var artId = "al-" + this.item;
       if (this.item) {
         this.showArt(this.defaultImgURL);
-        this.playlist.length = 0;
+        this.playlist = [];
         this.isLoading = true;
         this.async(function () {
           this.app.getDbItem(artId, function (e) {
