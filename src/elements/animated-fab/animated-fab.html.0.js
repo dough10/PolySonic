@@ -6,6 +6,7 @@ Polymer('animated-fab',{
   },
   domReady: function () {
     this.app = document.getElementById('tmpl');
+    this.bottomPos = 16;
   },
   pageChanged: function () {
     var pName;
