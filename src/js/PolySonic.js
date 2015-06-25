@@ -637,7 +637,7 @@
         app.progress = 0;
       } else {
         app.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
-        app.progress = (audio.currentTime / audio.duration * 100);
+        app.progress = Math.floor(audio.currentTime / audio.duration * 100);
       }
     } else {
       app.$.avIcon.icon = "av:play-arrow";
