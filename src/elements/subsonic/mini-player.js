@@ -35,7 +35,7 @@ Polymer('mini-player', {
         } else {
           this.timer = setTimeout(function () {
             this.page = 0;
-          }.bind(this), 60000);
+          }.bind(this), 120000);
         }
       }
     }

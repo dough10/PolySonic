@@ -48,7 +48,7 @@ Polymer('animated-fab',{
       } else {
         this.timer = setTimeout(function () {
           this.bottomPos = 16;
-        }.bind(this), 60000);
+        }.bind(this), 120000);
       }
     }
   }
