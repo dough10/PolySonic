@@ -111,13 +111,13 @@ Polymer('album-wall', {
           } else if (response.searchResult3 && response.searchResult3.album) {
             var data = response.searchResult3.album;
             var length = response.searchResult3.album.length;
-            var array = [];
+            var tmpArray = [];
             for  (var i = 0; i < length; i++) {
-              if (!this.containsObject(data[i], array)) {
-                array.push(data[i]);
+              if (!this.containsObject(data[i], tmpArray)) {
+                tmpArray.push(data[i]);
               }
               if (i === length - 1) {
-                this.wall = this.wall.concat(array);
+                this.wall = this.wall.concat(tmpArray);
                 this.async(callback);
               }
             }
@@ -311,7 +311,7 @@ Polymer('album-wall', {
               obj.palette = palette;
               this.app.setFabColor(obj);
               this.doPlay(obj, url);
-              this.app.page = 1;
+              //this.app.page = 1;
             }.bind(this));
           }.bind(this));
         } else {
@@ -324,7 +324,7 @@ Polymer('album-wall', {
                 obj.palette = colorArray;
                 this.app.setFabColor(obj);
                 this.doPlay(obj, url);
-                this.app.page = 1;
+                //this.app.page = 1;
               }.bind(this));
             }.bind(this));
           }.bind(this));

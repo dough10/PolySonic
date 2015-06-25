@@ -67,6 +67,10 @@
         fab.state = 'off';
       } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
         fab.state = 'bottom';
+      } else if (app.page === 3 && fab.state !== 'off' && scroller.scrollTop < app.position) {
+        fab.state = 'off';
+      } else if (app.page === 3 && fab.state !== 'bottom' && scroller.scrollTop > app.position) {
+        fab.state = 'bottom';
       }
       app.position = scroller.scrollTop;
     };
@@ -387,6 +391,7 @@
     play functions
   */
   app.playAudio = function (artist, title, src, image, id) {
+    this.fire('track-changed');
     var audio = app.$.audio,
       note = app.$.playNotify,
       now = new Date().getTime();
@@ -538,7 +543,7 @@
       app.playing = 0;
       app.playAudio(app.playlist[0].artist, app.playlist[0].title, app.buildUrl('stream', {maxBitRate: app.bitRate, id: app.playlist[0].id}), app.playlist[0].cover, app.playlist[0].id);
       app.getImageForPlayer(app.playlist[0].cover, function () {
-        app.page = 1;
+        //app.page = 1;
         app.setFabColor(app.playlist[0]);
         app.$.shuffleOptions.close();
         app.shuffleLoading = false;
@@ -620,24 +625,22 @@
         app.waitingToPlay = false;   // spinner on album art hidden
       }
     }
-    if (app.page === 1) {
-      currentMins = Math.floor(audio.currentTime / 60);
-      currentSecs = Math.floor(audio.currentTime - (currentMins * 60));
-      totalMins = Math.floor(audio.duration / 60);
-      totalSecs = Math.floor(audio.duration - (totalMins * 60));
+    currentMins = Math.floor(audio.currentTime / 60);
+    currentSecs = Math.floor(audio.currentTime - (currentMins * 60));
+    totalMins = Math.floor(audio.duration / 60);
+    totalSecs = Math.floor(audio.duration - (totalMins * 60));
 
-      if (!audio.paused) {
-        app.$.avIcon.icon = "av:pause";
-        if (!audio.duration) {
-          app.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
-          app.progress = 0;
-        } else {
-          app.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
-          app.progress = Math.floor(audio.currentTime / audio.duration * 100);
-        }
+    if (!audio.paused) {
+      app.$.avIcon.icon = "av:pause";
+      if (!audio.duration) {
+        app.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
+        app.progress = 0;
       } else {
-        app.$.avIcon.icon = "av:play-arrow";
+        app.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
+        app.progress = (audio.currentTime / audio.duration * 100);
       }
+    } else {
+      app.$.avIcon.icon = "av:play-arrow";
     }
     if (!audio.paused) {
       app.isNowPlaying = true; // shows the now playing button
@@ -853,9 +856,8 @@
   };
 
   app.showPlaylist = function () {
-    var dialog = app.$.playlistDialog;
     app.async(function () {
-      dialog.toggle();
+      app.$.playlistDialog.toggle();
     });
   };
 

@@ -53,7 +53,7 @@
         </div>
       </template>
       <!-- fab -->
-      <animated-fab id="fab" page="{{page}}" showing="{{showing}}" on-tap="{{doAction}}" colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}" colorThiefalbum="{{colorThiefAlbum}}" colorThiefAlbumOff="{{colorThiefAlbumOff}}" playing="{{playing}}"></animated-fab>
+      <animated-fab id="fab" page="{{page}}" showing="{{showing}}" isNowPlaying="{{!isNowPlaying}}" on-tap="{{doAction}}" colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}" colorThiefalbum="{{colorThiefAlbum}}" colorThiefAlbumOff="{{colorThiefAlbumOff}}" playing="{{playing}}"></animated-fab>
       <core-drawer-panel id="panel" narrow="{{narrow}}" forceNarrow disableSwipe?="{{page !== 0}}">
 
         <!-- menu -->
@@ -162,13 +162,14 @@
                   <paper-icon-button icon="file-download" on-tap="{{openDownloads}}" disabled?="{{dataLoading || shuffleLoading}}"></paper-icon-button>
                 </core-tooltip>
 
-                <core-tooltip hidden?="{{!isNowPlaying}}" label="{{nowPlayingLabel}}" class="bottom">
+                <!--<core-tooltip hidden?="{{!isNowPlaying}}" label="{{nowPlayingLabel}}" class="bottom">
                   <paper-icon-button on-tap="{{nowPlaying}}" disabled?="{{dataLoading || shuffleLoading}}" icon="av:hearing"></paper-icon-button>
-                </core-tooltip>
+                </core-tooltip>-->
 
               </core-toolbar>
               <album-wall id="wall" listMode="{{listMode}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}" queryMethod="{{queryMethod}}" mediaFolder="{{folder}}" colorThiefEnabled="{{colorThiefEnabled}}" artists="{{artists}}"></album-wall>
             </core-header-panel>
+            <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}" progress="{{progress}}"></mini-player>
           </section>
 
           <!-- player -->
@@ -183,7 +184,7 @@
               <div class="bottom" flex>{{currentPlaying}}</div>
             </core-toolbar>
             <div style="position:relative;">
-              <div id="coverArt">
+              <div id="coverArt" hero-id="art" hero="">
                 <div hidden?="{{!waitingToPlay}}" class="waitingToPlay">
                   <paper-spinner class="spinner" active></paper-spinner>
                 </div>
@@ -252,6 +253,7 @@
                 listMode="{{listMode}}">
               </artist-details>
             </core-header-panel>
+            <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}" progress="{{progress}}"></mini-player>
           </section>
         </core-animated-pages>
       </core-drawer-panel>

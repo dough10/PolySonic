@@ -4,7 +4,7 @@
 <link href="../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
 <link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
 <link href="../../bower_components/core-icons/av-icons.html" rel="import">
-</head><body><polymer-element name="animated-fab" attributes="state fabTimer page showing colorThiefFab colorThiefFabOff colorThiefAlbum colorThiefAlbumOff playing">
+</head><body><polymer-element name="animated-fab" attributes="state fabTimer page showing isNowPlaying colorThiefFab colorThiefFabOff colorThiefAlbum colorThiefAlbumOff playing">
   <template>
     <style>
       :host {
@@ -30,7 +30,7 @@
         height:100%;
       }
       .bottom {
-        bottom:16px;
+        bottom:{{bottomPos}}px;
       }
       .off {
         bottom:-80px;
