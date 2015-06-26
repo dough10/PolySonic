@@ -5,6 +5,7 @@
   app.addEventListener('template-bound', function () {
     app.sizePlayer();
     chrome.storage.sync.get(function (result) {
+      console.log(result);
       if (result.url === undefined) {
         app.$.firstRun.open();
       }

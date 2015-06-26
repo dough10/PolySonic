@@ -12,7 +12,7 @@
       }
       .player {
         border-top:1px solid #dddddd;
-        background: rgba(255,255,255,0.8);
+        background: rgba(255,255,255,0.95);
         height:91px;
         width:535px;
         position:fixed;
@@ -82,7 +82,7 @@
       </section>
       <section>
         <div class='player onscreen' hero-id="bar" hero="">
-          <paper-slider on-tap="{{progressClick}}" value="{{progress}}"></paper-slider>
+          <paper-slider on-change="{{progressClick}}" value="{{progress}}"></paper-slider>
           <div horizontal layout>
             <div>
               <core-tooltip label="{{label}}" position="top">

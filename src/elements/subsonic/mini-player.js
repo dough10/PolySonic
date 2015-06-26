@@ -56,8 +56,7 @@ Polymer('mini-player', {
   },
   progressClick: function (event, detail) {
     var audio = this.app.$.audio;
-    var clicked = (event.x / window.innerWidth);
-    this.app.$.progress.value = clicked * 100;
-    this.app.$.audio.currentTime = audio.duration - (audio.duration - (audio.duration * clicked));
+    var slide = this.progress / 100;
+    audio.currentTime = audio.duration - (audio.duration - (audio.duration * slide));
   }
 });

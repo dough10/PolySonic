@@ -7,6 +7,7 @@ Polymer('animated-fab',{
   domReady: function () {
     this.app = document.getElementById('tmpl');
     this.bottomPos = 16;
+    this.ready = true;
   },
   pageChanged: function () {
     var pName;
@@ -43,12 +44,14 @@ Polymer('animated-fab',{
       clearTimeout(this.timer);
       this.timer = 0;
     } else {
-      if (!this.app.playlist[0]) {
-        this.bottomPos = 16;
-      } else {
-        this.timer = setTimeout(function () {
+      if (this.ready && this.app) {
+        if (!this.app.playlist[0]) {
           this.bottomPos = 16;
-        }.bind(this), 120000);
+        } else {
+          this.timer = setTimeout(function () {
+            this.bottomPos = 16;
+          }.bind(this), 120000);
+        }
       }
     }
   }

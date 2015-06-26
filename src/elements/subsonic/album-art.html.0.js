@@ -424,6 +424,27 @@ Polymer('album-art', {
     });
   },
 
+  setRating: function (event, detail, sender) {
+    'use strict';
+    var rating = parseInt(sender.attributes.star.value, 10);
+    var animation = new CoreAnimation();
+    animation.duration = 1000;
+    animation.iterations = 'Infinity';
+    animation.keyframes = [
+      {opacity: 1},
+      {opacity: 0}
+    ];
+    animation.target = sender;
+    animation.play();
+    this.app.doXhr(this.app.buildUrl('setRating', {id: this.item, rating: rating}), 'json', function (e) {
+      var json = e.target.response['subsonic-response'];
+      animation.cancel();
+      if (json.status === 'ok') {
+        this.rating = rating;
+      }
+    }.bind(this));
+  },
+
   /*
     OMG its a nested nightmare!!!!!!!!!!
     will get list of similar tracks from server then parse results match with artwork & color palette before pushing it to the this.playlist array and playing 1st result

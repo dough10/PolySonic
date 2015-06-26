@@ -92,7 +92,7 @@
           <core-list id="cover" data="{{wall}}" flex grid="false" scrollTarget="{{scrollTarget}}">
             <template>
               <div>
-                <album-art id='ac{{model.id}}' listMode="cover" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" isFavorite="{{model.starred}}"></album-art>
+                <album-art id='ac{{model.id}}' listMode="cover" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name || model.title}}" isFavorite="{{model.starred}}"></album-art>
               </div>
             </template>
           </core-list>
