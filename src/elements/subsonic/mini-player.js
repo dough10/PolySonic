@@ -23,11 +23,6 @@ Polymer('mini-player', {
       this.page = 1;
       clearTimeout(this.timer);
       this.timer = 0;
-      if (this.app.$.audio.paused) {
-        this.$.playButton.icon = 'av:play-arrow';
-      } else {
-        this.$.playButton.icon = 'av:pause';
-      }
     } else {
       if (this.app) {
         if (!this.app.playlist[0]) {
@@ -39,16 +34,23 @@ Polymer('mini-player', {
         }
       }
     }
+    if (this.app) {
+      if (this.app.$.audio.paused) {
+        this.$.playButton.icon = 'av:play-arrow';
+      } else {
+        this.$.playButton.icon = 'av:pause';
+      }
+    }
   },
   toPlayer: function () {
     this.app.nowPlaying();
   },
   playPause: function () {
-    if (!this.app.$.audio.paused) {
+/*    if (!this.app.$.audio.paused) {
       this.$.playButton.icon = 'av:play-arrow';
     } else {
       this.$.playButton.icon = 'av:pause';
-    }
+    }*/
     this.app.playPause();
   },
   openPlaylist: function () {
