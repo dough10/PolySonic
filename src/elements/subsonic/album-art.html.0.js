@@ -445,82 +445,57 @@ Polymer('album-art', {
     }.bind(this));
   },
 
-  /*
-    OMG its a nested nightmare!!!!!!!!!!
-    will get list of similar tracks from server then parse results match with artwork & color palette before pushing it to the this.playlist array and playing 1st result
-  */
+  moreLikeCallback: function () {
+    if (this.app.$.audio.paused) {
+      this.app.getImageForPlayer(this.app.playlist[0].cover, function () {
+        this.app.playing = 0;
+        this.app.setFabColor(this.app.playlist[0]);
+        this.app.playAudio(this.app.playlist[0].artist, this.app.playlist[0].title, this.app.buildUrl('stream', {maxBitRate: this.app.bitRate, id: this.app.playlist[0].id}), this.app.playlist[0].cover, this.app.playlist[0].id);
+        this.app.dataLoading = false;
+      }.bind(this));
+    }
+  },
+  
   moreLike: function (event, detail, sender) {
     'use strict';
-    var id = sender.attributes.ident.value,
-      i = 0,
-      array = [],
-      /* to be run @ end of loop */
-      callback = function () {
-        this.app.getImageForPlayer(this.app.playlist[0].cover, function () {
-          this.app.playing = 0;
-          this.app.setFabColor(this.app.playlist[0]);
-          this.app.playAudio(this.app.playlist[0].artist, this.app.playlist[0].title, this.app.buildUrl('stream', {maxBitRate: this.app.bitRate, id: this.app.playlist[0].id}), this.app.playlist[0].cover, this.app.playlist[0].id);
-          this.app.dataLoading = false;
-          //this.app.page = 1;
-        }.bind(this));
-      }.bind(this);
+    var id = sender.attributes.ident.value;
     this.$.detailsDialog.close();
     this.app.$.fab.state = 'off';
     this.app.dataLoading = true;
-    /* get data */
     this.app.doXhr(this.app.buildUrl('getSimilarSongs', {count: 50, id: id}), 'json', function (e) {
       var response = e.target.response['subsonic-response'].similarSongs.song;
       if (response) {
         this.app.$.audio.pause();
         this.app.playlist.length = 0;
-        Array.prototype.forEach.call(response, function (element) {
-          var mins = Math.floor(element.duration / 60),
-            seconds = Math.floor(element.duration - (mins * 60)),
-            timeString = mins + ':' + ('0' + seconds).slice(-2),
-            obj = {id: element.id, artist: element.artist, title: element.title, duration: timeString},
-            artId = 'al-' + element.albumId;
-          /* check indexeddb */
-          this.app.getDbItem(artId, function (ev) {
-            if (ev.target.result) {
-              var imgFile = ev.target.result,
-                imgURL = window.URL.createObjectURL(imgFile);
-              // got the image as imgURL
-              obj.cover = imgURL;
-              /* get palette from db */
-              this.app.getDbItem(artId + '-palette', function (e) {
-                obj.palette = e.target.result;
+        var length = response.length;
+        for (var i = 0; i < length; i++) {
+          var mins = Math.floor(response[i].duration / 60),
+            obj = {
+              id: response[i].id, 
+              artist: response[i].artist, 
+              title: response[i].title, 
+              duration: mins + ':' + ('0' + Math.floor(response[i].duration - (mins * 60))).slice(-2)
+            }, artId = 'al-' + response[i].albumId;
+          this.app.getDbItem(artId, function (artEvent) {
+            if (artEvent.target.result) {
+              obj.cover = window.URL.createObjectURL(artEvent.target.result);
+              this.app.getDbItem(artId + '-palette', function (paletteEvent) {
+                obj.palette = paletteEvent.target.result;
                 this.app.playlist.push(obj);
-                i = i + 1;
-                if (i === response.length) {
-                  callback();
-                }
+                this.moreLikeCallback();
               }.bind(this));
             } else {
-              /*
-                get image from subsonic server and save in db
-              */
-              this.app.getImageFile(this.app.buildUrl('getCoverArt', {size: 550, id: artId}), artId, function (event) {
-                var imgFile = event.target.result,
-                  imgURL = window.URL.createObjectURL(imgFile);
-
-
-                obj.cover = imgURL;
-
-                /*
-                  put palette in db
-                */
+              this.app.getImageFile(this.app.buildUrl('getCoverArt', {size: 550, id: artId}), artId, function (xhrEvent) {
+                obj.cover = window.URL.createObjectURL(xhrEvent.target.result);
                 this.app.colorThiefHandler(imgURL, artId, function (colorArray) {
                   obj.palette = colorArray;
                   this.app.playlist.push(obj);
-                  i = i + 1;
-                  if (i === response.length) {
-                    callback();
-                  }
+                  this.moreLikeCallback();
                 }.bind(this));
               }.bind(this));
             }
           }.bind(this));
-        }.bind(this));
+        }
       } else {
         this.app.dataLoading = false;
         this.app.doToast(chrome.i18n.getMessage("noResults"));

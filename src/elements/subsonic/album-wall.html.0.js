@@ -73,7 +73,7 @@ Polymer('album-wall', {
     this.async(function () {
       callback();
       this.resizeLists();
-    });
+    }, null, 50);
   },
   
   responseChanged: function () {

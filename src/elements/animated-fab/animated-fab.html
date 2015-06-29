@@ -21,7 +21,7 @@
         z-index:5;
         position:fixed !important;
         background: #db4437;
-        transition: background 500ms linear;
+        transition: background 0.5s ease-out;
       }
       core-animated-pages {
         height:100%;
@@ -30,6 +30,7 @@
         height:100%;
       }
       .bottom {
+        transition: bottom 0.5s ease-out;
         bottom:{{bottomPos}}px;
       }
       .off {
