@@ -23,7 +23,10 @@ Polymer('artist-details', {
     });
   },
   playSomething: function (id, callback) {
-    this.$.all.querySelector('#' + id).doPlayback();
+    var element = this.$.all.querySelector('#' + id);
+    console.log(element);
+    element.$.detailsDialog.close();
+    element.doPlayback();
     this.async(callback);
   }
 });

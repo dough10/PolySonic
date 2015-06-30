@@ -103,12 +103,10 @@
                 {{name}}
               </paper-item>
             </template>
-            <template if="{{activeUser.podcastRole}}">
-              <paper-item on-tap="{{getPodcast}}">
-                <core-icon icon="av:album"></core-icon>
-                {{podcastButton}}
-              </paper-item>
-            </template>
+            <paper-item on-tap="{{getPodcast}}">
+              <core-icon icon="av:album"></core-icon>
+              {{podcastButton}}
+            </paper-item>
             <template if="{{activeUser.playlistRole}}">
               <paper-item on-tap="{{openPlaylists}}">
                 <core-icon icon="av:queue-music"></core-icon>
@@ -125,11 +123,8 @@
         <core-animated-pages main  class="pages" selected="{{page}}" transitions="slide-from-right hero-transition">
 
           <section>
-            <!-- body -->
             <core-header-panel class="pages" id="headerPanel" flex mode="waterfall">
-              <!--app toolbar-->
               <core-toolbar id="toolbar" class="medium-tall">
-
                 <div class="sysbar" horizontal layout>
                   <div flex class='drag'></div>
                   <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
@@ -161,18 +156,14 @@
                 <core-tooltip hidden?="{{!isDownloading}}" class="bottom" label="{{showDownloads}}">
                   <paper-icon-button icon="file-download" on-tap="{{openDownloads}}" disabled?="{{dataLoading || shuffleLoading}}"></paper-icon-button>
                 </core-tooltip>
-
                 <!--<core-tooltip hidden?="{{!isNowPlaying}}" label="{{nowPlayingLabel}}" class="bottom">
                   <paper-icon-button on-tap="{{nowPlaying}}" disabled?="{{dataLoading || shuffleLoading}}" icon="av:hearing"></paper-icon-button>
                 </core-tooltip>-->
-
               </core-toolbar>
               <album-wall id="wall" listMode="{{listMode}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}" queryMethod="{{queryMethod}}" mediaFolder="{{folder}}" colorThiefEnabled="{{colorThiefEnabled}}" artists="{{artists}}"></album-wall>
             </core-header-panel>
             <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}" progress="{{progress}}"></mini-player>
           </section>
-
-          <!-- player -->
           <section>
             <core-toolbar class="medium-tall">
               <div class="sysbar" horizontal layout>

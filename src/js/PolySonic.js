@@ -800,12 +800,14 @@
       animation.play();
       app.$.wall.playSomething(sender.ident, function () {
         animation.cancel();
+        app.$.fab.state = 'bottom';
       });
     }
     if (app.page === 3) {
       animation.play();
       app.$.aDetails.playSomething(sender.ident, function () {
         animation.cancel();
+        app.$.fab.state = 'bottom';
       });
     }
   };
@@ -842,13 +844,13 @@
   };
 
   app.showPlaylist = function () {
-    requestAnimationFrame(function () {
+    app.async(function () {
       app.$.playlistDialog.toggle();
     });
   };
 
   app.closePlaylist = function () {
-    requestAnimationFrame(function () {
+    app.async(function () {
       app.$.playlistDialog.close();
     });
   };
@@ -860,7 +862,7 @@
       app.doXhr(app.buildUrl('getPlaylists', ''), 'json', function (e) {
         app.playlistsLoading = false;
         app.playlists = e.target.response['subsonic-response'].playlists.playlist;
-        requestAnimationFrame(function () {
+        app.async(function () {
           app.$.playlistsDialog.open();
         });
       });
@@ -868,14 +870,14 @@
   };
 
   app.closePlaylists = function () {
-    requestAnimationFrame(function () {
+    app.async(function () {
       app.$.playlistsDialog.close();
     });
   };
 
   app.reallyDelete = function (event, detail, sender) {
     app.delID =  sender.attributes.ident.value;
-    requestAnimationFrame(function () {
+    app.async(function () {
       app.$.playlistsDialog.close();
       app.$.playlistConfirm.open();
     });
@@ -888,7 +890,7 @@
         app.doXhr(app.buildUrl('getPlaylists', ''), 'json', function (e) {
           app.playlistsLoading = false;
           app.playlists = e.target.response['subsonic-response'].playlists.playlist;
-          requestAnimationFrame(function () {
+          app.async(function () {
             app.$.playlistsDialog.open();
           });
         });
@@ -899,7 +901,7 @@
   };
 
   app.closeShuffleOptions = function () {
-    requestAnimationFrame(function () {
+    app.async(function () {
       app.$.shuffleOptions.close();
     });
   };
@@ -909,7 +911,7 @@
       app.doXhr(app.buildUrl('getGenres', ''), 'json', function (e) {
         app.genres = e.target.response['subsonic-response'].genres.genre;
         app.dataLoading = false;
-        requestAnimationFrame(function () {
+        app.async(function () {
           app.$.shuffleOptions.open();
         });
       });
@@ -917,7 +919,7 @@
   };
 
   app.closePodcastDialog = function () {
-    requestAnimationFrame(function () {
+    app.async(function () {
       app.$.addPodcast.close();
     });
   };
@@ -940,13 +942,13 @@
   };
 
   app.back2List = function () {
-    requestAnimationFrame(function () {
+    app.async(function () {
       app.page = 0;
     });
   };
 
   app.nowPlaying = function () {
-    requestAnimationFrame(function () {
+    app.async(function () {
       app.page = 1;
     });
   };
@@ -991,7 +993,7 @@
   };
 
   app.gotoSettings = function () {
-    requestAnimationFrame(function () {
+    app.async(function () {
       app.$.panel.closeDrawer();
       app.page = 2;      
     });

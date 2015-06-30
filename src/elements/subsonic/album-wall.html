@@ -8,7 +8,7 @@
 <link href="../../bower_components/core-scroll-threshold/core-scroll-threshold.html" rel="import">
 <link href="../../bower_components/core-animation/core-animation.html" rel="import">
 <link href="../../bower_components/core-tooltip/core-tooltip.html" rel="import">
-</head><body><polymer-element name="album-wall" attributes="sort wall listMode bitRate querySize isLoading showing queryMethod mediaFolder request post colorThiefEnabled artists">
+</head><body><polymer-element name="album-wall" attributes="sort wall listMode bitRate querySize isLoading showing queryMethod mediaFolder request post artists">
   <template>
     <style>
       paper-item {
@@ -118,7 +118,7 @@
                         <paper-spinner class="black" active></paper-spinner>
                       </template>
                     </div>
-                    <paper-menu-button>
+                    <paper-menu-button  hidden?="{{!app.activeUser.podcastRole}}">
                       <paper-icon-button icon="more-vert"></paper-icon-button>
                       <paper-dropdown class="dropdown" halign="right">
                         <core-menu class="menu">
@@ -143,7 +143,7 @@
                           <core-tooltip label="{{labels.add2PlayQueue}}" position="left">
                             <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
                           </core-tooltip>
-                          <paper-icon-button on-tap="{{toggleCollapse}}" icon="more-vert" ident="collapse{{id}}"></paper-icon-button>
+                          <paper-icon-button hidden?="{{!app.activeUser.podcastRole}}" on-tap="{{toggleCollapse}}" icon="more-vert" ident="collapse{{id}}"></paper-icon-button>
                         </template>
                         <template if="{{status === 'downloading'}}">
                           <paper-spinner class="black" active style="margin-right: 6px;" title="Downloading"></paper-spinner>

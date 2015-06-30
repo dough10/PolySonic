@@ -76,38 +76,38 @@ Polymer('album-wall', {
     }, null, 50);
   },
   
+  responseCallback: function () {
+    this.app.dataLoading = false;
+    this.app.showApp();
+  },
+
   responseChanged: function () {
     'use strict';
-    var callback = function () {
-        this.app.dataLoading = false;
-        this.app.showApp();
-      }.bind(this),
-      response;
     if (this.response) {
       this.async(function () {
-        response = this.response['subsonic-response'];
+        var response = this.response['subsonic-response'];
         if (response.status === 'failed') {
           console.log(response.error.message);
           this.app.doToast(response.error.message);
         } else {
           if (response.albumList2 && response.albumList2.album) {
             this.wall = this.wall.concat(response.albumList2.album);
-            this.async(callback);
+            this.async(this.responseCallback);
           } else if (response.albumList && response.albumList.album) {
             this.wall = this.wall.concat(response.albumList.album);
-            this.async(callback);
+            this.async(this.responseCallback);
           } else if (response.starred2 && response.starred2.album) {
             this.wall = this.wall.concat(response.starred2.album);
-            this.async(callback);
+            this.async(this.responseCallback);
           } else if (response.starred && response.starred.album) {
             this.wall = this.wall.concat(response.starred.album);
-            this.async(callback);
+            this.async(this.responseCallback);
           } else if (response.podcasts && response.podcasts.channel) {
             this.podcast = this.podcast.concat(response.podcasts.channel);
-            this.async(callback);
+            this.async(this.responseCallback);
           } else if (response.artists && response.artists.index) {
             this.artist = this.artist.concat(response.artists.index);
-            this.async(callback);
+            tthis.async(this.responseCallback);
           } else if (response.searchResult3 && response.searchResult3.album) {
             var data = response.searchResult3.album;
             var length = response.searchResult3.album.length;
@@ -118,7 +118,7 @@ Polymer('album-wall', {
               }
               if (i === length - 1) {
                 this.wall = this.wall.concat(tmpArray);
-                this.async(callback);
+                this.async(this.responseCallback);
               }
             }
           } else {
