@@ -96,7 +96,7 @@
     "message": "Track List"
   },
   "nowPlayingTitle": {
-    "message": "Now Playing"
+    "message": "Go To Player"
   },
   "connectionError": {
     "message": "Error connecting to Subsonic server"

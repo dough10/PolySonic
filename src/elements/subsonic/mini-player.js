@@ -46,15 +46,15 @@ Polymer('mini-player', {
     this.app.nowPlaying();
   },
   playPause: function () {
-/*    if (!this.app.$.audio.paused) {
+    if (!this.app.$.audio.paused) {
       this.$.playButton.icon = 'av:play-arrow';
     } else {
       this.$.playButton.icon = 'av:pause';
-    }*/
+    }
     this.app.playPause();
   },
   openPlaylist: function () {
-    this.app.showPlaylist();
+    this.app.showPlaylist('bottom');
   },
   progressClick: function (event, detail) {
     var audio = this.app.$.audio;

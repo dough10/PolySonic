@@ -162,7 +162,7 @@
               </core-toolbar>
               <album-wall id="wall" listMode="{{listMode}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}" queryMethod="{{queryMethod}}" mediaFolder="{{folder}}" colorThiefEnabled="{{colorThiefEnabled}}" artists="{{artists}}"></album-wall>
             </core-header-panel>
-            <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}" progress="{{progress}}"></mini-player>
+            <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}" progress="{{progress}}" hero></mini-player>
           </section>
           <section>
             <core-toolbar class="medium-tall">
@@ -604,7 +604,7 @@
         </div>
       </paper-action-dialog>
 
-      <paper-dialog id="downloadDialog" style="min-height:695px; min-width:471px;" transition="core-transition-center">
+      <paper-dialog id="downloadDialog" style="min-height:695px; min-width:471px;" transition="core-transition-top">
         <div horizontal layout>
           <div flex></div>
           <div>

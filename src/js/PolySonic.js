@@ -843,7 +843,12 @@
     }
   };
 
-  app.showPlaylist = function () {
+  app.showPlaylist = function (page1) {
+    if (page1) {
+      app.$.playlistDialog.transition = "core-transition-bottom";
+    } else {
+      app.$.playlistDialog.transition = "core-transition-top";
+    }
     app.async(function () {
       app.$.playlistDialog.toggle();
     });
