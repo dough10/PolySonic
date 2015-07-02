@@ -7,6 +7,20 @@ HTML5 Subsonic client
   <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png">
 </a>
 
+currently testing 0.2.4 for bugs and it should be released soon!!!
+
+features to come 
+
+- now playing indicator has been removed and replaced with a mini player that slides in from bottom of page
+
+- app now correctly hides options users do not have role for (podcast administration, downloads)
+- 
+- license date now counts down days till expiration  
+
+- app now manages it's own downloads. no more launching a chrome window when downloading (uses xmlHttpRequest and chrome file system API) file system permission has been added to manifest
+
+- more secure authentication methods in place for api version 1.13.0
+
 Changelog
 
 0.2.3
