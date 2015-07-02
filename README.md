@@ -17,7 +17,7 @@ features to come
 
 - license date now counts down days till expiration  
 
-- app now manages it's own downloads. no more launching a chrome window when downloading (uses xmlHttpRequest and chrome file system API) file system permission has been added to manifest
+- app now manages it's own downloads. no more launching a chrome window when downloading (uses xmlHttpRequest and chrome file system API)
 
 - more secure authentication methods in place for api version 1.13.0
 
