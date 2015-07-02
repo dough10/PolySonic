@@ -111,13 +111,13 @@ Polymer('album-wall', {
               for (var ii = 0; ii < innerLength; ii++) {
                 podcasts[i].episode[ii].podcastRole = this.app.activeUser.podcastRole;
                 if (ii === innerLength - 1 && i === length -1) {
-                  this.podcast = this.podcast.concat(podcasts);
+                  this.podcast = podcasts;
                   this.async(this.responseCallback);
                 }
               }
             }
           } else if (response.artists && response.artists.index) {
-            this.artist = this.artist.concat(response.artists.index);
+            this.artist = response.artists.index;
             this.async(this.responseCallback);
           } else if (response.searchResult3 && response.searchResult3.album) {
             /* filter out duplicate albums from response array */
@@ -129,7 +129,7 @@ Polymer('album-wall', {
                 tmpArray.push(data[i]);
               }
               if (i === length - 1) {
-                this.wall = this.wall.concat(tmpArray);
+                this.wall = tmpArray;
                 this.async(this.responseCallback);
               }
             }
