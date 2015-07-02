@@ -698,7 +698,7 @@
   app.setFolder = function (event, detail, sender) {
     app.folder = parseInt(sender.attributes.i.value, 10);
     chrome.storage.sync.set({
-      'mediaFolder': value
+      'mediaFolder': app.folder
     });
   };
 
