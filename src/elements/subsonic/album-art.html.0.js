@@ -402,8 +402,8 @@ Polymer('album-art', {
   itemChanged: function () {
     'use strict';
     this.async(function () {
-      var artId = "al-" + this.item;
       if (this.item) {
+        var artId = "al-" + this.item;
         this.showArt(this.defaultImgURL);
         this.playlist = [];
         this.isLoading = true;

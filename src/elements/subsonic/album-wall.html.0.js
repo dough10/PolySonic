@@ -104,7 +104,7 @@ Polymer('album-wall', {
             this.async(this.responseCallback);
           } else if (response.podcasts && response.podcasts.channel) {
             /* inject podcastRole to response so it can be used inside the repeating template scope */
-            var podcasts = response.podcasts.channel
+            var podcasts = response.podcasts.channel;
             var length = podcasts.length;
             for (var i = 0; i < length; i++) {
               var innerLength = podcasts[i].episode.length;
@@ -499,7 +499,9 @@ Polymer('album-wall', {
   },
   
   findIndexByKeyValue: function (arraytosearch, key, valuetosearch) {
-    for (var i = 0; i < arraytosearch.length; i = i + 1) {
+    'use strict';
+    var length = arraytosearch.length;
+    for (var i = 0; i < length; i = i + 1) {
       if (arraytosearch[i][key] === valuetosearch) {
         return i;
       }
@@ -513,7 +515,9 @@ Polymer('album-wall', {
   },
   
   containsObject: function (obj, list) {
-    for (var i = 0; i < list.length; i = i + 1) {
+    'use strict';
+    var length = list.length;
+    for (var i = 0; i < length; i = i + 1) {
       if (list[i].id === obj.id) {
         return true;
       }
