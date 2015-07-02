@@ -14,7 +14,7 @@ features to come
 - now playing indicator has been removed and replaced with a mini player that slides in from bottom of page
 
 - app now correctly hides options users do not have role for (podcast administration, downloads)
-- 
+
 - license date now counts down days till expiration  
 
 - app now manages it's own downloads. no more launching a chrome window when downloading (uses xmlHttpRequest and chrome file system API) file system permission has been added to manifest
