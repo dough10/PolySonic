@@ -19,7 +19,7 @@ features to come
 
 - app now manages it's own downloads. no more launching a chrome window when downloading (uses xmlHttpRequest and chrome file system API)
 
-- more secure authentication methods in place for api version 1.13.0
+- more secure authentication method in place for api version 1.13.0
 
 Changelog
 
