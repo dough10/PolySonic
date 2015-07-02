@@ -21,6 +21,8 @@ features to come
 
 - more secure authentication method in place for api version 1.13.0
 
+- more animations
+
 Changelog
 
 0.2.3
