@@ -57,24 +57,9 @@
       }
     });
 
-    var scroller = app.appScroller(),
-      audio = app.$.audio;
+    var audio = app.$.audio;
 
-    scroller.onscroll = function () {
-     var fab = app.$.fab,
-        wall = app.$.wall;
-
-      if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
-        fab.state = 'off';
-      } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
-        fab.state = 'bottom';
-      } else if (app.page === 3 && fab.state !== 'off' && scroller.scrollTop < app.position) {
-        fab.state = 'off';
-      } else if (app.page === 3 && fab.state !== 'bottom' && scroller.scrollTop > app.position) {
-        fab.state = 'bottom';
-      }
-      app.position = scroller.scrollTop;
-    };
+    app.appScroller().onscroll = app.scrollCallback;
 
     audio.onwaiting = app.playerProgress;
 
@@ -302,6 +287,23 @@
     var toast = app.$.toast;
     toast.text = text;
     toast.show();
+  };
+  
+  app.scrollCallback = function () {
+   var fab = app.$.fab,
+      wall = app.$.wall,
+      scroller = app.appScroller();
+
+    if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
+      fab.state = 'off';
+    } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
+      fab.state = 'bottom';
+    } else if (app.page === 3 && fab.state !== 'off' && scroller.scrollTop < app.position) {
+      fab.state = 'off';
+    } else if (app.page === 3 && fab.state !== 'bottom' && scroller.scrollTop > app.position) {
+      fab.state = 'bottom';
+    }
+    app.position = scroller.scrollTop;
   };
 
   app.close = function () {
@@ -745,7 +747,7 @@
     app.defaultName = new Date().toGMTString();
   };
   
-  function save2PlayQueueCallback(e) {
+  function save2PlayQueueCallback (e) {
     if (e.target.response['subsonic-response'].status === 'ok') {
       app.doToast(chrome.i18n.getMessage('playlistCreated'));
       app.$.createPlaylist.close();
@@ -758,7 +760,6 @@
 
   app.savePlayQueue2Playlist = function () {
     var url = app.buildUrl('createPlaylist', {name: app.defaultName}),
-      hasRun = false,
       length = app.playlist.length;
     app.savingPlaylist = true;
     for (var i = 0; i < length; i++) {
@@ -840,8 +841,9 @@
     }
   };
 
-  app.showPlaylist = function (page1) {
-    if (page1) {
+  app.showPlaylist = function (p) {
+    /* p is just a small string i send with the click function */
+    if (p) {
       app.$.playlistDialog.transition = "core-transition-bottom";
     } else {
       app.$.playlistDialog.transition = "core-transition-top";
