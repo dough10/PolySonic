@@ -205,6 +205,7 @@ Polymer('album-art', {
       sender.attributes.ident.value
     );
     //this.app.page = 1;
+    this.app.$.fab.state = 'off';
   },
 
   addSingle2Playlist: function (event, detail, sender) {

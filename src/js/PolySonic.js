@@ -78,13 +78,7 @@
 
     audio.onwaiting = app.playerProgress;
 
-    audio.onprogress = function (e) {
-      if (audio.duration) {
-       app.buffer = ((audio.buffered.end(0) / audio.duration) * 100);
-      } else {
-        app.buffer = 0;
-      }
-    };
+    audio.onprogress = app.buffering;
 
     audio.ontimeupdate = app.playerProgress;
 
@@ -580,31 +574,33 @@
     handle image for player background
   */
   app.getImageForPlayer = function (url, callback) {
-    var art = app.$.coverArt,
-      note = app.$.playNotify;
-    art.style.backgroundImage = "url('" + url + "')";
-    note.icon = url;
+    app.$.coverArt.style.backgroundImage = "url('" + url + "')";
+    app.$.playNotify.icon = url;
     if (callback) {
       app.async(callback);
     }
   };
 
   app.defaultPlayImage = function () {
-    var art = app.$.coverArt,
-      note = app.$.playNotify;
-    art.style.backgroundImage =  "url('images/default-cover-art.png')";
-    note.icon = 'images/default-cover-art.png';
+    app.$.coverArt.style.backgroundImage =  "url('images/default-cover-art.png')";
+    app.$.playNotify.icon = 'images/default-cover-art.png';
   };
 
   /*
     player UI control
   */
+  app.buffering = function (e) {
+    var audio = e.srcElement;
+    if (audio.duration) {
+     app.buffer = Math.floor((audio.buffered.end(0) / audio.duration) * 100);
+    } else {
+      app.buffer = 0;
+    }
+    audio = null;
+  };
+  
   app.playerProgress = function (e) {
-    var audio = e.srcElement,
-      currentMins,
-      currentSecs,
-      totalMins,
-      totalSecs;
+    var audio = e.srcElement;
 
     if (e) {
       if (e.type === 'waiting') {
@@ -613,18 +609,18 @@
         app.waitingToPlay = false;   // spinner on album art hidden
       }
     }
-    currentMins = Math.floor(audio.currentTime / 60);
-    currentSecs = Math.floor(audio.currentTime - (currentMins * 60));
-    totalMins = Math.floor(audio.duration / 60);
-    totalSecs = Math.floor(audio.duration - (totalMins * 60));
+    app.currentMins = Math.floor(audio.currentTime / 60);
+    app.currentSecs = Math.floor(audio.currentTime - (app.currentMins * 60));
+    app.totalMins = Math.floor(audio.duration / 60);
+    app.totalSecs = Math.floor(audio.duration - (app.totalMins * 60));
 
     if (!audio.paused) {
       app.$.avIcon.icon = "av:pause";
       if (!audio.duration) {
-        app.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ?:??';
+        app.playTime = app.currentMins + ':' + ('0' + app.currentSecs).slice(-2) + ' / ?:??';
         app.progress = 0;
       } else {
-        app.playTime = currentMins + ':' + ('0' + currentSecs).slice(-2) + ' / ' + totalMins + ':' + ('0' + totalSecs).slice(-2);
+        app.playTime = app.currentMins + ':' + ('0' + app.currentSecs).slice(-2) + ' / ' + app.totalMins + ':' + ('0' + app.totalSecs).slice(-2);
         app.progress = Math.floor(audio.currentTime / audio.duration * 100);
       }
     } else {
@@ -635,6 +631,7 @@
     } else {
       app.isNowPlaying = false;
     }
+    audio = null;
   };
 
   app.showApp = function () {
