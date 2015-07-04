@@ -33,9 +33,12 @@
         cursor: pointer;
         border:2px solid black;
       }
+      .big {
+        margin-top:5px;
+      }
       paper-icon-button.big::shadow #icon {
-        width: 75px;
-        height: 75px;
+        width: 65px;
+        height: 65px;
       }
       .track {
         padding-top:22px;
@@ -75,13 +78,17 @@
         background-color: #db4437;
         color:#ffffff;
       }
+      paper-slider::shadow #sliderKnobInner {
+        height:18px;
+        width:18px;
+      }
     </style>
     <core-animated-pages selected="{{page}}" transitions="hero-transition cross-fade-all">
       <section>
         <div class="player offscreen" hero-id="bar" hero=""></div>
       </section>
       <section>
-        <div class='player onscreen' hero-id="bar" hero="">
+        <paper-shadow z="1" class='player onscreen' hero-id="bar" hero="">
           <paper-slider on-change="{{progressClick}}" value="{{progress}}"></paper-slider>
           <div horizontal layout>
             <div>
@@ -103,7 +110,7 @@
               <paper-icon-button class="playlist" icon="av:queue-music" on-tap="{{openPlaylist}}"></paper-icon-button>
             </div>
           </div>
-        </div>
+        </paper-shadow>
       </section>
     </core-animated-pages>
   </template>

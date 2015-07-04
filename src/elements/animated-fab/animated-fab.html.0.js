@@ -40,7 +40,7 @@ Polymer('animated-fab',{
   },
   isNowPlayingChanged: function (newVal, oldVal) {
     if (newVal) {
-      this.bottomPos = 65;
+      this.bottomPos = 105;
       clearTimeout(this.timer);
       this.timer = 0;
     } else {
