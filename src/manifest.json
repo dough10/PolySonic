@@ -14,7 +14,7 @@
 
   "app": {
     "background": {
-      "page": "background.html"
+      "scripts": ["background.js"]
     }
   },
 
@@ -30,40 +30,5 @@
         "directory"
       ]
     }
-  ],
-
-  "commands": {
-    
-    "playPauseMediaKey": {
-      "suggested_key": {
-        "default": "MediaPlayPause"
-      },
-      "description": "Play / Pause Music",
-      "global": true
-    },
-    
-    "nextTrackMediaKey": {
-      "suggested_key": {
-        "default": "MediaNextTrack"
-      },
-      "description": "Skip to Next Track",
-      "global": true
-    },
-    
-    "lastTrackMediaKey": {
-      "suggested_key": {
-        "default": "MediaPrevTrack"
-      },
-      "description": "Skip to Last Track",
-      "global": true
-    },
-
-    "testKey": {
-      "suggested_key": {
-        "default": "Ctrl+Space"
-      },
-      "description": "Play / Pause",
-      "global": true
-    }
-  }
+  ]
 }

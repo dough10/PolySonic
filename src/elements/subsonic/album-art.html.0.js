@@ -110,6 +110,7 @@ Polymer('album-art', {
 
   add2Playlist: function () {
     'use strict';
+    this.app.playlist = this.app.playlist.concat(this.playlist);
     this.app.dataLoading = false;
     if (this.audio.paused) {
       this.app.playing = 0;
@@ -123,10 +124,6 @@ Polymer('album-art', {
       this.app.getImageForPlayer(this.imgURL, function () {
         this.app.setFabColor(this.playlist[0]);
       }.bind(this));
-    }
-    var length = this.playlist.length;
-    for (var i = 0; i < length; i++) {
-      this.app.playlist.push(this.playlist[i]);
     }
     this.app.doToast(chrome.i18n.getMessage("added2Queue"));
   },

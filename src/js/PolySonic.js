@@ -288,9 +288,9 @@
     toast.text = text;
     toast.show();
   };
-  
+
   app.scrollCallback = function () {
-   var fab = app.$.fab,
+    var fab = app.$.fab,
       wall = app.$.wall,
       scroller = app.appScroller();
 
@@ -313,7 +313,7 @@
       this.$.unsavedDownloads.open();
     }.bind(this));
   };
-  
+
   app.checkUnsavedDownloads = function (callback, haveUnsaved) {
     if (this.$.downloads.childElementCount !== 0) {
       var downloads = this.$.downloads.querySelectorAll('download-manager');
@@ -388,7 +388,11 @@
     play functions
   */
   app.playAudio = function (artist, title, src, image, id) {
-    this.fire('track-changed');
+    var minis = document.querySelectorAll('mini-player');
+    var length = minis.length;
+    for (var i = 0; i < length; i++) {
+      minis[i].setPlaying({artist: artist, title: title, cover: image});
+    }
     var audio = app.$.audio,
       note = app.$.playNotify;
     if (artist === '') {
@@ -458,7 +462,7 @@
       audio.play();
     }
   };
-  
+
   function endLoop() {
     if (app.$.audio.paused) {
       app.doShufflePlayback();
@@ -600,7 +604,7 @@
     }
     audio = null;
   };
-  
+
   app.playerProgress = function (e) {
     var audio = e.srcElement;
 
@@ -746,7 +750,7 @@
     app.$.createPlaylist.open();
     app.defaultName = new Date().toGMTString();
   };
-  
+
   function save2PlayQueueCallback (e) {
     if (e.target.response['subsonic-response'].status === 'ok') {
       app.doToast(chrome.i18n.getMessage('playlistCreated'));
@@ -999,7 +1003,7 @@
   app.gotoSettings = function () {
     app.async(function () {
       app.$.panel.closeDrawer();
-      app.page = 2;      
+      app.page = 2;
     });
   };
 

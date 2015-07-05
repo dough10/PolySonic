@@ -30,29 +30,5 @@
         "directory"
       ]
     }
-  ],
-
-  "commands": {
-    
-    "playPauseMediaKey": {
-      "suggested_key": {
-        "default": "MediaPlayPause"
-      },
-      "description": "Play / Pause Music"
-    },
-    
-    "nextTrackMediaKey": {
-      "suggested_key": {
-        "default": "MediaNextTrack"
-      },
-      "description": "Skip to Next Track"
-    },
-    
-    "lastTrackMediaKey": {
-      "suggested_key": {
-        "default": "MediaPrevTrack"
-      },
-      "description": "Skip to Last Track"
-    }
-  }
+  ]
 }

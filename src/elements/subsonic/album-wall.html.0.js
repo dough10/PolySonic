@@ -33,7 +33,7 @@ Polymer('album-wall', {
       }
     }.bind(this));
   },
-  
+
   ready: function () {
     /* locale settings */
     'use strict';
@@ -41,7 +41,7 @@ Polymer('album-wall', {
     this.$.cover.width = '260';
     this.$.cover.height = '260';
   },
-  
+
   domReady: function () {
     'use strict';
     this.app = document.getElementById("tmpl");
@@ -62,7 +62,7 @@ Polymer('album-wall', {
       this.async(this.refreshContent);
     }.bind(this));
   },
-  
+
   clearData: function (callback) {
     'use strict';
     this.wall.length = 0;
@@ -75,8 +75,9 @@ Polymer('album-wall', {
       this.resizeLists();
     }, null, 50);
   },
-  
+
   responseCallback: function () {
+    'use strict';
     this.app.dataLoading = false;
     this.app.showApp();
   },
@@ -143,7 +144,7 @@ Polymer('album-wall', {
       });
     }
   },
-  
+
   artistDetails: function (event, detail, sender) {
     'use strict';
     var artist = document.getElementById("aDetails");
@@ -151,13 +152,13 @@ Polymer('album-wall', {
     artist.artistId = sender.attributes.ident.value;
     artist.queryData();
   },
-  
+
   doAjax: function () {
     'use strict';
     this.$.ajax.url = this.app.buildUrl(this.request, this.post);
     this.$.ajax.go();
   },
-  
+
   getPodcast: function () {
     'use strict';
     this.showing = 'podcast';
@@ -174,7 +175,7 @@ Polymer('album-wall', {
       this.doAjax();
     }.bind(this));
   },
-  
+
   getStarred: function () {
     'use strict';
     this.showing = this.listMode;
@@ -195,7 +196,7 @@ Polymer('album-wall', {
       this.doAjax();
     }.bind(this));
   },
-  
+
   getArtist: function () {
     'use strict';
     this.clearData(function () {
@@ -212,7 +213,7 @@ Polymer('album-wall', {
       this.doAjax();
     }.bind(this));
   },
-  
+
   sortChanged: function () {
     'use strict';
     this.showing = this.listMode;
@@ -233,14 +234,14 @@ Polymer('album-wall', {
       this.doAjax();
     }.bind(this));
   },
-  
+
   resizeLists: function () {
     'use strict';
     this.$.cover.updateSize();
     this.$.podcast.updateSize();
     this.$.artists.updateSize();
   },
-  
+
   errorChanged: function () {
     'use strict';
     if (this.error) {
@@ -248,7 +249,7 @@ Polymer('album-wall', {
       this.app.doToast(chrome.i18n.getMessage("connectionError"));
     }
   },
-  
+
   loadMore: function () {
     'use strict';
     this.$.threshold.clearLower();
@@ -260,12 +261,12 @@ Polymer('album-wall', {
       });
     }
   },
-  
+
   querySizeChanged: function () {
     'use strict';
     this.post.size = this.querySize;
   },
-  
+
   listModeChanged: function () {
     'use strict';
     this.async(function () {
@@ -281,7 +282,7 @@ Polymer('album-wall', {
       }
     });
   },
-  
+
   getPaletteFromDb: function (id, callback) {
     'use strict';
     this.app.getDbItem(id + '-palette', function (e) {
@@ -296,15 +297,15 @@ Polymer('album-wall', {
     this.app.playAudio('', obj.title, url, obj.cover, obj.id);
     this.app.dataLoading = false;
   },
-  
+
   mouseIn: function (event, detail, sender) {
     sender.setZ(2);
   },
-  
+
   mouseOut: function (event, detail, sender) {
     sender.setZ(1);
   },
-  
+
   playPodcast: function (event, detial, sender) {
     'use strict';
     this.app.dataLoading = true;
@@ -413,7 +414,7 @@ Polymer('album-wall', {
       }
     }
   },
-  
+
   showingChanged: function () {
     'use strict';
     var fab = document.getElementById('fab');
@@ -423,18 +424,18 @@ Polymer('album-wall', {
       fab.state = "off";
     }
   },
-  
+
   topOfPage: function () {
     'use strict';
     this.scrollTarget.scrollTop = 0;
   },
-  
+
   deleteDialog: function (event, detail, sender) {
     'use strict';
     this.app.delID = sender.attributes.ident.value;
     this.app.$.confirmDelete.open();
   },
-  
+
   deleteChannel: function (id) {
     'use strict';
     this.app.doXhr(this.app.buildUrl('deletePodcastChannel', {id: id}), 'json', function (e) {
@@ -445,7 +446,7 @@ Polymer('album-wall', {
       }
     }.bind(this));
   },
-  
+
   refreshContent: function () {
     'use strict';
     if (this.post.offset !== 0) {
@@ -455,7 +456,7 @@ Polymer('album-wall', {
       this.doAjax();
     }.bind(this));
   },
-  
+
   downloadEpisode: function (event, detail, sender) {
     'use strict';
     this.app.doXhr(this.app.buildUrl('downloadPodcastEpisode', {id: sender.attributes.ident.value}), 'json', function (e) {
@@ -467,13 +468,13 @@ Polymer('album-wall', {
       }
     }.bind(this));
   },
-  
+
   episodeDialog: function (event, detail, sender) {
     'use strict';
     this.app.delID = sender.attributes.ident.value;
     this.app.$.episodeConfirm.open();
   },
-  
+
   deleteEpisode: function (id) {
     'use strict';
     this.app.doXhr(this.app.buildUrl('deletePodcastEpisode', {id: id}), 'json', function (e) {
@@ -484,20 +485,20 @@ Polymer('album-wall', {
       }
     }.bind(this));
   },
-  
+
   toggleCollapse: function (event, detail, sender) {
     'use strict';
     var id = '#' + sender.attributes.ident.value;
     this.$.all.querySelector(id).toggle();
   },
-  
+
   playSomething: function (id, callback) {
     'use strict';
     var album = this.$.all.querySelector('#' + id);
     album.playAlbum();
     callback();
   },
-  
+
   findIndexByKeyValue: function (arraytosearch, key, valuetosearch) {
     'use strict';
     var length = arraytosearch.length;
@@ -508,12 +509,12 @@ Polymer('album-wall', {
     }
     return null;
   },
-  
+
   jumpToLetter: function (letter) {
     'use strict';
     this.$.artists.scrollToItem(this.findIndexByKeyValue(this.artist, 'name', letter));
   },
-  
+
   containsObject: function (obj, list) {
     'use strict';
     var length = list.length;

@@ -1,17 +1,21 @@
 Polymer('mini-player', {
   ready: function () {
+    'use strict';
     this.timer = 0;
   },
   domReady: function () {
+    'use strict';
     this.app = document.getElementById('tmpl');
     this.label = chrome.i18n.getMessage('nowPlayingTitle');
-    document.addEventListener('track-changed', function () {
-      this.img = this.app.playlist[this.app.playing].cover;
-      this.artist = this.app.playlist[this.app.playing].artist;
-      this.track = this.app.playlist[this.app.playing].title;
-    }.bind(this));
+  },
+  setPlaying: function (obj) {
+    'use strict';
+    this.img = obj.cover;
+    this.artist = obj.artist;
+    this.track = obj.title;
   },
   waitingToPlayChanged: function () {
+    'use strict';
     if (!this.waitingToPlay) {
       this.$.spinner.hidden = true;
     } else {
@@ -19,6 +23,7 @@ Polymer('mini-player', {
     }
   },
   isNowPlayingChanged: function (newVal, oldVal) {
+    'use strict';
     if (newVal) {
       this.page = 1;
       clearTimeout(this.timer);
@@ -43,9 +48,11 @@ Polymer('mini-player', {
     }
   },
   toPlayer: function () {
+    'use strict';
     this.app.nowPlaying();
   },
   playPause: function () {
+    'use strict';
     if (!this.app.$.audio.paused) {
       this.$.playButton.icon = 'av:play-arrow';
     } else {
@@ -54,9 +61,11 @@ Polymer('mini-player', {
     this.app.playPause();
   },
   openPlaylist: function () {
+    'use strict';
     this.app.showPlaylist('bottom');
   },
   progressClick: function (event, detail) {
+    'use strict';
     var audio = this.app.$.audio;
     var slide = this.progress / 100;
     audio.currentTime = audio.duration - (audio.duration - (audio.duration * slide));
