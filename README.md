@@ -7,26 +7,15 @@ HTML5 Subsonic client
   <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png">
 </a>
 
-<<<<<<< HEAD
-currently testing 0.2.4 for bugs and it should be released soon!!!
-
-features to come 
-=======
-
 Changelog
 
 0.2.4
->>>>>>> 0.2.4v2
 
 - now playing indicator has been removed and replaced with a mini player that slides in from bottom of page
 
 - app now correctly hides options users do not have role for (podcast administration, downloads)
 
-<<<<<<< HEAD
-- license date now counts down days till expiration  
-=======
 - license date now counts down days till expiration
->>>>>>> 0.2.4v2
 
 - app now manages it's own downloads. no more launching a chrome window when downloading (uses xmlHttpRequest and chrome file system API)
 
@@ -34,11 +23,6 @@ Changelog
 
 - more animations
 
-<<<<<<< HEAD
-Changelog
-
-=======
->>>>>>> 0.2.4v2
 0.2.3
 
 - redesigned search feature
@@ -55,7 +39,7 @@ Changelog
 
 - dynamic fab color now works for podcast. if art was downloaded before version 0.2.2 cache will have to be cleared. (in settings menu)
 
-0.2.1.1 
+0.2.1.1
 
 - hotfix for bug caused by bug fix
 
@@ -63,7 +47,7 @@ Changelog
 
 - bug fixes
 
-0.2.0 
+0.2.0
 
 - redesign list mode for album wall to better match material design standards
 
@@ -83,7 +67,7 @@ Changelog
 
 - artist list now has a dropdown to jump to artist starting a letter 
 
-0.1.8 
+0.1.8
 
 - minor UI changes
 
@@ -142,14 +126,14 @@ Changelog
 
 - all album art now fetched no larger then 550px greatly reducing the size of metadata stored in local storage // recommend going to settings and clearing cache and reload app after. this will ensure that all old art is cleared and new grabbed from server
 
-0.1.2 
+0.1.2
 - Fix for musicFolderId filter not updating list when changed
 
 - Fix bug making list display no results if musicFolderId was set to 0
 
 - Change size of default query down to 20 from 40 in a attempt to help load art quicker / changeable in settings menu
 
-- Enhancement to UI of play queue dialog 
+- Enhancement to UI of play queue dialog
 
 - Fix bug in lazy load that caused app not to get additional albums correctly
 
@@ -157,10 +141,10 @@ Changelog
 
 - Enhancement to UI for search dialog
 
-- Option to see amount of space taken up by metadata in settings menu 
+- Option to see amount of space taken up by metadata in settings menu
 
 0.1.1
 
-- support for musicFolderId filter 
+- support for musicFolderId filter
 
 - autodetect api version
