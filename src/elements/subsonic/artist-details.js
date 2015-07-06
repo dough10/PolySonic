@@ -1,36 +1,25 @@
 Polymer('artist-details', {
-  created: function () {
-    this.data = [];
-  },
   domReady: function () {
-    this.tmpl = document.getElementById("tmpl");
-    this.scrollTarget = this.tmpl.appScroller();
+    this.app = document.getElementById("tmpl");
+    this.scrollTarget = this.app.appScroller();
   },
   queryData: function () {
-    this.tmpl.page = 3;
-    this.data = null;
-    this.data = [];
-    var url = this.url + "/rest/getArtist.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic&id=" + this.artistId,
-      i = 0;
     this.async(function () {
-      this.tmpl.doXhr(url, 'json', function (event) {
-        var response = event.target.response['subsonic-response'];
+      this.app.doXhr(
+        this.app.buildUrl('getArtist', {id: this.artistId}), 'json', function (event) {
+        this.data = event.target.response['subsonic-response'].artist.album;
+        this.app.dataLoading = false;
         this.async(function () {
-          Array.prototype.forEach.call(response.artist.album, function (e) {
-            var obj = {name: e.name, artist: e.artist, coverArt: e.coverArt, id: e.id, starred: e.starred, url: this.url, user: this.user, pass: this.pass, version: this.version, listMode: this.listMode, bitRate: this.bitRate, colorThiefEnabled: this.colorThiefEnabled};
-            this.data.push(obj);
-            i = i + 1;
-            if (i === response.artist.album.length) {
-              this.tmpl.dataLoading = false;
-            }
-          }.bind(this));
+          this.app.page = 3;
         });
       }.bind(this));
     });
   },
   playSomething: function (id, callback) {
-    var album = this.$.all.querySelector('#' + id);
-    album.playAlbum();
-    callback();
+    var element = this.$.all.querySelector('#' + id);
+    console.log(element);
+    element.$.detailsDialog.close();
+    element.doPlayback();
+    this.async(callback);
   }
 });

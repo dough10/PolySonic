@@ -8,7 +8,7 @@
 <link href="../../bower_components/core-scroll-threshold/core-scroll-threshold.html" rel="import">
 <link href="../../bower_components/core-animation/core-animation.html" rel="import">
 <link href="../../bower_components/core-tooltip/core-tooltip.html" rel="import">
-</head><body><polymer-element name="album-wall" attributes="url user pass version sort wall listMode bitRate querySize isLoading showing queryMethod mediaFolder request post colorThiefEnabled artists">
+</head><body><polymer-element name="album-wall" attributes="sort wall listMode bitRate querySize isLoading showing queryMethod mediaFolder request post artists">
   <template>
     <style>
       paper-item {
@@ -69,7 +69,7 @@
         transform: translate3d(0, 0, 0);
       }
     </style>
-    <core-ajax auto="false" id="ajax" method="GET" url="{{url}}/rest/{{request}}.view" params="{{post}}" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
+    <core-ajax auto="false" id="ajax" method="GET" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <core-scroll-threshold id="threshold" lowerThreshold="1000" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
     <div id="all">
@@ -92,31 +92,7 @@
           <core-list id="cover" data="{{wall}}" flex grid="false" scrollTarget="{{scrollTarget}}">
             <template>
               <div>
-                <album-art id='ac{{model.id}}' listMode="cover" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}" colorThiefEnabled="{{colorThiefEnabled}}"></album-art>
-              </div>
-            </template>
-          </core-list>
-          <div style="min-height:160px;"></div>
-        </div>
-        <div view="list">
-          <template if="{{!isLoading && !wall[0] && request === 'getStarred2'}}">
-            <paper-shadow class='card' style="text-align:center;">
-              <h3>{{noFavoriteHeader}}</h3>
-              {{noFavoriteMessage}}
-            </paper-shadow>
-          </template>
-          <template if="{{!isLoading && !wall[0] && request !== 'getStarred2'}}">
-            <paper-shadow class='card' style="text-align:center;">
-              <h3>{{addContent}}</h3>
-              {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
-              <br><br>
-              {{addAlbums}}
-            </paper-shadow>
-          </template>
-          <core-list id="list" data="{{wall}}" flex grid="false" scrollTarget="{{scrollTarget}}">
-            <template>
-              <div>
-                <album-art id='al{{model.id}}' listMode="list" bitRate="{{bitRate}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name}}" url="{{model.url}}" user="{{model.user}}" pass="{{model.pass}}" version="{{model.version}}" isFavorite="{{model.starred}}" colorThiefEnabled="{{colorThiefEnabled}}"></album-art>
+                <album-art id='ac{{model.id}}' listMode="cover" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name || model.title}}" isFavorite="{{model.starred}}"></album-art>
               </div>
             </template>
           </core-list>
@@ -134,7 +110,7 @@
           <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
             <template>
               <div>
-                <paper-shadow class="card">
+                <paper-shadow class="card" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
                   <core-item>
                     <div flex class="heading">
                       {{model.title}}
@@ -142,7 +118,7 @@
                         <paper-spinner class="black" active></paper-spinner>
                       </template>
                     </div>
-                    <paper-menu-button>
+                    <paper-menu-button  hidden?="{{!app.activeUser.podcastRole}}">
                       <paper-icon-button icon="more-vert"></paper-icon-button>
                       <paper-dropdown class="dropdown" halign="right">
                         <core-menu class="menu">
@@ -177,7 +153,7 @@
                         <div flex>
                           {{description}}
                         </div>
-                        <paper-item on-tap="{{episodeDialog}}" ident="{{id}}">
+                        <paper-item hidden?="{{!podcastRole}}" on-tap="{{episodeDialog}}" ident="{{id}}">
                           <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
                           Delete
                         </paper-item>
@@ -204,7 +180,7 @@
           <div class="foot"></div>
         </div>
         <div view="artists">
-          <template if="{{!isLoading && !artists[0]}}">
+          <template if="{{!isLoading && !artist[0]}}">
             <paper-shadow class='card' style="text-align:center;">
               <h3>{{addContent}}</h3>
               {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
@@ -212,10 +188,10 @@
               {{addAlbums}}
             </paper-shadow>
           </template>
-          <core-list id="artists" data="{{artists}}" flex scrollTarget="{{scrollTarget}}">
+          <core-list id="artists" data="{{artist}}" flex scrollTarget="{{scrollTarget}}">
             <template>
               <div>
-                <paper-shadow class="card">
+                <paper-shadow class="card" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
                   <div class="heading center">{{model.name}}</div>
                   <template repeat="{{model.artist}}">
                     <paper-item class='title' on-tap="{{artistDetails}}" ident="{{id}}">
@@ -227,6 +203,7 @@
               </div>
             </template>
           </core-list>
+          <div class="foot"></div>
         </div>
       </core-animated-pages>
     </div>

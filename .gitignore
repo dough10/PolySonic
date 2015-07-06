@@ -4,3 +4,8 @@
 /src/bower_components/
 /node_modules/
 /brackets-bower.log
+/src/vulcanized.html
+/src/vulcanized.js
+/src/PolySonic.html
+/src/PolySonic.js
+/src/PolySonic.css

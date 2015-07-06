@@ -114,6 +114,15 @@
           }.bind(this), 15000);
         }
       },
+      methodSelect: function () {
+        this.async(function () {
+          chrome.storage.sync.set({
+            'queryMethod': this.post.queryMethod
+          });
+          this.app.queryMethod = this.post.queryMethod;
+          console.log('Query Method: ' + this.post.queryMethod);
+        });
+      },
       doClearCache: function () {
         this.clearCache(function () {
           this.app.$.recommendReloadDialog.open();
@@ -215,13 +224,6 @@
         });
         this.app.querySize = this.post.querySize;
         console.log('Query Size: ' + this.post.querySize);
-      },
-      methodSelect: function () {
-        chrome.storage.sync.set({
-          'queryMethod': this.post.queryMethod
-        });
-        this.app.queryMethod = this.post.queryMethod;
-        console.log('Query Method: ' + this.post.queryMethod);
       },
       errorChanged: function () {
         'use strict';

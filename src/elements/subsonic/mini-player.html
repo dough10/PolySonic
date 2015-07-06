@@ -1,0 +1,118 @@
+<polymer-element name="mini-player" attributes="isNowPlaying waitingToPlay progress hero">
+  <template>
+    <style>
+      :host {
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        right:0;
+        pointer-events: none;
+        text-align: left;
+      }
+      .player {
+        border-top:1px solid #dddddd;
+        background: rgba(255,255,255,0.95);
+        height:91px;
+        width:535px;
+        position:fixed;
+        pointer-events:auto;
+        color:black;
+        filter: blur(15px);
+      }
+      .offscreen {
+        bottom:-91px;
+      }
+      .onscreen {
+        bottom:0;
+      }
+      img {
+        margin:8px;
+        display: inline-block;
+        float:left;
+        cursor: pointer;
+        border:2px solid black;
+      }
+      .big {
+        margin-top:5px;
+      }
+      paper-icon-button.big::shadow #icon {
+        width: 65px;
+        height: 65px;
+      }
+      .track {
+        padding-top:22px;
+        font-size: 18px;
+        max-height:20px;
+        overflow:hidden;
+        margin-bottom:8px;
+      }
+      .artist {
+        padding-bottom:16px;
+        font-size: 16px;
+        max-height:18px;
+        overflow:hidden;
+      }
+      core-tooltip {
+        cursor: pointer;
+      }
+      .playlist {
+        top:25px;
+      }
+      #spinner {
+        top:18px;
+      }
+      #spinner::shadow .circle {
+        border-color: #000;
+      }
+      paper-slider {
+        width: 106%;
+        position: absolute;
+        top: -16px;
+        left: -16px;
+        cursor:pointer;
+      }
+      paper-slider::shadow #sliderKnobInner,
+      paper-slider::shadow #sliderKnobInner::before,
+      paper-slider::shadow #sliderBar::shadow #activeProgress {
+        background-color: #db4437;
+        color:#ffffff;
+      }
+      paper-slider::shadow #sliderKnobInner {
+        height:18px;
+        width:18px;
+      }
+    </style>
+    <core-animated-pages selected="{{page}}" transitions="hero-transition">
+      <section>
+        <div class="player offscreen" hero-id="bar" hero=""></div>
+      </section>
+      <section>
+        <paper-shadow z="1" class='player onscreen' hero-id="bar" hero="">
+          <paper-slider on-change="{{progressClick}}" value="{{progress}}"></paper-slider>
+          <div horizontal layout>
+            <div>
+              <core-tooltip label="{{label}}" position="top">
+                <img  hero-id="art" hero="" on-tap="{{toPlayer}}" src="{{img}}" height="71" widht="71">
+              </core-tooltip>
+            </div>
+            <div>
+              <paper-icon-button class="big" id="playButton" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
+            </div>
+            <div flex class="details">
+              <core-tooltip label="{{label}}" position="top" on-tap="{{toPlayer}}">
+                <div class="track">{{track}}</div>
+                <div class="artist">{{artist}}</div>
+              </core-tooltip>
+            </div>
+            <div>
+              <paper-spinner id="spinner" active></paper-spinner>
+              <paper-icon-button class="playlist" icon="av:queue-music" on-tap="{{openPlaylist}}"></paper-icon-button>
+            </div>
+          </div>
+        </paper-shadow>
+      </section>
+    </core-animated-pages>
+  </template>
+  <script src="mini-player.js"></script>
+</polymer-element>

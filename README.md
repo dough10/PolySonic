@@ -7,15 +7,26 @@ HTML5 Subsonic client
   <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png">
 </a>
 
+<<<<<<< HEAD
 currently testing 0.2.4 for bugs and it should be released soon!!!
 
 features to come 
+=======
+
+Changelog
+
+0.2.4
+>>>>>>> 0.2.4v2
 
 - now playing indicator has been removed and replaced with a mini player that slides in from bottom of page
 
 - app now correctly hides options users do not have role for (podcast administration, downloads)
 
+<<<<<<< HEAD
 - license date now counts down days till expiration  
+=======
+- license date now counts down days till expiration
+>>>>>>> 0.2.4v2
 
 - app now manages it's own downloads. no more launching a chrome window when downloading (uses xmlHttpRequest and chrome file system API)
 
@@ -23,8 +34,11 @@ features to come
 
 - more animations
 
+<<<<<<< HEAD
 Changelog
 
+=======
+>>>>>>> 0.2.4v2
 0.2.3
 
 - redesigned search feature

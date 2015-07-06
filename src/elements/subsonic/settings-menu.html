@@ -85,6 +85,9 @@
         cursor:pointer;
         display:inline-block;
       }
+      paper-dropdown-menu /deep/ #scroller {
+        max-height:600px;
+      }
     </style>
     <core-ajax id="ajax" auto="false" method="GET" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v=1.11.0&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
     </core-ajax>
@@ -143,19 +146,21 @@
           </paper-dropdown-menu>
         </core-label>-->
         
-        <!-- dropdown for selecting ID3 or traditional results -->
-        <!--<br>
+<!--        <br>
         <core-label>
-          Sort By:
+          Album Sort Method:
           <paper-dropdown-menu label="Select Method">
             <paper-dropdown layered class="dropdown">
               <core-menu class="menu" selected="{{post.queryMethod}}" valueattr="i" on-core-select="{{methodSelect}}">
                 <paper-item i="ID3">ID3</paper-item>
-                <paper-item i="Traditional">Traditional</paper-item>
+                <paper-item i="Subsonic">Subsonic</paper-item>
               </core-menu>
             </paper-dropdown>
           </paper-dropdown-menu>
-        </core-label>-->
+        </core-label>
+        <br>
+        <br>
+        <br>-->
 
         <!-- switch for analistics -->
         <br>

@@ -4,7 +4,7 @@
   "short_name": "__MSG_appName__",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "minimum_chrome_version": "38",
 
   "icons": {
@@ -14,7 +14,7 @@
 
   "app": {
     "background": {
-      "page": "background.html"
+      "scripts": ["background.js"]
     }
   },
 
@@ -22,42 +22,13 @@
     "https://www.google-analytics.com/",
     "storage",
     "notifications",
-    "fileSystem",
-    "unlimitedStorage"
-  ],
-
-  "commands": {
-    
-    "playPauseMediaKey": {
-      "suggested_key": {
-        "default": "MediaPlayPause"
-      },
-      "description": "Play / Pause Music",
-      "global": true
-    },
-    
-    "nextTrackMediaKey": {
-      "suggested_key": {
-        "default": "MediaNextTrack"
-      },
-      "description": "Skip to Next Track",
-      "global": true
-    },
-    
-    "lastTrackMediaKey": {
-      "suggested_key": {
-        "default": "MediaPrevTrack"
-      },
-      "description": "Skip to Last Track",
-      "global": true
-    },
-
-    "testKey": {
-      "suggested_key": {
-        "default": "Ctrl+Space"
-      },
-      "description": "Play / Pause",
-      "global": true
+    "unlimitedStorage",
+    {
+      "fileSystem": [
+        "write",
+        "retainEntries",
+        "directory"
+      ]
     }
-  }
+  ]
 }

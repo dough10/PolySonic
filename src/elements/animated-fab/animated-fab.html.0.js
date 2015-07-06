@@ -1,36 +1,59 @@
+Polymer('animated-fab',{
+  created: function () {
+    this.state = this.state || "off";
+    this.page = this.page || 0;
+    this.timer = 0;
+  },
+  domReady: function () {
+    this.app = document.getElementById('tmpl');
+    this.bottomPos = 16;
+    this.ready = true;
+  },
+  pageChanged: function () {
+    var pName;
+    if (this.page === 1) {
+      pName = 'Player';
+      this.state = 'top';
+    } else if (this.page === 0) {
+      pName = 'Album Wall';
+      this.state = 'off';
+    } else if (this.page === 2)  {
+      pName = 'Settings';
+      this.state = 'off';
+    } else if (this.page === 3) {
+      pName = 'Artist Details';
+      this.state = 'off';
+    } else {
+      this.state = 'off';
+    }
+    if (this.page === 0 && this.showing === 'podcast') {
+      this.state = 'podcast';
+    }
+    document.getElementById("tmpl").tracker.sendAppView(pName);
+  },
 
-    Polymer('animated-fab',{
-      created: function () {
-        this.state = this.state || "off";
-        this.page = this.page || 0;
-      },
-      pageChanged: function () {
-        var pName;
-        if (this.page === 1) {
-          pName = 'Player';
-          this.state = 'top';
-        } else if (this.page === 0) {
-          pName = 'Album Wall';
-          this.state = 'off';
-        } else if (this.page === 2)  {
-          pName = 'Settings';
-          this.state = 'off';
-        } else if (this.page === 3) {
-          pName = 'Artist Details';
-          this.state = 'off';
+  /* listens to changes in this.playing and updates the player */
+  playingChanged: function () {
+    if (this.playing) {
+      document.getElementById('tmpl').playThis();
+    }
+  },
+  isNowPlayingChanged: function (newVal, oldVal) {
+    if (newVal) {
+      this.bottomPos = 105;
+      clearTimeout(this.timer);
+      this.timer = 0;
+    } else {
+      if (this.ready && this.app) {
+        if (!this.app.playlist[0]) {
+          this.bottomPos = 16;
         } else {
-          this.state = 'off';
-        }
-        if (this.page === 0 && this.showing === 'podcast') {
-          this.state = 'podcast';
-        }
-        document.getElementById("tmpl").tracker.sendAppView(pName);
-      },
-
-      /* listens to changes in this.playing and updates the player */
-      playingChanged: function () {
-        if (this.playing) {
-          document.getElementById('tmpl').playThis();
+          this.timer = setTimeout(function () {
+            this.bottomPos = 16;
+          }.bind(this), 120000);
         }
       }
-    });
+    }
+  }
+});
+
