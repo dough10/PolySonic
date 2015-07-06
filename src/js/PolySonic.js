@@ -2,6 +2,7 @@
 (function () {
   'use strict';
   var app = document.querySelector('#tmpl');
+  app.scrolling = false;
   app.addEventListener('template-bound', function () {
     app.sizePlayer();
     chrome.storage.sync.get(function (result) {
@@ -211,7 +212,7 @@
     else if (bytes < 1073741824) return (bytes / 1048576).toFixed(2) + ' MB';
     else return (bytes / 1073741824).toFixed(2) + ' GB';
   }
-  
+
   app.calculateStorageSize = function () {
     navigator.webkitTemporaryStorage.queryUsageAndQuota(function (used, remaining) {
       app.storageQuota = app.diskUsed + ": " + formatBytes(used) + ', ' + app.diskRemaining + ": " + formatBytes(remaining);
@@ -290,9 +291,10 @@
   };
 
   app.scrollCallback = function () {
-    var fab = app.$.fab,
-      wall = app.$.wall,
-      scroller = app.appScroller();
+    var fab = app.$.fab;
+    var wall = app.$.wall;
+    var scroller = app.appScroller();
+    var timer = 0;
 
     if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
       fab.state = 'off';
@@ -304,6 +306,15 @@
       fab.state = 'bottom';
     }
     app.position = scroller.scrollTop;
+    app.scrolling = true;
+    if (timer) {
+      clearTimeout(timer);
+      timer = 0;
+    } else {
+      timer = setTimeout(function () {
+        app.scrolling = false;
+      }.bind(this), 50);
+    }
   };
 
   app.close = function () {
@@ -603,6 +614,7 @@
       app.buffer = 0;
     }
     audio = null;
+    e = null;
   };
 
   app.playerProgress = function (e) {
@@ -638,6 +650,7 @@
       app.isNowPlaying = false;
     }
     audio = null;
+    e = null;
   };
 
   app.showApp = function () {

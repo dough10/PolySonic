@@ -53,7 +53,9 @@
         </div>
       </template>
       <!-- fab -->
-      <animated-fab id="fab" page="{{page}}" showing="{{showing}}" isNowPlaying="{{!isNowPlaying}}" on-tap="{{doAction}}" colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}" colorThiefalbum="{{colorThiefAlbum}}" colorThiefAlbumOff="{{colorThiefAlbumOff}}" playing="{{playing}}"></animated-fab>
+      <animated-fab id="fab" page="{{page}}" showing="{{showing}}"
+                    isNowPlaying="{{!isNowPlaying}}" on-tap="{{doAction}}" colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}"
+                    colorThiefalbum="{{colorThiefAlbum}}" colorThiefAlbumOff="{{colorThiefAlbumOff}}" playing="{{playing}}"></animated-fab>
       <core-drawer-panel id="panel" narrow="{{narrow}}" forceNarrow disableSwipe?="{{page !== 0}}">
 
         <!-- menu -->
@@ -238,6 +240,9 @@
                 </div>
                 <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
                 <div class="bottom" flex></div>
+                <core-tooltip hidden?="{{!isDownloading}}" class="bottom" label="{{showDownloads}}">
+                  <paper-icon-button icon="file-download" on-tap="{{openDownloads}}" disabled?="{{dataLoading || shuffleLoading}}"></paper-icon-button>
+                </core-tooltip>
               </core-toolbar>
               <artist-details
                 id="aDetails"

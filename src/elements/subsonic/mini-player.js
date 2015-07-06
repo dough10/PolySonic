@@ -2,11 +2,11 @@ Polymer('mini-player', {
   ready: function () {
     'use strict';
     this.timer = 0;
+    this.label = chrome.i18n.getMessage('nowPlayingTitle');
   },
   domReady: function () {
     'use strict';
     this.app = document.getElementById('tmpl');
-    this.label = chrome.i18n.getMessage('nowPlayingTitle');
   },
   setPlaying: function (obj) {
     'use strict';
@@ -66,8 +66,10 @@ Polymer('mini-player', {
   },
   progressClick: function (event, detail) {
     'use strict';
-    var audio = this.app.$.audio;
-    var slide = this.progress / 100;
-    audio.currentTime = audio.duration - (audio.duration - (audio.duration * slide));
+    this.async(function () {
+      var audio = this.app.$.audio;
+      var slide = this.progress / 100;
+      audio.currentTime = audio.duration - (audio.duration - (audio.duration * slide));
+    });
   }
 });
