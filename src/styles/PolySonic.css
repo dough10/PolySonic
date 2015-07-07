@@ -105,6 +105,11 @@ paper-progress::shadow #secondaryProgress {
   right:1%;
   margin-top:66px;
 }
+#repeat {
+  position:absolute;
+  left:1%;
+  margin-top:66px;
+}
 #playing {
   max-height:65px;
   overflow: hidden;

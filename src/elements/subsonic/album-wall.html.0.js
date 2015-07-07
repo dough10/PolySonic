@@ -294,7 +294,7 @@ Polymer('album-wall', {
     'use strict';
     this.app.playlist = [obj];
     this.app.playing = 0;
-    this.app.playAudio('', obj.title, url, obj.cover, obj.id);
+    this.app.playAudio(this.app.playlist[this.app.playing]);
     this.app.dataLoading = false;
   },
 

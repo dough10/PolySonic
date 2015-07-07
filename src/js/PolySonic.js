@@ -20,6 +20,8 @@
       app.querySize = 40;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
+      app.repeatPlaylist = false;
+      app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
       app.colorThiefEnabled = true;
       app.dataLoading = false;
       app.params = {
@@ -398,42 +400,54 @@
   /*
     play functions
   */
-  app.playAudio = function (artist, title, src, image, id) {
+  app.playAudio = function (obj) {
     var minis = document.querySelectorAll('mini-player');
     var length = minis.length;
+    var url;
     for (var i = 0; i < length; i++) {
-      minis[i].setPlaying({artist: artist, title: title, cover: image});
+      minis[i].setPlaying({artist: obj.artist, title: obj.title, cover: obj.cover});
     }
-    var audio = app.$.audio,
-      note = app.$.playNotify;
-    if (artist === '') {
-      app.currentPlaying = title;
-      note.title = title;
+    var audio = app.$.audio;
+    var note = app.$.playNotify;
+    if (obj.artist === '') {
+      app.currentPlaying = obj.title;
+      note.title = obj.title;
+      url = app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: obj.id});
     } else {
-      app.currentPlaying = artist + ' - ' + title;
-      note.title = artist + ' - ' + title;
+      app.currentPlaying = obj.artist + ' - ' + obj.title;
+      note.title = obj.artist + ' - ' + obj.title;
+      url = app.buildUrl('stream', {maxBitRate: app.bitRate, id: obj.id});
     }
     if (app.activeUser.scrobblingEnabled) {
-      app.doXhr(app.buildUrl('scrobble', {id: id, time: new Date().getTime()}), 'json', function (e) {
+      app.doXhr(app.buildUrl('scrobble', {id: obj.id, time: new Date().getTime()}), 'json', function (e) {
         if (e.target.response['subsonic-response'].status === 'failed') {
           console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
           app.tracker.sendEvent('Last FM submission', 'Failed');
         }
       });
     }
-    audio.src = src;
-    note.icon = image;
+    audio.src = url;
+    note.icon = obj.cover;
     audio.play();
     note.show();
-    app.tracker.sendEvent('Audio', 'Playing');
+    app.tracker.sendEvent('Audio', 'Started');
   };
 
   app.playNext = function (next) {
-    if (app.playlist[next]) {
+    if (app.repeatPlaylist && !app.playlist[next]) {
+      app.playing = 0;
+      app.playAudio(app.playlist[0]);
+    } else if (app.playlist[next]) {
       app.playing = next;
+      app.playAudio(app.playlist[next]);
     } else {
       app.$.audio.pause();
       app.clearPlaylist();
+      var minis = document.querySelectorAll('mini-player');
+      var length = minis.length;
+      for (var i = 0; i < length; i++) {
+        minis[i].page = 0;
+      }
     }
   };
 
@@ -447,16 +461,8 @@
 
   app.playThis = function () {
     app.async(function () {
-      app.setFabColor(this.playlist[this.playing]);
-      var url;
-      if (app.playlist[app.playing].artist === '') {
-        // is a podcast
-        url = app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: app.playlist[this.playing].id});
-      } else {
-        // normal trascoded file type
-        url = app.buildUrl('stream', {maxBitRate: app.bitRate, id: app.playlist[app.playing].id});
-      }
-      app.playAudio(app.playlist[app.playing].artist, app.playlist[app.playing].title, url, app.playlist[app.playing].cover, app.playlist[app.playing].id);
+      app.setFabColor(app.playlist[app.playing]);
+      app.playAudio(app.playlist[app.playing]);
       if (app.playlist[app.playing].cover) {
         app.getImageForPlayer(app.playlist[app.playing].cover);
       } else {
@@ -540,9 +546,8 @@
   app.doShufflePlayback = function () {
     if (app.$.audio.paused) {
       app.playing = 0;
-      app.playAudio(app.playlist[0].artist, app.playlist[0].title, app.buildUrl('stream', {maxBitRate: app.bitRate, id: app.playlist[0].id}), app.playlist[0].cover, app.playlist[0].id);
+      app.playAudio(app.playlist[0]);
       app.getImageForPlayer(app.playlist[0].cover, function () {
-        //app.page = 1;
         app.setFabColor(app.playlist[0]);
         app.$.shuffleOptions.close();
         app.shuffleLoading = false;
@@ -585,7 +590,20 @@
     }
   };
 
-
+  app.toggleRepeat = function (event, detail, sender) {
+    var text;
+    if (app.repeatPlaylist) {
+      app.repeatPlaylist = false;
+      text = chrome.i18n.getMessage('playlistRepeatOff');
+      app.$.repeat.style.color = 'white';
+    } else {
+      app.$.repeat.style.color = 'yellow';
+      app.repeatPlaylist = true;
+      text = chrome.i18n.getMessage('playlistRepeatOn');
+    }
+    app.doToast(text);
+    app.repeatText = text;
+  };
 
   /*
     handle image for player background

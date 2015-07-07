@@ -184,6 +184,7 @@
               </div>
               <div class="controlsWrapper">
                 <paper-progress id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
+                <paper-icon-button id="repeat" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
                 <div id="time">{{playTime}}</div>
                 <template if="{{playlist && playing !== 0}}">
                   <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
@@ -286,6 +287,10 @@
                       {{createPlaylistLabel}}
                     </paper-item>
                   </template>
+                  <paper-item on-tap="{{toggleRepeat}}">
+                    <core-icon icon="av:repeat"  style="margin-right:24px;"></core-icon>
+                    {{repeatText}}
+                  </paper-item>
                   <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
                     <core-icon icon="av:not-interested" style="margin-right:24px; color:#db4437;"></core-icon>
                     {{clearQueue}}
