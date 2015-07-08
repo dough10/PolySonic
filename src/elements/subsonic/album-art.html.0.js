@@ -375,9 +375,9 @@ Polymer('album-art', {
   itemChanged: function () {
     'use strict';
     this.async(function itemUpdate() {
+      this.showArt(this.defaultImgURL);
       if (this.item && !this.app.scrolling) {
         var artId = "al-" + this.item;
-        this.showArt(this.defaultImgURL);
         this.playlist = [];
         this.isLoading = true;
         this.async(function () {

@@ -22,6 +22,7 @@
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
       app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
+      app.$.repeatButton.style.color = '#db4437';
       app.colorThiefEnabled = true;
       app.dataLoading = false;
       app.params = {
@@ -595,9 +596,11 @@
     if (app.repeatPlaylist) {
       app.repeatPlaylist = false;
       text = chrome.i18n.getMessage('playlistRepeatOff');
-      app.$.repeat.style.color = 'white';
+      app.$.repeat.style.color = 'rgb(158, 158, 158)';
+      app.$.repeatButton.style.color = '#db4437';
     } else {
-      app.$.repeat.style.color = 'yellow';
+      app.$.repeat.style.color = 'white';
+      app.$.repeatButton.style.color = '#57BA67';
       app.repeatPlaylist = true;
       text = chrome.i18n.getMessage('playlistRepeatOn');
     }

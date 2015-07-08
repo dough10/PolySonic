@@ -19,7 +19,7 @@
   <div id="loader">
     <div id="box">
       <img src="../images/icon_128.png" height="128" width="128" alt="Icon">
-      <div tyle="height:30px">
+      <div style="height:30px; margin:auto; text-align:center;">
         <paper-spinner id="spinner" active=""></paper-spinner>
       </div>
     </div>
@@ -174,7 +174,7 @@
                 <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
               </div>
               <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
-              <div class="bottom" flex>{{currentPlaying}}</div>
+              <div class="bottom" style="text-align: center;" flex>{{currentPlaying}}</div>
             </core-toolbar>
             <div style="position:relative;">
               <div id="coverArt" hero-id="art" hero="">
@@ -184,7 +184,7 @@
               </div>
               <div class="controlsWrapper">
                 <paper-progress id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
-                <paper-icon-button id="repeat" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
+                <paper-icon-button id="repeat" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
                 <div id="time">{{playTime}}</div>
                 <template if="{{playlist && playing !== 0}}">
                   <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
@@ -288,7 +288,7 @@
                     </paper-item>
                   </template>
                   <paper-item on-tap="{{toggleRepeat}}">
-                    <core-icon icon="av:repeat"  style="margin-right:24px;"></core-icon>
+                    <core-icon icon="av:repeat" id="repeatButton" style="margin-right:24px;"></core-icon>
                     {{repeatText}}
                   </paper-item>
                   <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
