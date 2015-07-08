@@ -317,5 +317,11 @@
   },
   "playlistRepeatOff" : {
     "message": "Repeat Off"
+  },
+  "enabled": {
+    "message": "Enabled"
+  },
+  "disabled": {
+    "message": "Disabled"
   }
 }

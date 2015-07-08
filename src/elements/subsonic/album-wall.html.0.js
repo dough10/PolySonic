@@ -49,18 +49,20 @@ Polymer('album-wall', {
     this.scrollTarget = this.app.appScroller();
   },
 
-  mediaFolderChanged: function () {
+  mediaFolderChanged: function (oldVal, newVal) {
     'use strict';
-    this.app.closeDrawer(function () {
-      if (this.mediaFolder !== 0) {
-        this.post.musicFolderId = this.mediaFolder;
-      } else {
-        delete this.post.musicFolderId;
-      }
-      this.app.pageLimit = false;
-      this.$.threshold.clearLower();
-      this.async(this.refreshContent);
-    }.bind(this));
+    this.async(function () {
+      this.app.closeDrawer(function () {
+        if (Number(newVal) !== 0) {
+          this.post.musicFolderId = Number(newVal);
+        } else {
+          delete this.post.musicFolderId;
+        }
+        this.app.pageLimit = false;
+        this.$.threshold.clearLower();
+        this.async(this.refreshContent);
+      }.bind(this));
+    });
   },
 
   clearData: function (callback) {
