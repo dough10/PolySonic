@@ -6,7 +6,6 @@
   app.addEventListener('template-bound', function () {
     app.sizePlayer();
     chrome.storage.sync.get(function (result) {
-      //console.log(result);
       if (result.url === undefined) {
         app.$.firstRun.open();
       }
@@ -50,7 +49,7 @@
             } else {
               app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
               app.$.firstRun.toggle();
-              app.doToast( e.target.response['subsonic-response'].error.meessage);
+              app.doToast(e.target.response['subsonic-response'].error.meessage);
             }
           } else {
             app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
@@ -1175,9 +1174,16 @@
       app.params.v = app.version;
     }
     if (parseFloat(app.version, 10) <= 1.12) {
+      if (app.params.t) {
+        delete app.params.t;
+        delete app.params.s;
+      }
       app.params.p = app.pass.hexEncode();
       return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
     } else {
+      if (app.params.p) {
+        delete app.params.p;
+      }
       app.params.s = makeSalt(16);
       app.params.t = md5(app.pass + app.params.s);
       return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
