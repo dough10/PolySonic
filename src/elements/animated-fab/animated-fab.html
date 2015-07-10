@@ -56,19 +56,19 @@
     <core-media-query query="max-width:480px" querymatches="{{phoneSize}}"></core-media-query>
     <core-animated-pages selected="{{state}}" valueattr="page" transitions="hero-transition">
       <div class="page" page="off">
-        <paper-fab class="off" icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
+        <paper-fab class="off" raised icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
       </div>
       <div class="page" page="bottom">
-        <paper-fab class="bottom" icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
+        <paper-fab class="bottom" raised icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
       </div>
       <div class="page" page="top">
-        <paper-fab class="top colorThief" icon="av:queue-music" hero-id="foo" hero></paper-fab>
+        <paper-fab raised class="top colorThief" icon="av:queue-music" hero-id="foo" hero></paper-fab>
       </div>
       <div page="mid">
-        <paper-fab class="mid colorThiefOther" icon="av:play-arrow" hero-id="foo" hero layered></paper-fab>
+        <paper-fab raised class="mid colorThiefOther" icon="av:play-arrow" hero-id="foo" hero layered></paper-fab>
       </div>
       <div page="podcast">
-        <paper-fab class="bottom" icon="add" hero-id="foo" hero layered></paper-fab>
+        <paper-fab raised class="bottom" icon="add" hero-id="foo" hero layered></paper-fab>
       </div>
     </core-animated-pages>
   </template>
