@@ -4,6 +4,13 @@ Polymer('animated-fab',{
     this.page = this.page || 0;
     this.timer = 0;
   },
+  ready: function () {
+    this.setPos();
+  },
+  setPos: function () {
+    this.$.mid.style.top = Math.floor((window.innerHeight / 2) + 23) + 'px';
+    this.$.mid.style.right = Math.floor((window.innerWidth / 2) - 250) + 'px';
+  },
   domReady: function () {
     this.app = document.getElementById('tmpl');
     this.bottomPos = 16;
@@ -30,13 +37,6 @@ Polymer('animated-fab',{
       this.state = 'podcast';
     }
     document.getElementById("tmpl").tracker.sendAppView(pName);
-  },
-
-  /* listens to changes in this.playing and updates the player */
-  playingChanged: function () {
-    if (this.playing) {
-      document.getElementById('tmpl').playThis();
-    }
   },
   isNowPlayingChanged: function (newVal, oldVal) {
     if (newVal) {

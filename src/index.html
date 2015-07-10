@@ -32,21 +32,6 @@
     <!-- begin databindings -->
     <template is="auto-binding" id="tmpl">
 
-      <style>
-        paper-progress::shadow #progressContainer {
-          background-color:{{colorThiefProgBg}};
-          transition: background 500ms linear;
-        }
-        paper-progress::shadow #activeProgress {
-          background-color:{{colorThiefFab}};
-          transition: background 500ms linear;
-        }
-        paper-progress::shadow #secondaryProgress {
-          background-color:{{colorThiefBuffered}};
-          transition: background 500ms linear;
-        }
-      </style>
-
       <template if="{{dataLoading}}">
         <div class="dataLoading">
           <paper-spinner active class="spinner"></paper-spinner>
@@ -56,8 +41,7 @@
       <animated-fab id="fab" page="{{page}}" showing="{{showing}}"
                     isNowPlaying="{{!isNowPlaying}}" on-tap="{{doAction}}"
                     colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}"
-                    colorThiefalbum="{{colorThiefAlbum}}" colorThiefAlbumOff="{{colorThiefAlbumOff}}"
-                    playing="{{playing}}"></animated-fab>
+                    colorThiefalbum="{{colorThiefAlbum}}" colorThiefAlbumOff="{{colorThiefAlbumOff}}"></animated-fab>
       <core-drawer-panel id="panel" narrow="{{narrow}}" forceNarrow disableSwipe?="{{page !== 0}}">
 
         <!-- menu -->
@@ -166,7 +150,7 @@
               </core-toolbar>
               <album-wall id="wall" listMode="{{listMode}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}" queryMethod="{{queryMethod}}" mediaFolder="{{folder}}" colorThiefEnabled="{{colorThiefEnabled}}" artists="{{artists}}"></album-wall>
             </core-header-panel>
-            <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}" progress="{{progress}}" hero></mini-player>
+            <mini-player hero-id="art" hero="" isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}" progress="{{progress}}" hero></mini-player>
           </section>
           <section>
             <core-toolbar class="medium-tall">
@@ -178,44 +162,7 @@
               <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
               <div class="bottom" style="text-align: center;" flex>{{currentPlaying}}</div>
             </core-toolbar>
-            <div style="position:relative;">
-              <div id="coverArt" hero-id="art" hero="">
-                <div hidden?="{{!waitingToPlay}}" class="waitingToPlay">
-                  <paper-spinner class="spinner" active></paper-spinner>
-                </div>
-              </div>
-              <div class="controlsWrapper">
-                <paper-progress id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
-                <core-tooltip  id="repeat" label="{{repeatState}}" position="top">
-                  <paper-icon-button id="rButton" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
-                </core-tooltip>
-                <div id="time">{{playTime}}</div>
-                <template if="{{playlist && playing !== 0}}">
-                  <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
-                </template>
-                <template if="{{playlist[0] && playing === 0}}">
-                  <paper-icon-button class="big"></paper-icon-button>
-                </template>
-                <paper-icon-button id="avIcon" class="huge" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
-                <template if="{{playlist[0]}}">
-                  <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
-                </template>
-                <core-tooltip label="{{adjustVolumeLabel}}" id="volume" position="left">
-                  <template if="{{volume > 66}}">
-                    <paper-icon-button icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
-                  <template if="{{volume >= 33 && volume <= 66}}">
-                    <paper-icon-button icon="av:volume-down" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
-                  <template if="{{volume > 0 && volume < 33}}">
-                    <paper-icon-button icon="av:volume-mute" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
-                  <template if="{{volume === 0}}">
-                    <paper-icon-button icon="av:volume-off" on-tap="{{toggleVolume}}"></paper-icon-button>
-                  </template>
-                </core-tooltip>
-              </div>
-            </div>
+            <music-player hero-id="art" hero="" id="player"></music-player>
           </section>
           <section>
             <core-header-panel class="pages">
@@ -228,7 +175,7 @@
                 <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
                 <div class="bottom" flex></div>
               </core-toolbar>
-              <paper-shadow z='1' class='card'>
+              <paper-shadow z='1' style="max-width:800px; margin:auto;" class='card'>
                 <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" storageQuota="{{storageQuota}}" queryMethod="{{queryMethod}}" colorThiefEnabled="{{colorThiefEnabled}}"></settings-menu>
               </paper-shadow>
             </core-header-panel>
@@ -639,8 +586,6 @@
 
       <x-notification id="playNotify" timeout='5000' tag="tag"></x-notification>
 
-      <!-- where the magic happens -->
-      <audio id="audio"></audio>
     </template>
   </div>
   <!--<script src="js/cast_sender.js"></script>-->

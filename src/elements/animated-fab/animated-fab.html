@@ -4,7 +4,7 @@
 <link href="../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
 <link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
 <link href="../../bower_components/core-icons/av-icons.html" rel="import">
-</head><body><polymer-element name="animated-fab" attributes="state fabTimer page showing isNowPlaying colorThiefFab colorThiefFabOff colorThiefAlbum colorThiefAlbumOff playing">
+</head><body><polymer-element name="animated-fab" attributes="state fabTimer page showing isNowPlaying colorThiefFab colorThiefFabOff colorThiefAlbum colorThiefAlbumOff">
   <template>
     <style>
       :host {
@@ -41,7 +41,6 @@
         top:100px;
       }
       .mid {
-        top:400px;
         z-index:5000;
       }
       .colorThief {
@@ -62,10 +61,10 @@
         <paper-fab class="bottom" raised icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
       </div>
       <div class="page" page="top">
-        <paper-fab raised class="top colorThief" icon="av:queue-music" hero-id="foo" hero></paper-fab>
+        <paper-fab  raised class="top colorThief" icon="av:queue-music" hero-id="foo" hero></paper-fab>
       </div>
       <div page="mid">
-        <paper-fab raised class="mid colorThiefOther" icon="av:play-arrow" hero-id="foo" hero layered></paper-fab>
+        <paper-fab id="mid" raised class="mid colorThiefOther" icon="av:play-arrow" hero-id="foo" hero layered></paper-fab>
       </div>
       <div page="podcast">
         <paper-fab raised class="bottom" icon="add" hero-id="foo" hero layered></paper-fab>

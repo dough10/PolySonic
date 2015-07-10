@@ -11,15 +11,10 @@ Polymer('album-art', {
   albumTracklist: chrome.i18n.getMessage("albumTracklist"),
   imgURL: '',
   defaultImgURL: '../../../images/default-cover-art.png',
-  width: "250px",
-  height: "250px",
   albumSize: 0,
-  /*
-    element is ready
-  */
+
   ready: function () {
     'use strict';
-    this.page = this.page || "cover";
 
     this.artist = this.artist || "Artist Name";
 
@@ -64,22 +59,6 @@ Polymer('album-art', {
     this.imgURL = image;
   },
 
-  /*
-    slide up the box to cover art and show hidden details
-  */
-  slideUp: function () {
-    'use strict';
-    this.page = "info";
-  },
-
-  /*
-    slide box to normal position
-  */
-  closeSlide: function () {
-    'use strict';
-    this.page = "cover";
-  },
-
   doDialog: function () {
     'use strict';
     this.async(function () {
@@ -89,7 +68,6 @@ Polymer('album-art', {
         this.app.colorThiefAlbum = this.playlist[0].palette[0];
         this.app.colorThiefAlbumOff = this.playlist[0].palette[1];
       }
-      this.closeSlide();
       this.$.detailsDialog.open();
       this.app.$.fab.state = 'mid';
       this.app.$.fab.ident = this.id;
@@ -114,8 +92,8 @@ Polymer('album-art', {
     this.app.dataLoading = false;
     if (this.audio.paused) {
       this.app.playing = 0;
-      this.app.playAudio(this.playlist[0]);
-      this.app.getImageForPlayer(this.imgURL, function () {
+      this.app.$.player.playAudio(this.playlist[0]);
+      this.app.$.player.getImageForPlayer(this.imgURL, function () {
         this.app.setFabColor(this.playlist[0]);
       }.bind(this));
     }
@@ -125,8 +103,7 @@ Polymer('album-art', {
   doAlbumDownload: function (event, detail, sender) {
     'use strict';
     var manager = new DownloadManager(),
-      animation = new CoreAnimation(),
-      url;
+      animation = new CoreAnimation();
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
@@ -153,8 +130,7 @@ Polymer('album-art', {
   doTrackDownload: function (event, detail, sender) {
     'use strict';
     var manager = new DownloadManager(),
-      animation = new CoreAnimation(),
-      url;
+      animation = new CoreAnimation();
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
@@ -188,7 +164,7 @@ Polymer('album-art', {
       }
     ];
     this.app.playing = 0;
-    this.app.playAudio(this.app.playlist[0]);
+    this.app.$.player.playAudio(this.app.playlist[0]);
     this.app.$.fab.state = 'off';
   },
 
@@ -203,7 +179,7 @@ Polymer('album-art', {
     });
     if (this.audio.paused) {
       this.app.setFabColor(this.playlist[0]);
-      this.app.playAudio(this.playlist[0]);
+      this.app.$.player.playAudio(this.playlist[0]);
       this.app.playing = 0;
       if (this.imgURL) {
         this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";
@@ -219,11 +195,11 @@ Polymer('album-art', {
     'use strict';
     this.app.dataLoading = false;
     this.$.detailsDialog.close();
-    this.app.getImageForPlayer(this.imgURL, function () {
+    this.app.$.player.getImageForPlayer(this.imgURL, function () {
       this.app.playlist = this.playlist;
       this.app.playing = 0;
       this.app.setFabColor(this.playlist[0]);
-      this.app.playAudio(this.playlist[0]);
+      this.app.$.player.playAudio(this.playlist[0]);
     }.bind(this));
   },
 
@@ -403,7 +379,7 @@ Polymer('album-art', {
     });
   },
 
-  setRating: function (event, detail, sender) {
+/*  setRating: function (event, detail, sender) {
     'use strict';
     var rating = parseInt(sender.attributes.star.value, 10);
     var animation = new CoreAnimation();
@@ -422,14 +398,14 @@ Polymer('album-art', {
         this.rating = rating;
       }
     }.bind(this));
-  },
+  },*/
 
   moreLikeCallback: function () {
     if (this.app.$.audio.paused) {
-      this.app.getImageForPlayer(this.app.playlist[0].cover, function () {
+      this.app.$.player.getImageForPlayer(this.app.playlist[0].cover, function () {
         this.app.playing = 0;
         this.app.setFabColor(this.app.playlist[0]);
-        this.app.playAudio(this.app.playlist[0]);
+        this.app.$.player.playAudio(this.app.playlist[0]);
         this.app.dataLoading = false;
       }.bind(this));
     }

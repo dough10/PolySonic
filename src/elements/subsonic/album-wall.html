@@ -21,7 +21,9 @@
         min-height:400px;
       }
       .card {
-        margin:8px;
+        margin: auto;
+        margin-top:8px;
+        margin-bottom:8px;
         display:block;
         background-color:#FFFFFF;
         border-radius:2px;
@@ -31,6 +33,8 @@
         text-align:left;
         font-size:10pt;
         position:relative;
+        max-width: 800px;
+        
       }
       .heading {
         font-size: 22px;
@@ -67,6 +71,10 @@
         opacity: 1;
         -webkit-transform: translate3d(0, 0, 0);
         transform: translate3d(0, 0, 0);
+      }
+      #cover {
+        max-width: 1400px;
+        margin:auto;
       }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>

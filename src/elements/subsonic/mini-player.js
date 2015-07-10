@@ -40,7 +40,7 @@ Polymer('mini-player', {
       }
     }
     if (this.app) {
-      if (this.app.$.audio.paused) {
+      if (this.app.$.player.$.audio.paused) {
         this.$.playButton.icon = 'av:play-arrow';
       } else {
         this.$.playButton.icon = 'av:pause';
@@ -53,7 +53,7 @@ Polymer('mini-player', {
   },
   playPause: function () {
     'use strict';
-    if (!this.app.$.audio.paused) {
+    if (!this.app.$.player.$.audio.paused) {
       this.$.playButton.icon = 'av:play-arrow';
     } else {
       this.$.playButton.icon = 'av:pause';

@@ -4,7 +4,6 @@
   var app = document.querySelector('#tmpl');
   app.scrolling = false;
   app.addEventListener('template-bound', function () {
-    app.sizePlayer();
     chrome.storage.sync.get(function (result) {
       if (result.url === undefined) {
         app.$.firstRun.open();
@@ -16,7 +15,7 @@
       app.bitRate = result.bitRate || 320;
       app.shuffleSettings.size = app.shuffleSettings.size || '50';
       app.version = '1.11.0';
-      app.querySize = 40;
+      app.querySize = 60;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
@@ -61,11 +60,11 @@
       }
     });
 
-    var audio = app.$.audio;
+    /*var audio = app.$.audio;*/
 
     app.appScroller().onscroll = app.scrollCallback;
 
-    audio.onwaiting = app.playerProgress;
+/*    audio.onwaiting = app.playerProgress;
 
     audio.onprogress = app.buffering;
 
@@ -74,6 +73,10 @@
     audio.onended = app.nextTrack;
 
     audio.onerror = app.audioError;
+    */
+    window.onresize = function () {
+      app.$.fab.setPos();
+    };
 
     app.service = analytics.getService('PolySonic');
     app.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
@@ -391,97 +394,6 @@
     };
   };
 
-
-  /*
-    play functions
-  */
-  app.playAudio = function (obj) {
-    var minis = document.querySelectorAll('mini-player');
-    var length = minis.length;
-    var url;
-    for (var i = 0; i < length; i++) {
-      minis[i].setPlaying({artist: obj.artist, title: obj.title, cover: obj.cover});
-    }
-    var audio = app.$.audio;
-    var note = app.$.playNotify;
-    if (obj.artist === '') {
-      app.currentPlaying = obj.title;
-      note.title = obj.title;
-      url = app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: obj.id});
-    } else {
-      app.currentPlaying = obj.artist + ' - ' + obj.title;
-      note.title = obj.artist + ' - ' + obj.title;
-      url = app.buildUrl('stream', {maxBitRate: app.bitRate, id: obj.id});
-    }
-    if (app.activeUser.scrobblingEnabled) {
-      app.doXhr(app.buildUrl('scrobble', {id: obj.id, time: new Date().getTime()}), 'json', function (e) {
-        if (e.target.response['subsonic-response'].status === 'failed') {
-          console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
-          app.tracker.sendEvent('Last FM submission', 'Failed');
-        }
-      });
-    }
-    audio.src = url;
-    note.icon = obj.cover;
-    audio.play();
-    note.show();
-    app.tracker.sendEvent('Audio', 'Started');
-  };
-
-  app.audioError = function (e) {
-    app.page = 0;
-    console.error('audio playback error ', e);
-    app.doToast('Audio Playback Error');
-    app.tracker.sendEvent('Audio Playback Error', e.target);
-  };
-
-  app.playNext = function (next) {
-    if (app.repeatPlaylist && !app.playlist[next]) {
-      app.playing = 0;
-      app.playAudio(app.playlist[0]);
-    } else if (app.playlist[next]) {
-      app.playing = next;
-      app.playAudio(app.playlist[next]);
-    } else {
-      app.$.audio.pause();
-      app.clearPlaylist();
-      var minis = document.querySelectorAll('mini-player');
-      var length = minis.length;
-      for (var i = 0; i < length; i++) {
-        minis[i].page = 0;
-      }
-    }
-  };
-
-  app.nextTrack = function () {
-    app.playNext(app.playing + 1);
-  };
-
-  app.lastTrack = function () {
-    app.playNext(app.playing - 1);
-  };
-
-  app.playThis = function () {
-    app.async(function () {
-      app.setFabColor(app.playlist[app.playing]);
-      app.playAudio(app.playlist[app.playing]);
-      if (app.playlist[app.playing].cover) {
-        app.getImageForPlayer(app.playlist[app.playing].cover);
-      } else {
-        app.defaultPlayImage();
-      }
-    });
-  };
-
-  app.playPause = function () {
-    var audio = app.$.audio;
-    if (!audio.paused) {
-      audio.pause();
-    } else {
-      audio.play();
-    }
-  };
-
   function endLoop() {
     if (app.$.audio.paused) {
       app.doShufflePlayback();
@@ -518,7 +430,7 @@
     app.playlist = null;
     app.playlist = [];
     if (!app.startYearInvalid && !app.endYearInvalid) {
-      app.$.audio.pause();
+      app.$.player.$.audio.pause();
       app.doXhr(app.buildUrl('getRandomSongs', app.shuffleSettings), 'json', function (event) {
         var data = event.target.response['subsonic-response'].randomSongs.song;
         var length = data.length;
@@ -548,8 +460,8 @@
   app.doShufflePlayback = function () {
     if (app.$.audio.paused) {
       app.playing = 0;
-      app.playAudio(app.playlist[0]);
-      app.getImageForPlayer(app.playlist[0].cover, function () {
+      app.$.player.playAudio(app.playlist[0]);
+      app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
         app.setFabColor(app.playlist[0]);
         app.$.shuffleOptions.close();
         app.shuffleLoading = false;
@@ -591,87 +503,14 @@
       app.volume = app.volume - 2;
     }
   };
-
-  app.toggleRepeat = function (event, detail, sender) {
-    if (app.repeatPlaylist) {
-      app.repeatPlaylist = false;
-      app.repeatState = chrome.i18n.getMessage('disabled');
-      app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
-      app.$.rButton.style.color = 'rgb(158, 158, 158)';
-      app.$.repeatButton.style.color = '#db4437';
-    } else {
-      app.repeatState = chrome.i18n.getMessage('enabled');
-      app.$.rButton.style.color = 'white';
-      app.$.repeatButton.style.color = '#57BA67';
-      app.repeatPlaylist = true;
-      app.repeatText = chrome.i18n.getMessage('playlistRepeatOn');
-    }
-  };
-
-  /*
-    handle image for player background
-  */
-  app.getImageForPlayer = function (url, callback) {
-    app.$.coverArt.style.backgroundImage = "url('" + url + "')";
-    app.$.playNotify.icon = url;
-    if (callback) {
-      app.async(callback);
-    }
+  
+  app.toggleRepeat = function () {
+    app.$.player.toggleRepeat();
   };
 
   app.defaultPlayImage = function () {
     app.$.coverArt.style.backgroundImage =  "url('images/default-cover-art.png')";
     app.$.playNotify.icon = 'images/default-cover-art.png';
-  };
-
-  /*
-    player UI control
-  */
-  app.buffering = function (e) {
-    var audio = e.srcElement;
-    if (audio.duration) {
-     app.buffer = Math.floor((audio.buffered.end(0) / audio.duration) * 100);
-    } else {
-      app.buffer = 0;
-    }
-    audio = null;
-    e = null;
-  };
-
-  app.playerProgress = function (e) {
-    var audio = e.srcElement;
-
-    if (e) {
-      if (e.type === 'waiting') {
-        app.waitingToPlay = true;   // spinner on album art shown
-      } else if (e.type === 'timeupdate') {
-        app.waitingToPlay = false;   // spinner on album art hidden
-      }
-    }
-    app.currentMins = Math.floor(audio.currentTime / 60);
-    app.currentSecs = Math.floor(audio.currentTime - (app.currentMins * 60));
-    app.totalMins = Math.floor(audio.duration / 60);
-    app.totalSecs = Math.floor(audio.duration - (app.totalMins * 60));
-
-    if (!audio.paused) {
-      app.$.avIcon.icon = "av:pause";
-      if (!audio.duration) {
-        app.playTime = app.currentMins + ':' + ('0' + app.currentSecs).slice(-2) + ' / ?:??';
-        app.progress = 0;
-      } else {
-        app.playTime = app.currentMins + ':' + ('0' + app.currentSecs).slice(-2) + ' / ' + app.totalMins + ':' + ('0' + app.totalSecs).slice(-2);
-        app.progress = Math.floor(audio.currentTime / audio.duration * 100);
-      }
-    } else {
-      app.$.avIcon.icon = "av:play-arrow";
-    }
-    if (!audio.paused) {
-      app.isNowPlaying = true;
-    } else {
-      app.isNowPlaying = false;
-    }
-    audio = null;
-    e = null;
   };
 
   app.showApp = function () {
@@ -684,16 +523,6 @@
       box.classList.add('hide');
       app.askAnalistics();
     }
-  };
-
-  app.sizePlayer = function () {
-    var height = (window.innerHeight - 256) + 'px',
-      width = window.innerWidth + 'px',
-      art = app.$.coverArt;
-
-    art.style.width = width;
-    art.style.height = height;
-    art.style.backgroundSize = width;
   };
 
   /* request premission for analistics */
@@ -771,12 +600,6 @@
       app.colorThiefBuffered = array.palette[2];
       app.colorThiefProgBg = array.palette[3];
     }
-  };
-
-  app.progressClick = function (event) {
-    var clicked = (event.x / window.innerWidth);
-    app.$.progress.value = clicked * 100;
-    app.$.audio.currentTime = audio.duration - (audio.duration - (audio.duration * clicked));
   };
 
   app.savePlayQueue = function () {

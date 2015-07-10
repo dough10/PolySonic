@@ -9,16 +9,18 @@
         right:0;
         pointer-events: none;
         text-align: left;
+    
       }
       .player {
         border-top:1px solid #dddddd;
         background: rgba(255,255,255,0.95);
         height:91px;
-        width:535px;
+        width:100%;
         position:fixed;
         pointer-events:auto;
         color:black;
         filter: blur(15px);
+        margin:auto;
       }
       .offscreen {
         bottom:-91px;
@@ -93,7 +95,7 @@
           <div horizontal layout>
             <div>
               <core-tooltip label="{{label}}" position="top">
-                <img  hero-id="art" hero="" on-tap="{{toPlayer}}" src="{{img}}" height="71" widht="71">
+                <img on-tap="{{toPlayer}}" src="{{img}}" height="71" widht="71">
               </core-tooltip>
             </div>
             <div>
