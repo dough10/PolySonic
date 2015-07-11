@@ -296,7 +296,7 @@ Polymer('album-wall', {
     'use strict';
     this.app.playlist = [obj];
     this.app.playing = 0;
-    this.app.playAudio(this.app.playlist[this.app.playing]);
+    this.app.$.player.playAudio(this.app.playlist[this.app.playing]);
     this.app.dataLoading = false;
   },
 
@@ -321,7 +321,7 @@ Polymer('album-wall', {
           var imgFile = ev.target.result;
           imgURL = window.URL.createObjectURL(imgFile);
           obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
-          this.app.getImageForPlayer(imgURL, function () {
+          this.app.$.player.getImageForPlayer(imgURL, function () {
             this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
               obj.palette = palette;
               this.app.setFabColor(obj);
@@ -334,7 +334,7 @@ Polymer('album-wall', {
             var imgFile = ev.target.result;
             imgURL = window.URL.createObjectURL(imgFile);
             obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
-            this.app.getImageForPlayer(imgURL, function () {
+            this.app.$.player.getImageForPlayer(imgURL, function () {
               this.app.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
                 obj.palette = colorArray;
                 this.app.setFabColor(obj);
@@ -348,7 +348,7 @@ Polymer('album-wall', {
     } else {
       imgURL = '../../../images/default-cover-art.png';
       obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
-      this.app.getImageForPlayer(imgURL);
+      this.app.$.player.getImageForPlayer(imgURL);
       this.doPlay(obj, url);
       this.app.page = 1;
     }
@@ -368,7 +368,7 @@ Polymer('album-wall', {
           this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
             obj.palette = palette;
             if (this.audio.paused) {
-              this.app.getImageForPlayer(imgURL, function () {
+              this.app.$.player.getImageForPlayer(imgURL, function () {
                 this.app.setFabColor(obj);
                 this.doPlay(obj, url);
                 this.app.dataLoading = false;
@@ -389,7 +389,7 @@ Polymer('album-wall', {
               obj.palette = colorArray;
             });
             if (this.audio.paused) {
-              this.app.getImageForPlayer(imgURL, function () {
+              this.app.$.player.getImageForPlayer(imgURL, function () {
                 this.app.dataLoading = false;
                 this.app.setFabColor(obj);
                 this.doPlay(obj, url);
@@ -407,7 +407,7 @@ Polymer('album-wall', {
       imgURL = '../../../images/default-cover-art.png';
       if (this.audio.paused) {
         obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
-        this.app.getImageForPlayer(imgURL);
+        this.app.$.player.getImageForPlayer(imgURL);
         this.doPlay(obj, url);
       } else {
         obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
