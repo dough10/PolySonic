@@ -19,10 +19,10 @@ Polymer('album-art', {
     this.artist = this.artist || "Artist Name";
 
     this.album = this.album || "Album Title";
-    
+
     this.app = document.getElementById("tmpl");
-    
-    this.audio = document.getElementById("audio");
+
+    this.audio = this.app.$.player.$.audio;
 
     this.playerArt = document.getElementById("coverArt");
 
@@ -79,11 +79,6 @@ Polymer('album-art', {
     this.app.tracker.sendAppView('Album Wall');
     this.$.detailsDialog.close();
     this.app.$.fab.state = 'off';
-  },
-
-  defaultPlayerImage: function () {
-    'use strict';
-    this.app.$.coverArt.style.backgroundImage =  "url('../../images/default-cover-art.png')";
   },
 
   add2Playlist: function () {
@@ -153,7 +148,6 @@ Polymer('album-art', {
     'use strict';
     this.app.setFabColor(this.playlist[0]);
     this.$.detailsDialog.close();
-    this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";
     this.app.playlist = [
       {
         artist: sender.attributes.artist.value,
@@ -164,7 +158,6 @@ Polymer('album-art', {
       }
     ];
     this.app.playing = 0;
-    this.app.$.player.playAudio(this.app.playlist[0]);
     this.app.$.fab.state = 'off';
   },
 
@@ -179,7 +172,6 @@ Polymer('album-art', {
     });
     if (this.audio.paused) {
       this.app.setFabColor(this.playlist[0]);
-      this.app.$.player.playAudio(this.playlist[0]);
       this.app.playing = 0;
       if (this.imgURL) {
         this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";

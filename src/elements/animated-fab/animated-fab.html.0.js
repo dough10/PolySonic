@@ -16,11 +16,22 @@ Polymer('animated-fab',{
     this.bottomPos = 16;
     this.ready = true;
   },
+  resize: function () {
+    if (this.app.page === 1) {
+      if (!this.app.$.player.small) {
+        this.state = 'large';
+        this.$.large.style.top = Math.floor((window.innerHeight / 2) - 261) + 'px';
+        this.$.large.style.right = Math.floor((window.innerWidth / 2) - 266) + 'px';
+      } else {
+        this.state = 'top';
+      }
+    }
+  },
   pageChanged: function () {
     var pName;
     if (this.page === 1) {
       pName = 'Player';
-      this.state = 'top';
+      this.resize();
     } else if (this.page === 0) {
       pName = 'Album Wall';
       this.state = 'off';

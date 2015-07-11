@@ -4,6 +4,18 @@
   var app = document.querySelector('#tmpl');
   app.scrolling = false;
   app.addEventListener('template-bound', function () {
+    app.$.player.resize();
+    var button = document.querySelectorAll('.max');
+    var length = button.length;
+    if (chrome.app.window.current().isMaximized()) {
+      for (var i = 0; i < length; i++) {
+        button[i].icon = 'flip-to-back';
+      }
+    } else {
+      for (var i = 0; i < length; i++) {
+        button[i].icon = 'check-box-outline-blank';
+      }
+    }
     chrome.storage.sync.get(function (result) {
       if (result.url === undefined) {
         app.$.firstRun.open();
@@ -15,7 +27,7 @@
       app.bitRate = result.bitRate || 320;
       app.shuffleSettings.size = app.shuffleSettings.size || '50';
       app.version = '1.11.0';
-      app.querySize = 60;
+      app.querySize = 120;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
@@ -59,25 +71,12 @@
         });
       }
     });
-
-    /*var audio = app.$.audio;*/
-
     app.appScroller().onscroll = app.scrollCallback;
-
-/*    audio.onwaiting = app.playerProgress;
-
-    audio.onprogress = app.buffering;
-
-    audio.ontimeupdate = app.playerProgress;
-
-    audio.onended = app.nextTrack;
-
-    audio.onerror = app.audioError;
-    */
     window.onresize = function () {
       app.$.fab.setPos();
+      app.$.player.resize();
+      app.$.fab.resize();
     };
-
     app.service = analytics.getService('PolySonic');
     app.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
 
@@ -175,6 +174,23 @@
         setVersion.onsuccess = function () {
           app.createObjectStore(this.db);
         };
+      }
+    }
+  };
+
+  app.maximize = function () {
+    var button = document.querySelectorAll('.max');
+    var length = button.length;
+    if (chrome.app.window.current().isMaximized()) {
+      chrome.app.window.current().innerBounds.width = 535;
+      chrome.app.window.current().innerBounds.height = 761;
+      for (var i = 0; i < length; i++) {
+        button[i].icon = 'check-box-outline-blank';
+      }
+    } else {
+      chrome.app.window.current().maximize();
+      for (var i = 0; i < length; i++) {
+        button[i].icon = 'flip-to-back';
       }
     }
   };
@@ -395,7 +411,7 @@
   };
 
   function endLoop() {
-    if (app.$.audio.paused) {
+    if (app.$.player.$.audio.paused) {
       app.doShufflePlayback();
       app.dataLoading = false;
       app.closePlaylists();
@@ -458,7 +474,7 @@
   };
 
   app.doShufflePlayback = function () {
-    if (app.$.audio.paused) {
+    if (app.$.player.$.audio.paused) {
       app.playing = 0;
       app.$.player.playAudio(app.playlist[0]);
       app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
@@ -473,7 +489,7 @@
     clear playlist
   */
   app.clearPlaylist = function () {
-    app.$.audio.pause();
+    app.$.player.$.audio.pause();
     app.$.playlistDialog.close();
     app.page = 0;
     app.playlist = null;

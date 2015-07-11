@@ -72,10 +72,6 @@
         -webkit-transform: translate3d(0, 0, 0);
         transform: translate3d(0, 0, 0);
       }
-      #cover {
-        max-width: 1400px;
-        margin:auto;
-      }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <core-scroll-threshold id="threshold" lowerThreshold="1000" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">

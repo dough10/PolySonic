@@ -116,6 +116,7 @@
                 <div class="sysbar" horizontal layout>
                   <div flex class='drag'></div>
                   <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
+                  <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
                   <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
                 </div>
 
@@ -150,19 +151,20 @@
               </core-toolbar>
               <album-wall id="wall" listMode="{{listMode}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}" queryMethod="{{queryMethod}}" mediaFolder="{{folder}}" colorThiefEnabled="{{colorThiefEnabled}}" artists="{{artists}}"></album-wall>
             </core-header-panel>
-            <mini-player hero-id="art" hero="" isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}" progress="{{progress}}" hero></mini-player>
+            <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}" progress="{{progress}}" hero></mini-player>
           </section>
           <section>
             <core-toolbar class="medium-tall">
               <div class="sysbar" horizontal layout>
                 <div flex class='drag'></div>
                 <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
+                <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
                 <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
               </div>
               <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
-              <div class="bottom" style="text-align: center;" flex>{{currentPlaying}}</div>
+              <div class="bottom" style="text-align: center; left:-40px; position:relative; pointer-events:none;" flex>{{currentPlaying}}</div>
             </core-toolbar>
-            <music-player hero-id="art" hero="" id="player"></music-player>
+            <music-player id="player" playing="{{playing}}" progress="{{progress}}"></music-player>
           </section>
           <section>
             <core-header-panel class="pages">
@@ -170,6 +172,7 @@
                 <div class="sysbar" horizontal layout>
                   <div flex class='drag'></div>
                   <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
+                  <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
                   <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
                 </div>
                 <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
@@ -188,6 +191,7 @@
                   <div flex class='drag'></div>
                   <!-- app minimize / close buttons -->
                   <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
+                  <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
                   <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
                 </div>
                 <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>

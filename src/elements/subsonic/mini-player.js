@@ -58,7 +58,7 @@ Polymer('mini-player', {
     } else {
       this.$.playButton.icon = 'av:pause';
     }
-    this.app.playPause();
+    this.app.$.player.playPause();
   },
   openPlaylist: function () {
     'use strict';
@@ -67,7 +67,7 @@ Polymer('mini-player', {
   progressClick: function (event, detail) {
     'use strict';
     this.async(function () {
-      var audio = this.app.$.audio;
+      var audio = this.app.$.player.$.audio;
       var slide = this.progress / 100;
       audio.currentTime = audio.duration - (audio.duration - (audio.duration * slide));
     });

@@ -30,6 +30,9 @@ core-menu {
   padding:0;
   margin:0;
 }
+section {
+  will-change:transform;
+}
 .pages {
   top:0;
   bottom:0;
