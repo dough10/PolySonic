@@ -20,7 +20,7 @@ Polymer('animated-fab',{
     if (this.app.page === 1) {
       if (!this.app.$.player.small) {
         this.state = 'large';
-        this.$.large.style.top = Math.floor((window.innerHeight / 2) - 261) + 'px';
+        this.$.large.style.top = Math.floor((window.innerHeight / 2) - 326) + 'px';
         this.$.large.style.right = Math.floor((window.innerWidth / 2) - 266) + 'px';
       } else {
         this.state = 'top';

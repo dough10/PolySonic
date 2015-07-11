@@ -73,9 +73,11 @@
     });
     app.appScroller().onscroll = app.scrollCallback;
     window.onresize = function () {
-      app.$.fab.setPos();
-      app.$.player.resize();
-      app.$.fab.resize();
+      app.async(function () {
+        app.$.fab.setPos();
+        app.$.player.resize();
+        app.$.fab.resize();
+      });
     };
     app.service = analytics.getService('PolySonic');
     app.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.

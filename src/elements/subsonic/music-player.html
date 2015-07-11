@@ -80,7 +80,7 @@
         font-size: 14pt;
       }
       #coverArt {
-        background-image:url("../images/default-cover-art.png");
+        background-image:url("../../images/default-cover-art.png");
         background-repeat: no-repeat;
         background-position: center;
         background-origin: content-box;
@@ -159,18 +159,46 @@
       paper-shadow {
         border-radius: 2px;
       }
+      #cover2 {
+        height:500px;
+        width:500px;
+        background-image:url("../../images/default-cover-art.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:500px;
+      }
+      .waitingToPlay2 {
+        background:rgba(255,255,255,0.3);
+        overflow:hidden;
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        right:0;
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
+        pointer-events:none;
+      }
     </style>
     <core-media-query query="max-width:570px" queryMatches="{{small}}"></core-media-query>
-    <core-animated-pages selected="{{page}}">
+    <core-animated-pages selected="{{page}}" transitions="cross-fade-all hero-transition">
       <section>
         <div style="position:relative;">
-          <div id="coverArt">
+          <div id="coverArt" hero-id="art" hero>
             <div hidden?="{{!app.waitingToPlay}}" class="waitingToPlay">
               <paper-spinner class="spinner" active></paper-spinner>
             </div>
           </div>
-          <div class="controlsWrapper">
-            <paper-progress class="progress" id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
+          <div class="controlsWrapper" hero-id="box" hero>
+            <paper-progress hero-id="bar" hero class="progress" id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
             <div id="time">{{playTime}}</div>
             <template if="{{app.playlist && app.playing !== 0}}">
               <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
@@ -204,10 +232,14 @@
       </section>
       <section>
         <div id="wrap">
-          <paper-shadow z="5">
-            <img id="img" height="500" width="500">
-            <paper-progress class="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
-            <div id="contents">
+          <paper-shadow z="5" style="top: -65px;">
+            <div id="cover2">
+              <div hidden?="{{!app.waitingToPlay}}" class="waitingToPlay2">
+                <paper-spinner class="spinner" active></paper-spinner>
+              </div>
+            </div>
+            <paper-progress hero-id="bar" hero class="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
+            <div id="contents" hero-id="box" hero>
               <div id="time2">{{playTime}}</div>
               <template if="{{app.playlist && app.playing !== 0}}">
                 <paper-icon-button style="margin-top:8px;" icon="av:skip-previous" on-tap="{{lastTrack}}" class="big black"></paper-icon-button>
@@ -220,7 +252,7 @@
                 <paper-icon-button icon="av:skip-next" style="margin-top:8px;" on-tap="{{nextTrack}}" id="nextTrack" class="big black"></paper-icon-button>
               </template>
               <core-tooltip  class="repeat" label="{{app.repeatState}}" style="bottom: 8px;" position="right">
-                <paper-icon-button id="rButton" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
+                <paper-icon-button id="rButton2" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
               </core-tooltip>
               <core-tooltip label="{{app.adjustVolumeLabel}}" style="bottom: 8px;" class="volume" position="left">
                 <template if="{{app.volume > 66}}">

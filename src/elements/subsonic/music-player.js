@@ -9,6 +9,18 @@ Polymer('music-player',{
     audio.onerror = this.audioError.bind(this);
   },
   resize: function () {
+    if (this.app){
+      if (this.app.repeatPlaylist) {
+        if (this.page === 0) {
+          this.$.rButton.style.color = 'white';
+        } else {
+          this.$.rButton2.style.color = 'black';
+        }
+      } else {
+        this.$.rButton.style.color = 'rgb(158, 158, 158)';
+        this.$.rButton2.style.color = 'rgb(158, 158, 158)';
+      }
+    }
     this.$.wrap.style.height = Math.floor(window.innerHeight - 128) + 'px';
   },
   domReady: function () {
@@ -16,8 +28,8 @@ Polymer('music-player',{
   },
   playingChanged: function (oldVal, newVal) {
     this.async(function () {
-      this.$.img.src = this.app.playlist[newVal].cover;
-      this.$.coverArt.style.background = "url('" + this.app.playlist[newVal].cover + "')";
+      this.$.cover2.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
+      this.$.coverArt.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
       this.playAudio(this.app.playlist[newVal]);
     });
   },
@@ -51,8 +63,8 @@ Polymer('music-player',{
     note.icon = obj.cover;
     audio.play();
     note.show();
-    this.$.img.src = obj.cover;
-    this.$.coverArt.style.background = "url('" + obj.cover + "')";
+    this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
+    this.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
     this.app.tracker.sendEvent('Audio', 'Started');
   },
   getImageForPlayer: function (url, callback) {
@@ -165,13 +177,14 @@ Polymer('music-player',{
       this.app.repeatState = chrome.i18n.getMessage('disabled');
       this.app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
       this.$.rButton.style.color = 'rgb(158, 158, 158)';
+      this.$.rButton2.style.color = 'rgb(158, 158, 158)';
       this.app.$.repeatButton.style.color = '#db4437';
     } else {
       this.app.repeatState = chrome.i18n.getMessage('enabled');
       if (this.page === 0) {
         this.$.rButton.style.color = 'white';
       } else {
-        this.$.rButton.style.color = 'black';
+        this.$.rButton2.style.color = 'black';
       }
       this.app.$.repeatButton.style.color = '#57BA67';
       this.app.repeatPlaylist = true;

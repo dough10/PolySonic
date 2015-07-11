@@ -43,7 +43,7 @@ Polymer('album-art', {
       callback(imgURL);
     }
   },
-  
+
   mouseIn: function (event, detail, sender) {
     sender.setZ(2);
   },
@@ -87,7 +87,6 @@ Polymer('album-art', {
     this.app.dataLoading = false;
     if (this.audio.paused) {
       this.app.playing = 0;
-      this.app.$.player.playAudio(this.playlist[0]);
       this.app.$.player.getImageForPlayer(this.imgURL, function () {
         this.app.setFabColor(this.playlist[0]);
       }.bind(this));
@@ -189,8 +188,8 @@ Polymer('album-art', {
     this.$.detailsDialog.close();
     this.app.$.player.getImageForPlayer(this.imgURL, function () {
       this.app.playlist = this.playlist;
-      this.app.playing = 0;
       this.app.setFabColor(this.playlist[0]);
+      this.app.playing = 0;
       this.app.$.player.playAudio(this.playlist[0]);
     }.bind(this));
   },
