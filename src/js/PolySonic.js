@@ -184,6 +184,7 @@
     var button = document.querySelectorAll('.max');
     var length = button.length;
     if (chrome.app.window.current().isMaximized()) {
+      chrome.app.window.current().restore()
       chrome.app.window.current().innerBounds.width = 535;
       chrome.app.window.current().innerBounds.height = 761;
       for (var i = 0; i < length; i++) {
