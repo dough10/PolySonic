@@ -118,7 +118,6 @@
         width:100%;
       }
       #wrap {
-        background: #e5e5e5;
         display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
         display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
         display: -ms-flexbox;      /* TWEENER - IE 10 */
@@ -128,6 +127,19 @@
         -webkit-align-items: center;
         justify-content: center;
         align-items: center;
+      }
+      #bg {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:100%;
+        opacity: 0.3;
+        position:absolute;
+        left:0;
+        right:0;
+        width:100%;
+        margin:0;
+        padding:0;
       }
       .progress {
         position:absolute;
@@ -232,6 +244,7 @@
       </section>
       <section>
         <div id="wrap">
+          <div id="bg"></div>
           <paper-shadow z="5" style="top: -65px; background: white;">
             <div id="cover2"  hero-id="art" hero>
               <div hidden?="{{!app.waitingToPlay}}" class="waitingToPlay2">

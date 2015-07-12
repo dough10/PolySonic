@@ -31,6 +31,7 @@ Polymer('music-player',{
     this.async(function () {
       this.$.cover2.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
       this.$.coverArt.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
+      this.$.bg.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
       this.playAudio(this.app.playlist[newVal]);
     });
   },
