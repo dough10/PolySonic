@@ -18,10 +18,14 @@ Polymer('animated-fab',{
   },
   resize: function () {
     if (this.app.page === 1) {
-      if (!this.app.$.player.small) {
+      if (!this.app.$.player.small && this.app.narrow) {
         this.state = 'large';
         this.$.large.style.top = Math.floor((window.innerHeight / 2) - 326) + 'px';
-        this.$.large.style.right = Math.floor((window.innerWidth / 2) - 266) + 'px';
+        this.$.large.style.right = Math.floor((window.innerWidth / 2) - 276) + 'px';
+      } else if (!this.app.narrow && !this.app.$.player.small) {
+        this.state = 'large';
+        this.$.large.style.top = Math.floor((window.innerHeight / 2) - 326) + 'px';
+        this.$.large.style.right = Math.floor((window.innerWidth / 2) - 406) + 'px';
       } else {
         this.state = 'top';
       }

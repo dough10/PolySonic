@@ -106,14 +106,16 @@ Polymer('music-player',{
     this.app.tracker.sendEvent('Audio Playback Error', e.target);
   },
   buffering: function (e) {
-    if (this.audio.duration) {
+    var audio = e.srcElement;
+    if (audio.duration) {
       this.buffer = Math.floor((audio.buffered.end(0) / audio.duration) * 100);
     } else {
       this.buffer = 0;
     }
-    e = null;
+    audio = null;
   },
   playerProgress: function (e) {
+    var audio = e.srcElement;
     if (e) {
       if (e.type === 'waiting') {
         this.app.waitingToPlay = true;   // spinner on album art shown
@@ -121,28 +123,29 @@ Polymer('music-player',{
         this.app.waitingToPlay = false;   // spinner on album art hidden
       }
     }
-    this.currentMins = Math.floor(this.audio.currentTime / 60);
-    this.currentSecs = Math.floor(this.audio.currentTime - (this.currentMins * 60));
-    this.totalMins = Math.floor(this.audio.duration / 60);
-    this.totalSecs = Math.floor(this.audio.duration - (this.totalMins * 60));
+    this.currentMins = Math.floor(audio.currentTime / 60);
+    this.currentSecs = Math.floor(audio.currentTime - (this.currentMins * 60));
+    this.totalMins = Math.floor(audio.duration / 60);
+    this.totalSecs = Math.floor(audio.duration - (this.totalMins * 60));
 
-    if (!this.audio.paused) {
+    if (!audio.paused) {
       this.$.avIcon.icon = "av:pause";
-      if (!this.audio.duration) {
+      if (!audio.duration) {
         this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ?:??';
         this.progress = 0;
       } else {
         this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ' + this.totalMins + ':' + ('0' + this.totalSecs).slice(-2);
-        this.progress = Math.floor(this.audio.currentTime / this.audio.duration * 100);
+        this.progress = Math.floor(audio.currentTime / audio.duration * 100);
       }
     } else {
       this.$.avIcon.icon = "av:play-arrow";
     }
-    if (!this.audio.paused) {
+    if (!audio.paused) {
       this.app.isNowPlaying = true;
     } else {
       this.app.isNowPlaying = false;
     }
+    audio = null;
     e = null;
   },
   toggleVolume: function () {

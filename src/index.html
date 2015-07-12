@@ -42,7 +42,7 @@
                     isNowPlaying="{{!isNowPlaying}}" on-tap="{{doAction}}"
                     colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}"
                     colorThiefalbum="{{colorThiefAlbum}}" colorThiefAlbumOff="{{colorThiefAlbumOff}}"></animated-fab>
-      <core-drawer-panel id="panel" narrow="{{narrow}}" forceNarrow disableSwipe?="{{page !== 0}}">
+      <core-drawer-panel id="panel" narrow="{{narrow}}" disableSwipe?="{{page !== 0}}" responsiveWidth="1000px">
 
         <!-- menu -->
         <core-header-panel drawer flex mode="waterfall">
@@ -120,7 +120,7 @@
                   <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
                 </div>
 
-                <paper-icon-button icon="menu" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
+                <paper-icon-button hidden?="{{!narrow}}" icon="menu" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
                 <div flex  class="bottom alignLeft">{{appName}}</div>
 
                 <core-tooltip hidden?="{{showing !== 'podcast'}}" label="{{refreshPodcastLabel}}" class="bottom">
@@ -162,12 +162,12 @@
                 <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
               </div>
               <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
-              <div class="bottom" style="text-align: center; left:-40px; position:relative; pointer-events:none;" flex>{{currentPlaying}}</div>
+              <div class="bottom" style="text-align: center;" flex>{{currentPlaying}}</div>
             </core-toolbar>
             <music-player id="player" playing="{{playing}}" progress="{{progress}}"></music-player>
           </section>
           <section>
-            <core-header-panel class="pages">
+            <core-header-panel class="pages" mode="waterfall">
               <core-toolbar class="medium-tall">
                 <div class="sysbar" horizontal layout>
                   <div flex class='drag'></div>
@@ -184,7 +184,7 @@
             </core-header-panel>
           </section>
           <section>
-            <core-header-panel class="pages">
+            <core-header-panel class="pages" mode="waterfall">
               <core-toolbar class="medium-tall">
                 <div class="sysbar" horizontal layout>
                   <!-- click area to move app -->

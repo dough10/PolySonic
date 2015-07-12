@@ -77,7 +77,7 @@
         app.$.fab.setPos();
         app.$.player.resize();
         app.$.fab.resize();
-        if (chrome.app.window.current().innerBounds.width < 570) {
+        if (chrome.app.window.current().innerBounds.width < 571) {
           chrome.app.window.current().innerBounds.height = 761;
         }
       });
@@ -523,7 +523,7 @@
       app.volume = app.volume - 2;
     }
   };
-  
+
   app.toggleRepeat = function () {
     app.$.player.toggleRepeat();
   };
@@ -841,7 +841,24 @@
   /*jslint unparam: true*/
   app.selectAction = function (event, detail, sender) {
     var wall = app.$.wall;
-    app.closeDrawer(function () {
+    if (!app.narrow && app.page !== 0) {
+      app.page = 0;
+      app.async(function () {
+        if (wall.sort === sender.attributes.i.value) {
+          app.pageLimit = false;
+          if (app.queryMethod === 'ID3') {
+            wall.request = 'getAlbumList2';
+          } else {
+            wall.request = 'getAlbumList';
+          }
+          wall.post.type = sender.attributes.i.value;
+          wall.refreshContent();
+          wall.showing = app.listMode;
+          wall.$.threshold.clearLower();
+        }
+        wall.sort = sender.attributes.i.value;
+      }, null, 550);
+    } else if (!app.narrow) {
       if (wall.sort === sender.attributes.i.value) {
         app.pageLimit = false;
         if (app.queryMethod === 'ID3') {
@@ -855,26 +872,69 @@
         wall.$.threshold.clearLower();
       }
       wall.sort = sender.attributes.i.value;
-    });
+    } else {
+      app.closeDrawer(function () {
+        if (wall.sort === sender.attributes.i.value) {
+          app.pageLimit = false;
+          if (app.queryMethod === 'ID3') {
+            wall.request = 'getAlbumList2';
+          } else {
+            wall.request = 'getAlbumList';
+          }
+          wall.post.type = sender.attributes.i.value;
+          wall.refreshContent();
+          wall.showing = app.listMode;
+          wall.$.threshold.clearLower();
+        }
+        wall.sort = sender.attributes.i.value;
+      });
+    }
   };
   /*jslint unparam: false*/
 
   app.getPodcast = function () {
-    app.closeDrawer(function () {
+    if (!app.narrow && app.page !== 0) {
+      app.page = 0;
+      app.async(function () {
+        app.$.wall.getPodcast();
+      }, null, 550);
+    } else if (!app.narrow) {
       app.$.wall.getPodcast();
-    });
+    } else {
+      app.closeDrawer(function () {
+        app.$.wall.getPodcast();
+      });
+    }
   };
 
   app.getStarred = function () {
-    app.closeDrawer(function () {
+    if (!app.narrow && app.page !== 0) {
+      app.page = 0;
+      app.async(function () {
+        app.$.wall.getStarred();
+      }, null, 550);
+    } else if (!app.narrow) {
       app.$.wall.getStarred();
-    });
+    } else {
+      app.closeDrawer(function () {
+        app.$.wall.getStarred();
+      });
+    }
   };
 
   app.getArtist = function () {
-    app.closeDrawer(function () {
+    if (!app.narrow && app.page !== 0) {
+      app.page = 0;
+      app.async(function () {
+        app.$.wall.getArtist();
+      }, null, 550);
+    } else if (!app.narrow) {
       app.$.wall.getArtist();
-    });
+    } else {
+      app.closeDrawer(function () {
+        app.$.wall.getArtist();
+      });
+    }
   };
 
   app.gotoSettings = function () {

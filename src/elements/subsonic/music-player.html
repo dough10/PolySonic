@@ -118,7 +118,7 @@
         width:100%;
       }
       #wrap {
-        background: #6e6d6d;
+        background: #e5e5e5;
         display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
         display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
         display: -ms-flexbox;      /* TWEENER - IE 10 */
@@ -210,7 +210,7 @@
             <template if="{{app.playlist[0]}}">
               <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
             </template>
-            <core-tooltip  class="repeat" label="{{app.repeatState}}" position="right">
+            <core-tooltip  class="repeat" label="{{app.repeatText}}" position="right">
               <paper-icon-button id="rButton" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
             </core-tooltip>
             <core-tooltip label="{{app.adjustVolumeLabel}}" class="volume" position="left">
@@ -233,7 +233,7 @@
       <section>
         <div id="wrap">
           <paper-shadow z="5" style="top: -65px; background: white;">
-            <div id="cover2">
+            <div id="cover2"  hero-id="art" hero>
               <div hidden?="{{!app.waitingToPlay}}" class="waitingToPlay2">
                 <paper-spinner class="spinner" active></paper-spinner>
               </div>
@@ -251,7 +251,7 @@
               <template if="{{app.playlist[0]}}">
                 <paper-icon-button icon="av:skip-next" style="margin-top:8px;" on-tap="{{nextTrack}}" id="nextTrack" class="big black"></paper-icon-button>
               </template>
-              <core-tooltip  class="repeat" label="{{app.repeatState}}" style="bottom: 8px;" position="right">
+              <core-tooltip  class="repeat" label="{{app.repeatText}}" style="bottom: 8px;" position="right">
                 <paper-icon-button id="rButton2" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
               </core-tooltip>
               <core-tooltip label="{{app.adjustVolumeLabel}}" style="bottom: 8px;" class="volume" position="left">
