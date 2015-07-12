@@ -55,6 +55,7 @@ Polymer('music-player',{
     this.note.show();
     this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
+    this.$.bg.style.backgroundImage = "url('" + obj.cover + "')";
     this.app.tracker.sendEvent('Audio', 'Started');
     if (this.app.activeUser.scrobblingEnabled) {
       this.app.doXhr(this.app.buildUrl('scrobble', {id: obj.id, time: new Date().getTime()}), 'json', function (e) {
@@ -154,13 +155,17 @@ Polymer('music-player',{
   },
   progressClick: function (event) {
     var width, x, clicked;
-    if (this.page === 0) {
+    if (this.page === 1 && !this.app.narrow) {
+      width = 500;
+      x = event.x - ((window.innerWidth - width) / 2) - 128;
+    } else if (this.page === 0) {
       width = window.innerWidth;
       x = event.x;
     } else {
       width = 500;
       x = event.x - (window.innerWidth - width) / 2;
     }
+    console.log(x, event.x)
     var duration = this.$.audio.duration;
     var clicked = (x / width);
     this.progress = clicked * 100;

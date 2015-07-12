@@ -34,7 +34,6 @@
         font-size:10pt;
         position:relative;
         max-width: 800px;
-        
       }
       .heading {
         font-size: 22px;
@@ -113,7 +112,7 @@
           </template>
           <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
             <template>
-              <div>
+              <div style="padding-right: 8px; padding-left: 8px;">
                 <paper-shadow class="card" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
                   <core-item>
                     <div flex class="heading">
@@ -196,7 +195,7 @@
           </template>
           <core-list id="artists" data="{{artist}}" flex scrollTarget="{{scrollTarget}}">
             <template>
-              <div>
+              <div style="padding-right: 8px; padding-left: 8px;">
                 <paper-shadow class="card" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
                   <div class="heading center">{{model.name}}</div>
                   <template repeat="{{model.artist}}">

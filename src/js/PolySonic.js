@@ -77,9 +77,11 @@
         app.$.fab.setPos();
         app.$.player.resize();
         app.$.fab.resize();
-        if (chrome.app.window.current().innerBounds.width < 571) {
-          chrome.app.window.current().innerBounds.height = 761;
-        }
+        app.async(function () {
+          if (chrome.app.window.current().innerBounds.width < 571) {
+            chrome.app.window.current().innerBounds.height = 761;
+          }
+        }, null, 100);
       });
     };
     app.service = analytics.getService('PolySonic');
@@ -703,10 +705,21 @@
                 var response = e.target.response;
                 if (response['subsonic-response'].searchResult3.album) {
                   app.async(function () {
-                    app.$.wall.clearData(function () {
+                    if (!app.narrow && app.page !== 0) {
+                      app.page = 0;
+                      app.async(function () {
+                        app.$.wall.response = response;
+                        app.showing = app.listMode;
+                      }, null, 550);
+                    } else if (app.narrow) {
                       app.$.wall.response = response;
                       app.showing = app.listMode;
-                    });
+                    } else {
+                      app.$.wall.clearData(function () {
+                        app.$.wall.response = response;
+                        app.showing = app.listMode;
+                      });
+                    }
                   });
                 } else {
                   app.dataLoading = false;

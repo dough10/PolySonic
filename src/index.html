@@ -178,9 +178,11 @@
                 <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
                 <div class="bottom" flex></div>
               </core-toolbar>
-              <paper-shadow z='1' style="max-width:800px; margin:auto;" class='card'>
-                <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" storageQuota="{{storageQuota}}" queryMethod="{{queryMethod}}" colorThiefEnabled="{{colorThiefEnabled}}"></settings-menu>
-              </paper-shadow>
+              <div style="padding: 8px;">
+                <paper-shadow z='1' style="max-width:800px; margin:auto;" class='card'>
+                  <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}" version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}" storageQuota="{{storageQuota}}" queryMethod="{{queryMethod}}" colorThiefEnabled="{{colorThiefEnabled}}"></settings-menu>
+                </paper-shadow>
+              </div>
             </core-header-panel>
           </section>
           <section>
