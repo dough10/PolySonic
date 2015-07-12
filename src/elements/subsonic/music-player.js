@@ -1,12 +1,12 @@
 Polymer('music-player',{
   ready: function () {
     this.page = 0;
-    var audio = this.$.audio;
-    audio.onwaiting = this.playerProgress.bind(this);
-    audio.onprogress = this.buffering.bind(this);
-    audio.ontimeupdate = this.playerProgress.bind(this);
-    audio.onended = this.nextTrack.bind(this);
-    audio.onerror = this.audioError.bind(this);
+    this.audio = this.$.audio;
+    this.audio.onwaiting = this.playerProgress.bind(this);
+    this.audio.onprogress = this.buffering.bind(this);
+    this.audio.ontimeupdate = this.playerProgress.bind(this);
+    this.audio.onended = this.nextTrack.bind(this);
+    this.audio.onerror = this.audioError.bind(this);
   },
   resize: function () {
     if (this.app){
@@ -25,6 +25,7 @@ Polymer('music-player',{
   },
   domReady: function () {
     this.app = document.getElementById('tmpl');
+    this.note = this.app.$.playNotify;
   },
   playingChanged: function (oldVal, newVal) {
     this.async(function () {
@@ -36,21 +37,24 @@ Polymer('music-player',{
   playAudio: function (obj) {
     var minis = document.querySelectorAll('mini-player');
     var length = minis.length;
-    var url;
     for (var i = 0; i < length; i++) {
       minis[i].setPlaying({artist: obj.artist, title: obj.title, cover: obj.cover});
     }
-    var audio = this.$.audio;
-    var note = this.app.$.playNotify;
     if (obj.artist === '') {
       this.app.currentPlaying = obj.title;
-      note.title = obj.title;
-      url = this.app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: obj.id});
+      this.note.title = obj.title;
+      this.audio.src = this.app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: obj.id});
     } else {
       this.app.currentPlaying = obj.artist + ' - ' + obj.title;
-      note.title = obj.artist + ' - ' + obj.title;
-      url = this.app.buildUrl('stream', {maxBitRate: this.app.bitRate, id: obj.id});
+      this.note.title = obj.artist + ' - ' + obj.title;
+      this.audio.src = this.app.buildUrl('stream', {maxBitRate: this.app.bitRate, id: obj.id});
     }
+    this.note.icon = obj.cover;
+    this.audio.play();
+    this.note.show();
+    this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
+    this.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
+    this.app.tracker.sendEvent('Audio', 'Started');
     if (this.app.activeUser.scrobblingEnabled) {
       this.app.doXhr(this.app.buildUrl('scrobble', {id: obj.id, time: new Date().getTime()}), 'json', function (e) {
         if (e.target.response['subsonic-response'].status === 'failed') {
@@ -59,13 +63,6 @@ Polymer('music-player',{
         }
       }.bind(this));
     }
-    audio.src = url;
-    note.icon = obj.cover;
-    audio.play();
-    note.show();
-    this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
-    this.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
-    this.app.tracker.sendEvent('Audio', 'Started');
   },
   getImageForPlayer: function (url, callback) {
     this.$.coverArt.style.backgroundImage = "url('" + url + "')";
@@ -75,11 +72,10 @@ Polymer('music-player',{
     }
   },
   playPause: function () {
-    var audio = this.$.audio;
-    if (!audio.paused) {
-      audio.pause();
+    if (!this.audio.paused) {
+      this.audio.pause();
     } else {
-      audio.play();
+      this.audio.play();
     }
   },
   playNext: function (next) {
@@ -110,18 +106,14 @@ Polymer('music-player',{
     this.app.tracker.sendEvent('Audio Playback Error', e.target);
   },
   buffering: function (e) {
-    var audio = e.srcElement;
-    if (audio.duration) {
+    if (this.audio.duration) {
       this.buffer = Math.floor((audio.buffered.end(0) / audio.duration) * 100);
     } else {
       this.buffer = 0;
     }
-    audio = null;
     e = null;
   },
   playerProgress: function (e) {
-    var audio = e.srcElement;
-
     if (e) {
       if (e.type === 'waiting') {
         this.app.waitingToPlay = true;   // spinner on album art shown
@@ -129,29 +121,28 @@ Polymer('music-player',{
         this.app.waitingToPlay = false;   // spinner on album art hidden
       }
     }
-    this.currentMins = Math.floor(audio.currentTime / 60);
-    this.currentSecs = Math.floor(audio.currentTime - (this.currentMins * 60));
-    this.totalMins = Math.floor(audio.duration / 60);
-    this.totalSecs = Math.floor(audio.duration - (this.totalMins * 60));
+    this.currentMins = Math.floor(this.audio.currentTime / 60);
+    this.currentSecs = Math.floor(this.audio.currentTime - (this.currentMins * 60));
+    this.totalMins = Math.floor(this.audio.duration / 60);
+    this.totalSecs = Math.floor(this.audio.duration - (this.totalMins * 60));
 
-    if (!audio.paused) {
+    if (!this.audio.paused) {
       this.$.avIcon.icon = "av:pause";
-      if (!audio.duration) {
+      if (!this.audio.duration) {
         this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ?:??';
         this.progress = 0;
       } else {
         this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ' + this.totalMins + ':' + ('0' + this.totalSecs).slice(-2);
-        this.progress = Math.floor(audio.currentTime / audio.duration * 100);
+        this.progress = Math.floor(this.audio.currentTime / this.audio.duration * 100);
       }
     } else {
       this.$.avIcon.icon = "av:play-arrow";
     }
-    if (!audio.paused) {
+    if (!this.audio.paused) {
       this.app.isNowPlaying = true;
     } else {
       this.app.isNowPlaying = false;
     }
-    audio = null;
     e = null;
   },
   toggleVolume: function () {

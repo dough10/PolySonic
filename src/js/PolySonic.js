@@ -27,7 +27,7 @@
       app.bitRate = result.bitRate || 320;
       app.shuffleSettings.size = app.shuffleSettings.size || '50';
       app.version = '1.11.0';
-      app.querySize = 120;
+      app.querySize = 60;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
@@ -77,6 +77,9 @@
         app.$.fab.setPos();
         app.$.player.resize();
         app.$.fab.resize();
+        if (chrome.app.window.current().innerBounds.width < 570) {
+          chrome.app.window.current().innerBounds.height = 761;
+        }
       });
     };
     app.service = analytics.getService('PolySonic');
@@ -185,8 +188,6 @@
     var length = button.length;
     if (chrome.app.window.current().isMaximized()) {
       chrome.app.window.current().restore()
-      chrome.app.window.current().innerBounds.width = 535;
-      chrome.app.window.current().innerBounds.height = 761;
       for (var i = 0; i < length; i++) {
         button[i].icon = 'check-box-outline-blank';
       }

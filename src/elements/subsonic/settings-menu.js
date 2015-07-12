@@ -212,11 +212,13 @@
         }
       },
       bitRateSelect: function () {
-        chrome.storage.sync.set({
-          'bitRate': this.post.bitRate
+        this.async(function () {
+          chrome.storage.sync.set({
+            'bitRate': this.post.bitRate
+          });
+          this.app.bitRate = this.post.bitRate;
+          console.log('Bitrate: ' + this.post.bitRate);
         });
-        this.app.bitRate = this.post.bitRate;
-        console.log('Bitrate: ' + this.post.bitRate);
       },
       querySelect: function () {
         chrome.storage.sync.set({
