@@ -428,7 +428,7 @@
     app.dataLoading = true;
     app.playlist = null;
     app.playlist = [];
-    app.$.audio.pause();
+    app.$.player.$.audio.pause();
     app.doXhr(app.buildUrl('getPlaylist', {id: sender.attributes.ident.value}), 'json', function (e) {
       var tracks = e.target.response['subsonic-response'].playlist.entry;
       var length = tracks.length;
