@@ -11,7 +11,7 @@ Features in the works
 
 - repeat option on main player also on playlist more options menu.
 
-- album art more button goes directlly to the album details dialog (no more slider comming up over art)
+- album art more button goes directlly to the album details dialog (slider will no longer cover art)
 
 - app is now resizable.
 
