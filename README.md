@@ -7,8 +7,7 @@ HTML5 Subsonic client
   <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png">
 </a>
 
-Features in the works
-
+0.2.5 Features
 - repeat option on main player also on playlist more options menu.
 
 - album art more button goes directlly to the album details dialog (slider will no longer cover art)
