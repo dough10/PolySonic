@@ -370,7 +370,7 @@ Polymer('album-art', {
     });
   },
 
-/*  setRating: function (event, detail, sender) {
+  setRating: function (event, detail, sender) {
     'use strict';
     var rating = parseInt(sender.attributes.star.value, 10);
     var animation = new CoreAnimation();
@@ -389,7 +389,7 @@ Polymer('album-art', {
         this.rating = rating;
       }
     }.bind(this));
-  },*/
+  },
 
   moreLikeCallback: function () {
     if (this.app.$.audio.paused) {

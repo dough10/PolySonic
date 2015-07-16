@@ -1,21 +1,21 @@
-(function() {var chrome = window.chrome || {};
-chrome.cast = chrome.cast || {};
-chrome.cast.media = chrome.cast.media || {};
-chrome.cast.ApiBootstrap_ = function() {
+(function() {var CastApiBootstrap = function() {
 };
-chrome.cast.ApiBootstrap_.EXTENSION_IDS = ["boadgeojelhgndaghljhdicfkmllpafd", "dliochdbjfkdbacpmhlcpmleaejidimm", "hfaagokkkhdbgiakmmlclaapfelnkoah", "fmfcbgogabcbclcofgocippekhfcmgfj", "enhhojjnijigcajfphajepfemndkmdlo"];
-chrome.cast.ApiBootstrap_.findInstalledExtension_ = function(callback) {
-  chrome.cast.ApiBootstrap_.findInstalledExtensionHelper_(0, callback);
+CastApiBootstrap.CAST_API_FILE_ = document.currentScript && -1 != document.currentScript.src.indexOf("?loadGamesSDK") ? "/cast_game_sender.js" : "/cast_sender.js";
+CastApiBootstrap.CAST_EXTENSION_IDS_ = "boadgeojelhgndaghljhdicfkmllpafd dliochdbjfkdbacpmhlcpmleaejidimm hfaagokkkhdbgiakmmlclaapfelnkoah fmfcbgogabcbclcofgocippekhfcmgfj enhhojjnijigcajfphajepfemndkmdlo eojlgccfgnjlphjnlopmadngcgmmdgpk".split(" ");
+CastApiBootstrap.MR_EXTENSION_IDS_ = ["fjhoaacokmgbjemoflkofnenfaiekifl", "ekpaaapppgpmolpcldedioblbkmijaca", "lhkfccafpkdlaodkicmokbmfapjadkij", "ibiljbkambkbohapfhoonkcpcikdglop"];
+CastApiBootstrap.EXTENSION_IDS_ = window.navigator.presentation ? CastApiBootstrap.CAST_EXTENSION_IDS_.concat(CastApiBootstrap.MR_EXTENSION_IDS_) : CastApiBootstrap.CAST_EXTENSION_IDS_;
+CastApiBootstrap.findInstalledExtension_ = function(callback) {
+  window.chrome ? CastApiBootstrap.findInstalledExtensionHelper_(0, callback) : callback(null);
 };
-chrome.cast.ApiBootstrap_.findInstalledExtensionHelper_ = function(index, callback) {
-  index == chrome.cast.ApiBootstrap_.EXTENSION_IDS.length ? callback(null) : chrome.cast.ApiBootstrap_.isExtensionInstalled_(chrome.cast.ApiBootstrap_.EXTENSION_IDS[index], function(installed) {
-    installed ? callback(chrome.cast.ApiBootstrap_.EXTENSION_IDS[index]) : chrome.cast.ApiBootstrap_.findInstalledExtensionHelper_(index + 1, callback);
+CastApiBootstrap.findInstalledExtensionHelper_ = function(index, callback) {
+  index == CastApiBootstrap.EXTENSION_IDS_.length ? callback(null) : CastApiBootstrap.isExtensionInstalled_(CastApiBootstrap.EXTENSION_IDS_[index], function(installed) {
+    installed ? callback(CastApiBootstrap.EXTENSION_IDS_[index]) : CastApiBootstrap.findInstalledExtensionHelper_(index + 1, callback);
   });
 };
-chrome.cast.ApiBootstrap_.getCastSenderUrl_ = function(extensionId) {
-  return "chrome-extension://" + extensionId + "/cast_sender.js";
+CastApiBootstrap.getCastSenderUrl_ = function(extensionId) {
+  return "chrome-extension://" + extensionId + CastApiBootstrap.CAST_API_FILE_;
 };
-chrome.cast.ApiBootstrap_.isExtensionInstalled_ = function(extensionId, callback) {
+CastApiBootstrap.isExtensionInstalled_ = function(extensionId, callback) {
   var xmlhttp = new XMLHttpRequest;
   xmlhttp.onreadystatechange = function() {
     4 == xmlhttp.readyState && 200 == xmlhttp.status && callback(!0);
@@ -23,21 +23,26 @@ chrome.cast.ApiBootstrap_.isExtensionInstalled_ = function(extensionId, callback
   xmlhttp.onerror = function() {
     callback(!1);
   };
-  xmlhttp.open("GET", chrome.cast.ApiBootstrap_.getCastSenderUrl_(extensionId), !0);
-  xmlhttp.send();
-};
-chrome.cast.ApiBootstrap_.findInstalledExtension_(function(extensionId) {
-  if (extensionId) {
-    console.log("Found cast extension: " + extensionId);
-    chrome.cast.extensionId = extensionId;
-    var apiScript = document.createElement("script");
-    apiScript.src = chrome.cast.ApiBootstrap_.getCastSenderUrl_(extensionId);
-    (document.head || document.documentElement).appendChild(apiScript);
-  } else {
-    var msg = "No cast extension found";
-    console.log(msg);
-    var callback = window.__onGCastApiAvailable;
-    callback && "function" == typeof callback && callback(!1, msg);
+  try {
+    xmlhttp.open("GET", CastApiBootstrap.getCastSenderUrl_(extensionId), !0), xmlhttp.send();
+  } catch (e) {
+    callback(!1);
   }
-});
+};
+CastApiBootstrap.findInstalledExtension = function() {
+  CastApiBootstrap.findInstalledExtension_(function(extensionId) {
+    if (extensionId) {
+      window.chrome = window.chrome || {};
+      window.chrome.cast = window.chrome.cast || {};
+      window.chrome.cast.extensionId = extensionId;
+      var apiScript = document.createElement("script");
+      apiScript.src = CastApiBootstrap.getCastSenderUrl_(extensionId);
+      (document.head || document.documentElement).appendChild(apiScript);
+    } else {
+      var callback = window.__onGCastApiAvailable;
+      callback && "function" == typeof callback && callback(!1, "No cast extension found");
+    }
+  });
+};
+CastApiBootstrap.findInstalledExtension();
 })();

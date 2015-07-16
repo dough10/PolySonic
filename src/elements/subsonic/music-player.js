@@ -32,6 +32,7 @@ Polymer('music-player',{
       this.$.cover2.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
       this.$.coverArt.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
       this.$.bg.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
+      this.app.setFabColor(this.app.playlist[newVal]);
       this.playAudio(this.app.playlist[newVal]);
     });
   },
