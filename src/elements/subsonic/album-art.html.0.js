@@ -159,7 +159,7 @@ Polymer('album-art', {
       }
     ];
     if (this.app.playing === 0) {
-      this.app.$.player.playAudio(this.playlist[0]);
+      this.app.$.player.playAudio(this.app.playlist[0]);
     } else {
       this.app.playing = 0;
     }

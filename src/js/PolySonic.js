@@ -217,7 +217,6 @@
   app.getImageFile = function (url, id, callback) {
     app.doXhr(url, 'blob', function (e) {
       app.putInDb(new Blob([e.target.response], {type: 'image/jpeg'}), id, callback);
-      console.log('Image Added to indexedDB ' + id);
     });
   };
 
@@ -411,7 +410,6 @@
         if (callback) {
           callback(colorArray);
         }
-        console.log('Color palette saved ' + artId);
       });
     };
   };

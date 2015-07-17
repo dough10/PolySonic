@@ -106,14 +106,14 @@ Polymer('album-wall', {
             this.wall = this.wall.concat(response.starred.album);
             this.async(this.responseCallback);
           } else if (response.podcasts && response.podcasts.channel) {
-            /* inject podcastRole to response so it can be used inside the repeating template scope */
+            /* inject podcastRole into response so it can be used inside the repeating template scope */
             var podcasts = response.podcasts.channel;
             var length = podcasts.length;
             for (var i = 0; i < length; i++) {
               var innerLength = podcasts[i].episode.length;
               for (var ii = 0; ii < innerLength; ii++) {
                 podcasts[i].episode[ii].podcastRole = this.app.activeUser.podcastRole;
-                if (ii === innerLength - 1 && i === length -1) {
+                if (ii === innerLength - 1 && i === length - 1) {
                   this.podcast = podcasts;
                   this.async(this.responseCallback);
                 }
