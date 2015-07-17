@@ -12,8 +12,8 @@
         button[i].icon = 'flip-to-back';
       }
     } else {
-      for (var i = 0; i < length; i++) {
-        button[i].icon = 'check-box-outline-blank';
+      for (var ii = 0; ii < length; ii++) {
+        button[ii].icon = 'check-box-outline-blank';
       }
     }
     chrome.storage.sync.get(function (result) {
@@ -189,14 +189,14 @@
     var button = document.querySelectorAll('.max');
     var length = button.length;
     if (chrome.app.window.current().isMaximized()) {
-      chrome.app.window.current().restore()
+      chrome.app.window.current().restore();
       for (var i = 0; i < length; i++) {
         button[i].icon = 'check-box-outline-blank';
       }
     } else {
       chrome.app.window.current().maximize();
-      for (var i = 0; i < length; i++) {
-        button[i].icon = 'flip-to-back';
+      for (var ii = 0; ii < length; ii++) {
+        button[ii].icon = 'flip-to-back';
       }
     }
   };
@@ -449,14 +449,16 @@
   app.shufflePlay = function () {
     app.dataLoading = true;
     app.shuffleLoading = true;
-    app.playlist = null;
-    app.playlist = [];
+    app.playlist.length = 0;
     if (!app.startYearInvalid && !app.endYearInvalid) {
       app.$.player.$.audio.pause();
+      if (app.shuffleSettings.genre === 0) {
+        delete app.shuffleSettings.genre;
+      }
       app.doXhr(app.buildUrl('getRandomSongs', app.shuffleSettings), 'json', function (event) {
         var data = event.target.response['subsonic-response'].randomSongs.song;
         var length = data.length;
-        if (data) {
+        if (data && length !== 0) {
           for (var i = 0; i < length; i++) {
             var mins = Math.floor(data[i].duration / 60);
             var obj = {
@@ -481,8 +483,11 @@
 
   app.doShufflePlayback = function () {
     if (app.$.player.$.audio.paused) {
-      app.playing = 0;
-      app.$.player.playAudio(app.playlist[0]);
+      if (app.playing === 0) {
+        app.$.player.playAudio(app.playlist[0]);
+      } else {
+        app.playing = 0;
+      }
       app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
         app.setFabColor(app.playlist[0]);
         app.$.shuffleOptions.close();

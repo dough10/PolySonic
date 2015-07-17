@@ -41,6 +41,8 @@ Polymer('album-art', {
     this.imgURL = imgURL;
     if (callback) {
       callback(imgURL);
+    } else  {
+      imgURL = null;
     }
   },
 
@@ -156,7 +158,11 @@ Polymer('album-art', {
         id: sender.attributes.ident.value
       }
     ];
-    this.app.playing = 0;
+    if (this.app.playing === 0) {
+      this.app.$.player.playAudio(this.playlist[0]);
+    } else {
+      this.app.playing = 0;
+    }
     this.app.$.fab.state = 'off';
   },
 
@@ -171,11 +177,15 @@ Polymer('album-art', {
     });
     if (this.audio.paused) {
       this.app.setFabColor(this.playlist[0]);
-      this.app.playing = 0;
+      if (this.app.playing === 0) {
+        this.app.$.player.playAudio(this.playlist[0]);
+      } else {
+        this.app.playing = 0;
+      }
       if (this.imgURL) {
         this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";
       } else {
-        this.playerArt.style.backgroundImage =  "url('../../images/default-cover-art.png')";
+        this.playerArt.style.backgroundImage =  "url('" + defaultImgURL + "')";
       }
     }
     this.app.doToast(chrome.i18n.getMessage("added2Queue"));
@@ -189,8 +199,11 @@ Polymer('album-art', {
     this.app.$.player.getImageForPlayer(this.imgURL, function () {
       this.app.playlist = this.playlist;
       this.app.setFabColor(this.playlist[0]);
-      this.app.playing = 0;
-      this.app.$.player.playAudio(this.playlist[0]);
+      if (this.app.playing === 0) {
+        this.app.$.player.playAudio(this.playlist[0]);
+      } else {
+        this.app.playing = 0;
+      }
     }.bind(this));
   },
 
@@ -239,7 +252,7 @@ Polymer('album-art', {
     }.bind(this));
   },
 
-  paletteChanged: function () {
+  /*paletteChanged: function () {
     'use strict';
     var length = this.playlist.length;
     if (this.palette && length !== 0) {
@@ -247,7 +260,7 @@ Polymer('album-art', {
         this.playlist[i].palette = this.palette;
       }
     }
-  },
+  },*/
 
   getPalette: function (callback) {
     'use strict';
@@ -351,6 +364,7 @@ Polymer('album-art', {
           this.app.getDbItem(artId, function getIt(e) {
             if (e.target.result) {
               this.setImage(e);
+              artId = null;
             } else {
               this.app.getImageFile(
                 this.app.buildUrl('getCoverArt', {
@@ -359,6 +373,7 @@ Polymer('album-art', {
                 }), artId, function (event) {
                 this.setImage(event, function setIt(imgURL) {
                   this.app.colorThiefHandler(imgURL, artId);
+                  artId = null;
                 }.bind(this));
               }.bind(this));
             }

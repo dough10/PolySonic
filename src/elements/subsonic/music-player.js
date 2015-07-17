@@ -110,7 +110,7 @@ Polymer('music-player',{
   },
   buffering: function (e) {
     var audio = e.srcElement;
-    if (audio.duration) {
+    if (audio.duration && audio.buffered.end(0)) {
       this.buffer = Math.floor((audio.buffered.end(0) / audio.duration) * 100);
     } else {
       this.buffer = 0;
@@ -155,7 +155,7 @@ Polymer('music-player',{
     this.app.toggleVolume();
   },
   progressClick: function (event) {
-    var width, x, clicked;
+    var width, x;
     if (this.page === 1 && !this.app.narrow) {
       width = 500;
       x = event.x - ((window.innerWidth - width) / 2) - 128;
@@ -166,7 +166,6 @@ Polymer('music-player',{
       width = 500;
       x = event.x - (window.innerWidth - width) / 2;
     }
-    console.log(x, event.x)
     var duration = this.$.audio.duration;
     var clicked = (x / width);
     this.progress = clicked * 100;
