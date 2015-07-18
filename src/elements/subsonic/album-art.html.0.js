@@ -147,17 +147,20 @@ Polymer('album-art', {
 
   playTrack: function (event, detail, sender) {
     'use strict';
-    this.app.setFabColor(this.playlist[0]);
     this.$.detailsDialog.close();
     this.app.playlist = [
       {
+        id: sender.attributes.ident.value,
         artist: sender.attributes.artist.value,
         title: sender.attributes.trackTitle.value,
-        cover: this.imgURL,
         duration: sender.attributes.duration.value,
-        id: sender.attributes.ident.value
+        cover: this.imgURL,
+        palette: this.palette,
+        disk: 0,
+        track: 0
       }
     ];
+    this.app.setFabColor(this.app.playlist[0]);
     if (this.app.playing === 0) {
       this.app.$.player.playAudio(this.app.playlist[0]);
     } else {
@@ -173,10 +176,13 @@ Polymer('album-art', {
       artist: sender.attributes.artist.value,
       title: sender.attributes.trackTitle.value,
       duration: sender.attributes.duration.value,
-      cover: this.imgURL
+      cover: this.imgURL,
+      palette: this.palette,
+      disk: 0,
+      track: 0
     });
     if (this.audio.paused) {
-      this.app.setFabColor(this.playlist[0]);
+      this.app.setFabColor(this.app.playlist[0]);
       if (this.app.playing === 0) {
         this.app.$.player.playAudio(this.playlist[0]);
       } else {
@@ -344,7 +350,7 @@ Polymer('album-art', {
             this.trackResponse = e.target.response;
             this.processJSON(callback);
             this.app.putInDb(this.trackResponse, this.item, function () {
-              console.log('JSON Data Added to indexedDB ' + this.item);
+              //console.log('JSON Data Added to indexedDB ' + this.item);
             }.bind(this));
           }.bind(this));
         }
@@ -380,7 +386,7 @@ Polymer('album-art', {
           }.bind(this));
         });
       } else {
-        this.async(this.itemChanged, null, 10);
+        this.async(this.itemChanged, null, 50);
       }
     });
   },
@@ -397,7 +403,10 @@ Polymer('album-art', {
     ];
     animation.target = sender;
     animation.play();
-    this.app.doXhr(this.app.buildUrl('setRating', {id: this.item, rating: rating}), 'json', function (e) {
+    this.app.doXhr(this.app.buildUrl('setRating', {
+      id: this.item,
+      rating: rating
+    }), 'json', function (e) {
       var json = e.target.response['subsonic-response'];
       animation.cancel();
       if (json.status === 'ok') {
@@ -425,7 +434,8 @@ Polymer('album-art', {
     this.app.dataLoading = true;
     this.app.doXhr(
       this.app.buildUrl('getSimilarSongs', {
-        count: 50, id: id
+        count: 50,
+        id: id
       }), 'json', function (e) {
       var response = e.target.response['subsonic-response'].similarSongs.song;
       if (response) {

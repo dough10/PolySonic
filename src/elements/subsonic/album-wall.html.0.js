@@ -167,14 +167,16 @@ Polymer('album-wall', {
     this.clearData(function () {
       this.app.pageLimit = false;
       this.request = 'getPodcasts';
-      this.post.type = '';
+      if (this.post.type) {
+        delete this.post.type;
+      }
       this.post.offset = 0;
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.doAjax();
+      this.async(this.doAjax);
     }.bind(this));
   },
 
@@ -188,14 +190,16 @@ Polymer('album-wall', {
       } else {
         this.request = 'getStarred';
       }
-      this.post.type = '';
+      if (this.post.type) {
+        delete this.post.type;
+      }
       this.post.offset = 0;
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.doAjax();
+      this.async(this.doAjax);
     }.bind(this));
   },
 
@@ -204,7 +208,9 @@ Polymer('album-wall', {
     this.clearData(function () {
       this.app.pageLimit = false;
       this.request = 'getArtists';
-      this.post.type = '';
+      if (this.post.type) {
+        delete this.post.type;
+      }
       this.post.offset = 0;
       chrome.storage.sync.set({
         'sortType': this.post.type,
@@ -212,7 +218,7 @@ Polymer('album-wall', {
         'mediaFolder': this.mediaFolder
       });
       this.showing = 'artists';
-      this.doAjax();
+      this.async(this.doAjax);
     }.bind(this));
   },
 
@@ -233,7 +239,7 @@ Polymer('album-wall', {
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.doAjax();
+      this.async(this.doAjax);
     }.bind(this));
   },
 
@@ -258,9 +264,7 @@ Polymer('album-wall', {
     if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.app.pageLimit && this.app.page === 0) {
       this.isLoading = true;
       this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
-      this.async(function () {
-        this.doAjax();
-      });
+      this.async(this.doAjax);
     }
   },
 
