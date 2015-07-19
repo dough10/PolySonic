@@ -4,17 +4,23 @@ HTML5 Subsonic client
 <img src="https://lh3.googleusercontent.com/mmNqprtIDiGfJF4HN7-q3MLS50ZaeP6jXWFBF119tOG1jARxeBZh00pfuCbSIX39oGGEYptQ9A4=s640-h400-e365-rw">
 
 <a href="https://chrome.google.com/webstore/detail/polysonic/dmijgonnbeadbncajpphnlidgjkgmblf" target="_blank">
-  <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png">
+  <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v1_206x58.png">
 </a>
 
-0.2.5 Features
-- repeat option on main player also on playlist more options menu.
+
+Changelog
+
+0.2.5
+
+- fix bug that caused app to display no albums if attempting change from removing a folder filter to display all folders.
+
+- timer for mini player on album wall to hide on paused music extended to 10 mins from 2 mins.
+
+- repeat option on main player and also on playlist more options menu.
 
 - album art more button goes directlly to the album details dialog (slider will no longer cover art)
 
 - app is now resizable.
-
-Changelog
 
 0.2.4
 
