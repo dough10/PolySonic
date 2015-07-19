@@ -12,7 +12,7 @@ Changelog
 
 0.2.5
 
-- fix bug that caused app to display no albums if attempting to removing a folder filter to display all folders.
+- fix bug that caused app to display no albums if attempting to remove a folder filter to display all folders.
 
 - timer for mini player on album wall to hide on paused music extended to 10 mins from 2 mins.
 
