@@ -10,6 +10,12 @@
   <link href="../../bower_components/core-list/core-list.html" rel="import">
 </head><body><polymer-element name="artist-details" attributes="artistId listMode">
   <template>
+    <style>
+      #all {
+        margin: auto;
+        text-align: center;
+      }
+    </style>
     <div id="all">
       <template repeat="{{data}}">
         <album-art id='ac{{id}}' listMode="cover" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" isFavorite="{{starred}}"></album-art>

@@ -1,7 +1,6 @@
 <html><head><link href="../../bower_components/polymer/polymer.html" rel="import">
 <link href="../../bower_components/paper-shadow/paper-shadow.html" rel="import">
 <link href="../../bower_components/paper-icon-button/paper-icon-button.html" rel="import">
-<link href="../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
 <link href="../../bower_components/core-icons/av-icons.html" rel="import">
 <link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
 <link href="../../bower_components/paper-item/paper-item.html" rel="import">
@@ -18,12 +17,12 @@
       }
       #card {
         border-radius:2px;
-        height:{{height}};
-        width:{{width}};
+        height: 250px;
+        width: 250px;
         background-repeat: no-repeat;
         background-position: center;
         background-origin: content-box;
-        background-size:{{width}};
+        background-size:250px;
       }
       core-animated-pages {
         height:100%;
@@ -39,50 +38,8 @@
       #overlay-low {
         position:absolute;
         top:80%;
-        height:{{height}};
-        width:{{width}};
-        padding:1em;
-        background:rgba(255,255,255, 0.97);
-        border:1px solid #d8d8d8;
-        text-align:left;
-      }
-      #overlay-high {
-        position:absolute;
-        top:0%;
-        height:{{height}};
-        width:{{width}};
-        padding:1em;
-        background:rgba(255,255,255, 0.97);
-        border:1px solid #d8d8d8;
-        text-align:left;
-      }
-      #overlay-high-small {
-        position:absolute;
-        top:0%;
-        height:{{height}};
-        width:{{width}};
-        background:rgba(255,255,255, 1);
-        border:1px solid #d8d8d8;
-        text-align:left;
-        font-size: 12pt;
-      }
-      #overlay-full {
-        position:absolute;
-        top:-2%;
-        left:-0.5%;
-        height:65px;
-        width:375px;
-        padding:0.5em;
-        background:rgba(255,255,255, 1);
-        border:1px solid #d8d8d8;
-        text-align:left;
-        font-size: 12pt;
-      }
-      #overlay-off {
-        position:absolute;
-        top:100%;
-        height:{{height}};
-        width:{{width}};
+        height: 250px;
+        width: 250px;
         padding:1em;
         background:rgba(255,255,255, 0.97);
         border:1px solid #d8d8d8;
@@ -253,7 +210,6 @@
         -webkit-transform: translate3d(0, -10px, 0);
         transform: translate3d(0, -10px, 0);
       }
-  
       core-tooltip:hover::shadow .core-tooltip,
       core-tooltip:focus::shadow .core-tooltip {
         opacity: 1;
@@ -261,63 +217,24 @@
         transform: translate3d(0, 0, 0);
       }
     </style>
-    <div id="card">
-      <core-animated-pages selected="{{page}}" valueattr="page" transitions="cross-fade hero-transition">
-        <paper-shadow z="1" page="cover" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
-          <div class="wrapper">
-            <template if="{{isLoading}}">
-              <div class="spinWrapper">
-                <paper-spinner class="spinner" active></paper-spinner>
-              </div>
-            </template>
-            <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{doPlayback}}"></paper-icon-button>
-            <div id="overlay-low" hero-id="hero" hero="">
-              <core-tooltip id="icon" class="left-icon" label="{{moreOptionsLabel}}" position="left">
-                <paper-icon-button on-tap="{{slideUp}}" icon="more-vert"></paper-icon-button>
-              </core-tooltip>
-              <div class="artist">{{artist}}</div>
-              <br>
-              <div class="album">{{album}}</div>
-            </div>
+    <paper-shadow z="1" id="card" page="cover" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
+      <div class="wrapper">
+        <template if="{{isLoading}}">
+          <div class="spinWrapper">
+            <paper-spinner class="spinner" active></paper-spinner>
           </div>
-        </paper-shadow>
-        <paper-shadow z="1" page="info" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
-          <div class="wrapper">
-            <div id="overlay-high" hero-id="hero" hero="">
-              <core-tooltip label="{{closeLabel}}" class="left-icon" id="icon">
-                <paper-icon-button style="color:#db4437" on-tap="{{closeSlide}}" icon="close"></paper-icon-button>
-              </core-tooltip>
-              <div class="artist">{{artist}}</div>
-              <br>
-              <div class="album">{{album}}</div>
-              <core-item>
-                <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add"></paper-icon-button>
-                {{add2PlayQueue}}
-              </core-item>
-              <core-item>
-                <template if="{{!isFavorite}}">
-                  <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
-                </template>
-                <template if="{{isFavorite}}">
-                  <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
-                </template>
-                {{favoriteAlbum}}
-              </core-item>
-              <template if="{{app.activeUser.downloadRole}}">
-                <core-item>
-                  <paper-icon-button on-tap="{{doAlbumDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
-                  {{downloadButton}}
-                </core-item>
-              </template>
-              <core-item>
-                <paper-icon-button on-tap="{{doDetails}}" icon="reorder"></paper-icon-button>
-                {{albumTracklist}}
-              </core-item>
-            </div>
-          </div>
-        </paper-shadow>
-      </core-animated-pages>
-    </div>
+        </template>
+        <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{doPlayback}}"></paper-icon-button>
+        <div id="overlay-low" hero-id="hero" hero="">
+          <core-tooltip id="icon" class="left-icon" label="{{moreOptionsLabel}}" position="left">
+            <paper-icon-button on-tap="{{doDetails}}" icon="more-vert"></paper-icon-button>
+          </core-tooltip>
+          <div class="artist">{{artist}}</div>
+          <br>
+          <div class="album">{{album}}</div>
+        </div>
+      </div>
+    </paper-shadow>
     <paper-dialog id="detailsDialog" style="min-height:695px; min-width:471px;" backdrop autoclosedisabled transition="core-transition-center">
       <style>
         #topper {

@@ -4,16 +4,38 @@ Polymer('animated-fab',{
     this.page = this.page || 0;
     this.timer = 0;
   },
+  ready: function () {
+    this.setPos();
+  },
+  setPos: function () {
+    this.$.mid.style.top = Math.floor((window.innerHeight / 2) + 23) + 'px';
+    this.$.mid.style.right = Math.floor((window.innerWidth / 2) - 250) + 'px';
+  },
   domReady: function () {
     this.app = document.getElementById('tmpl');
     this.bottomPos = 16;
     this.ready = true;
   },
+  resize: function () {
+    if (this.app.page === 1) {
+      if (!this.app.$.player.small && this.app.narrow) {
+        this.state = 'large';
+        this.$.large.style.top = Math.floor((window.innerHeight / 2) - 261) + 'px';
+        this.$.large.style.right = Math.floor((window.innerWidth / 2) - 276) + 'px';
+      } else if (!this.app.narrow && !this.app.$.player.small) {
+        this.state = 'large';
+        this.$.large.style.top = Math.floor((window.innerHeight / 2) - 261) + 'px';
+        this.$.large.style.right = Math.floor((window.innerWidth / 2) - 406) + 'px';
+      } else {
+        this.state = 'top';
+      }
+    }
+  },
   pageChanged: function () {
     var pName;
     if (this.page === 1) {
       pName = 'Player';
-      this.state = 'top';
+      this.resize();
     } else if (this.page === 0) {
       pName = 'Album Wall';
       this.state = 'off';
@@ -30,13 +52,6 @@ Polymer('animated-fab',{
       this.state = 'podcast';
     }
     document.getElementById("tmpl").tracker.sendAppView(pName);
-  },
-
-  /* listens to changes in this.playing and updates the player */
-  playingChanged: function () {
-    if (this.playing) {
-      document.getElementById('tmpl').playThis();
-    }
   },
   isNowPlayingChanged: function (newVal, oldVal) {
     if (newVal) {

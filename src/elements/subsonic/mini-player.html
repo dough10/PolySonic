@@ -9,16 +9,18 @@
         right:0;
         pointer-events: none;
         text-align: left;
+    
       }
       .player {
         border-top:1px solid #dddddd;
         background: rgba(255,255,255,0.95);
         height:91px;
-        width:535px;
+        width:100%;
         position:fixed;
         pointer-events:auto;
         color:black;
         filter: blur(15px);
+        margin:auto;
       }
       .offscreen {
         bottom:-91px;
@@ -46,12 +48,14 @@
         max-height:20px;
         overflow:hidden;
         margin-bottom:8px;
+        text-align: center;
       }
       .artist {
         padding-bottom:16px;
         font-size: 16px;
         max-height:18px;
         overflow:hidden;
+        text-align: center;
       }
       core-tooltip {
         cursor: pointer;
@@ -93,16 +97,16 @@
           <div horizontal layout>
             <div>
               <core-tooltip label="{{label}}" position="top">
-                <img  hero-id="art" hero="" on-tap="{{toPlayer}}" src="{{img}}" height="71" widht="71">
+                <img on-tap="{{toPlayer}}" src="{{img}}" height="71" widht="71">
               </core-tooltip>
             </div>
             <div>
               <paper-icon-button class="big" id="playButton" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
             </div>
             <div flex class="details">
-              <core-tooltip label="{{label}}" position="top" on-tap="{{toPlayer}}">
-                <div class="track">{{track}}</div>
-                <div class="artist">{{artist}}</div>
+              <core-tooltip style="width:100%" label="{{label}}" position="top" on-tap="{{toPlayer}}">
+                <div flex class="track">{{track}}</div>
+                <div flex class="artist">{{artist}}</div>
               </core-tooltip>
             </div>
             <div>

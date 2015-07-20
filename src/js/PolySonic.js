@@ -4,9 +4,19 @@
   var app = document.querySelector('#tmpl');
   app.scrolling = false;
   app.addEventListener('template-bound', function () {
-    app.sizePlayer();
+    app.$.player.resize();
+    var button = document.querySelectorAll('.max');
+    var length = button.length;
+    if (chrome.app.window.current().isMaximized()) {
+      for (var i = 0; i < length; i++) {
+        button[i].icon = 'flip-to-back';
+      }
+    } else {
+      for (var ii = 0; ii < length; ii++) {
+        button[ii].icon = 'check-box-outline-blank';
+      }
+    }
     chrome.storage.sync.get(function (result) {
-      //console.log(result);
       if (result.url === undefined) {
         app.$.firstRun.open();
       }
@@ -17,9 +27,13 @@
       app.bitRate = result.bitRate || 320;
       app.shuffleSettings.size = app.shuffleSettings.size || '50';
       app.version = '1.11.0';
-      app.querySize = 40;
+      app.querySize = 60;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
+      app.repeatPlaylist = false;
+      app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
+      app.repeatState = chrome.i18n.getMessage('disabled');
+      app.$.repeatButton.style.color = '#db4437';
       app.colorThiefEnabled = true;
       app.dataLoading = false;
       app.params = {
@@ -47,7 +61,7 @@
             } else {
               app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
               app.$.firstRun.toggle();
-              app.doToast( e.target.response['subsonic-response'].error.meessage);
+              app.doToast(e.target.response['subsonic-response'].error.meessage);
             }
           } else {
             app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
@@ -57,26 +71,19 @@
         });
       }
     });
-
-    var audio = app.$.audio;
-
     app.appScroller().onscroll = app.scrollCallback;
-
-    audio.onwaiting = app.playerProgress;
-
-    audio.onprogress = app.buffering;
-
-    audio.ontimeupdate = app.playerProgress;
-
-    audio.onended = app.nextTrack;
-
-    audio.onerror = function (e) {
-      app.page = 0;
-      console.error('audio playback error ', e);
-      app.doToast('Audio Playback Error');
-      app.tracker.sendEvent('Audio Playback Error', e.target);
+    window.onresize = function () {
+      app.async(function () {
+        app.$.fab.setPos();
+        app.$.player.resize();
+        app.$.fab.resize();
+        app.async(function () {
+          if (chrome.app.window.current().innerBounds.width < 571) {
+            chrome.app.window.current().innerBounds.height = 761;
+          }
+        }, null, 100);
+      });
     };
-
     app.service = analytics.getService('PolySonic');
     app.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
 
@@ -178,6 +185,22 @@
     }
   };
 
+  app.maximize = function () {
+    var button = document.querySelectorAll('.max');
+    var length = button.length;
+    if (chrome.app.window.current().isMaximized()) {
+      chrome.app.window.current().restore();
+      for (var i = 0; i < length; i++) {
+        button[i].icon = 'check-box-outline-blank';
+      }
+    } else {
+      chrome.app.window.current().maximize();
+      for (var ii = 0; ii < length; ii++) {
+        button[ii].icon = 'flip-to-back';
+      }
+    }
+  };
+
   app.request.onupgradeneeded = function (event) {
     app.createObjectStore(event.target.result);
   };
@@ -194,7 +217,6 @@
   app.getImageFile = function (url, id, callback) {
     app.doXhr(url, 'blob', function (e) {
       app.putInDb(new Blob([e.target.response], {type: 'image/jpeg'}), id, callback);
-      console.log('Image Added to indexedDB ' + id);
     });
   };
 
@@ -230,19 +252,18 @@
     }
   };
 
+  function xhrError(e) {
+    app.dataLoading = false;
+    app.doToast(chrome.i18n.getMessage("connectionError"));
+    console.error(e);
+  }
+
   app.doXhr = function (url, dataType, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
     xhr.responseType = dataType;
     xhr.onload = callback;
-    xhr.onerror = function (e) {
-      app.dataLoading = false;
-      app.doToast(chrome.i18n.getMessage("connectionError"));
-      app.async(function () {
-        app.doToast(chrome.i18n.getMessage('reconnecting'));
-        app.doXhr(url, dataType, callback);
-      }, null, 15000);
-    };
+    xhr.onerror = xhrError;
     xhr.send();
   };
 
@@ -389,93 +410,12 @@
         if (callback) {
           callback(colorArray);
         }
-        console.log('Color palette saved ' + artId);
       });
     };
   };
 
-
-  /*
-    play functions
-  */
-  app.playAudio = function (artist, title, src, image, id) {
-    var minis = document.querySelectorAll('mini-player');
-    var length = minis.length;
-    for (var i = 0; i < length; i++) {
-      minis[i].setPlaying({artist: artist, title: title, cover: image});
-    }
-    var audio = app.$.audio,
-      note = app.$.playNotify;
-    if (artist === '') {
-      app.currentPlaying = title;
-      note.title = title;
-    } else {
-      app.currentPlaying = artist + ' - ' + title;
-      note.title = artist + ' - ' + title;
-    }
-    if (app.activeUser.scrobblingEnabled) {
-      app.doXhr(app.buildUrl('scrobble', {id: id, time: new Date().getTime()}), 'json', function (e) {
-        if (e.target.response['subsonic-response'].status === 'failed') {
-          console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
-          app.tracker.sendEvent('Last FM submission', 'Failed');
-        }
-      });
-    }
-    audio.src = src;
-    note.icon = image;
-    audio.play();
-    note.show();
-    app.tracker.sendEvent('Audio', 'Playing');
-  };
-
-  app.playNext = function (next) {
-    if (app.playlist[next]) {
-      app.playing = next;
-    } else {
-      app.$.audio.pause();
-      app.clearPlaylist();
-    }
-  };
-
-  app.nextTrack = function () {
-    app.playNext(app.playing + 1);
-  };
-
-  app.lastTrack = function () {
-    app.playNext(app.playing - 1);
-  };
-
-  app.playThis = function () {
-    app.async(function () {
-      app.setFabColor(this.playlist[this.playing]);
-      var url;
-      if (app.playlist[app.playing].artist === '') {
-        // is a podcast
-        url = app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: app.playlist[this.playing].id});
-      } else {
-        // normal trascoded file type
-        url = app.buildUrl('stream', {maxBitRate: app.bitRate, id: app.playlist[app.playing].id});
-      }
-      app.playAudio(app.playlist[app.playing].artist, app.playlist[app.playing].title, url, app.playlist[app.playing].cover, app.playlist[app.playing].id);
-      if (app.playlist[app.playing].cover) {
-        app.getImageForPlayer(app.playlist[app.playing].cover);
-      } else {
-        app.defaultPlayImage();
-      }
-    });
-  };
-
-  app.playPause = function () {
-    var audio = app.$.audio;
-    if (!audio.paused) {
-      audio.pause();
-    } else {
-      audio.play();
-    }
-  };
-
   function endLoop() {
-    if (app.$.audio.paused) {
+    if (app.$.player.$.audio.paused) {
       app.doShufflePlayback();
       app.dataLoading = false;
       app.closePlaylists();
@@ -486,7 +426,7 @@
     app.dataLoading = true;
     app.playlist = null;
     app.playlist = [];
-    app.$.audio.pause();
+    app.$.player.$.audio.pause();
     app.doXhr(app.buildUrl('getPlaylist', {id: sender.attributes.ident.value}), 'json', function (e) {
       var tracks = e.target.response['subsonic-response'].playlist.entry;
       var length = tracks.length;
@@ -507,14 +447,16 @@
   app.shufflePlay = function () {
     app.dataLoading = true;
     app.shuffleLoading = true;
-    app.playlist = null;
-    app.playlist = [];
+    app.playlist.length = 0;
     if (!app.startYearInvalid && !app.endYearInvalid) {
-      app.$.audio.pause();
+      app.$.player.$.audio.pause();
+      if (app.shuffleSettings.genre === 0) {
+        delete app.shuffleSettings.genre;
+      }
       app.doXhr(app.buildUrl('getRandomSongs', app.shuffleSettings), 'json', function (event) {
         var data = event.target.response['subsonic-response'].randomSongs.song;
         var length = data.length;
-        if (data) {
+        if (data && length !== 0) {
           for (var i = 0; i < length; i++) {
             var mins = Math.floor(data[i].duration / 60);
             var obj = {
@@ -538,11 +480,13 @@
   };
 
   app.doShufflePlayback = function () {
-    if (app.$.audio.paused) {
-      app.playing = 0;
-      app.playAudio(app.playlist[0].artist, app.playlist[0].title, app.buildUrl('stream', {maxBitRate: app.bitRate, id: app.playlist[0].id}), app.playlist[0].cover, app.playlist[0].id);
-      app.getImageForPlayer(app.playlist[0].cover, function () {
-        //app.page = 1;
+    if (app.$.player.$.audio.paused) {
+      if (app.playing === 0) {
+        app.$.player.playAudio(app.playlist[0]);
+      } else {
+        app.playing = 0;
+      }
+      app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
         app.setFabColor(app.playlist[0]);
         app.$.shuffleOptions.close();
         app.shuffleLoading = false;
@@ -554,7 +498,7 @@
     clear playlist
   */
   app.clearPlaylist = function () {
-    app.$.audio.pause();
+    app.$.player.$.audio.pause();
     app.$.playlistDialog.close();
     app.page = 0;
     app.playlist = null;
@@ -585,72 +529,13 @@
     }
   };
 
-
-
-  /*
-    handle image for player background
-  */
-  app.getImageForPlayer = function (url, callback) {
-    app.$.coverArt.style.backgroundImage = "url('" + url + "')";
-    app.$.playNotify.icon = url;
-    if (callback) {
-      app.async(callback);
-    }
+  app.toggleRepeat = function () {
+    app.$.player.toggleRepeat();
   };
 
   app.defaultPlayImage = function () {
     app.$.coverArt.style.backgroundImage =  "url('images/default-cover-art.png')";
     app.$.playNotify.icon = 'images/default-cover-art.png';
-  };
-
-  /*
-    player UI control
-  */
-  app.buffering = function (e) {
-    var audio = e.srcElement;
-    if (audio.duration) {
-     app.buffer = Math.floor((audio.buffered.end(0) / audio.duration) * 100);
-    } else {
-      app.buffer = 0;
-    }
-    audio = null;
-    e = null;
-  };
-
-  app.playerProgress = function (e) {
-    var audio = e.srcElement;
-
-    if (e) {
-      if (e.type === 'waiting') {
-        app.waitingToPlay = true;   // spinner on album art shown
-      } else if (e.type === 'timeupdate') {
-        app.waitingToPlay = false;   // spinner on album art hidden
-      }
-    }
-    app.currentMins = Math.floor(audio.currentTime / 60);
-    app.currentSecs = Math.floor(audio.currentTime - (app.currentMins * 60));
-    app.totalMins = Math.floor(audio.duration / 60);
-    app.totalSecs = Math.floor(audio.duration - (app.totalMins * 60));
-
-    if (!audio.paused) {
-      app.$.avIcon.icon = "av:pause";
-      if (!audio.duration) {
-        app.playTime = app.currentMins + ':' + ('0' + app.currentSecs).slice(-2) + ' / ?:??';
-        app.progress = 0;
-      } else {
-        app.playTime = app.currentMins + ':' + ('0' + app.currentSecs).slice(-2) + ' / ' + app.totalMins + ':' + ('0' + app.totalSecs).slice(-2);
-        app.progress = Math.floor(audio.currentTime / audio.duration * 100);
-      }
-    } else {
-      app.$.avIcon.icon = "av:play-arrow";
-    }
-    if (!audio.paused) {
-      app.isNowPlaying = true;
-    } else {
-      app.isNowPlaying = false;
-    }
-    audio = null;
-    e = null;
   };
 
   app.showApp = function () {
@@ -663,16 +548,6 @@
       box.classList.add('hide');
       app.askAnalistics();
     }
-  };
-
-  app.sizePlayer = function () {
-    var height = (window.innerHeight - 256) + 'px',
-      width = window.innerWidth + 'px',
-      art = app.$.coverArt;
-
-    art.style.width = width;
-    art.style.height = height;
-    art.style.backgroundSize = width;
   };
 
   /* request premission for analistics */
@@ -750,12 +625,6 @@
       app.colorThiefBuffered = array.palette[2];
       app.colorThiefProgBg = array.palette[3];
     }
-  };
-
-  app.progressClick = function (event) {
-    var clicked = (event.x / window.innerWidth);
-    app.$.progress.value = clicked * 100;
-    app.$.audio.currentTime = audio.duration - (audio.duration - (audio.duration * clicked));
   };
 
   app.savePlayQueue = function () {
@@ -839,10 +708,21 @@
                 var response = e.target.response;
                 if (response['subsonic-response'].searchResult3.album) {
                   app.async(function () {
-                    app.$.wall.clearData(function () {
+                    if (!app.narrow && app.page !== 0) {
+                      app.page = 0;
+                      app.async(function () {
+                        app.$.wall.response = response;
+                        app.showing = app.listMode;
+                      }, null, 550);
+                    } else if (app.narrow) {
                       app.$.wall.response = response;
                       app.showing = app.listMode;
-                    });
+                    } else {
+                      app.$.wall.clearData(function () {
+                        app.$.wall.response = response;
+                        app.showing = app.listMode;
+                      });
+                    }
                   });
                 } else {
                   app.dataLoading = false;
@@ -977,7 +857,24 @@
   /*jslint unparam: true*/
   app.selectAction = function (event, detail, sender) {
     var wall = app.$.wall;
-    app.closeDrawer(function () {
+    if (!app.narrow && app.page !== 0) {
+      app.page = 0;
+      app.async(function () {
+        if (wall.sort === sender.attributes.i.value) {
+          app.pageLimit = false;
+          if (app.queryMethod === 'ID3') {
+            wall.request = 'getAlbumList2';
+          } else {
+            wall.request = 'getAlbumList';
+          }
+          wall.post.type = sender.attributes.i.value;
+          wall.refreshContent();
+          wall.showing = app.listMode;
+          wall.$.threshold.clearLower();
+        }
+        wall.sort = sender.attributes.i.value;
+      }, null, 550);
+    } else if (!app.narrow) {
       if (wall.sort === sender.attributes.i.value) {
         app.pageLimit = false;
         if (app.queryMethod === 'ID3') {
@@ -991,26 +888,69 @@
         wall.$.threshold.clearLower();
       }
       wall.sort = sender.attributes.i.value;
-    });
+    } else {
+      app.closeDrawer(function () {
+        if (wall.sort === sender.attributes.i.value) {
+          app.pageLimit = false;
+          if (app.queryMethod === 'ID3') {
+            wall.request = 'getAlbumList2';
+          } else {
+            wall.request = 'getAlbumList';
+          }
+          wall.post.type = sender.attributes.i.value;
+          wall.refreshContent();
+          wall.showing = app.listMode;
+          wall.$.threshold.clearLower();
+        }
+        wall.sort = sender.attributes.i.value;
+      });
+    }
   };
   /*jslint unparam: false*/
 
   app.getPodcast = function () {
-    app.closeDrawer(function () {
+    if (!app.narrow && app.page !== 0) {
+      app.page = 0;
+      app.async(function () {
+        app.$.wall.getPodcast();
+      }, null, 550);
+    } else if (!app.narrow) {
       app.$.wall.getPodcast();
-    });
+    } else {
+      app.closeDrawer(function () {
+        app.$.wall.getPodcast();
+      });
+    }
   };
 
   app.getStarred = function () {
-    app.closeDrawer(function () {
+    if (!app.narrow && app.page !== 0) {
+      app.page = 0;
+      app.async(function () {
+        app.$.wall.getStarred();
+      }, null, 550);
+    } else if (!app.narrow) {
       app.$.wall.getStarred();
-    });
+    } else {
+      app.closeDrawer(function () {
+        app.$.wall.getStarred();
+      });
+    }
   };
 
   app.getArtist = function () {
-    app.closeDrawer(function () {
+    if (!app.narrow && app.page !== 0) {
+      app.page = 0;
+      app.async(function () {
+        app.$.wall.getArtist();
+      }, null, 550);
+    } else if (!app.narrow) {
       app.$.wall.getArtist();
-    });
+    } else {
+      app.closeDrawer(function () {
+        app.$.wall.getArtist();
+      });
+    }
   };
 
   app.gotoSettings = function () {
@@ -1154,9 +1094,16 @@
       app.params.v = app.version;
     }
     if (parseFloat(app.version, 10) <= 1.12) {
+      if (app.params.t) {
+        delete app.params.t;
+        delete app.params.s;
+      }
       app.params.p = app.pass.hexEncode();
       return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
     } else {
+      if (app.params.p) {
+        delete app.params.p;
+      }
       app.params.s = makeSalt(16);
       app.params.t = md5(app.pass + app.params.s);
       return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;

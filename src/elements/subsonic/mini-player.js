@@ -35,12 +35,12 @@ Polymer('mini-player', {
         } else {
           this.timer = setTimeout(function () {
             this.page = 0;
-          }.bind(this), 120000);
+          }.bind(this), 600000); // auto hide after 10 mins of being paused
         }
       }
     }
     if (this.app) {
-      if (this.app.$.audio.paused) {
+      if (this.app.$.player.$.audio.paused) {
         this.$.playButton.icon = 'av:play-arrow';
       } else {
         this.$.playButton.icon = 'av:pause';
@@ -53,12 +53,12 @@ Polymer('mini-player', {
   },
   playPause: function () {
     'use strict';
-    if (!this.app.$.audio.paused) {
+    if (!this.app.$.player.$.audio.paused) {
       this.$.playButton.icon = 'av:play-arrow';
     } else {
       this.$.playButton.icon = 'av:pause';
     }
-    this.app.playPause();
+    this.app.$.player.playPause();
   },
   openPlaylist: function () {
     'use strict';
@@ -67,7 +67,7 @@ Polymer('mini-player', {
   progressClick: function (event, detail) {
     'use strict';
     this.async(function () {
-      var audio = this.app.$.audio;
+      var audio = this.app.$.player.$.audio;
       var slide = this.progress / 100;
       audio.currentTime = audio.duration - (audio.duration - (audio.duration * slide));
     });

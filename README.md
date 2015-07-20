@@ -7,7 +7,20 @@ HTML5 Subsonic client
   <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png">
 </a>
 
+
 Changelog
+
+0.2.5
+
+- fix bug that caused app to display no albums if attempting to remove a folder filter to display all folders.
+
+- timer for mini player on album wall to hide on paused music extended to 10 mins from 2 mins.
+
+- repeat option on main player and also on playlist more options menu.
+
+- album art more button goes directlly to the album details dialog (slider will no longer cover art)
+
+- app is now resizable.
 
 0.2.4
 

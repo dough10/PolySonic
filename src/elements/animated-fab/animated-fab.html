@@ -4,7 +4,7 @@
 <link href="../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
 <link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
 <link href="../../bower_components/core-icons/av-icons.html" rel="import">
-</head><body><polymer-element name="animated-fab" attributes="state fabTimer page showing isNowPlaying colorThiefFab colorThiefFabOff colorThiefAlbum colorThiefAlbumOff playing">
+</head><body><polymer-element name="animated-fab" attributes="state fabTimer page showing isNowPlaying colorThiefFab colorThiefFabOff colorThiefAlbum colorThiefAlbumOff">
   <template>
     <style>
       :host {
@@ -31,7 +31,7 @@
         height:100%;
       }
       .bottom {
-        transition: bottom 0.5s ease-out;
+        transition: bottom 0.3s ease-out;
         bottom:{{bottomPos}}px;
       }
       .off {
@@ -41,7 +41,6 @@
         top:100px;
       }
       .mid {
-        top:400px;
         z-index:5000;
       }
       .colorThief {
@@ -56,19 +55,22 @@
     <core-media-query query="max-width:480px" querymatches="{{phoneSize}}"></core-media-query>
     <core-animated-pages selected="{{state}}" valueattr="page" transitions="hero-transition">
       <div class="page" page="off">
-        <paper-fab class="off" icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
+        <paper-fab class="off" raised icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
       </div>
       <div class="page" page="bottom">
-        <paper-fab class="bottom" icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
+        <paper-fab class="bottom" raised icon="arrow-drop-up" hero-id="foo" hero=""></paper-fab>
       </div>
       <div class="page" page="top">
-        <paper-fab class="top colorThief" icon="av:queue-music" hero-id="foo" hero></paper-fab>
+        <paper-fab  raised class="top colorThief" icon="av:queue-music" hero-id="foo" hero></paper-fab>
+      </div>
+      <div page="large">
+        <paper-fab id="large" raised class="colorThief" icon="av:queue-music" hero-id="foo" hero layered></paper-fab>
       </div>
       <div page="mid">
-        <paper-fab class="mid colorThiefOther" icon="av:play-arrow" hero-id="foo" hero layered></paper-fab>
+        <paper-fab id="mid" raised class="mid colorThiefOther" icon="av:play-arrow" hero-id="foo" hero layered></paper-fab>
       </div>
       <div page="podcast">
-        <paper-fab class="bottom" icon="add" hero-id="foo" hero layered></paper-fab>
+        <paper-fab raised class="bottom" icon="add" hero-id="foo" hero layered></paper-fab>
       </div>
     </core-animated-pages>
   </template>

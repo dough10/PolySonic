@@ -1,0 +1,295 @@
+<html><head><link href="../../bower_components/polymer/polymer.html" rel="import">
+<link href="../../bower_components/paper-shadow/paper-shadow.html" rel="import">
+<link href="../../bower_components/paper-icon-button/paper-icon-button.html" rel="import">
+<link href="../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
+<link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
+<link href="../../bower_components/core-icons/av-icons.html" rel="import">
+<link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
+<link href="../../bower_components/paper-item/paper-item.html" rel="import">
+<link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
+<link href="../../bower_components/core-item/core-item.html" rel="import">
+<link href="../../bower_components/core-animation/core-animation.html" rel="import">
+</head><body><polymer-element name="music-player" attributes="playing progress">
+  <template>
+    <style shim-shadowdom>
+      .waitingToPlay {
+        background:rgba(255,255,255,0.3);
+        overflow:hidden;
+        position:absolute;
+        top:0;
+        bottom:128px;
+        left:0;
+        right:0;
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
+        pointer-events:none;
+      }
+      #progress {
+        position:absolute;
+        left:0;
+        right:0;
+        width:100%;
+        margin:0;
+        padding:0;
+        cursor:pointer;
+        height:15px;
+      }
+      paper-progress::shadow #activeProgress {
+        background-color:#db4437;
+      }
+      paper-progress::shadow #secondaryProgress {
+        background-color:#d99797;
+      }
+      #avIcon {
+        padding:0px;
+        margin-top:16px;
+      }
+      .volume {
+        position:absolute;
+        right:1%;
+        margin-top:66px;
+      }
+      .repeat {
+        position:absolute;
+        left:1%;
+        margin-top:66px;
+      }
+      .controlsWrapper {
+        background: #6e6d6d;
+        height:128px;
+        display:block;
+        position: static;
+        bottom:0;
+        left:0;
+        right:0;
+        text-align: center;
+        margin:auto;
+      }
+      #time {
+        color: #ffffff;
+        position: absolute;
+        right: 2%;
+        margin-top: 18px;
+        font-size: 14pt;
+      }
+      #coverArt {
+        background-image:url("../../images/default-cover-art.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:100%;
+      }
+      paper-icon-button {
+        color: white;
+      }
+      paper-icon-button.huge::shadow #icon {
+        width: 95px;
+        height: 95px;
+      }
+      paper-progress::shadow #progressContainer {
+        background-color:{{app.colorThiefProgBg}};
+        transition: background 500ms linear;
+      }
+      paper-progress::shadow #activeProgress {
+        background-color:{{app.colorThiefFab}};
+        transition: background 500ms linear;
+      }
+      paper-progress::shadow #secondaryProgress {
+        background-color:{{app.colorThiefBuffered}};
+        transition: background 500ms linear;
+      }
+      paper-icon-button.big::shadow #icon {
+        width: 50px;
+        height: 50px;
+        margin-bottom:12px;
+      }
+      .spinner::shadow .circle {
+        border-color: #000;
+      }
+      #coverArt {
+        height: 505px;
+        width:100%;
+      }
+      #wrap {
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
+      }
+      #bg {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:100%;
+        opacity: 0.1;
+        position:fixed;
+        left:0;
+        right:0;
+        width:100%;
+        margin:0;
+        padding:0;
+        top:128px;
+        bottom:0;
+      }
+      .progress {
+        position:absolute;
+        left:0;
+        right:0;
+        width:100%;
+        margin:0;
+        padding:0;
+        cursor:pointer;
+        height:15px;
+      }
+      img {
+        display: block;
+      }
+      #contents {
+        height:100px;
+        text-align: center;
+      }
+      #time2 {
+        color: #000;
+        position: absolute;
+        right: 2%;
+        margin-top: 18px;
+        font-size: 14pt;
+      }
+      .black {
+        color: #000;
+      }
+      paper-shadow {
+        border-radius: 2px;
+      }
+      #cover2 {
+        height:500px;
+        width:500px;
+        background-image:url("../../images/default-cover-art.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:500px;
+      }
+      .waitingToPlay2 {
+        background:rgba(255,255,255,0.3);
+        overflow:hidden;
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        right:0;
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
+        pointer-events:none;
+      }
+    </style>
+    <core-media-query query="max-width:570px" queryMatches="{{small}}"></core-media-query>
+    <core-animated-pages selected="{{page}}" transitions="cross-fade-all hero-transition">
+      <section>
+        <div style="position:relative;">
+          <div id="coverArt" hero-id="art" hero>
+            <div hidden?="{{!app.waitingToPlay}}" class="waitingToPlay">
+              <paper-spinner class="spinner" active></paper-spinner>
+            </div>
+          </div>
+          <div class="controlsWrapper" hero-id="box" hero>
+            <paper-progress hero-id="bar" hero class="progress" id="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
+            <div id="time">{{playTime}}</div>
+            <template if="{{app.playlist && app.playing !== 0}}">
+              <paper-icon-button icon="av:skip-previous" on-tap="{{lastTrack}}" class="big"></paper-icon-button>
+            </template>
+            <template if="{{app.playlist[0] && app.playing === 0}}">
+              <paper-icon-button class="big"></paper-icon-button>
+            </template>
+            <paper-icon-button id="avIcon" class="huge" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
+            <template if="{{app.playlist[0]}}">
+              <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
+            </template>
+            <core-tooltip  class="repeat" label="{{app.repeatText}}" position="right">
+              <paper-icon-button id="rButton" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
+            </core-tooltip>
+            <core-tooltip label="{{app.adjustVolumeLabel}}" class="volume" position="left">
+              <template if="{{app.volume > 66}}">
+                <paper-icon-button icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
+              </template>
+              <template if="{{app.volume >= 33 && app.volume <= 66}}">
+                <paper-icon-button icon="av:volume-down" on-tap="{{toggleVolume}}"></paper-icon-button>
+              </template>
+              <template if="{{app.volume > 0 && app.volume < 33}}">
+                <paper-icon-button icon="av:volume-mute" on-tap="{{toggleVolume}}"></paper-icon-button>
+              </template>
+              <template if="{{app.volume === 0}}">
+                <paper-icon-button icon="av:volume-off" on-tap="{{toggleVolume}}"></paper-icon-button>
+              </template>
+            </core-tooltip>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div id="wrap">
+          <div id="bg"></div>
+          <paper-shadow z="5" style="background: white;">
+            <div id="cover2"  hero-id="art" hero>
+              <div hidden?="{{!app.waitingToPlay}}" class="waitingToPlay2">
+                <paper-spinner class="spinner" active></paper-spinner>
+              </div>
+            </div>
+            <paper-progress hero-id="bar" hero class="progress" value="{{progress}}" secondaryProgress="{{buffer}}" on-tap="{{progressClick}}"></paper-progress>
+            <div id="contents" hero-id="box" hero>
+              <div id="time2">{{playTime}}</div>
+              <template if="{{app.playlist && app.playing !== 0}}">
+                <paper-icon-button style="margin-top:8px;" icon="av:skip-previous" on-tap="{{lastTrack}}" class="big black"></paper-icon-button>
+              </template>
+              <template if="{{app.playlist[0] && app.playing === 0}}">
+                <paper-icon-button class="big"></paper-icon-button>
+              </template>
+              <paper-icon-button id="avIcon" style="margin-top:8px;" class="huge black" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
+              <template if="{{app.playlist[0]}}">
+                <paper-icon-button icon="av:skip-next" style="margin-top:8px;" on-tap="{{nextTrack}}" id="nextTrack" class="big black"></paper-icon-button>
+              </template>
+              <core-tooltip  class="repeat" label="{{app.repeatText}}" style="bottom: 8px;" position="right">
+                <paper-icon-button id="rButton2" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
+              </core-tooltip>
+              <core-tooltip label="{{app.adjustVolumeLabel}}" style="bottom: 8px;" class="volume" position="left">
+                <template if="{{app.volume > 66}}">
+                  <paper-icon-button class="black" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
+                </template>
+                <template if="{{app.volume >= 33 && app.volume <= 66}}">
+                  <paper-icon-button class="black" icon="av:volume-down" on-tap="{{toggleVolume}}"></paper-icon-button>
+                </template>
+                <template if="{{app.volume > 0 && app.volume < 33}}">
+                  <paper-icon-button  class="black" icon="av:volume-mute" on-tap="{{toggleVolume}}"></paper-icon-button>
+                </template>
+                <template if="{{app.volume === 0}}">
+                  <paper-icon-button class="black" icon="av:volume-off" on-tap="{{toggleVolume}}"></paper-icon-button>
+                </template>
+              </core-tooltip>
+            </div>
+          </paper-shadow>
+        </div>
+      </section>
+    </core-animated-pages>
+    <audio id="audio"></audio>
+  </template>
+  <script src="music-player.js"></script>
+</polymer-element>
+</body></html>

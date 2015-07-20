@@ -49,18 +49,20 @@ Polymer('album-wall', {
     this.scrollTarget = this.app.appScroller();
   },
 
-  mediaFolderChanged: function () {
+  mediaFolderChanged: function (oldVal, newVal) {
     'use strict';
-    this.app.closeDrawer(function () {
-      if (this.mediaFolder !== 0) {
-        this.post.musicFolderId = this.mediaFolder;
-      } else {
-        delete this.post.musicFolderId;
-      }
-      this.app.pageLimit = false;
-      this.$.threshold.clearLower();
-      this.async(this.refreshContent);
-    }.bind(this));
+    this.async(function () {
+      this.app.closeDrawer(function () {
+        if (Number(newVal) !== 0) {
+          this.post.musicFolderId = Number(newVal);
+        } else {
+          delete this.post.musicFolderId;
+        }
+        this.app.pageLimit = false;
+        this.$.threshold.clearLower();
+        this.async(this.refreshContent);
+      }.bind(this));
+    });
   },
 
   clearData: function (callback) {
@@ -104,14 +106,14 @@ Polymer('album-wall', {
             this.wall = this.wall.concat(response.starred.album);
             this.async(this.responseCallback);
           } else if (response.podcasts && response.podcasts.channel) {
-            /* inject podcastRole to response so it can be used inside the repeating template scope */
+            /* inject podcastRole into response so it can be used inside the repeating template scope */
             var podcasts = response.podcasts.channel;
             var length = podcasts.length;
             for (var i = 0; i < length; i++) {
               var innerLength = podcasts[i].episode.length;
               for (var ii = 0; ii < innerLength; ii++) {
                 podcasts[i].episode[ii].podcastRole = this.app.activeUser.podcastRole;
-                if (ii === innerLength - 1 && i === length -1) {
+                if (ii === innerLength - 1 && i === length - 1) {
                   this.podcast = podcasts;
                   this.async(this.responseCallback);
                 }
@@ -123,13 +125,13 @@ Polymer('album-wall', {
           } else if (response.searchResult3 && response.searchResult3.album) {
             /* filter out duplicate albums from response array */
             var data = response.searchResult3.album;
-            var length = response.searchResult3.album.length;
+            var length2 = response.searchResult3.album.length;
             var tmpArray = [];
-            for  (var i = 0; i < length; i++) {
-              if (!this.containsObject(data[i], tmpArray)) {
-                tmpArray.push(data[i]);
+            for  (var i2 = 0; i2 < length2; i2++) {
+              if (!this.containsObject(data[i2], tmpArray)) {
+                tmpArray.push(data[i2]);
               }
-              if (i === length - 1) {
+              if (i2 === length2 - 1) {
                 this.wall = tmpArray;
                 this.async(this.responseCallback);
               }
@@ -165,14 +167,16 @@ Polymer('album-wall', {
     this.clearData(function () {
       this.app.pageLimit = false;
       this.request = 'getPodcasts';
-      this.post.type = '';
+      if (this.post.type) {
+        delete this.post.type;
+      }
       this.post.offset = 0;
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.doAjax();
+      this.async(this.doAjax);
     }.bind(this));
   },
 
@@ -186,14 +190,16 @@ Polymer('album-wall', {
       } else {
         this.request = 'getStarred';
       }
-      this.post.type = '';
+      if (this.post.type) {
+        delete this.post.type;
+      }
       this.post.offset = 0;
       chrome.storage.sync.set({
         'sortType': this.post.type,
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.doAjax();
+      this.async(this.doAjax);
     }.bind(this));
   },
 
@@ -202,7 +208,9 @@ Polymer('album-wall', {
     this.clearData(function () {
       this.app.pageLimit = false;
       this.request = 'getArtists';
-      this.post.type = '';
+      if (this.post.type) {
+        delete this.post.type;
+      }
       this.post.offset = 0;
       chrome.storage.sync.set({
         'sortType': this.post.type,
@@ -210,7 +218,7 @@ Polymer('album-wall', {
         'mediaFolder': this.mediaFolder
       });
       this.showing = 'artists';
-      this.doAjax();
+      this.async(this.doAjax);
     }.bind(this));
   },
 
@@ -231,7 +239,7 @@ Polymer('album-wall', {
         'request': this.request,
         'mediaFolder': this.mediaFolder
       });
-      this.doAjax();
+      this.async(this.doAjax);
     }.bind(this));
   },
 
@@ -256,9 +264,7 @@ Polymer('album-wall', {
     if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.app.pageLimit && this.app.page === 0) {
       this.isLoading = true;
       this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
-      this.async(function () {
-        this.doAjax();
-      });
+      this.async(this.doAjax);
     }
   },
 
@@ -290,11 +296,14 @@ Polymer('album-wall', {
     }.bind(this));
   },
 
-  doPlay: function (obj, url) {
+  doPlay: function (obj) {
     'use strict';
     this.app.playlist = [obj];
-    this.app.playing = 0;
-    this.app.playAudio('', obj.title, url, obj.cover, obj.id);
+    if (this.app.playing === 0) {
+      this.app.$.player.playAudio(this.app.playlist[0]);
+    } else {
+      this.app.playing = 0;
+    }
     this.app.dataLoading = false;
   },
 
@@ -309,35 +318,43 @@ Polymer('album-wall', {
   playPodcast: function (event, detial, sender) {
     'use strict';
     this.app.dataLoading = true;
-    var artURL = this.app.buildUrl('getCoverArt', {id: sender.attributes.cover.value}),
-      url = this.app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: sender.attributes.streamId.value}),
-      imgURL,
+    var imgURL,
       obj;
     if (sender.attributes.cover.value) {
       this.app.getDbItem(sender.attributes.cover.value, function (ev) {
         if (ev.target.result) {
           var imgFile = ev.target.result;
           imgURL = window.URL.createObjectURL(imgFile);
-          obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
-          this.app.getImageForPlayer(imgURL, function () {
+          obj = {
+            id: sender.attributes.streamId.value, 
+            artist: '', 
+            title: sender.attributes.trackTitle.value, 
+            cover: imgURL
+          };
+          this.app.$.player.getImageForPlayer(imgURL, function () {
             this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
               obj.palette = palette;
               this.app.setFabColor(obj);
-              this.doPlay(obj, url);
-              //this.app.page = 1;
+              this.doPlay(obj);
             }.bind(this));
           }.bind(this));
         } else {
-          this.app.getImageFile(artURL, sender.attributes.cover.value, function (ev) {
-            var imgFile = ev.target.result;
-            imgURL = window.URL.createObjectURL(imgFile);
-            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
-            this.app.getImageForPlayer(imgURL, function () {
+          this.app.getImageFile(
+            this.app.buildUrl('getCoverArt', {
+              id: sender.attributes.cover.value
+            }), sender.attributes.cover.value, function (ev) {
+            imgURL = window.URL.createObjectURL(ev.target.result);
+            obj = {
+              id: sender.attributes.streamId.value, 
+              artist: '', 
+              title: sender.attributes.trackTitle.value, 
+              cover: imgURL
+            };
+            this.app.$.player.getImageForPlayer(imgURL, function () {
               this.app.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
                 obj.palette = colorArray;
                 this.app.setFabColor(obj);
-                this.doPlay(obj, url);
-                //this.app.page = 1;
+                this.doPlay(obj);
               }.bind(this));
             }.bind(this));
           }.bind(this));
@@ -345,30 +362,38 @@ Polymer('album-wall', {
       }.bind(this));
     } else {
       imgURL = '../../../images/default-cover-art.png';
-      obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
-      this.app.getImageForPlayer(imgURL);
-      this.doPlay(obj, url);
+      obj = {
+        id: sender.attributes.streamId.value, 
+        artist: '', 
+        title: sender.attributes.trackTitle.value, 
+        cover: imgURL
+      };
+      this.app.$.player.getImageForPlayer(imgURL);
+      this.doPlay(obj);
       this.app.page = 1;
     }
   },
 
   add2Playlist: function (event, detial, sender) {
     'use strict';
-    var imgURL,
-      obj,
-      url = this.app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: sender.attributes.streamId.value});
+    var imgURL, obj;
     this.app.dataLoading = true;
     if (sender.attributes.cover.value) {
       this.app.getDbItem(sender.attributes.cover.value, function (ev) {
         if (ev.target.result) {
           imgURL = window.URL.createObjectURL(ev.target.result);
-          obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
+          obj = {
+            id: sender.attributes.streamId.value, 
+            artist: '', 
+            title: sender.attributes.trackTitle.value, 
+            cover: imgURL
+          };
           this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
             obj.palette = palette;
             if (this.audio.paused) {
-              this.app.getImageForPlayer(imgURL, function () {
+              this.app.$.player.getImageForPlayer(imgURL, function () {
                 this.app.setFabColor(obj);
-                this.doPlay(obj, url);
+                this.doPlay(obj);
                 this.app.dataLoading = false;
                 this.app.doToast(chrome.i18n.getMessage("added2Queue"));
               }.bind(this));
@@ -379,18 +404,25 @@ Polymer('album-wall', {
             }
           }.bind(this));
         } else {
-          this.app.getImageFile(this.app.buldUrl('getCoverArt', {id: sender.attributes.cover.value}), sender.attributes.cover.value, function (ev) {
-            var imgFile = ev.target.result;
-            imgURL = window.URL.createObjectURL(imgFile);
-            obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
+          this.app.getImageFile(
+            this.app.buldUrl('getCoverArt', {
+              id: sender.attributes.cover.value
+            }), sender.attributes.cover.value, function (ev) {
+            imgURL = window.URL.createObjectURL(ev.target.result);
+            obj = {
+              id: sender.attributes.streamId.value, 
+              artist: '', 
+              title: sender.attributes.trackTitle.value, 
+              cover: imgURL
+            };
             this.app.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
               obj.palette = colorArray;
             });
             if (this.audio.paused) {
-              this.app.getImageForPlayer(imgURL, function () {
+              this.app.$.player.getImageForPlayer(imgURL, function () {
                 this.app.dataLoading = false;
                 this.app.setFabColor(obj);
-                this.doPlay(obj, url);
+                this.doPlay(obj);
                 this.app.doToast(chrome.i18n.getMessage("added2Queue"));
               }.bind(this));
             } else {
@@ -404,11 +436,21 @@ Polymer('album-wall', {
     } else {
       imgURL = '../../../images/default-cover-art.png';
       if (this.audio.paused) {
-        obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
-        this.app.getImageForPlayer(imgURL);
-        this.doPlay(obj, url);
+        obj = {
+          id: sender.attributes.streamId.value, 
+          artist: '', 
+          title: sender.attributes.trackTitle.value, 
+          cover: imgURL
+        };
+        this.app.$.player.getImageForPlayer(imgURL);
+        this.doPlay(obj);
       } else {
-        obj = {id: sender.attributes.streamId.value, artist: '', title: sender.attributes.trackTitle.value, cover: imgURL};
+        obj = {
+          id: sender.attributes.streamId.value, 
+          artist: '', 
+          title: sender.attributes.trackTitle.value, 
+          cover: imgURL
+        };
         this.app.playlist.push(obj);
         this.app.doToast(chrome.i18n.getMessage("added2Queue"));
       }
@@ -438,7 +480,9 @@ Polymer('album-wall', {
 
   deleteChannel: function (id) {
     'use strict';
-    this.app.doXhr(this.app.buildUrl('deletePodcastChannel', {id: id}), 'json', function (e) {
+    this.app.doXhr(this.app.buildUrl('deletePodcastChannel', {
+      id: id
+    }), 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.clearData(function () {
           this.doAjax();
@@ -459,7 +503,10 @@ Polymer('album-wall', {
 
   downloadEpisode: function (event, detail, sender) {
     'use strict';
-    this.app.doXhr(this.app.buildUrl('downloadPodcastEpisode', {id: sender.attributes.ident.value}), 'json', function (e) {
+    this.app.doXhr(
+      this.app.buildUrl('downloadPodcastEpisode', {
+        id: sender.attributes.ident.value
+      }), 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.clearData(function () {
           this.doAjax();
@@ -477,7 +524,10 @@ Polymer('album-wall', {
 
   deleteEpisode: function (id) {
     'use strict';
-    this.app.doXhr(this.app.buildUrl('deletePodcastEpisode', {id: id}), 'json', function (e) {
+    this.app.doXhr(
+      this.app.buildUrl('deletePodcastEpisode', {
+        id: id
+      }), 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.clearData(function () {
           this.doAjax();

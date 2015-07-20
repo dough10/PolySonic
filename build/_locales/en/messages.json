@@ -311,5 +311,17 @@
   },
   "reconnecting": {
     "message": "Attempting Reconnect"
+  },
+  "playlistRepeatOn" : {
+    "message": "Repeat On"
+  },
+  "playlistRepeatOff" : {
+    "message": "Repeat Off"
+  },
+  "enabled": {
+    "message": "Enabled"
+  },
+  "disabled": {
+    "message": "Disabled"
   }
 }
