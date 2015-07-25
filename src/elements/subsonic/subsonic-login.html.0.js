@@ -73,15 +73,15 @@
             this.app.doToast("Loading Data");
             this.app.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
             this.app.$.firstRun.close();
-            this.app.doXhr(this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic", 'json', function (e) {
+            this.app.doXhr(this.app.buildUrl('getMusicFolders', ''), 'json', function (e) {
               this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
               if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                 this.app.$.sortBox.style.display = 'none';
               }
             }.bind(this));
-            setTimeout(function () {
+            this.async(function () {
               wall.doAjax();
-            }, 100);
+            }, null, 100);
           } else {
             console.log(this.response);
             this.app.doToast(this.response['subsonic-response'].error.message);
@@ -93,7 +93,8 @@
         /*
           will display any ajax error in a toast
         */
-        if (this.error.statusCode === 0) {
+        if (this.error) {
+          this.app.$.firstRun.open();
           this.app.doToast(chrome.i18n.getMessage('connectionError'));
         }
       },
