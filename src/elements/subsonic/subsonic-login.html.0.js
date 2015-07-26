@@ -29,6 +29,21 @@
             this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
           }
           this.$.ajax.go();
+          this.count = 0;
+          if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = 0;
+          } else {
+            this.interval = setInterval(function () {
+              this.count + 1;
+              if (this.count === 20) {
+                this.$.ajax.abort();
+                clearInterval(this.interval);
+                this.count = 0;
+                this.interval = 0;
+              }
+            }, 1000);
+          }
         }
       },
       hidePass: function (event, detail, sender) {
@@ -57,7 +72,6 @@
       responseChanged: function () {
         'use strict';
         var wall = document.getElementById('wall');
-        
         if (this.response) {
           if (this.response['subsonic-response'].status === 'ok') {
             chrome.storage.sync.set({
@@ -98,19 +112,15 @@
           this.app.doToast(chrome.i18n.getMessage('connectionError'));
         }
       },
-      
       urlChanged: function () {
         this.post.url = this.url;
       },
-      
       userChanged: function () {
         this.post.user = this.user;
       },
-      
       passChanged: function () {
         this.post.pass = this.pass;
       },
-
       versionChanged: function () {
         this.post.version = this.version;
       }

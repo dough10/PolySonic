@@ -12,6 +12,7 @@ Polymer('album-art', {
   imgURL: '',
   defaultImgURL: '../../../images/default-cover-art.png',
   albumSize: 0,
+  size: '250px',
 
   ready: function () {
     'use strict';

@@ -17,12 +17,12 @@
       }
       #card {
         border-radius:2px;
-        height: 250px;
-        width: 250px;
+        height: {{size}};
+        width: {{size}};
         background-repeat: no-repeat;
         background-position: center;
         background-origin: content-box;
-        background-size:250px;
+        background-size:{{size}};
       }
       core-animated-pages {
         height:100%;
@@ -38,8 +38,8 @@
       #overlay-low {
         position:absolute;
         top:80%;
-        height: 250px;
-        width: 250px;
+        height: {{size}};
+        width: {{size}};
         padding:1em;
         background:rgba(255,255,255, 0.97);
         border:1px solid #d8d8d8;
@@ -128,9 +128,6 @@
       }
       .huge {
         color:rgba(255,255,255,0.8);
-        position:absolute;
-        top: 70px;
-        left: 70px;
         will-change:transform;
       }
       .spinWrapper {
@@ -151,6 +148,23 @@
         justify-content: center;
         align-items: center;
         pointer-events:none;
+      }
+      .playWrapper {
+        overflow:hidden;
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        right:0;
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
       }
       .spinner {
         z-index:2;
@@ -224,7 +238,9 @@
             <paper-spinner class="spinner" active></paper-spinner>
           </div>
         </template>
-        <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{doPlayback}}"></paper-icon-button>
+        <div class="playWrapper">
+          <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{doPlayback}}"></paper-icon-button>
+        </div>
         <div id="overlay-low" hero-id="hero" hero="">
           <core-tooltip id="icon" class="left-icon" label="{{moreOptionsLabel}}" position="left">
             <paper-icon-button on-tap="{{doDetails}}" icon="more-vert"></paper-icon-button>
