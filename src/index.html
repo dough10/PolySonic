@@ -248,6 +248,10 @@
                     <core-icon icon="av:repeat" id="repeatButton" style="margin-right:24px;"></core-icon>
                     {{repeatText}}
                   </paper-item>
+                  <paper-item on-tap="{{createBookmark}}">
+                    <core-icon icon="bookmark"></core-icon>
+                    Create Bookmark
+                  </paper-item>
                   <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
                     <core-icon icon="av:not-interested" style="margin-right:24px; color:#db4437;"></core-icon>
                     {{clearQueue}}
@@ -273,6 +277,19 @@
               </paper-item>
             </template>
           </core-menu>
+        </div>
+      </paper-dialog>
+      
+      <paper-dialog id="bookmarkDialog" transition="core-transition-bottom">
+        <div style="text-align:center">
+          <paper-input value="{{bookmarkComment}}" label="Bookmark Comment"></paper-input>
+          <br>
+          <paper-button on-tap="{{submitBookmark}}">
+            {{submitButton}}
+            <div hidden?="{{!submittingBookmark}}" style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
+              <paper-spinner active=""></paper-spinner>
+            </div>
+          </paper-button>
         </div>
       </paper-dialog>
 

@@ -199,5 +199,30 @@ Polymer('music-player',{
         this.page = 1;
       }
     });
+  }, 
+  createBookmark: function () {
+    this.app.$.playlistDialog.close();
+    this.app.$.bookmarkDialog.open();
+  },
+  submitBookmark: function () {
+    var artist = this.app.playlist[this.app.playing].artist;
+    var track = this.app.playlist[this.app.playing].title;
+    var pos = this.$.audio.currentTime;
+    this.app.bookmarkComment = 'Default Title';
+    this.app.submittingBookmark = true;
+    this.app.doXhr(
+      this.app.buildUrl('createBookmark', {
+        id: this.app.playlist[this.app.playing].id,
+        position: pos,
+        comment: this.app.bookmarkComment
+      }), 'json', function (e) {
+      this.app.submittingBookmark = false;
+      if (e.target.response === 'ok') {
+        this.app.doToast('Bookmark Created');
+        this.app.$.bookmarkDialog.close();
+      } else {
+        this.app.doToast(e.target.response.error);
+      }
+    });
   }
 });
