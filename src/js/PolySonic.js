@@ -140,6 +140,11 @@
   app.invalidLicense = chrome.i18n.getMessage("invalidLicense");
   app.adjustVolumeLabel = chrome.i18n.getMessage("adjustVolumeLabel");
   app.showDownloads = chrome.i18n.getMessage('showDownloads');
+  app.shuffleList = chrome.i18n.getMessage('shuffleList');
+  app.randomized = chrome.i18n.getMessage('randomized');
+  app.markCreated = chrome.i18n.getMessage('markCreated');
+  app.bookmarks = chrome.i18n.getMessage('bookmarks');
+  app.createBookmarkText = chrome.i18n.getMessage('createBookmark');
 
   app.shuffleSizes = [
     20,
@@ -421,8 +426,8 @@
       app.closePlaylists();
     }
   }
-  
-  app.shuffleArray = function (array) {
+
+  function shuffleArray(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
     while (0 !== currentIndex) {
       randomIndex = Math.floor(Math.random() * currentIndex);
@@ -431,14 +436,155 @@
       array[currentIndex] = array[randomIndex];
       array[randomIndex] = temporaryValue;
     }
-
     return array;
+  }
+
+  app.shufflePlaylist = function () {
+    var temp = app.playlist[app.playing];
+    app.playlist.splice(app.playing, 1);
+    shuffleArray(app.playlist);
+    app.playlist.unshift(temp);
+    app.alreadyPlaying = true; // tell player this track is already playing other wise will start play over again
+    app.playing = 0;
+    app.doToast(app.randomized);
   };
-  
+
+  app.openBookmarks = function () {
+    app.closeDrawer(function () {
+      app.doXhr(app.buildUrl('getBookmarks', ''), 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 'ok') {
+          app.allBookmarks = e.target.response['subsonic-response'].bookmarks.bookmark;
+          app.dataLoading = false;
+          app.$.showBookmarks.open();
+        } else {
+          app.dataLoading = false;
+          app.doToast(e.target.response['subsonic-response'].error.message);
+        }
+      });
+    });
+  };
+
+  // playback for bookmarks
+  function handlePlay(obj) {
+    var minis = document.querySelectorAll('mini-player');
+    var length = minis.length;
+    for (var i = 0; i < length; i++) {
+      minis[i].setPlaying({artist: obj.artist, title: obj.title, cover: obj.cover});
+    }
+    var audio = app.$.player.$.audio;
+    var note = app.$.playNotify;
+    audio.pause();
+    if (obj.artist === '') {
+      app.currentPlaying = obj.title;
+      note.title = obj.title;
+      audio.src = app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: obj.id});
+    } else {
+      app.currentPlaying = obj.artist + ' - ' + obj.title;
+      note.title = obj.artist + ' - ' + obj.title;
+      audio.src = app.buildUrl('stream', {maxBitRate: app.bitRate, id: obj.id});
+    }
+    app.playlist = [obj];
+    app.playing = 0;
+    app.setFabColor(obj);
+    app.$.player.$.audio.currentTime = obj.bookmarkPosition;
+    audio.play();
+    note.show();
+    app.$.player.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
+    app.$.player.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
+    app.$.player.$.bg.style.backgroundImage = "url('" + obj.cover + "')";
+    app.tracker.sendEvent('Audio', 'Started');
+    if (app.activeUser.scrobblingEnabled) {
+      app.doXhr(app.buildUrl('scrobble', {id: obj.id, time: new Date().getTime()}), 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 'failed') {
+          console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
+          app.tracker.sendEvent('Last FM submission', 'Failed');
+        }
+      }.bind(this));
+    }
+  }
+
+  // que a bookmark
+  app.queIt = function (event) {
+    var resumePos = event.path[0].dataset.pos;
+    app.doXhr(app.buildUrl('getSong', {
+      id: event.path[0].dataset.id
+    }), 'json', function (e) {
+      app.$.showBookmarks.close();
+      var song = e.target.response['subsonic-response'].song,
+        obj = {},
+        artId;
+      if (song.type === 'music') {
+        var mins = Math.floor(song.duration / 60),
+          seconds = Math.floor(song.duration - (mins * 60)),
+          timeString = mins + ':' + ('0' + seconds).slice(-2);
+        obj.duration = timeString;
+        artId = 'al-' + song.albumId;
+      } else {
+        artId = song.coverArt;
+      }
+      obj.id = song.id;
+      obj.album = song.album;
+      obj.title = song.title;
+      if (song.artist === 'Podcast') {
+        obj.artist = '';
+      } else {
+        obj.artist = song.artist;
+      }
+      obj.bookmarkPosition = song.bookmarkPosition;
+      app.getDbItem(artId, function (cov) {
+        if (cov.target.result) {
+          var img = cov.target.result;
+          obj.cover = window.URL.createObjectURL(img);
+          app.getDbItem(artId + '-palette', function (palette) {
+            obj.palette = palette.target.result;
+            handlePlay(obj);
+          });
+        } else {
+          app.getImageFile(
+            app.buildUrl('getCoverArt', {
+              id: artId
+            }), 'json', function (xhrCov) {
+            var img = xhrCov.target.result;
+            obj.cover = window.URL.createObjectURL(img);
+            app.colorThiefHandler(obj.cover, artId, function (colorArray) {
+              obj.palette = colorArray;
+              handlePlay(obj);
+            });
+          });
+        }
+      });
+    });
+  };
+
+  app.deleteBookmark = function (event) {
+    app.doXhr(
+      app.buildUrl('deleteBookmark', {
+        id: event.path[0].dataset.id
+      }), 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        app.dataLoading = true;
+        app.doXhr(app.buildUrl('getBookmarks', ''), 'json', function (ev) {
+          app.allBookmarks = ev.target.response['subsonic-response'].bookmarks.bookmark;
+          app.dataLoading = false;
+        });
+      } else {
+        app.doToast(e.target.response['subsonic-response'].error.message);
+      }
+    });
+  };
+
+  app.closeBookmarks = function () {
+    app.$.showBookmarks.close();
+  };
+
+  app.closeBookmark = function () {
+    app.$.bookmarkDialog.close();
+  };
+
   app.createBookmark = function () {
     app.$.bookmarkDialog.open();
   };
-  
+
   app.submitBookmark = function () {
     app.$.player.submitBookmark();
   };

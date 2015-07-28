@@ -45,7 +45,7 @@ Polymer('album-wall', {
   domReady: function () {
     'use strict';
     this.app = document.getElementById("tmpl");
-    this.audio = document.getElementById("audio");
+    this.audio = this.app.$.player.$.audio;
     this.scrollTarget = this.app.appScroller();
   },
 
@@ -405,7 +405,7 @@ Polymer('album-wall', {
           }.bind(this));
         } else {
           this.app.getImageFile(
-            this.app.buldUrl('getCoverArt', {
+            this.app.buildUrl('getCoverArt', {
               id: sender.attributes.cover.value
             }), sender.attributes.cover.value, function (ev) {
             imgURL = window.URL.createObjectURL(ev.target.result);

@@ -49,7 +49,7 @@
           <img height="250" width="250" id="bioImage">
           <div id="bio" flex></div>
         </div>
-        <paper-tabs nobar noink noslide>
+        <paper-tabs nobar noink noslide scrollable>
           <template repeat="{{artistBio.similarArtist}}">
             <paper-tab on-tap="{{changeArtist}}" data-id="{{id}}" noink>{{name}}</paper-tab>
           </template>

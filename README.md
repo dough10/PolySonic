@@ -9,6 +9,15 @@ HTML5 Subsonic client
 
 
 Changelog
+0.2.6
+
+- fix bug when adding podcast to queue (caused app to hang @ loading spinner)
+
+- bookmark support (WIP)
+
+- option to shuffle current play queue
+
+- when showing all albums by a artist (from artist list) page now contains a small bio and links to similar artist in your library
 
 0.2.5
 

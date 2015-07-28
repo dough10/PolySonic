@@ -417,7 +417,7 @@ Polymer('album-art', {
   },
 
   moreLikeCallback: function () {
-    if (this.app.$.audio.paused) {
+    if (this.app.$.player.$.audio.paused) {
       this.app.$.player.getImageForPlayer(this.app.playlist[0].cover, function () {
         this.app.playing = 0;
         this.app.setFabColor(this.app.playlist[0]);
@@ -440,7 +440,7 @@ Polymer('album-art', {
       }), 'json', function (e) {
       var response = e.target.response['subsonic-response'].similarSongs.song;
       if (response) {
-        this.app.$.audio.pause();
+        this.app.$.player.$.audio.pause();
         this.app.playlist.length = 0;
         var length = response.length;
         for (var i = 0; i < length; i++) {

@@ -5,16 +5,17 @@ Polymer('artist-details', {
   },
   queryData: function () {
     this.async(function () {
-      this.app.doXhr(this.app.buildUrl('getArtistInfo2', {id: this.artistId}), 'json', function (e) {
+      this.app.doXhr(
+        this.app.buildUrl('getArtistInfo2', {
+          id: this.artistId
+        }), 'json', function (e) {
         this.artistBio = e.target.response['subsonic-response'].artistInfo2;
         this.$.bio.innerHTML = this.artistBio.biography;
-        if (this.artistBio.similarArtist && this.artistBio.similarArtist.length > 6) {
-          this.artistBio.similarArtist.length = 6;
-        }
-        this.app.doXhr(this.app.buildUrl('getCoverArt', {
-          id: 'ar-' + this.artistId,
-          size: 250
-        }), 'blob', function (xhrEvent) {
+        this.app.doXhr(
+          this.app.buildUrl('getCoverArt', {
+            id: 'ar-' + this.artistId,
+            size: 250
+          }), 'blob', function (xhrEvent) {
           this.$.bioImage.src = window.URL.createObjectURL(xhrEvent.target.response);
         }.bind(this));
         this.app.doXhr(

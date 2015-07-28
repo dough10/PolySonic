@@ -206,6 +206,11 @@
         margin-top: 66px;
         left: 46px;
       }
+      .shuffle {
+        position: absolute;
+        margin-top: 66px;
+        left: 86px;
+      }
     </style>
     <core-media-query query="max-width:570px" queryMatches="{{small}}"></core-media-query>
     <core-animated-pages selected="{{page}}" transitions="cross-fade-all hero-transition">
@@ -232,8 +237,11 @@
             <core-tooltip  class="repeat" label="{{app.repeatText}}" position="right">
               <paper-icon-button id="rButton" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
             </core-tooltip>
-            <core-tooltip class="bookmark" label="Bookmark" position="right">
+            <core-tooltip class="bookmark" label="{{app.createBookmarkText}}" position="right">
               <paper-icon-button on-tap="{{createBookmark}}" icon="bookmark"></paper-icon-button>
+            </core-tooltip>
+            <core-tooltip hidden?="{{!app.playlist[1]}}" class="shuffle" label="{{app.shuffleList}}" position="right">
+              <paper-icon-button on-tap="{{shufflePlaylist}}" icon="av:shuffle"></paper-icon-button>
             </core-tooltip>
             <core-tooltip label="{{app.adjustVolumeLabel}}" class="volume" position="left">
               <template if="{{app.volume > 66}}">
@@ -277,8 +285,11 @@
               <core-tooltip  class="repeat" label="{{app.repeatText}}" style="bottom: 8px;" position="right">
                 <paper-icon-button id="rButton2" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
               </core-tooltip>
-              <core-tooltip class="bookmark" label="Bookmark" style="bottom: 8px;" position="right">
+              <core-tooltip class="bookmark" label="{{app.createBookmarkText}}" style="bottom: 8px;" position="right">
                 <paper-icon-button on-tap="{{createBookmark}}" class="black" icon="bookmark"></paper-icon-button>
+              </core-tooltip>
+              <core-tooltip hidden?="{{!app.playlist[1]}}" class="shuffle" label="{{app.shuffleList}}" style="bottom: 8px;" position="right">
+                <paper-icon-button on-tap="{{shufflePlaylist}}" class="black" icon="av:shuffle"></paper-icon-button>
               </core-tooltip>
               <core-tooltip label="{{app.adjustVolumeLabel}}" style="bottom: 8px;" class="volume" position="left">
                 <template if="{{app.volume > 66}}">
