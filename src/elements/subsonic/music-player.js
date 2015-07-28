@@ -29,14 +29,16 @@ Polymer('music-player',{
   },
   playingChanged: function (oldVal, newVal) {
     this.async(function () {
-      this.$.cover2.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
-      this.$.coverArt.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
-      this.$.bg.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
-      this.app.setFabColor(this.app.playlist[newVal]);
-      if (!this.app.alreadyPlaying) {
-        this.playAudio(this.app.playlist[newVal]);
-      } else {
+      if (this.app.alreadyPlaying) {
+        // ignore default functions
+        console.log('skipped');
         this.app.alreadyPlaying = false;
+      } else {
+        this.$.cover2.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
+        this.$.coverArt.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
+        this.$.bg.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
+        this.app.setFabColor(this.app.playlist[newVal]);
+        this.playAudio(this.app.playlist[newVal]);
       }
     });
   },
@@ -53,7 +55,10 @@ Polymer('music-player',{
     } else {
       this.app.currentPlaying = obj.artist + ' - ' + obj.title;
       this.note.title = obj.artist + ' - ' + obj.title;
-      this.audio.src = this.app.buildUrl('stream', {maxBitRate: this.app.bitRate, id: obj.id});
+      this.audio.src = this.app.buildUrl('stream', {
+        maxBitRate: this.app.bitRate,
+        id: obj.id
+      });
     }
     this.note.icon = obj.cover;
     if (obj.bookmarkPosition) {

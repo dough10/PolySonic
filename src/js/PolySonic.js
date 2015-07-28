@@ -444,9 +444,13 @@
     app.playlist.splice(app.playing, 1);
     shuffleArray(app.playlist);
     app.playlist.unshift(temp);
-    app.alreadyPlaying = true; // tell player this track is already playing other wise will start play over again
-    app.playing = 0;
     app.doToast(app.randomized);
+    if (app.playing !== 0) {
+      app.alreadyPlaying = true; // tell player this track is already playing other wise will start play over again
+      app.async(function () {
+        app.playing = 0;
+      });
+    }
   };
 
   app.openBookmarks = function () {
@@ -473,7 +477,7 @@
   }
 
   // que a bookmark
-  app.queIt = function (event) {
+  app.queBookmark = function (event) {
     var resumePos = event.path[0].dataset.pos;
     app.dataLoading = true;
     app.doXhr(app.buildUrl('getSong', {
