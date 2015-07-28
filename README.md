@@ -15,7 +15,7 @@ Changelog
 
 - bookmark support (WIP)
 
-- option to shuffle current play queue
+- option to shuffle current play queue (icon will only show if 3 or more items in play queue)
 
 - when showing all albums by a artist (from artist list) page now contains a small bio and links to similar artist in your library
 
