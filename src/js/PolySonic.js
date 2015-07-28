@@ -466,46 +466,16 @@
 
   // playback for bookmarks
   function handlePlay(obj) {
-    var minis = document.querySelectorAll('mini-player');
-    var length = minis.length;
-    for (var i = 0; i < length; i++) {
-      minis[i].setPlaying({artist: obj.artist, title: obj.title, cover: obj.cover});
-    }
-    var audio = app.$.player.$.audio;
-    var note = app.$.playNotify;
-    audio.pause();
-    if (obj.artist === '') {
-      app.currentPlaying = obj.title;
-      note.title = obj.title;
-      audio.src = app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: obj.id});
-    } else {
-      app.currentPlaying = obj.artist + ' - ' + obj.title;
-      note.title = obj.artist + ' - ' + obj.title;
-      audio.src = app.buildUrl('stream', {maxBitRate: app.bitRate, id: obj.id});
-    }
+    app.dataLoading = false;
     app.playlist = [obj];
     app.playing = 0;
     app.setFabColor(obj);
-    app.$.player.$.audio.currentTime = obj.bookmarkPosition;
-    audio.play();
-    note.show();
-    app.$.player.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
-    app.$.player.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
-    app.$.player.$.bg.style.backgroundImage = "url('" + obj.cover + "')";
-    app.tracker.sendEvent('Audio', 'Started');
-    if (app.activeUser.scrobblingEnabled) {
-      app.doXhr(app.buildUrl('scrobble', {id: obj.id, time: new Date().getTime()}), 'json', function (e) {
-        if (e.target.response['subsonic-response'].status === 'failed') {
-          console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
-          app.tracker.sendEvent('Last FM submission', 'Failed');
-        }
-      }.bind(this));
-    }
   }
 
   // que a bookmark
   app.queIt = function (event) {
     var resumePos = event.path[0].dataset.pos;
+    app.dataLoading = true;
     app.doXhr(app.buildUrl('getSong', {
       id: event.path[0].dataset.id
     }), 'json', function (e) {
@@ -524,7 +494,7 @@
       }
       obj.id = song.id;
       obj.album = song.album;
-      obj.title = song.title;
+      obj.title = decodeURIComponent(song.title);
       if (song.artist === 'Podcast') {
         obj.artist = '';
       } else {
@@ -1278,3 +1248,7 @@
   };
 
 }());
+
+
+
+

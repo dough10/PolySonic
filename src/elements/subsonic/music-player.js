@@ -56,6 +56,11 @@ Polymer('music-player',{
       this.audio.src = this.app.buildUrl('stream', {maxBitRate: this.app.bitRate, id: obj.id});
     }
     this.note.icon = obj.cover;
+    if (obj.bookmarkPosition) {
+      this.audio.currentTime = obj.bookmarkPosition;
+    } else {
+      this.audio.currentTime = 0;
+    }
     this.audio.play();
     this.note.show();
     this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
