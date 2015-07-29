@@ -290,7 +290,7 @@
 
       <paper-dialog id="showBookmarks" style="min-height:600px; min-width:471px;" transition="core-transition-bottom">
         <div horizontal layout>
-          <div flex></div>
+          <div style="font-weight: bold; font-size: 16px;" flex>Bookmarks</div>
           <div>
             <core-tooltip label="{{closeLabel}}" position="left">
               <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeBookmarks}}"></paper-icon-button>
@@ -305,19 +305,19 @@
               </div>
               <div>
                 <paper-icon-button icon="av:play-arrow" on-tap="{{queBookmark}}" data-id="{{entry.id}}" data-pos="{{entry.bookmarkPosition}}"></paper-icon-button>
-                <paper-icon-button icon="remove-circle" on-tap="{{deleteBookmark}}" data-id="{{entry.id}}" style="margin-right:8px; color:#db4437;"></paper-icon-button>
+                <paper-icon-button icon="remove-circle" on-tap="{{conBookDel}}" data-id="{{entry.id}}" style="margin-right:8px; color:#db4437;"></paper-icon-button>
               </div>
             </core-item>
           </template>
         </div>
       </paper-dialog>
 
-      <paper-dialog id="bookmarkDialog" transition="core-transition-bottom">
+      <paper-dialog id="bookmarkDialog"  transition="core-transition-bottom">
         <core-tooltip style=" position:absolute; top:8px; right:8px;" position="left" label="{{closeLabel}}">
           <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeBookmark}}"></paper-icon-button>
         </core-tooltip>
         <div style="text-align:center">
-          <paper-input value="{{bookmarkComment}}" label="Bookmark Comment"></paper-input>
+          <paper-input style="min-width:280px;" value="{{bookmarkComment}}" label="Bookmark Comment"></paper-input>
           <br>
           <paper-button on-tap="{{submitBookmark}}">
             {{submitButton}}
@@ -488,7 +488,7 @@
           }
         </style>
         <div horizontal layout>
-          <div flex></div>
+          <div style="font-weight: bold; font-size: 16px;" flex>Playlists</div>
           <div>
             <core-tooltip label="{{closeLabel}}" position="left">
               <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closePlaylists}}"></paper-icon-button>
@@ -578,6 +578,13 @@
         <paper-button affirmative ident="{{delID}}" on-tap="{{deletePlaylist}}">{{accept}}</paper-button>
       </paper-action-dialog>
 
+      <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
+        <div style="min-width:280px"></div>
+        <h4>{{deleteConfirm}}</h4>
+        <paper-button affirmative on-tap="{{openPlaylists}}">{{decline}}</paper-button>
+        <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{accept}}</paper-button>
+      </paper-action-dialog>
+
       <paper-action-dialog id='reloadAppDialog' autoclosedisabled backdrop transition="core-transition-center" layered>
         <div style="min-width:280px"></div>
         <h4>{{settingsDeleted}}</h4>
@@ -625,7 +632,7 @@
 
       <paper-dialog id="downloadDialog" style="min-height:695px; min-width:471px;" transition="core-transition-top">
         <div horizontal layout>
-          <div flex></div>
+          <div style="font-weight: bold; font-size: 16px;" flex>Downloads</div>
           <div>
             <core-tooltip position="left" label="{{closeLabel}}">
               <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeDownloads}}"></paper-icon-button>

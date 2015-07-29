@@ -219,7 +219,7 @@ Polymer('music-player',{
     var track = this.app.playlist[this.app.playing].title;
     this.app.$.playlistDialog.close();
     this.app.$.bookmarkDialog.open();
-    this.app.bookmarkComment = 'Default Title';
+    this.app.bookmarkComment = new Date().toString();
   },
   submitBookmark: function () {
     this.app.submittingBookmark = true;

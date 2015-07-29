@@ -472,7 +472,11 @@
   function handlePlay(obj) {
     app.dataLoading = false;
     app.playlist = [obj];
-    app.playing = 0;
+    if (app.playing === 0) {
+      app.$.player.playAudio(obj);
+    } else {
+      app.playing = 0;
+    }
     app.setFabColor(obj);
   }
 
@@ -530,15 +534,22 @@
     });
   };
 
+  app.conBookDel = function (event) {
+    app.$.showBookmarks.close();
+    app.delID = event.path[0].dataset.id;
+    app.$.bookmarkConfirm.open();
+  };
+
   app.deleteBookmark = function (event) {
     app.doXhr(
       app.buildUrl('deleteBookmark', {
-        id: event.path[0].dataset.id
+        id: app.delID
       }), 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         app.dataLoading = true;
         app.doXhr(app.buildUrl('getBookmarks', ''), 'json', function (ev) {
           app.allBookmarks = ev.target.response['subsonic-response'].bookmarks.bookmark;
+          app.$.showBookmarks.open();
           app.dataLoading = false;
         });
       } else {
@@ -771,7 +782,7 @@
   app.savePlayQueue = function () {
     app.$.playlistDialog.close();
     app.$.createPlaylist.open();
-    app.defaultName = new Date().toGMTString();
+    app.defaultName = new Date().toString();
   };
 
   function save2PlayQueueCallback (e) {
