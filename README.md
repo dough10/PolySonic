@@ -11,9 +11,11 @@ HTML5 Subsonic client
 Changelog
 0.2.6
 
+- new icon (thanks William Kray)
+
 - fix bug when adding podcast to queue (caused app to hang @ loading spinner)
 
-- bookmark support (WIP)
+- bookmark support
 
 - option to shuffle current play queue (icon will only show if 3 or more items in play queue)
 
