@@ -223,7 +223,7 @@ Polymer('music-player',{
   },
   submitBookmark: function () {
     this.app.submittingBookmark = true;
-    var pos = this.$.audio.currentTime * 1000;
+    var pos = Math.floor(this.$.audio.currentTime * 1000);
     this.app.doXhr(
       this.app.buildUrl('createBookmark', {
         id: this.app.playlist[this.app.playing].id,

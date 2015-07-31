@@ -314,23 +314,29 @@ Polymer('album-wall', {
   mouseOut: function (event, detail, sender) {
     sender.setZ(1);
   },
+  
+  playChoice: function (event, detail, sender) {
+    this.$.playbackConfirm.open();
+    this.bookmarkTime = this.app.secondsToMins(sender.attributes.bookmark.value / 1000);
+  },
 
   playPodcast: function (event, detial, sender) {
     'use strict';
     this.app.dataLoading = true;
     var imgURL,
-      obj;
+      obj = {
+        id: sender.attributes.streamId.value, 
+        artist: '', 
+        title: sender.attributes.trackTitle.value, 
+      };
+    if (sender.attributes.bookmarkPosition.value) {
+      obj.bookmarkPosition = sender.attributes.bookmarkPosition.value;
+    }
     if (sender.attributes.cover.value) {
       this.app.getDbItem(sender.attributes.cover.value, function (ev) {
         if (ev.target.result) {
           var imgFile = ev.target.result;
-          imgURL = window.URL.createObjectURL(imgFile);
-          obj = {
-            id: sender.attributes.streamId.value, 
-            artist: '', 
-            title: sender.attributes.trackTitle.value, 
-            cover: imgURL
-          };
+          obj.cover = window.URL.createObjectURL(imgFile);
           this.app.$.player.getImageForPlayer(imgURL, function () {
             this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
               obj.palette = palette;
@@ -343,15 +349,9 @@ Polymer('album-wall', {
             this.app.buildUrl('getCoverArt', {
               id: sender.attributes.cover.value
             }), sender.attributes.cover.value, function (ev) {
-            imgURL = window.URL.createObjectURL(ev.target.result);
-            obj = {
-              id: sender.attributes.streamId.value, 
-              artist: '', 
-              title: sender.attributes.trackTitle.value, 
-              cover: imgURL
-            };
-            this.app.$.player.getImageForPlayer(imgURL, function () {
-              this.app.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
+            obj.cover = window.URL.createObjectURL(ev.target.result);
+            this.app.$.player.getImageForPlayer(obj.cover, function () {
+              this.app.colorThiefHandler(obj.cover, sender.attributes.cover.value, function (colorArray) {
                 obj.palette = colorArray;
                 this.app.setFabColor(obj);
                 this.doPlay(obj);
@@ -361,14 +361,8 @@ Polymer('album-wall', {
         }
       }.bind(this));
     } else {
-      imgURL = '../../../images/default-cover-art.png';
-      obj = {
-        id: sender.attributes.streamId.value, 
-        artist: '', 
-        title: sender.attributes.trackTitle.value, 
-        cover: imgURL
-      };
-      this.app.$.player.getImageForPlayer(imgURL);
+      obj.cover = '../../../images/default-cover-art.png';
+      this.app.$.player.getImageForPlayer(obj.cover);
       this.doPlay(obj);
       this.app.page = 1;
     }
@@ -376,18 +370,18 @@ Polymer('album-wall', {
 
   add2Playlist: function (event, detial, sender) {
     'use strict';
-    var imgURL, obj;
+    var imgURL,
+      obj = {
+        id: sender.attributes.streamId.value, 
+        artist: '', 
+        title: sender.attributes.trackTitle.value, 
+      };
     this.app.dataLoading = true;
     if (sender.attributes.cover.value) {
       this.app.getDbItem(sender.attributes.cover.value, function (ev) {
         if (ev.target.result) {
           imgURL = window.URL.createObjectURL(ev.target.result);
-          obj = {
-            id: sender.attributes.streamId.value, 
-            artist: '', 
-            title: sender.attributes.trackTitle.value, 
-            cover: imgURL
-          };
+          obj.cover = imgURL;
           this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
             obj.palette = palette;
             if (this.audio.paused) {
@@ -409,12 +403,7 @@ Polymer('album-wall', {
               id: sender.attributes.cover.value
             }), sender.attributes.cover.value, function (ev) {
             imgURL = window.URL.createObjectURL(ev.target.result);
-            obj = {
-              id: sender.attributes.streamId.value, 
-              artist: '', 
-              title: sender.attributes.trackTitle.value, 
-              cover: imgURL
-            };
+            obj.cover = imgURL;
             this.app.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
               obj.palette = colorArray;
             });
@@ -436,21 +425,11 @@ Polymer('album-wall', {
     } else {
       imgURL = '../../../images/default-cover-art.png';
       if (this.audio.paused) {
-        obj = {
-          id: sender.attributes.streamId.value, 
-          artist: '', 
-          title: sender.attributes.trackTitle.value, 
-          cover: imgURL
-        };
+        obj.cover = imgURL;
         this.app.$.player.getImageForPlayer(imgURL);
         this.doPlay(obj);
       } else {
-        obj = {
-          id: sender.attributes.streamId.value, 
-          artist: '', 
-          title: sender.attributes.trackTitle.value, 
-          cover: imgURL
-        };
+        obj.cover = imgURL;
         this.app.playlist.push(obj);
         this.app.doToast(chrome.i18n.getMessage("added2Queue"));
       }

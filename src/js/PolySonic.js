@@ -557,6 +557,11 @@
       }
     });
   };
+  
+  app.secondsToMins = function (sec) {
+    var mins = Math.floor(sec / 60);
+    return mins + ':' + ('0' + Math.floor(sec - (mins * 60))).slice(-2);
+  };
 
   app.closeBookmarks = function () {
     app.$.showBookmarks.close();

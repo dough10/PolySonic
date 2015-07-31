@@ -138,11 +138,21 @@
                       <core-item>
                         <div flex class="title">
                           {{title}}
+                          <template if="{{bookmarkPosition}}">
+                            <core-icon icon="bookmark"></core-icon>
+                          </template>
                         </div>
                         <template if="{{status === 'completed'}}">
-                          <core-tooltip label="{{labels.playPodcastLabel}}" position="left">
-                            <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
-                          </core-tooltip>
+                          <template if="{{!bookmarkPosition}}">
+                            <core-tooltip label="{{labels.playPodcastLabel}}" position="left">
+                              <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
+                            </core-tooltip>
+                          </template>
+                          <template if="{{bookmarkPosition}}">
+                            <core-tooltip label="{{labels.playPodcastLabel}}" position="left">
+                              <paper-icon-button on-tap="{{playChoice}}" icon="av:play-arrow" bookmark="{{bookmarkPosition}}" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
+                            </core-tooltip>
+                          </template>
                           <core-tooltip label="{{labels.add2PlayQueue}}" position="left">
                             <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
                           </core-tooltip>
@@ -212,6 +222,10 @@
         </div>
       </core-animated-pages>
     </div>
+    <paper-dialog id="playbackConfirm" transition="core-transition-center">
+      <paper-button style="background: green; color: white;" affirmative>Continue from {{bookmarkTime}}</paper-button>
+      <paper-button affirmative>Beginning of File</paper-button>
+    </paper-dialog>
   </template>
   <script src="album-wall.html.0.js"></script>
 </polymer-element>
