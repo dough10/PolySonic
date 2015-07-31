@@ -62,7 +62,7 @@ Polymer('music-player',{
     }
     this.note.icon = obj.cover;
     if (obj.bookmarkPosition) {
-      this.audio.currentTime = obj.bookmarkPosition;
+      this.audio.currentTime = obj.bookmarkPosition / 1000;
     } else {
       this.audio.currentTime = 0;
     }
