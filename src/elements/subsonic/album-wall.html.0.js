@@ -13,6 +13,9 @@ Polymer('album-wall', {
   downloadButton: chrome.i18n.getMessage("downloadButton"),
   playPodcastLabel: chrome.i18n.getMessage("playPodcast"),
   add2PlayQueue: chrome.i18n.getMessage("add2PlayQueue"),
+  fromStart: chrome.i18n.getMessage('fromStart'),
+  playFrom: chrome.i18n.getMessage('playFrom'),
+  hasBookmark: chrome.i18n.getMessage('hasBookmark'),
   created: function () {
     'use strict';
     chrome.storage.sync.get(function (res) {
@@ -372,6 +375,24 @@ Polymer('album-wall', {
       this.doPlay(obj);
       this.app.page = 1;
     }
+  },
+  
+  conBookDel: function (event) {
+    this.delID = event.path[0].dataset.id;
+    this.$.bookmarkConfirm.open();
+  },
+  
+  deleteBookmark: function (event) {
+    this.app.doXhr(
+      this.app.buildUrl('deleteBookmark', {
+        id: this.delID
+      }), 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        this.refreshContent();
+      } else {
+        app.doToast(e.target.response['subsonic-response'].error.message);
+      }
+    }.bind(this));
   },
 
   add2Playlist: function (event, detial, sender) {

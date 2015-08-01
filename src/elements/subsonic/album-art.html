@@ -392,13 +392,13 @@
       <div class="trackWrapper">
         <template repeat="{{track in playlist}}">
           <core-item>
+            <template if="{{track.bookmarkPosition}}">
+              <paper-icon-button date-id="{{track.id}}" on-tap="{{conBookDel}}" icon="bookmark"></paper-icon-button>
+            </template>
             <div flex style="margin-right:8px; overflow: hidden;">
               <template if="{{track.disk}}">D.{{track.disk}}.</template>
               <template if="{{track.track}}">T.{{track.track}}: </template>
               {{track.title}}
-              <template if="{{track.bookmarkPosition}}">
-                <core-icon icon="bookmark"></core-icon>
-              </template>
               <template if="{{app.playlist[app.playing].id === track.id}}">
                 <core-icon icon="av:volume-up"></core-icon>
               </template>
@@ -418,6 +418,12 @@
         </template>
       </div>
     </paper-dialog>
+    <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
+      <div style="min-width:280px"></div>
+      <h4>{{app.deletebookMarkConfirm}}</h4>
+      <paper-button affirmative>{{app.decline}}</paper-button>
+      <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{app.accept}}</paper-button>
+    </paper-action-dialog>
   </template>
   <script src="album-art.html.0.js"></script>
 </polymer-element>

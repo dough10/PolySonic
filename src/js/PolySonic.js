@@ -86,7 +86,6 @@
     };
     app.service = analytics.getService('PolySonic');
     app.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
-
   });
 
   app.shuffleSettings = {};
@@ -145,6 +144,7 @@
   app.markCreated = chrome.i18n.getMessage('markCreated');
   app.bookmarks = chrome.i18n.getMessage('bookmarks');
   app.createBookmarkText = chrome.i18n.getMessage('createBookmark');
+  app.deletebookMarkConfirm = chrome.i18n.getMessage('deletebookMarkConfirm');
 
   app.shuffleSizes = [
     20,
