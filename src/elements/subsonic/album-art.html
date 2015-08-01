@@ -396,6 +396,9 @@
               <template if="{{track.disk}}">D.{{track.disk}}.</template>
               <template if="{{track.track}}">T.{{track.track}}: </template>
               {{track.title}}
+              <template if="{{track.bookmarkPosition}}">
+                <core-icon icon="bookmark"></core-icon>
+              </template>
               <template if="{{app.playlist[app.playing].id === track.id}}">
                 <core-icon icon="av:volume-up"></core-icon>
               </template>

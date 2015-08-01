@@ -314,9 +314,15 @@ Polymer('album-wall', {
   mouseOut: function (event, detail, sender) {
     sender.setZ(1);
   },
-  
+
   playChoice: function (event, detail, sender) {
     this.$.playbackConfirm.open();
+    this.bookMark = {
+      id: sender.attributes.streamId.value,
+      title: sender.attributes.trackTitle.value,
+      bookmarkPosition: sender.attributes.bookmark.value,
+      cover: sender.attributes.cover.value
+    };
     this.bookmarkTime = this.app.secondsToMins(sender.attributes.bookmark.value / 1000);
   },
 
@@ -325,12 +331,12 @@ Polymer('album-wall', {
     this.app.dataLoading = true;
     var imgURL,
       obj = {
-        id: sender.attributes.streamId.value, 
-        artist: '', 
-        title: sender.attributes.trackTitle.value, 
+        id: sender.attributes.streamId.value,
+        artist: '',
+        title: sender.attributes.trackTitle.value,
       };
-    if (sender.attributes.bookmarkPosition.value) {
-      obj.bookmarkPosition = sender.attributes.bookmarkPosition.value;
+    if (sender.attributes.bookmark) {
+      obj.bookmarkPosition = sender.attributes.bookmark.value;
     }
     if (sender.attributes.cover.value) {
       this.app.getDbItem(sender.attributes.cover.value, function (ev) {

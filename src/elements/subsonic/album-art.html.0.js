@@ -329,6 +329,7 @@ Polymer('album-art', {
         title: tracks[i].title,
         duration: timeString,
         cover: this.imgURL,
+        bookmarkPosition: tracks[i].bookmarkPosition,
         palette: this.palette,
         disk: tracks[i].diskNumber,
         track: tracks[i].track
@@ -342,19 +343,9 @@ Polymer('album-art', {
   doQuery: function (callback) {
     'use strict';
     this.async(function () {
-      this.app.getDbItem(this.item, function (event) {
-        if (event.target.result) {
-          this.trackResponse = event.target.result;
-          this.processJSON(callback);
-        } else {
-          this.app.doXhr(this.app.buildUrl('getAlbum', {id: this.item}), 'json', function (e) {
-            this.trackResponse = e.target.response;
-            this.processJSON(callback);
-            this.app.putInDb(this.trackResponse, this.item, function () {
-              //console.log('JSON Data Added to indexedDB ' + this.item);
-            }.bind(this));
-          }.bind(this));
-        }
+      this.app.doXhr(this.app.buildUrl('getAlbum', {id: this.item}), 'json', function (e) {
+        this.trackResponse = e.target.response;
+        this.processJSON(callback);
       }.bind(this));
     });
   },
