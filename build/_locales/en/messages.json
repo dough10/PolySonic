@@ -338,5 +338,17 @@
   },
   "createBookmark": {
     "message": "Create Bookmark"
+  },
+  "deleteBookmarkConfirm": {
+    "message": "Remove bookmark Are you Sure?"
+  },
+  "fromStart": {
+    "message": "Play from Beginning"
+  },
+  "playFrom": {
+    "message": "Continue from "
+  },
+  "hasBookmark": {
+    "message": "File has bookmark"
   }
 }
