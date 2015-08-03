@@ -319,15 +319,12 @@ Polymer('album-art', {
     });
     var length = tracks.length;
     for (var i = 0; i < length; i++) {
-      var mins = Math.floor(tracks[i].duration / 60),
-        seconds = Math.floor(tracks[i].duration - (mins * 60)),
-        timeString = mins + ':' + ('0' + seconds).slice(-2);
       this.albumSize = this.albumSize + tracks[i].size;
       this.playlist.push({
         id: tracks[i].id,
         artist: tracks[i].artist,
         title: tracks[i].title,
-        duration: timeString,
+        duration: this.app.secondsToMins(tracks[i].duration),
         cover: this.imgURL,
         bookmarkPosition: tracks[i].bookmarkPosition,
         palette: this.palette,
@@ -435,13 +432,13 @@ Polymer('album-art', {
         this.app.playlist.length = 0;
         var length = response.length;
         for (var i = 0; i < length; i++) {
-          var mins = Math.floor(response[i].duration / 60),
-            obj = {
+          var obj = {
               id: response[i].id,
               artist: response[i].artist,
               title: response[i].title,
-              duration: mins + ':' + ('0' + Math.floor(response[i].duration - (mins * 60))).slice(-2)
-            }, artId = 'al-' + response[i].albumId;
+              duration: this.app.secondsToMins(response[i].duration)
+            },
+            artId = 'al-' + response[i].albumId;
           this.app.getDbItem(artId, function (artEvent) {
             if (artEvent.target.result) {
               obj.cover = window.URL.createObjectURL(artEvent.target.result);

@@ -492,10 +492,7 @@
         obj = {},
         artId;
       if (song.type === 'music') {
-        var mins = Math.floor(song.duration / 60),
-          seconds = Math.floor(song.duration - (mins * 60)),
-          timeString = mins + ':' + ('0' + seconds).slice(-2);
-        obj.duration = timeString;
+        obj.duration = app.secondsToMins(song.duration);
         artId = 'al-' + song.albumId;
       } else {
         artId = song.coverArt;
@@ -557,7 +554,7 @@
       }
     });
   };
-  
+
   app.secondsToMins = function (sec) {
     var mins = Math.floor(sec / 60);
     return mins + ':' + ('0' + Math.floor(sec - (mins * 60))).slice(-2);
@@ -588,12 +585,11 @@
       var tracks = e.target.response['subsonic-response'].playlist.entry;
       var length = tracks.length;
       for (var i = 0; i < length; i++) {
-        var mins = Math.floor(tracks[i].duration / 60);
         var obj = {
           id: tracks[i].id,
           artist: tracks[i].artist,
           title: tracks[i].title,
-          duration: mins + ':' + ('0' + Math.floor(tracks[i].duration - (mins * 60))).slice(-2),
+          duration: app.secondsToMins(tracks[i].duration),
           cover: "al-" + tracks[i].albumId
         };
         app.fixCoverArtForShuffle(obj, endLoop);
@@ -615,12 +611,11 @@
         var length = data.length;
         if (data && length !== 0) {
           for (var i = 0; i < length; i++) {
-            var mins = Math.floor(data[i].duration / 60);
             var obj = {
               id: data[i].id,
               artist: data[i].artist,
               title: data[i].title,
-              duration: mins + ':' + ('0' + Math.floor(data[i].duration - (mins * 60))).slice(-2),
+              duration: app.secondsToMins(data[i].duration),
               cover: "al-" + data[i].albumId
             };
             app.fixCoverArtForShuffle(obj, endLoop);
