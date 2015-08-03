@@ -314,6 +314,9 @@
         .ratings {
           float:right;
         }
+        paper-icon-button[icon='bookmark'] {
+          color:#db4437;
+        }
       </style>
       <paper-icon-button id="closeDialog" icon="arrow-back" on-tap="{{closeDialog}}"></paper-icon-button>
       <div id="topper"></div>
@@ -393,7 +396,7 @@
         <template repeat="{{track in playlist}}">
           <core-item>
             <template if="{{track.bookmarkPosition}}">
-              <paper-icon-button date-id="{{track.id}}" on-tap="{{conBookDel}}" icon="bookmark"></paper-icon-button>
+              <paper-icon-button ident="{{track.id}}" on-tap="{{conBookDel}}" icon="bookmark"></paper-icon-button>
             </template>
             <div flex style="margin-right:8px; overflow: hidden;">
               <template if="{{track.disk}}">D.{{track.disk}}.</template>

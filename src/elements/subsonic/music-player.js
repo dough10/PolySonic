@@ -144,6 +144,16 @@ Polymer('music-player',{
     this.currentSecs = Math.floor(audio.currentTime - (this.currentMins * 60));
     this.totalMins = Math.floor(audio.duration / 60);
     this.totalSecs = Math.floor(audio.duration - (this.totalMins * 60));
+    
+    if (this.app.playlist[this.app.playing].artist === '' 
+      && audio.currentTime > 30 && this.cTime < audio.currentTime && !this.app.waitingToPlay) {
+      console.log('in save range', audio.currentTime);
+    }
+    
+    if (this.app.playlist[this.app.playing].artist === '' 
+      && audio.currentTime === audio.duration - 30) {
+      console.log('almost over');    
+    }
 
     if (!audio.paused) {
       this.$.avIcon.icon = "av:pause";
@@ -162,6 +172,7 @@ Polymer('music-player',{
     } else {
       this.app.isNowPlaying = false;
     }
+    this.cTime = Math.floor(audio.currentTime);
     audio = null;
     e = null;
   },

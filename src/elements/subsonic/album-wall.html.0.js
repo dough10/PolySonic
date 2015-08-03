@@ -390,7 +390,7 @@ Polymer('album-wall', {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.refreshContent();
       } else {
-        app.doToast(e.target.response['subsonic-response'].error.message);
+        this.app.doToast(e.target.response['subsonic-response'].error.message);
       }
     }.bind(this));
   },

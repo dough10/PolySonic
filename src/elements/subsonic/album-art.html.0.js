@@ -468,6 +468,26 @@ Polymer('album-art', {
         this.app.doToast(chrome.i18n.getMessage("noResults"));
       }
     }.bind(this));
+  },
+  
+  conBookDel: function (event, detail, sender) {
+    this.delID = sender.attributes.ident.value;
+    this.$.bookmarkConfirm.open();
+  },
+  
+  deleteBookmark: function (event) {
+    this.app.doXhr(
+      this.app.buildUrl('deleteBookmark', {
+        id: this.delID
+      }), 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        this.doQuery(function () {
+          console.log('Bookmark Deleted');
+        });
+      } else {
+        this.app.doToast(e.target.response['subsonic-response'].error.message);
+      }
+    }.bind(this));
   }
 });
 
