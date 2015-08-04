@@ -1,4 +1,5 @@
 Polymer('music-player',{
+  count: 0,
   ready: function () {
     this.page = 0;
     this.audio = this.$.audio;
@@ -144,15 +145,27 @@ Polymer('music-player',{
     this.currentSecs = Math.floor(audio.currentTime - (this.currentMins * 60));
     this.totalMins = Math.floor(audio.duration / 60);
     this.totalSecs = Math.floor(audio.duration - (this.totalMins * 60));
-    
-    if (this.app.playlist[this.app.playing].artist === '' 
-      && audio.currentTime > 30 && this.cTime < audio.currentTime && !this.app.waitingToPlay) {
-      console.log('in save range', audio.currentTime);
+
+    if (this.app.playlist[this.app.playing].artist === ''
+      && audio.currentTime > 60 && !this.app.waitingToPlay) {
+      this.count = this.count + 1;
+      if (this.count >= 250) {
+        this.count = 0;
+        this.app.doXhr(this.app.buildUrl('createBookmark', {
+          id: this.app.playlist[this.app.playing].id,
+          position: Math.floor(audio.currentTime * 1000),
+          comment: this.app.playlist[this.app.playing].title + ' at ' + this.app.secondsToMins(audio.currentTime)
+        }), 'json', function (e) {
+          if (e.target.response['subsonic-response'].status === 'ok') {
+            console.log('Bookmark Created');
+          }
+        });
+      }
     }
-    
-    if (this.app.playlist[this.app.playing].artist === '' 
-      && audio.currentTime === audio.duration - 30) {
-      console.log('almost over');    
+
+    if (this.app.playing && this.app.playlist[this.app.playing].artist === ''
+      && Math.floor(audio.currentTime / audio.duration * 100) >= 96) {
+      console.log('almost over');
     }
 
     if (!audio.paused) {
@@ -172,7 +185,6 @@ Polymer('music-player',{
     } else {
       this.app.isNowPlaying = false;
     }
-    this.cTime = Math.floor(audio.currentTime);
     audio = null;
     e = null;
   },
@@ -230,7 +242,7 @@ Polymer('music-player',{
     var track = this.app.playlist[this.app.playing].title;
     this.app.$.playlistDialog.close();
     this.app.$.bookmarkDialog.open();
-    this.app.bookmarkComment = new Date().toString();
+    this.app.bookmarkComment = this.app.playlist[this.app.playing].title + ' at ' + this.app.secondsToMins(this.$.audio.currentTime);
   },
   submitBookmark: function () {
     this.app.submittingBookmark = true;
