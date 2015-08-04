@@ -251,6 +251,17 @@
         </div>
       </div>
     </paper-shadow>
+    <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
+      <div style="min-width:280px"></div>
+      <h4>{{app.deletebookMarkConfirm}}</h4>
+      <paper-button affirmative>{{app.decline}}</paper-button>
+      <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{app.accept}}</paper-button>
+    </paper-action-dialog>
+    <paper-action-dialog id="playbackConfirm" transition="core-transition-center">
+      <h4>{{hasBookmark}}</h4>
+      <paper-button style="background: green; color: white;" affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" artist="{{bookMark.artist}}" bookmark="{{bookMark.bookmarkPosition}}" trackTitle="{{bookMark.title}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{playFrom}} {{bookmarkTime}}</paper-button>
+      <paper-button affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" trackTitle="{{bookMark.title}}" artist="{{bookmark.artist}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{fromStart}}</paper-button>
+    </paper-action-dialog>
     <paper-dialog id="detailsDialog" style="min-height:695px; min-width:471px;" backdrop autoclosedisabled transition="core-transition-center">
       <style>
         #topper {
@@ -407,7 +418,12 @@
               </template>
             </div>
             <core-tooltip label="{{playTrackLabel}}" position="left">
-              <paper-icon-button icon="av:play-arrow" on-tap="{{playTrack}}" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
+              <template if="{{track.bookmarkPosition}}">
+                <paper-icon-button icon="av:play-arrow" on-tap="{{playChoice}}" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}" bookmark="{{track.bookmarkPosition}}"></paper-icon-button>
+              </template>
+              <template if="{{!track.bookmarkPosition}}">
+                <paper-icon-button icon="av:play-arrow" on-tap="{{playTrack}}" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
+              </template>
             </core-tooltip>
             <core-tooltip label="{{add2PlayQueue}}" position="left">
               <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
@@ -421,12 +437,6 @@
         </template>
       </div>
     </paper-dialog>
-    <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
-      <div style="min-width:280px"></div>
-      <h4>{{app.deletebookMarkConfirm}}</h4>
-      <paper-button affirmative>{{app.decline}}</paper-button>
-      <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{app.accept}}</paper-button>
-    </paper-action-dialog>
   </template>
   <script src="album-art.html.0.js"></script>
 </polymer-element>

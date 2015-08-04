@@ -1,5 +1,6 @@
 Polymer('music-player',{
   count: 0,
+  bookmarkDeleted: false,
   ready: function () {
     this.page = 0;
     this.audio = this.$.audio;
@@ -112,6 +113,16 @@ Polymer('music-player',{
     }
   },
   nextTrack: function () {
+    if (this.app.playlist[this.app.playing].artist === '') {
+      this.app.doXhr(this.app.buildUrl('deleteBookmark', {
+        id: this.app.playlist[this.app.playing].id
+      }), 'json', function (e) {
+        this.bookmarkDeleted = true;
+        if (e.target.response['subsonic-response'].status === 'failed') {
+          console.error(e.target.response['subsonic-response'].error.message);
+        }
+      });
+    }
     this.playNext(this.app.playing + 1);
   },
   lastTrack: function () {
@@ -147,7 +158,8 @@ Polymer('music-player',{
     this.totalSecs = Math.floor(audio.duration - (this.totalMins * 60));
 
     if (this.app.playlist[this.app.playing].artist === ''
-      && audio.currentTime > 60 && !this.app.waitingToPlay) {
+      && audio.currentTime > 60 && !this.app.waitingToPlay
+      && Math.floor(audio.currentTime / audio.duration * 100) < 98) {
       this.count = this.count + 1;
       if (this.count >= 250) {
         this.count = 0;
@@ -156,17 +168,24 @@ Polymer('music-player',{
           position: Math.floor(audio.currentTime * 1000),
           comment: this.app.playlist[this.app.playing].title + ' at ' + this.app.secondsToMins(audio.currentTime)
         }), 'json', function (e) {
-          if (e.target.response['subsonic-response'].status === 'ok') {
-            console.log('Bookmark Created');
+          this.bookmarkDeleted = false;
+          if (e.target.response['subsonic-response'].status === 'failed') {
+            console.error(e.target.response['subsonic-response'].error.message);
           }
         });
       }
     }
 
-    if (this.app.playing && this.app.playlist[this.app.playing].artist === ''
+/*    if (this.app.playlist[this.app.playing].artist === ''
       && Math.floor(audio.currentTime / audio.duration * 100) >= 96) {
-      console.log('almost over');
-    }
+      this.app.doXhr(this.app.buildUrl('deleteBookmark', {
+        id: this.app.playlist[this.app.playing].id
+      }), 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 'failed') {
+          console.error(e.target.response['subsonic-response'].error.message);
+        }
+      });
+    }*/
 
     if (!audio.paused) {
       this.$.avIcon.icon = "av:pause";

@@ -1,5 +1,8 @@
 /*global Polymer, console, chrome, document, Blob, window, Image, CoreAnimation */
 Polymer('album-art', {
+  fromStart: chrome.i18n.getMessage('fromStart'),
+  playFrom: chrome.i18n.getMessage('playFrom'),
+  hasBookmark: chrome.i18n.getMessage('hasBookmark'),
   moreLikeThis: chrome.i18n.getMessage("moreLikeThis"),
   backButton: chrome.i18n.getMessage("backButton"),
   playTrackLabel: chrome.i18n.getMessage("playTrack"),
@@ -161,6 +164,9 @@ Polymer('album-art', {
         track: 0
       }
     ];
+    if (sender.attributes.bookmark) {
+      this.app.playlist[0].bookmarkPosition = sender.attributes.bookmark.value;
+    }
     this.app.setFabColor(this.app.playlist[0]);
     if (this.app.playing === 0) {
       this.app.$.player.playAudio(this.app.playlist[0]);
@@ -258,16 +264,6 @@ Polymer('album-art', {
       }
     }.bind(this));
   },
-
-  /*paletteChanged: function () {
-    'use strict';
-    var length = this.playlist.length;
-    if (this.palette && length !== 0) {
-      for (var i = 0; i < length; i++) {
-        this.playlist[i].palette = this.palette;
-      }
-    }
-  },*/
 
   getPalette: function (callback) {
     'use strict';
@@ -469,25 +465,36 @@ Polymer('album-art', {
       }
     }.bind(this));
   },
-  
+
   conBookDel: function (event, detail, sender) {
     this.delID = sender.attributes.ident.value;
     this.$.bookmarkConfirm.open();
   },
-  
+
   deleteBookmark: function (event) {
     this.app.doXhr(
       this.app.buildUrl('deleteBookmark', {
         id: this.delID
       }), 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
-        this.doQuery(function () {
-          console.log('Bookmark Deleted');
-        });
+        this.doQuery(function () {});
       } else {
         this.app.doToast(e.target.response['subsonic-response'].error.message);
       }
     }.bind(this));
+  },
+
+  playChoice: function (event, detail, sender) {
+    this.$.playbackConfirm.open();
+    this.bookMark = {
+      id: sender.attributes.ident.value,
+      artist: sender.attributes.artist.value,
+      title: sender.attributes.trackTitle.value,
+      duration: sender.attributes.duration.value,
+      bookmarkPosition: sender.attributes.bookmark.value,
+      cover: sender.attributes.cover.value
+    };
+    this.bookmarkTime = this.app.secondsToMins(sender.attributes.bookmark.value / 1000);
   }
 });
 
