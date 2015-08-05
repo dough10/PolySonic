@@ -15,7 +15,7 @@ Changelog
 
 - fix bug when adding podcast to queue (caused app to hang @ loading spinner)
 
-- bookmark support
+- bookmark support (with a option in setting menu to enable autobookmarking of long files)
 
 - option to shuffle current play queue (icon will only show if 3 or more items in play queue)
 

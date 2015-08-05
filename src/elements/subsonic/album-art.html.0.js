@@ -195,11 +195,6 @@ Polymer('album-art', {
       } else {
         this.app.playing = 0;
       }
-      if (this.imgURL) {
-        this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";
-      } else {
-        this.playerArt.style.backgroundImage =  "url('" + defaultImgURL + "')";
-      }
     }
     this.app.doToast(chrome.i18n.getMessage("added2Queue"));
   },

@@ -170,6 +170,15 @@
           </div>
           <paper-toggle-button class="redSwitch" checked="{{app.analisticsEnabled}}" on-change="{{analisticsToggle}}"></paper-toggle-button>
         </div>
+        <br>
+        <br>
+        <br>
+        <div center horizontal layout class="switchBox">
+          <div flex class="switchLabel">
+            Autobookmark long files
+          </div>
+          <paper-toggle-button class="redSwitch" checked="{{app.autoBookmark}}" on-change="{{toggleAutobookmark}}"></paper-toggle-button>
+        </div>
       </core-label>
       <br>
       <paper-button on-tap="{{showQuota}}">{{cacheDetails}}</paper-button>

@@ -24,6 +24,7 @@
       app.user = result.user;
       app.pass = result.pass;
       app.listMode = 'cover';
+      app.autoBookmark = Boolean(result.autoBookmark);
       app.bitRate = result.bitRate || 320;
       app.shuffleSettings.size = app.shuffleSettings.size || '50';
       app.version = '1.11.0';

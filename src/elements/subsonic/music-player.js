@@ -113,11 +113,10 @@ Polymer('music-player',{
     }
   },
   nextTrack: function () {
-    if (this.app.playlist[this.app.playing].artist === '') {
+    if (this.app.autoBookmark && this.$.audio.duration > 1200) {
       this.app.doXhr(this.app.buildUrl('deleteBookmark', {
         id: this.app.playlist[this.app.playing].id
       }), 'json', function (e) {
-        this.bookmarkDeleted = true;
         if (e.target.response['subsonic-response'].status === 'failed') {
           console.error(e.target.response['subsonic-response'].error.message);
         }
@@ -157,7 +156,7 @@ Polymer('music-player',{
     this.totalMins = Math.floor(audio.duration / 60);
     this.totalSecs = Math.floor(audio.duration - (this.totalMins * 60));
 
-    if (this.app.playlist[this.app.playing].artist === ''
+    if (this.app.autoBookmark && audio.duration > 1200
       && audio.currentTime > 60 && !this.app.waitingToPlay
       && Math.floor(audio.currentTime / audio.duration * 100) < 98) {
       this.count = this.count + 1;
@@ -168,24 +167,12 @@ Polymer('music-player',{
           position: Math.floor(audio.currentTime * 1000),
           comment: this.app.playlist[this.app.playing].title + ' at ' + this.app.secondsToMins(audio.currentTime)
         }), 'json', function (e) {
-          this.bookmarkDeleted = false;
           if (e.target.response['subsonic-response'].status === 'failed') {
             console.error(e.target.response['subsonic-response'].error.message);
           }
         });
       }
     }
-
-/*    if (this.app.playlist[this.app.playing].artist === ''
-      && Math.floor(audio.currentTime / audio.duration * 100) >= 96) {
-      this.app.doXhr(this.app.buildUrl('deleteBookmark', {
-        id: this.app.playlist[this.app.playing].id
-      }), 'json', function (e) {
-        if (e.target.response['subsonic-response'].status === 'failed') {
-          console.error(e.target.response['subsonic-response'].error.message);
-        }
-      });
-    }*/
 
     if (!audio.paused) {
       this.$.avIcon.icon = "av:pause";
