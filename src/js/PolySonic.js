@@ -570,7 +570,7 @@
   };
 
   app.createBookmark = function () {
-    app.$.bookmarkDialog.open();
+    app.$.player.createBookmark();
   };
 
   app.submitBookmark = function () {

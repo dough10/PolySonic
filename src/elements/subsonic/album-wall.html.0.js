@@ -551,7 +551,7 @@ Polymer('album-wall', {
   playSomething: function (id, callback) {
     'use strict';
     var album = this.$.all.querySelector('#' + id);
-    album.playAlbum();
+    album.chooseOption();
     callback();
   },
 

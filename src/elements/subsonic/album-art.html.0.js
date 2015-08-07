@@ -198,10 +198,44 @@ Polymer('album-art', {
     }
     this.app.doToast(chrome.i18n.getMessage("added2Queue"));
   },
-
+  
+  chooseOption: function () {
+    if (this.bookmarkIndex !== undefined) {
+      this.app.dataLoading = false;
+      this.bookmarkTime = this.app.secondsToMins(this.playlist[this.bookmarkIndex].bookmarkPosition / 1000);
+      this.$.albumPlaybackConfirm.open();
+      if (this.$.detailsDialog.opened) {
+        this.$.detailsDialog.close();
+      }
+    } else {
+      this.playAlbum();
+    }
+  },
+  
+  playFromBookmark: function () {
+    'use strict';
+    this.shortPlaylist = this.playlist.splice(this.bookmarkIndex);
+    this.app.dataLoading = false;
+    this.$.detailsDialog.close();
+    this.app.$.player.getImageForPlayer(this.imgURL, function () {
+      this.app.playlist = this.shortPlaylist;
+      this.app.setFabColor(this.app.playlist[0]);
+      if (this.app.playing === 0) {
+        this.app.$.player.playAudio(this.app.playlist[0]);
+      } else {
+        this.app.playing = 0;
+      }
+    }.bind(this));
+  },
 
   playAlbum: function () {
     'use strict';
+    var pLength = this.playlist.length;
+    for (var i = 0; i < pLength; i++) {
+      if (this.playlist[i].bookmarkPosition) {
+        delete this.playlist[i].bookmarkPosition;
+      }
+    }
     this.app.dataLoading = false;
     this.$.detailsDialog.close();
     this.app.$.player.getImageForPlayer(this.imgURL, function () {
@@ -272,7 +306,7 @@ Polymer('album-art', {
     'use strict';
     this.app.dataLoading = true;
     this.getPalette(function () {
-      this.doQuery(this.playAlbum.bind(this));
+      this.doQuery(this.chooseOption.bind(this));
     }.bind(this));
   },
 
@@ -322,6 +356,9 @@ Polymer('album-art', {
         disk: tracks[i].diskNumber,
         track: tracks[i].track
       });
+      if (tracks[i].bookmarkPosition && this.bookmarkIndex === undefined) {
+        this.bookmarkIndex = i;
+      }
       if (i === length - 1) {
         this.async(callback);
       }
@@ -341,6 +378,7 @@ Polymer('album-art', {
   itemChanged: function () {
     'use strict';
     this.async(function itemUpdate() {
+      this.bookmarkIndex = undefined;
       this.showArt(this.defaultImgURL);
       if (this.item && !this.app.scrolling) {
         var artId = "al-" + this.item;

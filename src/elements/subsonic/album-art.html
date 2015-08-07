@@ -231,6 +231,22 @@
         transform: translate3d(0, 0, 0);
       }
     </style>
+    <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
+      <div style="min-width:280px"></div>
+      <h4>{{app.deletebookMarkConfirm}}</h4>
+      <paper-button affirmative>{{app.decline}}</paper-button>
+      <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{app.accept}}</paper-button>
+    </paper-action-dialog>
+    <paper-action-dialog id="playbackConfirm" transition="core-transition-center">
+      <h4>{{hasBookmark}}</h4>
+      <paper-button style="background: green; color: white;" affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" artist="{{bookMark.artist}}" bookmark="{{bookMark.bookmarkPosition}}" trackTitle="{{bookMark.title}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{playFrom}} {{bookmarkTime}}</paper-button>
+      <paper-button affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" trackTitle="{{bookMark.title}}" artist="{{bookmark.artist}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{fromStart}}</paper-button>
+    </paper-action-dialog>
+    <paper-action-dialog id="albumPlaybackConfirm" transition="core-transition-center">
+      <h4>{{hasBookmark}}</h4>
+      <paper-button style="background: green; color: white;" affirmative on-tap="{{playFromBookmark}}">{{playFrom}} Track {{bookmarkIndex + 1}} @ {{bookmarkTime}}</paper-button>
+      <paper-button affirmative on-tap="{{playAlbum}}">{{fromStart}}</paper-button>
+    </paper-action-dialog>
     <paper-shadow z="1" id="card" page="cover" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
       <div class="wrapper">
         <template if="{{isLoading}}">
@@ -251,17 +267,6 @@
         </div>
       </div>
     </paper-shadow>
-    <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
-      <div style="min-width:280px"></div>
-      <h4>{{app.deletebookMarkConfirm}}</h4>
-      <paper-button affirmative>{{app.decline}}</paper-button>
-      <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{app.accept}}</paper-button>
-    </paper-action-dialog>
-    <paper-action-dialog id="playbackConfirm" transition="core-transition-center">
-      <h4>{{hasBookmark}}</h4>
-      <paper-button style="background: green; color: white;" affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" artist="{{bookMark.artist}}" bookmark="{{bookMark.bookmarkPosition}}" trackTitle="{{bookMark.title}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{playFrom}} {{bookmarkTime}}</paper-button>
-      <paper-button affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" trackTitle="{{bookMark.title}}" artist="{{bookmark.artist}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{fromStart}}</paper-button>
-    </paper-action-dialog>
     <paper-dialog id="detailsDialog" style="min-height:695px; min-width:471px;" backdrop autoclosedisabled transition="core-transition-center">
       <style>
         #topper {
