@@ -56,16 +56,10 @@ Polymer('animated-fab',{
   isNowPlayingChanged: function (newVal, oldVal) {
     if (newVal) {
       this.bottomPos = 105;
-      clearTimeout(this.timer);
-      this.timer = 0;
     } else {
       if (this.ready && this.app) {
         if (!this.app.playlist[0]) {
           this.bottomPos = 16;
-        } else {
-          this.timer = setTimeout(function () {
-            this.bottomPos = 16;
-          }.bind(this), 120000);
         }
       }
     }
