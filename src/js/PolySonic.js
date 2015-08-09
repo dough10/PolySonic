@@ -444,6 +444,7 @@
   }
 
   app.shufflePlaylist = function () {
+    app.tracker.sendEvent('Playlist Shuffled', new Date());
     var temp = app.playlist[app.playing];
     app.playlist.splice(app.playing, 1);
     shuffleArray(app.playlist);
@@ -602,6 +603,7 @@
   };
 
   app.shufflePlay = function () {
+    app.tracker.sendEvent('Shuffle From Menu', new Date());
     app.dataLoading = true;
     app.shuffleLoading = true;
     app.playlist.length = 0;
@@ -654,6 +656,7 @@
     clear playlist
   */
   app.clearPlaylist = function () {
+    app.tracker.sendEvent('Clear Playlist', new Date());
     app.$.player.$.audio.pause();
     app.$.playlistDialog.close();
     app.page = 0;
@@ -1013,6 +1016,7 @@
   /*jslint unparam: true*/
   app.selectAction = function (event, detail, sender) {
     var wall = app.$.wall;
+    app.tracker.sendEvent('Sorting By ' + wall.sort, new Date());
     if (!app.narrow && app.page !== 0) {
       app.page = 0;
       app.async(function () {
@@ -1065,6 +1069,7 @@
   /*jslint unparam: false*/
 
   app.getPodcast = function () {
+    app.tracker.sendEvent('Showing Podcast', new Date());
     if (!app.narrow && app.page !== 0) {
       app.page = 0;
       app.async(function () {
@@ -1080,6 +1085,7 @@
   };
 
   app.getStarred = function () {
+    app.tracker.sendEvent('Showing Favorites', new Date());
     if (!app.narrow && app.page !== 0) {
       app.page = 0;
       app.async(function () {
@@ -1095,6 +1101,7 @@
   };
 
   app.getArtist = function () {
+    app.tracker.sendEvent('Showing Artist List', new Date());
     if (!app.narrow && app.page !== 0) {
       app.page = 0;
       app.async(function () {
@@ -1110,6 +1117,7 @@
   };
 
   app.gotoSettings = function () {
+    app.tracker.sendEvent('Settings Page', new Date());
     app.async(function () {
       app.$.panel.closeDrawer();
       app.page = 2;
@@ -1117,8 +1125,7 @@
   };
 
   app.refreshPodcast = function (event, detail, sender) {
-    var animation = new CoreAnimation(),
-      url;
+    var animation = new CoreAnimation();
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
@@ -1137,6 +1144,7 @@
   };
 
   app.addChannel = function () {
+    app.tracker.sendEvent('Adding Podcast', new Date());
     if (!app.castURL) {
       app.doToast(app.urlError);
     }

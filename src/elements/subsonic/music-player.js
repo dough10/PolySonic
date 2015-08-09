@@ -48,12 +48,16 @@ Polymer('music-player',{
     var minis = document.querySelectorAll('mini-player');
     var length = minis.length;
     for (var i = 0; i < length; i++) {
-      minis[i].setPlaying({artist: obj.artist, title: obj.title, cover: obj.cover});
+      minis[i].setPlaying(obj);
     }
     if (obj.artist === '') {
       this.app.currentPlaying = obj.title;
       this.note.title = obj.title;
-      this.audio.src = this.app.buildUrl('stream', {format: 'raw', estimateContentLength: true, id: obj.id});
+      this.audio.src = this.app.buildUrl('stream', {
+        format: 'raw',
+        estimateContentLength: true,
+        id: obj.id
+      });
     } else {
       this.app.currentPlaying = obj.artist + ' - ' + obj.title;
       this.note.title = obj.artist + ' - ' + obj.title;
@@ -73,7 +77,7 @@ Polymer('music-player',{
     this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.bg.style.backgroundImage = "url('" + obj.cover + "')";
-    this.app.tracker.sendEvent('Audio', 'Started');
+    this.app.tracker.sendEvent('Playback Started', new Date());
     if (this.app.activeUser.scrobblingEnabled) {
       this.app.doXhr(this.app.buildUrl('scrobble', {id: obj.id, time: new Date().getTime()}), 'json', function (e) {
         if (e.target.response['subsonic-response'].status === 'failed') {
