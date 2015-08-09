@@ -29,6 +29,21 @@
             this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
           }
           this.$.ajax.go();
+          this.count = 0;
+          if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = 0;
+          } else {
+            this.interval = setInterval(function () {
+              this.count + 1;
+              if (this.count === 20) {
+                this.$.ajax.abort();
+                clearInterval(this.interval);
+                this.count = 0;
+                this.interval = 0;
+              }
+            }, 1000);
+          }
         }
       },
       hidePass: function (event, detail, sender) {
@@ -57,7 +72,6 @@
       responseChanged: function () {
         'use strict';
         var wall = document.getElementById('wall');
-        
         if (this.response) {
           if (this.response['subsonic-response'].status === 'ok') {
             chrome.storage.sync.set({
@@ -73,15 +87,15 @@
             this.app.doToast("Loading Data");
             this.app.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
             this.app.$.firstRun.close();
-            this.app.doXhr(this.url + "/rest/getMusicFolders.view?u=" + this.user + "&p=" + this.pass + "&f=json&v=" + this.version + "&c=PolySonic", 'json', function (e) {
+            this.app.doXhr(this.app.buildUrl('getMusicFolders', ''), 'json', function (e) {
               this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
               if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                 this.app.$.sortBox.style.display = 'none';
               }
             }.bind(this));
-            setTimeout(function () {
+            this.async(function () {
               wall.doAjax();
-            }, 100);
+            }, null, 100);
           } else {
             console.log(this.response);
             this.app.doToast(this.response['subsonic-response'].error.message);
@@ -93,23 +107,20 @@
         /*
           will display any ajax error in a toast
         */
-        if (this.error.statusCode === 0) {
+        if (this.error) {
+          this.app.$.firstRun.open();
           this.app.doToast(chrome.i18n.getMessage('connectionError'));
         }
       },
-      
       urlChanged: function () {
         this.post.url = this.url;
       },
-      
       userChanged: function () {
         this.post.user = this.user;
       },
-      
       passChanged: function () {
         this.post.pass = this.pass;
       },
-
       versionChanged: function () {
         this.post.version = this.version;
       }

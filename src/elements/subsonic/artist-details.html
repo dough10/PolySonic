@@ -11,11 +11,51 @@
 </head><body><polymer-element name="artist-details" attributes="artistId listMode">
   <template>
     <style>
+      .host {
+        padding-right: 8px;
+        padding-left: 8px;
+      }
       #all {
         margin: auto;
         text-align: center;
       }
+      img {
+        display: block;
+        margin-right: 8px;
+      }
+      .card {
+        margin:auto;
+        margin-top:8px;
+        margin-bottom:8px;
+        display:block;
+        background-color:#FFFFFF;
+        border-radius:2px;
+        color:#000000;
+        border:1px solid #d8d8d8;
+        text-align:center;
+        font-size:10pt;
+        position:relative;
+        max-width: 800px;
+        padding: 8px;
+      }
+      a {
+        text-decoration: none;
+        color: #000;
+      }
     </style>
+    <div class="host">
+      <paper-shadow class='card' z='1' on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
+        <div horizontal layout>
+          <img height="250" width="250" id="bioImage">
+          <div id="bio" flex></div>
+        </div>
+        <paper-tabs nobar noink noslide scrollable>
+          <template repeat="{{artistBio.similarArtist}}">
+            <paper-tab on-tap="{{changeArtist}}" data-id="{{id}}" noink>{{name}}</paper-tab>
+          </template>
+        </paper-tabs>
+      </paper-shadow>
+    </div>
     <div id="all">
       <template repeat="{{data}}">
         <album-art id='ac{{id}}' listMode="cover" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" isFavorite="{{starred}}"></album-art>

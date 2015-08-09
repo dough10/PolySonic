@@ -101,6 +101,10 @@
                 {{playlistsButton}}
               </paper-item>
             </template>
+            <paper-item on-tap="{{openBookmarks}}">
+              <core-icon icon="bookmark"></core-icon>
+              {{bookmarks}}
+            </paper-item>
             <paper-item on-tap="{{gotoSettings}}">
               <core-icon icon="settings"></core-icon>
               {{settingsButton}}
@@ -248,6 +252,14 @@
                     <core-icon icon="av:repeat" id="repeatButton" style="margin-right:24px;"></core-icon>
                     {{repeatText}}
                   </paper-item>
+                  <paper-item on-tap="{{createBookmark}}">
+                    <core-icon icon="bookmark" style="margin-right:24px;"></core-icon>
+                    Create Bookmark
+                  </paper-item>
+                  <paper-item hidden?="{{!playlist[2]}}" on-tap="{{shufflePlaylist}}">
+                    <core-icon icon="av:shuffle" style="margin-right:24px;"></core-icon>
+                    {{shuffleList}}
+                  </paper-item>
                   <paper-item on-tap="{{clearPlaylist}}" style='-webkit-app-region: no-drag;'>
                     <core-icon icon="av:not-interested" style="margin-right:24px; color:#db4437;"></core-icon>
                     {{clearQueue}}
@@ -273,6 +285,46 @@
               </paper-item>
             </template>
           </core-menu>
+        </div>
+      </paper-dialog>
+
+      <paper-dialog id="showBookmarks" style="min-height:600px; min-width:471px;" transition="core-transition-center">
+        <div horizontal layout>
+          <div style="font-weight: bold; font-size: 16px;" flex>Bookmarks</div>
+          <div>
+            <core-tooltip label="{{closeLabel}}" position="left">
+              <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeBookmarks}}"></paper-icon-button>
+            </core-tooltip>
+          </div>
+        </div>
+        <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
+          <template repeat="{{allBookmarks}}">
+            <core-item>
+              <div flex style="font-size: 16px; margin-left: 16px; overflow:hidden;">
+                {{comment}}
+              </div>
+              <div>
+                <paper-icon-button icon="av:play-arrow" on-tap="{{queBookmark}}" data-id="{{entry.id}}" data-pos="{{entry.bookmarkPosition}}"></paper-icon-button>
+                <paper-icon-button icon="remove-circle" on-tap="{{conBookDel}}" data-id="{{entry.id}}" style="margin-right:8px; color:#db4437;"></paper-icon-button>
+              </div>
+            </core-item>
+          </template>
+        </div>
+      </paper-dialog>
+
+      <paper-dialog id="bookmarkDialog"  transition="core-transition-bottom">
+        <core-tooltip style=" position:absolute; top:8px; right:8px;" position="left" label="{{closeLabel}}">
+          <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeBookmark}}"></paper-icon-button>
+        </core-tooltip>
+        <div style="text-align:center">
+          <paper-input style="min-width:280px;" value="{{bookmarkComment}}" label="Bookmark Comment"></paper-input>
+          <br>
+          <paper-button on-tap="{{submitBookmark}}">
+            {{submitButton}}
+            <div hidden?="{{!submittingBookmark}}" style="position:absolute; top:0;bottom:0;right:0;left:0;background: rgba(255,255,255,0.7);display: -webkit-box; display: -moz-box; display: -ms-flexbox;display: -webkit-flex; display: flex; -webkit-justify-content: center;-webkit-align-items: center;align-items:center;justify-content:center;">
+              <paper-spinner active=""></paper-spinner>
+            </div>
+          </paper-button>
         </div>
       </paper-dialog>
 
@@ -436,7 +488,7 @@
           }
         </style>
         <div horizontal layout>
-          <div flex></div>
+          <div style="font-weight: bold; font-size: 16px;" flex>Playlists</div>
           <div>
             <core-tooltip label="{{closeLabel}}" position="left">
               <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closePlaylists}}"></paper-icon-button>
@@ -526,6 +578,13 @@
         <paper-button affirmative ident="{{delID}}" on-tap="{{deletePlaylist}}">{{accept}}</paper-button>
       </paper-action-dialog>
 
+      <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
+        <div style="min-width:280px"></div>
+        <h4>{{deletebookMarkConfirm}}</h4>
+        <paper-button affirmative on-tap="{{openBookmarks}}">{{decline}}</paper-button>
+        <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{accept}}</paper-button>
+      </paper-action-dialog>
+
       <paper-action-dialog id='reloadAppDialog' autoclosedisabled backdrop transition="core-transition-center" layered>
         <div style="min-width:280px"></div>
         <h4>{{settingsDeleted}}</h4>
@@ -573,7 +632,7 @@
 
       <paper-dialog id="downloadDialog" style="min-height:695px; min-width:471px;" transition="core-transition-top">
         <div horizontal layout>
-          <div flex></div>
+          <div style="font-weight: bold; font-size: 16px;" flex>Downloads</div>
           <div>
             <core-tooltip position="left" label="{{closeLabel}}">
               <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeDownloads}}"></paper-icon-button>

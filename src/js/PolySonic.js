@@ -24,6 +24,7 @@
       app.user = result.user;
       app.pass = result.pass;
       app.listMode = 'cover';
+      app.autoBookmark = Boolean(result.autoBookmark);
       app.bitRate = result.bitRate || 320;
       app.shuffleSettings.size = app.shuffleSettings.size || '50';
       app.version = '1.11.0';
@@ -60,12 +61,12 @@
               });
             } else {
               app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-              app.$.firstRun.toggle();
+              app.$.firstRun.open();
               app.doToast(e.target.response['subsonic-response'].error.meessage);
             }
           } else {
             app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-            app.$.firstRun.toggle();
+            app.$.firstRun.open();
             app.doToast(e.target.response['subsonic-response'].error.meessage);
           }
         });
@@ -86,7 +87,6 @@
     };
     app.service = analytics.getService('PolySonic');
     app.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
-
   });
 
   app.shuffleSettings = {};
@@ -140,6 +140,12 @@
   app.invalidLicense = chrome.i18n.getMessage("invalidLicense");
   app.adjustVolumeLabel = chrome.i18n.getMessage("adjustVolumeLabel");
   app.showDownloads = chrome.i18n.getMessage('showDownloads');
+  app.shuffleList = chrome.i18n.getMessage('shuffleList');
+  app.randomized = chrome.i18n.getMessage('randomized');
+  app.markCreated = chrome.i18n.getMessage('markCreated');
+  app.bookmarks = chrome.i18n.getMessage('bookmarks');
+  app.createBookmarkText = chrome.i18n.getMessage('createBookmark');
+  app.deletebookMarkConfirm = chrome.i18n.getMessage('deletebookMarkConfirm');
 
   app.shuffleSizes = [
     20,
@@ -256,6 +262,9 @@
     app.dataLoading = false;
     app.doToast(chrome.i18n.getMessage("connectionError"));
     console.error(e);
+    if (!document.querySelector('#loader').classList.contains("hide")) {
+      app.$.firstRun.open();
+    }
   }
 
   app.doXhr = function (url, dataType, callback) {
@@ -422,6 +431,156 @@
     }
   }
 
+  function shuffleArray(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+    while (0 !== currentIndex) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+    return array;
+  }
+
+  app.shufflePlaylist = function () {
+    app.tracker.sendEvent('Playlist Shuffled', new Date());
+    var temp = app.playlist[app.playing];
+    app.playlist.splice(app.playing, 1);
+    shuffleArray(app.playlist);
+    app.playlist.unshift(temp);
+    app.doToast(app.randomized);
+    if (app.playing !== 0) {
+      app.alreadyPlaying = true; // tell player this track is already playing other wise will start play over again
+      app.async(function () {
+        app.playing = 0;
+      });
+    }
+  };
+
+  app.openBookmarks = function () {
+    app.closeDrawer(function () {
+      app.doXhr(app.buildUrl('getBookmarks', ''), 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 'ok') {
+          app.allBookmarks = e.target.response['subsonic-response'].bookmarks.bookmark;
+          app.dataLoading = false;
+          app.$.showBookmarks.open();
+        } else {
+          app.dataLoading = false;
+          app.doToast(e.target.response['subsonic-response'].error.message);
+        }
+      });
+    });
+  };
+
+  // playback for bookmarks
+  function handlePlay(obj) {
+    app.dataLoading = false;
+    app.playlist = [obj];
+    if (app.playing === 0) {
+      app.$.player.playAudio(obj);
+    } else {
+      app.playing = 0;
+    }
+    app.setFabColor(obj);
+  }
+
+  // que a bookmark
+  app.queBookmark = function (event) {
+    var resumePos = event.path[0].dataset.pos;
+    app.dataLoading = true;
+    app.doXhr(app.buildUrl('getSong', {
+      id: event.path[0].dataset.id
+    }), 'json', function (e) {
+      app.$.showBookmarks.close();
+      var song = e.target.response['subsonic-response'].song,
+        obj = {},
+        artId;
+      if (song.type === 'music') {
+        obj.duration = app.secondsToMins(song.duration);
+        artId = 'al-' + song.albumId;
+      } else {
+        artId = song.coverArt;
+      }
+      obj.id = song.id;
+      obj.album = song.album;
+      obj.title = decodeURIComponent(song.title);
+      if (song.artist === 'Podcast') {
+        obj.artist = '';
+      } else {
+        obj.artist = song.artist;
+      }
+      obj.bookmarkPosition = song.bookmarkPosition;
+      app.getDbItem(artId, function (cov) {
+        if (cov.target.result) {
+          var img = cov.target.result;
+          obj.cover = window.URL.createObjectURL(img);
+          app.getDbItem(artId + '-palette', function (palette) {
+            obj.palette = palette.target.result;
+            handlePlay(obj);
+          });
+        } else {
+          app.getImageFile(
+            app.buildUrl('getCoverArt', {
+              id: artId
+            }), 'json', function (xhrCov) {
+            var img = xhrCov.target.result;
+            obj.cover = window.URL.createObjectURL(img);
+            app.colorThiefHandler(obj.cover, artId, function (colorArray) {
+              obj.palette = colorArray;
+              handlePlay(obj);
+            });
+          });
+        }
+      });
+    });
+  };
+
+  app.conBookDel = function (event) {
+    app.$.showBookmarks.close();
+    app.delID = event.path[0].dataset.id;
+    app.$.bookmarkConfirm.open();
+  };
+
+  app.deleteBookmark = function (event) {
+    app.doXhr(
+      app.buildUrl('deleteBookmark', {
+        id: app.delID
+      }), 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        app.dataLoading = true;
+        app.doXhr(app.buildUrl('getBookmarks', ''), 'json', function (ev) {
+          app.allBookmarks = ev.target.response['subsonic-response'].bookmarks.bookmark;
+          app.$.showBookmarks.open();
+          app.dataLoading = false;
+        });
+      } else {
+        app.doToast(e.target.response['subsonic-response'].error.message);
+      }
+    });
+  };
+
+  app.secondsToMins = function (sec) {
+    var mins = Math.floor(sec / 60);
+    return mins + ':' + ('0' + Math.floor(sec - (mins * 60))).slice(-2);
+  };
+
+  app.closeBookmarks = function () {
+    app.$.showBookmarks.close();
+  };
+
+  app.closeBookmark = function () {
+    app.$.bookmarkDialog.close();
+  };
+
+  app.createBookmark = function () {
+    app.$.player.createBookmark();
+  };
+
+  app.submitBookmark = function () {
+    app.$.player.submitBookmark();
+  };
+
   app.playPlaylist = function (event, detail, sender) {
     app.dataLoading = true;
     app.playlist = null;
@@ -431,12 +590,11 @@
       var tracks = e.target.response['subsonic-response'].playlist.entry;
       var length = tracks.length;
       for (var i = 0; i < length; i++) {
-        var mins = Math.floor(tracks[i].duration / 60);
         var obj = {
           id: tracks[i].id,
           artist: tracks[i].artist,
           title: tracks[i].title,
-          duration: mins + ':' + ('0' + Math.floor(tracks[i].duration - (mins * 60))).slice(-2),
+          duration: app.secondsToMins(tracks[i].duration),
           cover: "al-" + tracks[i].albumId
         };
         app.fixCoverArtForShuffle(obj, endLoop);
@@ -445,6 +603,7 @@
   };
 
   app.shufflePlay = function () {
+    app.tracker.sendEvent('Shuffle From Menu', new Date());
     app.dataLoading = true;
     app.shuffleLoading = true;
     app.playlist.length = 0;
@@ -458,12 +617,11 @@
         var length = data.length;
         if (data && length !== 0) {
           for (var i = 0; i < length; i++) {
-            var mins = Math.floor(data[i].duration / 60);
             var obj = {
               id: data[i].id,
               artist: data[i].artist,
               title: data[i].title,
-              duration: mins + ':' + ('0' + Math.floor(data[i].duration - (mins * 60))).slice(-2),
+              duration: app.secondsToMins(data[i].duration),
               cover: "al-" + data[i].albumId
             };
             app.fixCoverArtForShuffle(obj, endLoop);
@@ -498,6 +656,7 @@
     clear playlist
   */
   app.clearPlaylist = function () {
+    app.tracker.sendEvent('Clear Playlist', new Date());
     app.$.player.$.audio.pause();
     app.$.playlistDialog.close();
     app.page = 0;
@@ -630,7 +789,7 @@
   app.savePlayQueue = function () {
     app.$.playlistDialog.close();
     app.$.createPlaylist.open();
-    app.defaultName = new Date().toGMTString();
+    app.defaultName = new Date().toString();
   };
 
   function save2PlayQueueCallback (e) {
@@ -857,6 +1016,7 @@
   /*jslint unparam: true*/
   app.selectAction = function (event, detail, sender) {
     var wall = app.$.wall;
+    app.tracker.sendEvent('Sorting By ' + wall.sort, new Date());
     if (!app.narrow && app.page !== 0) {
       app.page = 0;
       app.async(function () {
@@ -909,6 +1069,7 @@
   /*jslint unparam: false*/
 
   app.getPodcast = function () {
+    app.tracker.sendEvent('Showing Podcast', new Date());
     if (!app.narrow && app.page !== 0) {
       app.page = 0;
       app.async(function () {
@@ -924,6 +1085,7 @@
   };
 
   app.getStarred = function () {
+    app.tracker.sendEvent('Showing Favorites', new Date());
     if (!app.narrow && app.page !== 0) {
       app.page = 0;
       app.async(function () {
@@ -939,6 +1101,7 @@
   };
 
   app.getArtist = function () {
+    app.tracker.sendEvent('Showing Artist List', new Date());
     if (!app.narrow && app.page !== 0) {
       app.page = 0;
       app.async(function () {
@@ -954,6 +1117,7 @@
   };
 
   app.gotoSettings = function () {
+    app.tracker.sendEvent('Settings Page', new Date());
     app.async(function () {
       app.$.panel.closeDrawer();
       app.page = 2;
@@ -961,8 +1125,7 @@
   };
 
   app.refreshPodcast = function (event, detail, sender) {
-    var animation = new CoreAnimation(),
-      url;
+    var animation = new CoreAnimation();
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
@@ -981,6 +1144,7 @@
   };
 
   app.addChannel = function () {
+    app.tracker.sendEvent('Adding Podcast', new Date());
     if (!app.castURL) {
       app.doToast(app.urlError);
     }
@@ -1111,3 +1275,7 @@
   };
 
 }());
+
+
+
+

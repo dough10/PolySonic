@@ -64,12 +64,14 @@
         -webkit-transform: translate3d(0, -10px, 0);
         transform: translate3d(0, -10px, 0);
       }
-      
       core-tooltip:hover::shadow .core-tooltip,
       core-tooltip:focus::shadow .core-tooltip {
         opacity: 1;
         -webkit-transform: translate3d(0, 0, 0);
         transform: translate3d(0, 0, 0);
+      }
+      paper-icon-button[icon='bookmark'] {
+        color:#db4437;
       }
     </style>
     <core-ajax auto="false" id="ajax" method="GET" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
@@ -136,13 +138,26 @@
                   <template repeat="{{model.episode}}">
                     <template if="{{streamId}}">
                       <core-item>
+                        <template if="{{bookmarkPosition}}">
+                          <paper-icon-button on-tap="{{conBookDel}}" data-id="{{streamId}}" icon="bookmark"></paper-icon-button>
+                        </template>
                         <div flex class="title">
                           {{title}}
+                          <template if="{{app.playlist[app.playing].id === streamId}}">
+                            <core-icon icon="av:volume-up"></core-icon>
+                          </template>
                         </div>
                         <template if="{{status === 'completed'}}">
-                          <core-tooltip label="{{labels.playPodcastLabel}}" position="left">
-                            <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
-                          </core-tooltip>
+                          <template if="{{!bookmarkPosition}}">
+                            <core-tooltip label="{{labels.playPodcastLabel}}" position="left">
+                              <paper-icon-button on-tap="{{playPodcast}}" icon="av:play-arrow" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
+                            </core-tooltip>
+                          </template>
+                          <template if="{{bookmarkPosition}}">
+                            <core-tooltip label="{{labels.playPodcastLabel}}" position="left">
+                              <paper-icon-button on-tap="{{playChoice}}" icon="av:play-arrow" bookmark="{{bookmarkPosition}}" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
+                            </core-tooltip>
+                          </template>
                           <core-tooltip label="{{labels.add2PlayQueue}}" position="left">
                             <paper-icon-button on-tap="{{add2Playlist}}" icon="av:playlist-add" trackTitle="{{title}}" streamId="{{streamId}}" cover="{{coverArt}}"></paper-icon-button>
                           </core-tooltip>
@@ -212,6 +227,17 @@
         </div>
       </core-animated-pages>
     </div>
+    <paper-action-dialog id="playbackConfirm" transition="core-transition-center">
+      <h4>{{hasBookmark}}</h4>
+      <paper-button style="background: green; color: white;" affirmative on-tap="{{playPodcast}}" bookmark="{{bookMark.bookmarkPosition}}" trackTitle="{{bookMark.title}}" streamId="{{bookMark.id}}" cover="{{bookMark.cover}}">{{playFrom}} {{bookmarkTime}}</paper-button>
+      <paper-button affirmative on-tap="{{playPodcast}}" trackTitle="{{bookMark.title}}" streamId="{{bookMark.id}}" cover="{{bookMark.cover}}">{{fromStart}}</paper-button>
+    </paper-action-dialog>
+    <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
+      <div style="min-width:280px"></div>
+      <h4>{{app.deletebookMarkConfirm}}</h4>
+      <paper-button affirmative>{{app.decline}}</paper-button>
+      <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{app.accept}}</paper-button>
+    </paper-action-dialog>
   </template>
   <script src="album-wall.html.0.js"></script>
 </polymer-element>

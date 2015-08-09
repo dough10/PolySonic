@@ -294,5 +294,11 @@
         this.app.getLicense(function () {
           animation.cancel();
         });
+      },
+
+      toggleAutobookmark: function () {
+        chrome.storage.sync.set({
+          autoBookmark: this.app.autoBookmark
+        });
       }
     });

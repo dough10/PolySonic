@@ -17,12 +17,12 @@
       }
       #card {
         border-radius:2px;
-        height: 250px;
-        width: 250px;
+        height: {{size}};
+        width: {{size}};
         background-repeat: no-repeat;
         background-position: center;
         background-origin: content-box;
-        background-size:250px;
+        background-size:{{size}};
       }
       core-animated-pages {
         height:100%;
@@ -38,8 +38,8 @@
       #overlay-low {
         position:absolute;
         top:80%;
-        height: 250px;
-        width: 250px;
+        height: {{size}};
+        width: {{size}};
         padding:1em;
         background:rgba(255,255,255, 0.97);
         border:1px solid #d8d8d8;
@@ -128,9 +128,6 @@
       }
       .huge {
         color:rgba(255,255,255,0.8);
-        position:absolute;
-        top: 70px;
-        left: 70px;
         will-change:transform;
       }
       .spinWrapper {
@@ -151,6 +148,23 @@
         justify-content: center;
         align-items: center;
         pointer-events:none;
+      }
+      .playWrapper {
+        overflow:hidden;
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        right:0;
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
       }
       .spinner {
         z-index:2;
@@ -217,6 +231,22 @@
         transform: translate3d(0, 0, 0);
       }
     </style>
+    <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
+      <div style="min-width:280px"></div>
+      <h4>{{app.deletebookMarkConfirm}}</h4>
+      <paper-button affirmative>{{app.decline}}</paper-button>
+      <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{app.accept}}</paper-button>
+    </paper-action-dialog>
+    <paper-action-dialog id="playbackConfirm" transition="core-transition-center">
+      <h4>{{hasBookmark}}</h4>
+      <paper-button style="background: green; color: white;" affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" artist="{{bookMark.artist}}" bookmark="{{bookMark.bookmarkPosition}}" trackTitle="{{bookMark.title}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{playFrom}} {{bookmarkTime}}</paper-button>
+      <paper-button affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" trackTitle="{{bookMark.title}}" artist="{{bookmark.artist}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{fromStart}}</paper-button>
+    </paper-action-dialog>
+    <paper-action-dialog id="albumPlaybackConfirm" transition="core-transition-center">
+      <h4>{{hasBookmark}}</h4>
+      <paper-button style="background: green; color: white;" affirmative on-tap="{{playFromBookmark}}">{{playFrom}} Track {{bookmarkIndex + 1}} @ {{bookmarkTime}}</paper-button>
+      <paper-button affirmative on-tap="{{playAlbum}}">{{fromStart}}</paper-button>
+    </paper-action-dialog>
     <paper-shadow z="1" id="card" page="cover" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
       <div class="wrapper">
         <template if="{{isLoading}}">
@@ -224,7 +254,9 @@
             <paper-spinner class="spinner" active></paper-spinner>
           </div>
         </template>
-        <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{doPlayback}}"></paper-icon-button>
+        <div class="playWrapper">
+          <paper-icon-button class="huge" icon="av:play-arrow" on-tap="{{doPlayback}}"></paper-icon-button>
+        </div>
         <div id="overlay-low" hero-id="hero" hero="">
           <core-tooltip id="icon" class="left-icon" label="{{moreOptionsLabel}}" position="left">
             <paper-icon-button on-tap="{{doDetails}}" icon="more-vert"></paper-icon-button>
@@ -297,6 +329,9 @@
         }
         .ratings {
           float:right;
+        }
+        paper-icon-button[icon='bookmark'] {
+          color:#db4437;
         }
       </style>
       <paper-icon-button id="closeDialog" icon="arrow-back" on-tap="{{closeDialog}}"></paper-icon-button>
@@ -376,6 +411,9 @@
       <div class="trackWrapper">
         <template repeat="{{track in playlist}}">
           <core-item>
+            <template if="{{track.bookmarkPosition}}">
+              <paper-icon-button ident="{{track.id}}" on-tap="{{conBookDel}}" icon="bookmark"></paper-icon-button>
+            </template>
             <div flex style="margin-right:8px; overflow: hidden;">
               <template if="{{track.disk}}">D.{{track.disk}}.</template>
               <template if="{{track.track}}">T.{{track.track}}: </template>
@@ -385,7 +423,12 @@
               </template>
             </div>
             <core-tooltip label="{{playTrackLabel}}" position="left">
-              <paper-icon-button icon="av:play-arrow" on-tap="{{playTrack}}" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
+              <template if="{{track.bookmarkPosition}}">
+                <paper-icon-button icon="av:play-arrow" on-tap="{{playChoice}}" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}" bookmark="{{track.bookmarkPosition}}"></paper-icon-button>
+              </template>
+              <template if="{{!track.bookmarkPosition}}">
+                <paper-icon-button icon="av:play-arrow" on-tap="{{playTrack}}" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
+              </template>
             </core-tooltip>
             <core-tooltip label="{{add2PlayQueue}}" position="left">
               <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>

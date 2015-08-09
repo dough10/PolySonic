@@ -26,17 +26,9 @@ Polymer('mini-player', {
     'use strict';
     if (newVal) {
       this.page = 1;
-      clearTimeout(this.timer);
-      this.timer = 0;
     } else {
-      if (this.app) {
-        if (!this.app.playlist[0]) {
-          this.page = 0;
-        } else {
-          this.timer = setTimeout(function () {
-            this.page = 0;
-          }.bind(this), 600000); // auto hide after 10 mins of being paused
-        }
+      if (this.app && !this.app.playlist[0]) {
+        this.page = 0;
       }
     }
     if (this.app) {

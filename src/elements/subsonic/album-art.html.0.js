@@ -1,5 +1,8 @@
 /*global Polymer, console, chrome, document, Blob, window, Image, CoreAnimation */
 Polymer('album-art', {
+  fromStart: chrome.i18n.getMessage('fromStart'),
+  playFrom: chrome.i18n.getMessage('playFrom'),
+  hasBookmark: chrome.i18n.getMessage('hasBookmark'),
   moreLikeThis: chrome.i18n.getMessage("moreLikeThis"),
   backButton: chrome.i18n.getMessage("backButton"),
   playTrackLabel: chrome.i18n.getMessage("playTrack"),
@@ -12,6 +15,7 @@ Polymer('album-art', {
   imgURL: '',
   defaultImgURL: '../../../images/default-cover-art.png',
   albumSize: 0,
+  size: '250px',
 
   ready: function () {
     'use strict';
@@ -21,8 +25,6 @@ Polymer('album-art', {
     this.album = this.album || "Album Title";
 
     this.app = document.getElementById("tmpl");
-
-    this.audio = this.app.$.player.$.audio;
 
     this.playerArt = document.getElementById("coverArt");
 
@@ -87,7 +89,7 @@ Polymer('album-art', {
     'use strict';
     this.app.playlist = this.app.playlist.concat(this.playlist);
     this.app.dataLoading = false;
-    if (this.audio.paused) {
+    if (this.app.$.player.$.audio.paused) {
       this.app.playing = 0;
       this.app.$.player.getImageForPlayer(this.imgURL, function () {
         this.app.setFabColor(this.playlist[0]);
@@ -160,6 +162,9 @@ Polymer('album-art', {
         track: 0
       }
     ];
+    if (sender.attributes.bookmark) {
+      this.app.playlist[0].bookmarkPosition = sender.attributes.bookmark.value;
+    }
     this.app.setFabColor(this.app.playlist[0]);
     if (this.app.playing === 0) {
       this.app.$.player.playAudio(this.app.playlist[0]);
@@ -181,25 +186,54 @@ Polymer('album-art', {
       disk: 0,
       track: 0
     });
-    if (this.audio.paused) {
+    if (this.app.$.player.$.audio.paused) {
       this.app.setFabColor(this.app.playlist[0]);
       if (this.app.playing === 0) {
         this.app.$.player.playAudio(this.playlist[0]);
       } else {
         this.app.playing = 0;
       }
-      if (this.imgURL) {
-        this.playerArt.style.backgroundImage = "url('" + this.imgURL + "')";
-      } else {
-        this.playerArt.style.backgroundImage =  "url('" + defaultImgURL + "')";
-      }
     }
     this.app.doToast(chrome.i18n.getMessage("added2Queue"));
   },
-
+  
+  chooseOption: function () {
+    if (this.bookmarkIndex !== undefined) {
+      this.app.dataLoading = false;
+      this.bookmarkTime = this.app.secondsToMins(this.playlist[this.bookmarkIndex].bookmarkPosition / 1000);
+      this.$.albumPlaybackConfirm.open();
+      if (this.$.detailsDialog.opened) {
+        this.$.detailsDialog.close();
+      }
+    } else {
+      this.playAlbum();
+    }
+  },
+  
+  playFromBookmark: function () {
+    'use strict';
+    this.shortPlaylist = this.playlist.splice(this.bookmarkIndex);
+    this.app.dataLoading = false;
+    this.$.detailsDialog.close();
+    this.app.$.player.getImageForPlayer(this.imgURL, function () {
+      this.app.playlist = this.shortPlaylist;
+      this.app.setFabColor(this.app.playlist[0]);
+      if (this.app.playing === 0) {
+        this.app.$.player.playAudio(this.app.playlist[0]);
+      } else {
+        this.app.playing = 0;
+      }
+    }.bind(this));
+  },
 
   playAlbum: function () {
     'use strict';
+    var pLength = this.playlist.length;
+    for (var i = 0; i < pLength; i++) {
+      if (this.playlist[i].bookmarkPosition) {
+        delete this.playlist[i].bookmarkPosition;
+      }
+    }
     this.app.dataLoading = false;
     this.$.detailsDialog.close();
     this.app.$.player.getImageForPlayer(this.imgURL, function () {
@@ -258,16 +292,6 @@ Polymer('album-art', {
     }.bind(this));
   },
 
-  /*paletteChanged: function () {
-    'use strict';
-    var length = this.playlist.length;
-    if (this.palette && length !== 0) {
-      for (var i = 0; i < length; i++) {
-        this.playlist[i].palette = this.palette;
-      }
-    }
-  },*/
-
   getPalette: function (callback) {
     'use strict';
     this.app.getDbItem("al-" + this.item + '-palette', function (e) {
@@ -280,7 +304,7 @@ Polymer('album-art', {
     'use strict';
     this.app.dataLoading = true;
     this.getPalette(function () {
-      this.doQuery(this.playAlbum.bind(this));
+      this.doQuery(this.chooseOption.bind(this));
     }.bind(this));
   },
 
@@ -318,20 +342,21 @@ Polymer('album-art', {
     });
     var length = tracks.length;
     for (var i = 0; i < length; i++) {
-      var mins = Math.floor(tracks[i].duration / 60),
-        seconds = Math.floor(tracks[i].duration - (mins * 60)),
-        timeString = mins + ':' + ('0' + seconds).slice(-2);
       this.albumSize = this.albumSize + tracks[i].size;
       this.playlist.push({
         id: tracks[i].id,
         artist: tracks[i].artist,
         title: tracks[i].title,
-        duration: timeString,
+        duration: this.app.secondsToMins(tracks[i].duration),
         cover: this.imgURL,
+        bookmarkPosition: tracks[i].bookmarkPosition,
         palette: this.palette,
         disk: tracks[i].diskNumber,
         track: tracks[i].track
       });
+      if (tracks[i].bookmarkPosition && this.bookmarkIndex === undefined) {
+        this.bookmarkIndex = i;
+      }
       if (i === length - 1) {
         this.async(callback);
       }
@@ -341,19 +366,9 @@ Polymer('album-art', {
   doQuery: function (callback) {
     'use strict';
     this.async(function () {
-      this.app.getDbItem(this.item, function (event) {
-        if (event.target.result) {
-          this.trackResponse = event.target.result;
-          this.processJSON(callback);
-        } else {
-          this.app.doXhr(this.app.buildUrl('getAlbum', {id: this.item}), 'json', function (e) {
-            this.trackResponse = e.target.response;
-            this.processJSON(callback);
-            this.app.putInDb(this.trackResponse, this.item, function () {
-              //console.log('JSON Data Added to indexedDB ' + this.item);
-            }.bind(this));
-          }.bind(this));
-        }
+      this.app.doXhr(this.app.buildUrl('getAlbum', {id: this.item}), 'json', function (e) {
+        this.trackResponse = e.target.response;
+        this.processJSON(callback);
       }.bind(this));
     });
   },
@@ -361,6 +376,7 @@ Polymer('album-art', {
   itemChanged: function () {
     'use strict';
     this.async(function itemUpdate() {
+      this.bookmarkIndex = undefined;
       this.showArt(this.defaultImgURL);
       if (this.item && !this.app.scrolling) {
         var artId = "al-" + this.item;
@@ -416,7 +432,7 @@ Polymer('album-art', {
   },
 
   moreLikeCallback: function () {
-    if (this.app.$.audio.paused) {
+    if (this.app.$.player.$.audio.paused) {
       this.app.$.player.getImageForPlayer(this.app.playlist[0].cover, function () {
         this.app.playing = 0;
         this.app.setFabColor(this.app.playlist[0]);
@@ -439,17 +455,17 @@ Polymer('album-art', {
       }), 'json', function (e) {
       var response = e.target.response['subsonic-response'].similarSongs.song;
       if (response) {
-        this.app.$.audio.pause();
+        this.app.$.player.$.audio.pause();
         this.app.playlist.length = 0;
         var length = response.length;
         for (var i = 0; i < length; i++) {
-          var mins = Math.floor(response[i].duration / 60),
-            obj = {
+          var obj = {
               id: response[i].id,
               artist: response[i].artist,
               title: response[i].title,
-              duration: mins + ':' + ('0' + Math.floor(response[i].duration - (mins * 60))).slice(-2)
-            }, artId = 'al-' + response[i].albumId;
+              duration: this.app.secondsToMins(response[i].duration)
+            },
+            artId = 'al-' + response[i].albumId;
           this.app.getDbItem(artId, function (artEvent) {
             if (artEvent.target.result) {
               obj.cover = window.URL.createObjectURL(artEvent.target.result);
@@ -479,6 +495,37 @@ Polymer('album-art', {
         this.app.doToast(chrome.i18n.getMessage("noResults"));
       }
     }.bind(this));
+  },
+
+  conBookDel: function (event, detail, sender) {
+    this.delID = sender.attributes.ident.value;
+    this.$.bookmarkConfirm.open();
+  },
+
+  deleteBookmark: function (event) {
+    this.app.doXhr(
+      this.app.buildUrl('deleteBookmark', {
+        id: this.delID
+      }), 'json', function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        this.doQuery(function () {});
+      } else {
+        this.app.doToast(e.target.response['subsonic-response'].error.message);
+      }
+    }.bind(this));
+  },
+
+  playChoice: function (event, detail, sender) {
+    this.$.playbackConfirm.open();
+    this.bookMark = {
+      id: sender.attributes.ident.value,
+      artist: sender.attributes.artist.value,
+      title: sender.attributes.trackTitle.value,
+      duration: sender.attributes.duration.value,
+      bookmarkPosition: sender.attributes.bookmark.value,
+      cover: sender.attributes.cover.value
+    };
+    this.bookmarkTime = this.app.secondsToMins(sender.attributes.bookmark.value / 1000);
   }
 });
 
