@@ -21,6 +21,8 @@ Changelog
 
 - when showing all albums by a artist (from artist list) page now contains a small bio and links to similar artist in your library
 
+- fix a bug where app would get stuck if there was a error connecting to the server while on loading screen.
+
 0.2.5
 
 - fix bug that caused app to display no albums if attempting to remove a folder filter to display all folders.

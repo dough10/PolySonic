@@ -61,12 +61,12 @@
               });
             } else {
               app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-              app.$.firstRun.toggle();
+              app.$.firstRun.open();
               app.doToast(e.target.response['subsonic-response'].error.meessage);
             }
           } else {
             app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-            app.$.firstRun.toggle();
+            app.$.firstRun.open();
             app.doToast(e.target.response['subsonic-response'].error.meessage);
           }
         });
@@ -262,6 +262,9 @@
     app.dataLoading = false;
     app.doToast(chrome.i18n.getMessage("connectionError"));
     console.error(e);
+    if (!document.querySelector('#loader').classList.contains("hide")) {
+      app.$.firstRun.open();
+    }
   }
 
   app.doXhr = function (url, dataType, callback) {

@@ -26,8 +26,6 @@ Polymer('album-art', {
 
     this.app = document.getElementById("tmpl");
 
-    this.audio = this.app.$.player.$.audio;
-
     this.playerArt = document.getElementById("coverArt");
 
     this.app.colorThiefAlbum = this.app.colorThiefAlbum  || '#db4437';
@@ -91,7 +89,7 @@ Polymer('album-art', {
     'use strict';
     this.app.playlist = this.app.playlist.concat(this.playlist);
     this.app.dataLoading = false;
-    if (this.audio.paused) {
+    if (this.app.$.player.$.audio.paused) {
       this.app.playing = 0;
       this.app.$.player.getImageForPlayer(this.imgURL, function () {
         this.app.setFabColor(this.playlist[0]);
@@ -188,7 +186,7 @@ Polymer('album-art', {
       disk: 0,
       track: 0
     });
-    if (this.audio.paused) {
+    if (this.app.$.player.$.audio.paused) {
       this.app.setFabColor(this.app.playlist[0]);
       if (this.app.playing === 0) {
         this.app.$.player.playAudio(this.playlist[0]);
