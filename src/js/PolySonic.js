@@ -50,7 +50,8 @@
         app.doXhr(app.buildUrl('ping', ''), 'json', function (e) {
           if (e.target.status === 200) {
             app.version = e.target.response['subsonic-response'].version;
-            if (parseFloat(app.version, 10) >= 1.13) {
+            // if version greater then or equal to 1.13.0 will show authentication option in settings
+            if (versionCompare(app.version, '1.13.0') >= 0) {
               document.querySelector('settings-menu').$.md5Auth.hidden = false;
             }
             if (e.target.response['subsonic-response'].status === 'ok') {
