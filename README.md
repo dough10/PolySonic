@@ -11,7 +11,7 @@ HTML5 Subsonic client
 Changelog
 0.2.7
 
-- bitrate is now a install specific settings
+- bitrate is now a install specific setting
 
 - fix endless loader if connecting to a subsonic server with out content.
 
