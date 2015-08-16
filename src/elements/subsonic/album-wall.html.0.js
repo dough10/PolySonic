@@ -140,6 +140,7 @@ Polymer('album-wall', {
               }
             }
           } else {
+            this.app.showApp();
             this.app.pageLimit = true;
           }
           if (!this.isLoading && !this.wall[0]) {

@@ -16,6 +16,9 @@
         button[ii].icon = 'check-box-outline-blank';
       }
     }
+    chrome.storage.local.get(function (result) {
+      app.bitRate = result.bitRate || 320;
+    });
     chrome.storage.sync.get(function (result) {
       if (result.url === undefined) {
         app.$.firstRun.open();
@@ -25,13 +28,13 @@
       app.pass = result.pass;
       app.listMode = 'cover';
       app.autoBookmark = Boolean(result.autoBookmark);
-      app.bitRate = result.bitRate || 320;
       app.shuffleSettings.size = app.shuffleSettings.size || '50';
       app.version = '1.11.0';
       app.querySize = 60;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
+      app.md5Auth = result.md5Auth;
       app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
       app.repeatState = chrome.i18n.getMessage('disabled');
       app.$.repeatButton.style.color = '#db4437';
@@ -47,6 +50,9 @@
         app.doXhr(app.buildUrl('ping', ''), 'json', function (e) {
           if (e.target.status === 200) {
             app.version = e.target.response['subsonic-response'].version;
+            if (parseFloat(app.version, 10) >= 1.13) {
+              document.querySelector('settings-menu').$.md5Auth.hidden = false;
+            }
             if (e.target.response['subsonic-response'].status === 'ok') {
               app.userDetails();
               console.log('Connected to Subconic loading data');
@@ -54,7 +60,7 @@
                 app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                 /* setting mediaFolder causes a ajax call to get album wall data */
                 app.folder = result.mediaFolder || 0;
-                if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+                if (e.target.response['subsonic-response'].musicFolders.musicFolder === undefined || !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                   app.$.sortBox.style.display = 'none';
                 }
                 app.tracker.sendAppView('Album Wall');
@@ -614,8 +620,8 @@
       }
       app.doXhr(app.buildUrl('getRandomSongs', app.shuffleSettings), 'json', function (event) {
         var data = event.target.response['subsonic-response'].randomSongs.song;
-        var length = data.length;
-        if (data && length !== 0) {
+        if (data) {
+          var length = data.length;
           for (var i = 0; i < length; i++) {
             var obj = {
               id: data[i].id,
@@ -629,6 +635,7 @@
         } else {
           app.doToast(chrome.i18n.getMessage("noMatch"));
           app.shuffleLoading = false;
+          app.dataLoading = false;
         }
       });
     } else {
@@ -1178,8 +1185,12 @@
       if (response.status === 'ok') {
         app.serverLicense = response.license;
         var fromServer = new Date(app.serverLicense.date);
-        var nextYear = Math.floor(fromServer.getFullYear() + 1);
-        var expires = new Date(fromServer.setFullYear(nextYear));
+        var nextYear = Math.abs(fromServer.getFullYear() + 1);
+        if (app.serverLicense.trialExpires) {
+          var expires = new Date(app.serverLicense.trialExpires);
+        } else {
+          var expires = new Date(fromServer.setFullYear(nextYear));
+        }
         var now = new Date();
         var minute = 1000 * 60;
         var hour = minute * 60;
@@ -1257,7 +1268,7 @@
     if (app.version !== app.params.v) {
       app.params.v = app.version;
     }
-    if (parseFloat(app.version, 10) <= 1.12) {
+    if (!app.md5Auth) {
       if (app.params.t) {
         delete app.params.t;
         delete app.params.s;

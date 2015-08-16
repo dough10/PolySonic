@@ -9,6 +9,14 @@ HTML5 Subsonic client
 
 
 Changelog
+0.2.7
+
+- bitrate is now a install specific settings
+
+- fix endless loader if connecting to a subsonic server with out content.
+
+- new authentication method is optional and off by default (switch will be shown in settings if api version 1.13.0 or above)
+
 0.2.6
 
 - new icon (thanks William Kray)

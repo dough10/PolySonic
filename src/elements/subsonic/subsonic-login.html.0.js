@@ -84,12 +84,15 @@
             this.app.pass = this.post.pass;
             this.app.userDetails();
             this.app.version = this.response['subsonic-response'].version;
+            if (parseFloat(this.app.version, 10) >= 1.13) {
+              document.querySelector('settings-menu').$.md5Auth.hidden = false;
+            }
             this.app.doToast("Loading Data");
             this.app.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
             this.app.$.firstRun.close();
             this.app.doXhr(this.app.buildUrl('getMusicFolders', ''), 'json', function (e) {
               this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-              if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+              if (e.target.response['subsonic-response'].musicFolders.musicFolder && !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                 this.app.$.sortBox.style.display = 'none';
               }
             }.bind(this));
