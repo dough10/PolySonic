@@ -32,10 +32,18 @@ Polymer('mini-player', {
       }
     }
     if (this.app) {
-      if (this.app.$.player.$.audio.paused) {
-        this.$.playButton.icon = 'av:play-arrow';
+      if (this.app.$.player.currentPlayer === 1) {
+        if (this.app.$.player.$.audio.paused) {
+          this.$.playButton.icon = 'av:play-arrow';
+        } else {
+          this.$.playButton.icon = 'av:pause';
+        }
       } else {
-        this.$.playButton.icon = 'av:pause';
+        if (this.app.$.player.$.audio2.paused) {
+          this.$.playButton.icon = 'av:play-arrow';
+        } else {
+          this.$.playButton.icon = 'av:pause';
+        }
       }
     }
   },
@@ -45,10 +53,18 @@ Polymer('mini-player', {
   },
   playPause: function () {
     'use strict';
-    if (!this.app.$.player.$.audio.paused) {
-      this.$.playButton.icon = 'av:play-arrow';
+    if (this.app.$.player.currentPlayer === 1) {
+      if (!this.app.$.player.$.audio.paused) {
+        this.$.playButton.icon = 'av:play-arrow';
+      } else {
+        this.$.playButton.icon = 'av:pause';
+      }
     } else {
-      this.$.playButton.icon = 'av:pause';
+      if (!this.app.$.player.$.audio2.paused) {
+        this.$.playButton.icon = 'av:play-arrow';
+      } else {
+        this.$.playButton.icon = 'av:pause';
+      }
     }
     this.app.$.player.playPause();
   },

@@ -40,6 +40,7 @@
       app.$.repeatButton.style.color = '#db4437';
       app.colorThiefEnabled = true;
       app.dataLoading = false;
+      app.gapless = true;
       app.params = {
         u: app.user,
         v: app.version,
@@ -1187,10 +1188,11 @@
         app.serverLicense = response.license;
         var fromServer = new Date(app.serverLicense.date);
         var nextYear = Math.abs(fromServer.getFullYear() + 1);
+        var expires;
         if (app.serverLicense.trialExpires) {
-          var expires = new Date(app.serverLicense.trialExpires);
+          expires = new Date(app.serverLicense.trialExpires);
         } else {
-          var expires = new Date(fromServer.setFullYear(nextYear));
+          expires = new Date(fromServer.setFullYear(nextYear));
         }
         var now = new Date();
         var minute = 1000 * 60;

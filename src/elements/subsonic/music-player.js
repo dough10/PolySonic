@@ -3,21 +3,33 @@ Polymer('music-player',{
   bookmarkDeleted: false,
   ready: function () {
     this.page = 0;
+    //turntable 1
     this.audio = this.$.audio;
     this.audio.onwaiting = this.playerProgress.bind(this);
-    this.audio.onprogress = this.buffering.bind(this);
     this.audio.ontimeupdate = this.playerProgress.bind(this);
     this.audio.onended = this.nextTrack.bind(this);
     this.audio.onerror = this.audioError.bind(this);
+    // turntable 2
+    this.audio2 = this.$.audio2;
+    this.audio2.onwaiting = this.playerProgress.bind(this);
+    this.audio2.ontimeupdate = this.playerProgress.bind(this);
+    this.audio2.onended = this.nextTrack.bind(this);
+    this.audio2.onerror = this.audioError.bind(this);
+    // player currently being used
+    this.currentPlayer = 1;
   },
   resize: function () {
     if (this.app){
+      
+      // repeat active 
       if (this.app.repeatPlaylist) {
         if (this.page === 0) {
           this.$.rButton.style.color = 'white';
         } else {
           this.$.rButton2.style.color = 'black';
         }
+        
+      // repeat off
       } else {
         this.$.rButton.style.color = 'rgb(158, 158, 158)';
         this.$.rButton2.style.color = 'rgb(158, 158, 158)';
@@ -30,9 +42,12 @@ Polymer('music-player',{
     this.note = this.app.$.playNotify;
   },
   playingChanged: function (oldVal, newVal) {
+    if (this.isCued && newVal !== oldVal + 1) {
+      this.isCued = false;
+    }
     this.async(function () {
       if (this.app.alreadyPlaying) {
-        // ignore default functions
+        // ignore default functions when shuffleing
         console.log('skipped');
         this.app.alreadyPlaying = false;
       } else {
@@ -45,34 +60,71 @@ Polymer('music-player',{
     });
   },
   playAudio: function (obj) {
+    
+    // set playing on mini player 
     var minis = document.querySelectorAll('mini-player');
     var length = minis.length;
     for (var i = 0; i < length; i++) {
       minis[i].setPlaying(obj);
     }
+    
+    // if it is a podcast do not transcode 
     if (obj.artist === '') {
       this.app.currentPlaying = obj.title;
       this.note.title = obj.title;
-      this.audio.src = this.app.buildUrl('stream', {
-        format: 'raw',
-        estimateContentLength: true,
-        id: obj.id
-      });
+      if (!this.isCued) {
+        this.audio.src = this.app.buildUrl('stream', {
+          format: 'raw',
+          estimateContentLength: true,
+          id: obj.id
+        });
+      }
+      
+    // default playback  * transcoded audio * 
     } else {
       this.app.currentPlaying = obj.artist + ' - ' + obj.title;
       this.note.title = obj.artist + ' - ' + obj.title;
-      this.audio.src = this.app.buildUrl('stream', {
-        maxBitRate: this.app.bitRate,
-        id: obj.id
-      });
+      if (!this.isCued) {
+        this.audio.src = this.app.buildUrl('stream', {
+          maxBitRate: this.app.bitRate,
+          id: obj.id
+        });
+      }
     }
     this.note.icon = obj.cover;
+    
+    // set playback position if bookmarked file
     if (obj.bookmarkPosition) {
       this.audio.currentTime = obj.bookmarkPosition / 1000;
     } else {
       this.audio.currentTime = 0;
     }
-    this.audio.play();
+    
+    // gapless playback if cached
+    if (this.app.gapless && this.isCued) {
+      
+      // configure buffer callback
+      if (this.isCued === 'audio') {
+        this.currentPlayer = 1;
+        this.audio.onprogress = this.buffering.bind(this);
+        this.audio2.onProgress = null;
+      } else {
+        this.currentPlayer = 2;
+        this.audio2.onprogress = this.buffering.bind(this);
+        this.audio.onprogress = null;
+      }
+      this.$[this.isCued].play();
+      // clear cache 
+      this.async(function () {
+        this.isCued = false;
+      }, null, 500);
+    } else {
+      // default playback 
+      this.audio2.pause();
+      this.currentPlayer = 1;
+      this.audio.play();
+      this.audio.onprogress = this.buffering.bind(this);
+    }
     this.note.show();
     this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
@@ -95,10 +147,18 @@ Polymer('music-player',{
     }
   },
   playPause: function () {
-    if (!this.audio.paused) {
-      this.audio.pause();
+    if (this.currentPlayer === 1) {
+      if (!this.audio.paused) {
+        this.audio.pause();
+      } else {
+        this.audio.play();
+      }
     } else {
-      this.audio.play();
+      if (!this.audio2.paused) {
+        this.audio2.pause();
+      } else {
+        this.audio2.play();
+      }  
     }
   },
   playNext: function (next) {
@@ -117,6 +177,8 @@ Polymer('music-player',{
     }
   },
   nextTrack: function () {
+    // if track longer then 20 min and autobookmark enabled 
+    // will delete the bookmark 
     if (this.app.autoBookmark && this.$.audio.duration > 1200) {
       this.app.doXhr(this.app.buildUrl('deleteBookmark', {
         id: this.app.playlist[this.app.playing].id
@@ -148,6 +210,24 @@ Polymer('music-player',{
   },
   playerProgress: function (e) {
     var audio = e.srcElement;
+    // gapless?
+    if (this.app.gapless && audio.currentTime >= audio.duration - 60 && !this.isCued) {
+      if (audio.id === 'audio') {
+        this.isCued = 'audio2';
+        this.$.audio2.src = this.app.buildUrl('stream', {
+          maxBitRate: this.app.bitRate,
+          id: this.app.playlist[this.app.playing + 1].id
+        });
+      } else {
+        this.isCued = 'audio';
+        this.$.audio.src = this.app.buildUrl('stream', {
+          maxBitRate: this.app.bitRate,
+          id: this.app.playlist[this.app.playing + 1].id
+        });
+      }
+    }
+    
+    // if waiting for playback to start
     if (e) {
       if (e.type === 'waiting') {
         this.app.waitingToPlay = true;   // spinner on album art shown
@@ -160,6 +240,9 @@ Polymer('music-player',{
     this.totalMins = Math.floor(audio.duration / 60);
     this.totalSecs = Math.floor(audio.duration - (this.totalMins * 60));
 
+
+    // if file longer then 20 min and autobookmark enabled 
+    // creates a bookmark about every 1 min.
     if (this.app.autoBookmark && audio.duration > 1200
       && audio.currentTime > 60 && !this.app.waitingToPlay
       && Math.floor(audio.currentTime / audio.duration * 100) < 98) {
