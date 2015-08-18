@@ -1,4 +1,4 @@
-/*global Polymer, console, chrome, document, Blob, window, Image, CoreAnimation */
+/*global Polymer, console, chrome, document, Blob, window, Image, CoreAnimation, DownloadManager */
 Polymer('album-art', {
   fromStart: chrome.i18n.getMessage('fromStart'),
   playFrom: chrome.i18n.getMessage('playFrom'),
@@ -43,16 +43,18 @@ Polymer('album-art', {
     this.imgURL = imgURL;
     if (callback) {
       callback(imgURL);
-    } else  {
+    } else {
       imgURL = null;
     }
   },
 
   mouseIn: function (event, detail, sender) {
+    'use strict';
     sender.setZ(2);
   },
 
   mouseOut: function (event, detail, sender) {
+    'use strict';
     sender.setZ(1);
   },
 
@@ -115,7 +117,7 @@ Polymer('album-art', {
       this.app.isDownloading = true;
       animation.cancel();
       manager.downloadAlbum({
-        id:this.albumID,
+        id: this.albumID,
         artist: this.artist,
         album: this.album,
         size: this.albumSize
@@ -149,6 +151,7 @@ Polymer('album-art', {
 
   playTrack: function (event, detail, sender) {
     'use strict';
+    console.log(event);
     this.$.detailsDialog.close();
     this.app.playlist = [
       {
@@ -198,6 +201,7 @@ Polymer('album-art', {
   },
   
   chooseOption: function () {
+    'use strict';
     if (this.bookmarkIndex !== undefined) {
       this.app.dataLoading = false;
       this.bookmarkTime = this.app.secondsToMins(this.playlist[this.bookmarkIndex].bookmarkPosition / 1000);
