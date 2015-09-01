@@ -317,5 +317,11 @@
         chrome.storage.sync.set({
           md5Auth: this.app.md5Auth
         });
+      },
+      
+      toggleGapless: function () {
+        chrome.storage.sync.set({
+          gapless: this.app.gapless
+        });
       }
     });

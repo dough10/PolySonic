@@ -40,7 +40,7 @@
       app.$.repeatButton.style.color = '#db4437';
       app.colorThiefEnabled = true;
       app.dataLoading = false;
-      app.gapless = true;
+      app.gapless = result.gapless;
       app.params = {
         u: app.user,
         v: app.version,
@@ -62,7 +62,8 @@
                 app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                 /* setting mediaFolder causes a ajax call to get album wall data */
                 app.folder = result.mediaFolder || 0;
-                if (e.target.response['subsonic-response'].musicFolders.musicFolder === undefined || !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+                if (e.target.response['subsonic-response'].musicFolders.musicFolder === undefined 
+                || !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                   app.$.sortBox.style.display = 'none';
                 }
                 app.tracker.sendAppView('Album Wall');
@@ -82,16 +83,12 @@
     });
     app.appScroller().onscroll = app.scrollCallback;
     window.onresize = function () {
-      app.async(function () {
-        app.$.fab.setPos();
-        app.$.player.resize();
-        app.$.fab.resize();
-        app.async(function () {
-          if (chrome.app.window.current().innerBounds.width < 571) {
-            chrome.app.window.current().innerBounds.height = 761;
-          }
-        }, null, 100);
-      });
+      app.$.fab.setPos();
+      app.$.player.resize();
+      app.$.fab.resize();
+      if (chrome.app.window.current().innerBounds.width < 571) {
+        chrome.app.window.current().innerBounds.height = 761;
+      }
     };
     app.service = analytics.getService('PolySonic');
     app.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
@@ -165,11 +162,22 @@
   ];
 
   app.sortTypes = [
-    {sort: 'newest', name: chrome.i18n.getMessage("newButton")},
-    {sort: 'alphabeticalByArtist', name: chrome.i18n.getMessage("byArtistButton")},
-    {sort: 'alphabeticalByName', name: chrome.i18n.getMessage("titleButton")},
-    {sort: 'frequent', name: chrome.i18n.getMessage("frequentButton")},
-    {sort: 'recent', name: chrome.i18n.getMessage("recentButton")}
+    {
+      sort: 'newest', 
+      name: chrome.i18n.getMessage("newButton")
+    }, {
+      sort: 'alphabeticalByArtist', 
+      name: chrome.i18n.getMessage("byArtistButton")
+    }, {
+      sort: 'alphabeticalByName', 
+      name: chrome.i18n.getMessage("titleButton")
+    }, {
+      sort: 'frequent', 
+      name: chrome.i18n.getMessage("frequentButton")
+    }, {
+      sort: 'recent', 
+      name: chrome.i18n.getMessage("recentButton")
+    }
   ];
 
   app.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;

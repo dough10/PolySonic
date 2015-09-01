@@ -130,14 +130,7 @@ Polymer('music-player',{
     this.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.bg.style.backgroundImage = "url('" + obj.cover + "')";
     this.app.tracker.sendEvent('Playback Started', new Date());
-    if (this.app.activeUser.scrobblingEnabled) {
-      this.app.doXhr(this.app.buildUrl('scrobble', {id: obj.id, time: new Date().getTime()}), 'json', function (e) {
-        if (e.target.response['subsonic-response'].status === 'failed') {
-          console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
-          this.app.tracker.sendEvent('Last FM submission', 'Failed');
-        }
-      }.bind(this));
-    }
+    this.scrobbled = false;
   },
   getImageForPlayer: function (url, callback) {
     this.$.coverArt.style.backgroundImage = "url('" + url + "')";
@@ -239,6 +232,23 @@ Polymer('music-player',{
     this.currentSecs = Math.floor(audio.currentTime - (this.currentMins * 60));
     this.totalMins = Math.floor(audio.duration / 60);
     this.totalSecs = Math.floor(audio.duration - (this.totalMins * 60));
+    
+    // scrobble lastFM if over half of song has been played played & it is not a podcast
+    if (this.app.activeUser.scrobblingEnabled 
+    && Math.abs(audio.currentTime / audio.duration * 100) > 50
+    && !this.scrobbled
+    && this.app.playlist[this.app.playing].artist !== '') {
+      this.scrobbled = true;
+      this.app.doXhr(this.app.buildUrl('scrobble', {
+        id: this.app.playlist[this.app.playing].id, 
+        time: new Date().getTime()
+      }), 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 'failed') {
+          console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
+          this.app.tracker.sendEvent('Last FM submission', 'Failed');
+        }
+      }.bind(this));
+    }
 
 
     // if file longer then 20 min and autobookmark enabled 

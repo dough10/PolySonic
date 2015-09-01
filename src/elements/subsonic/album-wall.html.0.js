@@ -75,10 +75,10 @@ Polymer('album-wall', {
     this.podcast.length = 0;
     this.isLoading = true;
     this.app.dataLoading = true;
-    this.async(function () {
-      callback();
-      this.resizeLists();
-    }, null, 50);
+    this.$.cover.updateSize();
+    this.$.podcast.updateSize();
+    this.$.artists.updateSize();
+    this.async(callback);
   },
 
   responseCallback: function () {
@@ -246,14 +246,7 @@ Polymer('album-wall', {
       this.async(this.doAjax);
     }.bind(this));
   },
-
-  resizeLists: function () {
-    'use strict';
-    this.$.cover.updateSize();
-    this.$.podcast.updateSize();
-    this.$.artists.updateSize();
-  },
-
+  
   errorChanged: function () {
     'use strict';
     if (this.error) {

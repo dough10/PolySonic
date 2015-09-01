@@ -17,6 +17,10 @@ Changelog
 
 - new authentication method is optional and off by default (switch will be shown in settings if api version 1.13.0 or above)
 
+- remove main page animation. (improves performance)
+
+- app will now only scrobble to lastFM if more then half the song has been played
+
 0.2.6
 
 - new icon (thanks William Kray)
