@@ -16,27 +16,39 @@
     <link href="imports.html" rel="import">
   </head>
   <body>
+    <!-- loading screen -->
+    <div id="loader">
+      <div id="box">
+        <img src="../images/icon_128.png" height="128" width="128" alt="Icon">
+        <div style="height:30px; margin:auto; text-align:center;">
+          <paper-spinner id="spinner" active=""></paper-spinner>
+        </div>
+      </div>
+    </div>
     <template is="dom-bind" id="app">
-      <paper-drawer-panel id="drawer" responsive-width="1000px">
+      <paper-drawer-panel id="drawer" narrow="{{narrow}}" responsive-width="1000px">
         <paper-header-panel drawer>
-          <paper-toolbar></paper-toolbar>
+          <paper-toolbar class="menuHeader"></paper-toolbar>
         </paper-header-panel>
         <neon-animated-pages selected="{{page}}" main
                              on-neon-animation-finish="animationFinished">
-
+          <album-wall></album-wall>
         </neon-animated-pages>
       </paper-drawer-panel>
 
-      <paper-dialog id="firstRun" style="padding: 20px"
+      <!-- first run dialog -->
+      <paper-dialog id="firstRun"  modal
                     entry-animation="scale-up-animation"
                   exit-animation="scale-down-animation">
         <subsonic-login></subsonic-login>
       </paper-dialog>
+      <paper-toast id="toast"></paper-toast>
     </template>
     <script src="js/google-analytics-bundle.js"></script>
     <script src="js/md5.js"></script>
     <script src="js/color-thief.min.js"></script>
     <script src="js/version_compare.js"></script>
+    <script src="js/annyang.min.js"></script>
     <script src="js/PolySonic.js"></script>
   </body>
 </html>

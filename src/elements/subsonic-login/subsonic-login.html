@@ -41,31 +41,44 @@
       paper-input {
         margin: auto;
       }
+      .center {
+        text-align:center;
+      }
+      paper-button {
+        margin: auto;
+      }
     </style>
   <template>
     <h3>{{app.text.appName}}</h3>
     <div>{{app.text.appDesc}}</div>
-    <paper-input autovalidate isinvalid="{{invalid1}}" labelvisible="" floatinglabel="" error="{{app.text.urlError}}" label="{{app.text.urlLabel}}" type="URL" value="{{post.url}}">
+    <paper-input autovalidate isinvalid="{{invalidURL}}" disabled$="{{isLoading}}"
+                  labelvisible="" floatinglabel="" error="{{app.text.urlError}}" 
+                  label="{{app.text.urlLabel}}" type="URL" value="{{url}}"
+                  on-keyup="_updateURL" required>
     </paper-input>
     <br>
-    <paper-input-decorator id="input2" autovalidate="" isinvalid="{{inValid2}}" labelvisible="" floatinglabel="" error="{{usernameError}}" label="{{usernameLabel}}" disabled$="{{isLoading}}">
-      <input is="core-input" type="text" value="{{post.user::input}}" required="" disabled$="{{isLoading}}">
-    </paper-input-decorator>
+    <paper-input autovalidate="" isinvalid="{{inValid2}}" labelvisible
+                  floatinglabel="" error="{{app.text.usernameError}}" 
+                  label="{{app.text.usernameLabel}}" disabled$="{{isLoading}}" 
+                  type="text" value="{{user}}" required
+                  on-keyup="_updateUser">
+    </paper-input>
     <br>
-    <paper-input-decorator id="input3" autovalidate="" isinvalid="{{inValid3}}" labelvisible="" floatinglabel="" label="{{passwordLabel}}" disabled$="{{isLoading}}">
-      <input is="core-input" id="password" type="password" value="{{post.pass::input}}" disabled$="{{isLoading}}">
-    </paper-input-decorator>
+    <paper-input id="password" autovalidate isinvalid="{{inValid3}}" labelvisible
+                  floatinglabel="" label="{{app.text.passwordLabel}}" type="password" 
+                  value="{{pass}}" disabled$="{{isLoading}}" on-keyup="_updatePass">
+    </paper-input>
     <br>
-    <div id="showPass" on-tap="hidePass">{{showPass}}</div><br>
-    <br>
-    <paper-button on-tap="submit" disabled$="{{isLoading}}">
-      <template is="dom-if" if="{{isLoading}}">
-        <div id="load">
+    <div class="center">
+      <div id="showPass" on-tap="hidePass">{{app.text.showPass}}</div><br>
+      <br>
+      <paper-button on-tap="submit" disabled$="[[isLoading]]">
+        <div id="load" hidden>
           <paper-spinner active=""></paper-spinner>
         </div>
-      </template>
-      <span>{{app.text.submitButton}}</span>
-    </paper-button>
+        <span>{{app.text.submitButton}}</span>
+      </paper-button>
+    </div>
   </template>
   <script src="subsonic-login.html.0.js"></script>
 </dom-module>

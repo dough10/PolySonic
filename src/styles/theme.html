@@ -8,4 +8,48 @@
     --paper-toolbar-color: #333333;
     border-bottom: 1px solid #ccc;
   }
+  paper-toggle-button {
+    --paper-toggle-button-checked-bar-color: #db4437;
+    --paper-toggle-button-checked-button-color:#db4437;
+    --paper-toggle-button-checked-ink-color:#db4437;
+  }
+  paper-fab {
+    --paper-fab-background: #db4437;
+  }
+  paper-dialog {
+    padding: 20px;
+  }
+  #loader.hide {
+    bottom:100%;
+    visibility: hidden;
+    opacity:0;
+  }
+  #loader {
+    position: absolute;
+    bottom:0;
+    right:0;
+    top: 0;
+    left: 0;
+    background: #e5e5e5;
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    -webkit-justify-content: center;
+    -webkit-align-items: center;
+    justify-content: center;
+    align-items: center;
+    z-index:5;
+    pointer-events: none;
+    transition: all 0.5s;
+  }
+  #box {
+    width:128px;
+    transition: all 0.4s;
+  }
+  #box.hide {
+    opacity:0;
+    visibility: hidden;
+  }
 </style>

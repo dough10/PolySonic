@@ -142,7 +142,7 @@
 
   app.fetchJSON = function (url) {
     return new Promise(function (resolve, reject) {
-      fetch(url).then(function fetchCallback(response) {
+      app.fetching = fetch(url).then(function fetchCallback(response) {
         if (response.status === 200) {
           response.json().then(function jsonCallback(json) {
             resolve(json['subsonic-response']);
@@ -166,6 +166,23 @@
         }
       });
     });
+  };
+  
+  app.localStorageSet = function (obj) {
+    for (var key in odj) {
+      localStorage[key] = obj[key];
+    }
+  };
+  
+  app.localStorageGet = function () {
+    return new Promise(function (resolve, reject) {
+      resolve(localStorage);
+    });
+  };
+  
+  app.makeToast = function (text) {
+    app.$.toast.text = text;
+    app.$.toast.show();
   };
 
   app.putInDb = function (obj) {
@@ -199,7 +216,9 @@
     return 'enc:'+r;
   };
 
-  function appResize() {}
+  function appResize() {
+    document.querySelector('album-wall').resizeElement();
+  }
 
   function firstRun() {
     if (!app.$.firstRun.opened) {
@@ -207,7 +226,7 @@
     }
   }
 
-  function getApiVersion() {
+  app.getApiVersion = function () {
     return new Promise(function (resolve, reject) {
       app.fetchJSON(app.url + '/rest/ping.view?f=json').then(function versionPingCallback(json) {
         app.version = json.version;
@@ -215,12 +234,14 @@
           if (json.status === 'ok') {
             resolve(json);
           } else {
-            reject();
+            reject(json);
           }
         });
+      }).catch(function () {
+        reject({error: 'Error connecting to server'});
       });
     });
-  }
+  };
 
   function makeSalt(length) {
     var text = "";
@@ -243,10 +264,6 @@
 
   app.reloadApp = function () {
     chrome.runtime.reload();
-  };
-
-  app.minimize = function () {
-    chrome.app.window.current().minimize();
   };
 
   app.buildUrl = function(method, options) {
@@ -275,32 +292,80 @@
       return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
     }
   };
+  
+  app.openDrawer = function () {
+    if (!app.$.drawer.opened) {
+      app.$.drawer.openDrawer();
+    }
+  };
+  
+  app.closeDrawer = function () {
+    if (app.$.drawer.opened) {
+      app.$.drawer.closeDrawer();
+    }
+  };
+  
+  function makeFirstConnection() {
+    return new Promise(function (resolve, reject) {
+      app.getApiVersion().then(function (json) {
+        if (json.status === 'ok') {
+          // first data call
+          app.fetchJSON(app.buildUrl('getAlbumList', {
+            type: 'newest',
+            size: app.querySize,
+            offset: 0
+          })).then(function (json) {
+            if (json.status === 'ok') {
+              document.querySelector('album-wall').albumWall = json.albumList.album;
+              resolve();
+            }
+          });
+        } else {
+          if (!app.$.firstRun.opened) {
+            app.$.firstRun.open();
+          }
+        }
+      });
+    });
+  }
+  
+  function showApp() {
+    var loader = document.getElementById("loader"),
+      box = document.getElementById("box");
+
+    if (!loader.classList.contains("hide")) {
+      loader.classList.add('hide');
+      box.classList.add('hide');
+      box.classList.add('hide');
+      //app.askAnalistics();
+    }
+  }
 
   app.addEventListener('dom-change', function domChanged() {
+    app.page = 0;
     // get data from localstoreage
     if (!localStorage) {
       chrome.storage.local.get(function localLoaded(local) {
         app.bitRate = local.bitRate || 320;
       });
       chrome.storage.sync.get(function syncLoaded(sync) {
-        if (!sync.address) {
+        if (!sync.url) {
           firstRun();
         }
+        // loggin things
         app.url = sync.url;
         app.user = sync.user;
         app.pass = sync.pass;
-        app.listMode = 'cover';
+        // assorted settings
         app.autoBookmark = Boolean(sync.autoBookmark);
         app.shuffleSettings = {};
         app.shuffleSettings.size = app.shuffleSettings.size || '50';
         app.version = '1.11.0';
         app.querySize = 60;
         app.volume = sync.volume || 100;
-        app.queryMethod = sync.queryMethod || 'ID3';
         app.repeatPlaylist = false;
-        app.md5Auth = sync.md5Auth;
-        app.colorThiefEnabled = true;
         app.dataLoading = false;
+        // base url params
         app.params = {
           u: app.user,
           v: app.version,
@@ -308,17 +373,47 @@
           f: 'json'
         };
         if (app.url !== undefined && app.user !== undefined && app.pass !== undefined) {
-          getApiVersion().then(function (json) {
-            if (json.status === 'ok') {
-              //Authenicated
-            }
+          makeFirstConnection().then(function () {
+            showApp();
           }).catch(function () {
-            console.log('failed to connect');
+            app.makeToast('Error connecting');
           });
         }
       });
     } else {
-      // web hosted client?
+      app.localStorageGet().then(function (local) {
+        if (!local.url) {
+          firstRun();
+        }
+        // loggin things
+        app.url = local.url;
+        app.user = local.user;
+        app.pass = local.pass;
+        // assorted settings
+        app.bitRate = local.bitRate || 320;
+        app.autoBookmark = Boolean(local.autoBookmark);
+        app.shuffleSettings = {};
+        app.shuffleSettings.size = app.shuffleSettings.size || '50';
+        app.version = '1.11.0';
+        app.querySize = 60;
+        app.volume = local.volume || 100;
+        app.repeatPlaylist = false;
+        app.dataLoading = false;
+        // base url params
+        app.params = {
+          u: app.user,
+          v: app.version,
+          c: 'PolySonic',
+          f: 'json'
+        };
+        if (app.url !== undefined && app.user !== undefined && app.pass !== undefined) {
+          makeFirstConnection().then(function () {
+            showApp();
+          }).catch(function () {
+            app.makeToast('Error connecting');
+          });
+        }
+      });
     }
   });
 

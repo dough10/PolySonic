@@ -1,0 +1,29 @@
+<link href="../../bower_components/polymer/polymer.html" rel="import">
+<dom-module id="album-wall">
+  <style is="custom-style">
+    paper-toolbar {
+      --paper-toolbar-background: #6e6d6d;
+      --paper-toolbar-color: #ffffff;
+    }
+  </style>
+  <template>
+    <paper-header-panel>
+      <paper-toolbar>
+        <paper-icon-button id="menuButton" icon="menu" 
+                            on-tap="_openDrawer"></paper-icon-button>
+      </paper-toolbar>
+      <neon-animated-pages selected="{{showing}}"
+                            entry="fade-in-animation"
+                            exit="fade-out-animation">
+        <section>
+          <template is="dom-repeat" items="{{albumWall}}" as="album">
+            <album-art album="[[album]]"></album-art>
+          </template>
+        </section>
+        <section></section>
+        <section></section>
+      </neon-animated-pages>
+    </paper-header-panel>
+  </template>
+  <script src="album-wall.js"></script>
+</dom-module>
