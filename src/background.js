@@ -2,7 +2,8 @@ chrome.app.runtime.onLaunched.addListener(function() {
   chrome.app.window.create('index.html', {
     'id': 'PolySonic',
     'frame': {
-      'type': 'none'
+      'type': 'chrome',
+      'color': '#4D4C4C'
     },
     'bounds': {
       'width': 535,
