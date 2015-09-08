@@ -85,7 +85,7 @@
             this.app.userDetails();
             this.app.version = this.response['subsonic-response'].version;
             // if version greater then or equal to 1.13.0 will show authentication option in settings
-            if (versionCompare(app.version, '1.13.0') >= 0) {
+            if (versionCompare(this.app.version, '1.13.0') >= 0) {
               document.querySelector('settings-menu').$.md5Auth.hidden = false;
             }
             this.app.doToast("Loading Data");
