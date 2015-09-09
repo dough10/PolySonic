@@ -329,7 +329,7 @@
     });
   }
   
-  function showApp() {
+  app.showApp = function () {
     var loader = document.getElementById("loader"),
       box = document.getElementById("box");
 
@@ -339,7 +339,7 @@
       box.classList.add('hide');
       //app.askAnalistics();
     }
-  }
+  };
 
   app.addEventListener('dom-change', function domChanged() {
     app.page = 0;
@@ -374,7 +374,7 @@
         };
         if (app.url !== undefined && app.user !== undefined && app.pass !== undefined) {
           makeFirstConnection().then(function () {
-            showApp();
+            app.showApp();
           }).catch(function () {
             app.makeToast('Error connecting');
           });
@@ -408,7 +408,7 @@
         };
         if (app.url !== undefined && app.user !== undefined && app.pass !== undefined) {
           makeFirstConnection().then(function () {
-            showApp();
+            app.showApp();
           }).catch(function () {
             app.makeToast('Error connecting');
           });

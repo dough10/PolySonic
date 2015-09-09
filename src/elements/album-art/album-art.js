@@ -10,7 +10,7 @@ Polymer({
     this.async(function () {
       if (newVal) {
         this.albumTitle = newVal.album;
-        console.log(newVal);
+        this.artist = newVal.artist;
       }
     });
   }

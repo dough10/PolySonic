@@ -5,13 +5,28 @@
       --paper-toolbar-background: #6e6d6d;
       --paper-toolbar-color: #ffffff;
     }
+    paper-fab {
+      pointer-events:auto;
+      right:16px;
+      z-index:5;
+      position:fixed !important;
+      transition: background 500ms linear;
+    }
+    .playlistFab {
+      top:85px;
+    }
+    .bottomFab {
+      bottom:16px;
+      --paper-fab-background: #db4437;
+    }
   </style>
   <template>
-    <paper-header-panel>
+    <paper-header-panel id="header">
       <paper-toolbar>
         <paper-icon-button id="menuButton" icon="menu" 
                             on-tap="_openDrawer"></paper-icon-button>
       </paper-toolbar>
+      <paper-fab class="bottomFab" id="fab" icon="arrow-drop-up" hidden on-tap="jumpToTop"></paper-fab>
       <neon-animated-pages selected="{{showing}}"
                             entry="fade-in-animation"
                             exit="fade-out-animation">
@@ -19,6 +34,7 @@
           <template is="dom-repeat" items="{{albumWall}}" as="album">
             <album-art album="[[album]]"></album-art>
           </template>
+          <div style="min-height: 1000px"></div>
         </section>
         <section></section>
         <section></section>

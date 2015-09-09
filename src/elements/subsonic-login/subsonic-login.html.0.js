@@ -36,11 +36,12 @@ Polymer({
           type: 'newest',
           size: this.app.querySize,
           offset: 0
-        }).bind(this)).then(function (json) {
+        })).then(function (json) {
           if (json.status === 'ok') {
+            this.app.showApp();
             document.querySelector('album-wall').albumWall = json.albumList.album;
           }
-        });
+        }.bind(this));
       } else {
         this.app.makeToast(json.error);
       }
