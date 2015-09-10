@@ -1,6 +1,105 @@
 <link href="../../bower_components/polymer/polymer.html" rel="import">
 <dom-module id="album-art">
-  <style is="custom-style"></style>
-  <template></template>
+  <style is="custom-style">
+    #art {
+      border-radius:2px;
+      backgroung-image: url('/../../../images/default-cover-image.png');
+      height:250px;
+      width:250px;
+      padding:0;
+      margin:2px;
+      display: inline-block;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-origin: content-box;
+      background-size:250px;
+    }
+    .overlay {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:#ffffff;
+      color:#333333;
+      text-align:left;
+      max-height:40px;
+    }
+    .text {
+      padding:4px;
+      padding-left:8px;
+    }
+    div {
+      overflow:hidden;
+    }
+    #loading {
+      background:rgba(255,255,255,0.6);
+      overflow:hidden;
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:0;
+      right:0;
+      display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+      display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+      display: -ms-flexbox;      /* TWEENER - IE 10 */
+      display: -webkit-flex;     /* NEW - Chrome */
+      display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+      -webkit-justify-content: center;
+      -webkit-align-items: center;
+      justify-content: center;
+      align-items: center;
+      pointer-events:none;
+      z-index:1;
+    }
+    .playWrapper {
+      overflow:hidden;
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:0;
+      right:0;
+      display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+      display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+      display: -ms-flexbox;      /* TWEENER - IE 10 */
+      display: -webkit-flex;     /* NEW - Chrome */
+      display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+      -webkit-justify-content: center;
+      -webkit-align-items: center;
+      justify-content: center;
+      align-items: center;
+    }
+    paper-spinner {
+      --paper-spinner-layer-1-color: #333;
+      --paper-spinner-layer-2-color: #333;
+      --paper-spinner-layer-3-color: #333;
+      --paper-spinner-layer-4-color: #333;
+    }
+    .huge{
+      color:rgba(255,255,255,0.8);
+    }
+    .huge::shadow #icon {
+      height:95px;
+      width:95px;
+    }
+  </style>
+  <template>
+    <paper-material id="art" elevation="1">
+      <div id="loading">
+        <paper-spinner active></paper-spinner>
+      </div>
+      <div class="playWrapper">
+        <paper-icon-button class="huge" icon="av:play-arrow"></paper-icon-button>
+      </div>
+      <div class="overlay horizontal layout">
+        <div class="text flex vertical layout">
+          <div style="font-size: 13px; max-height:14px;">[[artist]]</div>
+          <div style="font-size: 15px; max-height:16px;">[[albumTitle]]</div>
+        </div>
+        <div>
+          <paper-icon-button icon="more-vert"></paper-icon-button>
+        </div>
+      </div>
+    </paper-material>
+  </template>
   <script src="album-art.js"></script>
 </dom-module>

@@ -2,6 +2,59 @@
   'use strict';
   var app = document.querySelector('#app');
 
+  var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
+
+  var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
+
+  var dbVersion = 1.0;
+
+  var request = indexedDB.open("albumInfo", dbVersion);
+
+  request.onerror = function () {
+    console.log("Error creating/accessing IndexedDB database");
+  };
+
+  request.onsuccess = function () {
+    console.log("Success creating/accessing IndexedDB database");
+    app.db = request.result;
+
+    // Interim solution for Google Chrome to create an objectStore. Will be deprecated
+    if (app.db.setVersion) {
+      if (app.db.version !== dbVersion) {
+        var setVersion = app.db.setVersion(dbVersion);
+        setVersion.onsuccess = function () {
+          createObjectStore(app.db);
+        };
+      }
+    }
+  };
+  
+  request.onupgradeneeded = function (event) {
+    createObjectStore(event.target.result);
+  };
+
+  function createObjectStore(dataBase) {
+    console.log("Creating objectStore");
+    dataBase.createObjectStore("albumInfo");
+  }
+  
+  app.getDbItem = function (id, callback) {
+    var transaction = app.db.transaction(["albumInfo"], "readwrite"),
+      request = transaction.objectStore("albumInfo").get(id);
+    request.onsuccess = callback;
+    request.onerror = app.dbErrorHandler;
+  };
+
+  app.storeInDb = function (data, id) {
+    return new Promise(function (resolve, reject) {
+      var transaction = app.db.transaction(["albumInfo"], "readwrite");
+      transaction.objectStore("albumInfo").put(data, id);
+      transaction.objectStore("albumInfo").get(id).onsuccess = function (e) {
+        resolve(e.target.result);
+      };
+    });
+  };
+
   app.text = {
     appName: chrome.i18n.getMessage('appName'),
     appDesc: chrome.i18n.getMessage('appDesc'),
@@ -109,34 +162,172 @@
       name: chrome.i18n.getMessage("recentButton")
     }
   ];
-
-  var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
-
-  var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
-
-  var dbVersion = 1.0;
-
-  function createObjectStore(dataBase) {
-    console.log("Creating objectStore");
-    dataBase.createObjectStore("albumInfo");
+  
+  String.prototype.hexEncode = function () {
+    var r = '';
+    var i = 0;
+    var h;
+    while (i<this.length) {
+      h = this.charCodeAt(i++).toString(16);
+      while (h.length<2) {
+        h = h;
+      }
+      r += h;
+    }
+    return 'enc:'+r;
+  };
+  
+  function createRoute(route, callback) {
+    if (location.hash === route) {
+      callback();
+    }
+  }
+  
+  function setRoute(route) {
+    location.hash = route;
+  }
+  
+  function routing() {
+    createRoute('', function () {
+      app.page = 0;
+      app.tracker.sendAppView('Album Wall');
+    });
+    createRoute('#Player', function () {
+      app.tracker.sendAppView('Player');
+    });
   }
 
-  var request = indexedDB.open("metadata", dbVersion);
+  function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' Bytes';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+    else if (bytes < 1073741824) return (bytes / 1048576).toFixed(2) + ' MB';
+    else return (bytes / 1073741824).toFixed(2) + ' GB';
+  }
 
-  request.onerror = function () {
-    console.log("Error creating/accessing IndexedDB database");
+  function appResize() {
+    document.querySelector('album-wall').resizeElement();
+  }
+
+  function firstRun() {
+    if (!app.$.firstRun.opened) {
+      app.$.firstRun.open();
+    }
+  }
+  
+  function makeFirstConnection() {
+    return new Promise(function (resolve, reject) {
+      app.getApiVersion().then(function (json) {
+        var thing = document.querySelector('album-wall');
+        if (json.status === 'ok') {
+          // first data call
+          thing.post = {
+            type: 'newest',
+            size: app.querySize,
+            offset: 0
+          };
+          app.fetchJSON(app.buildUrl('getAlbumList', thing.post)).then(function (json) {
+            if (json.status === 'ok') {
+              thing.albumWall = json.albumList.album;
+              resolve();
+            }
+          });
+        } else {
+          if (!app.$.firstRun.opened) {
+            app.$.firstRun.open();
+          }
+        }
+      });
+    });
+  }
+  
+  function makeSalt(length) {
+    var text = "";
+    var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < length; i++ )
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+  }
+
+  function toQueryString(params) {
+    var r = [];
+    for (var n in params) {
+      n = encodeURIComponent(n);
+      r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
+    }
+    return r.join('&');
+  }
+
+  app.getApiVersion = function () {
+    return new Promise(function (resolve, reject) {
+      app.fetchJSON(app.url + '/rest/ping.view?f=json').then(function versionPingCallback(json) {
+        app.version = json.version;
+        app.fetchJSON(app.buildUrl('ping', '')).then(function authCallback(json) {
+          if (json.status === 'ok') {
+            resolve(json);
+          } else {
+            reject(json);
+          }
+        });
+      }).catch(function () {
+        reject({error: 'Error connecting to server'});
+      });
+    });
   };
 
-  request.onsuccess = function () {
-    console.log("Success creating/accessing IndexedDB database");
-    var db = request.result;
-    if (db.setVersion) {
-      if (db.version !== dbVersion) {
-        var setVersion = db.setVersion(dbVersion);
-        setVersion.onsuccess = function () {
-          createObjectStore(db);
-        };
+  app.reloadApp = function () {
+    chrome.runtime.reload();
+  };
+
+  app.buildUrl = function(method, options) {
+    if (options !== null && typeof options === 'object') {
+      options = '&' + toQueryString(options);
+    }
+    if (app.user !== app.params.u) {
+      app.params.u = app.user;
+    }
+    if (app.version !== app.params.v) {
+      app.params.v = app.version;
+    }
+    if (versionCompare(app.version, '1.13.0') >= 0) {
+      if (app.params.p) {
+        delete app.params.p;
       }
+      app.params.s = makeSalt(16);
+      app.params.t = md5(app.pass + app.params.s);
+      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
+    } else {
+      if (app.params.t) {
+        delete app.params.t;
+        delete app.params.s;
+      }
+      app.params.p = app.pass.hexEncode();
+      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
+    }
+  };
+  
+  app.openDrawer = function () {
+    if (!app.$.drawer.opened) {
+      app.$.drawer.openDrawer();
+    }
+  };
+  
+  app.closeDrawer = function () {
+    if (app.$.drawer.opened) {
+      app.$.drawer.closeDrawer();
+    }
+  };
+  
+  app.showApp = function () {
+    var loader = document.getElementById("loader"),
+      box = document.getElementById("box");
+
+    if (!loader.classList.contains("hide")) {
+      loader.classList.add('hide');
+      box.classList.add('hide');
+      box.classList.add('hide');
+      //app.askAnalistics();
     }
   };
 
@@ -187,163 +378,18 @@
 
   app.putInDb = function (obj) {
     return new Promise(function (resolve, reject) {
-      var transaction = app.db.transaction(["albumInfo"], "readwrite");
+      var transaction = app.db.transaction(["metadata"], "readwrite");
       if (obj.id) {
-        transaction.objectStore("albumInfo").put(obj.data, obj.id);
-        transaction.objectStore("albumInfo").get(obj.id).onsuccess = resolve;
+        transaction.objectStore("metadata").put(obj.data, obj.id);
+        transaction.objectStore("metadata").get(obj.id).onsuccess = resolve;
       }
     });
-  };
-
-  function formatBytes(bytes) {
-    if (bytes < 1024) return bytes + ' Bytes';
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
-    else if (bytes < 1073741824) return (bytes / 1048576).toFixed(2) + ' MB';
-    else return (bytes / 1073741824).toFixed(2) + ' GB';
-  }
-
-  String.prototype.hexEncode = function () {
-    var r = '';
-    var i = 0;
-    var h;
-    while (i<this.length) {
-      h = this.charCodeAt(i++).toString(16);
-      while (h.length<2) {
-        h = h;
-      }
-      r += h;
-    }
-    return 'enc:'+r;
-  };
-
-  function appResize() {
-    document.querySelector('album-wall').resizeElement();
-  }
-
-  function firstRun() {
-    if (!app.$.firstRun.opened) {
-      app.$.firstRun.open();
-    }
-  }
-
-  app.getApiVersion = function () {
-    return new Promise(function (resolve, reject) {
-      app.fetchJSON(app.url + '/rest/ping.view?f=json').then(function versionPingCallback(json) {
-        app.version = json.version;
-        app.fetchJSON(app.buildUrl('ping', '')).then(function authCallback(json) {
-          if (json.status === 'ok') {
-            resolve(json);
-          } else {
-            reject(json);
-          }
-        });
-      }).catch(function () {
-        reject({error: 'Error connecting to server'});
-      });
-    });
-  };
-
-  function makeSalt(length) {
-    var text = "";
-    var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for( var i=0; i < length; i++ )
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-  }
-
-  function toQueryString(params) {
-    var r = [];
-    for (var n in params) {
-      n = encodeURIComponent(n);
-      r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
-    }
-    return r.join('&');
-  }
-
-  app.reloadApp = function () {
-    chrome.runtime.reload();
-  };
-
-  app.buildUrl = function(method, options) {
-    if (options !== null && typeof options === 'object') {
-      options = '&' + toQueryString(options);
-    }
-    if (app.user !== app.params.u) {
-      app.params.u = app.user;
-    }
-    if (app.version !== app.params.v) {
-      app.params.v = app.version;
-    }
-    if (versionCompare(app.version, '1.13.0') >= 0) {
-      if (app.params.p) {
-        delete app.params.p;
-      }
-      app.params.s = makeSalt(16);
-      app.params.t = md5(app.pass + app.params.s);
-      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
-    } else {
-      if (app.params.t) {
-        delete app.params.t;
-        delete app.params.s;
-      }
-      app.params.p = app.pass.hexEncode();
-      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
-    }
-  };
-  
-  app.openDrawer = function () {
-    if (!app.$.drawer.opened) {
-      app.$.drawer.openDrawer();
-    }
-  };
-  
-  app.closeDrawer = function () {
-    if (app.$.drawer.opened) {
-      app.$.drawer.closeDrawer();
-    }
-  };
-  
-  function makeFirstConnection() {
-    return new Promise(function (resolve, reject) {
-      app.getApiVersion().then(function (json) {
-        if (json.status === 'ok') {
-          // first data call
-          app.fetchJSON(app.buildUrl('getAlbumList', {
-            type: 'newest',
-            size: app.querySize,
-            offset: 0
-          })).then(function (json) {
-            if (json.status === 'ok') {
-              document.querySelector('album-wall').albumWall = json.albumList.album;
-              resolve();
-            }
-          });
-        } else {
-          if (!app.$.firstRun.opened) {
-            app.$.firstRun.open();
-          }
-        }
-      });
-    });
-  }
-  
-  app.showApp = function () {
-    var loader = document.getElementById("loader"),
-      box = document.getElementById("box");
-
-    if (!loader.classList.contains("hide")) {
-      loader.classList.add('hide');
-      box.classList.add('hide');
-      box.classList.add('hide');
-      //app.askAnalistics();
-    }
   };
 
   app.addEventListener('dom-change', function domChanged() {
-    app.page = 0;
-    // get data from localstoreage
+    var service = analytics.getService('PolySonic');
+    app.tracker = service.getTracker('UA-50154238-6');
+    routing();
     if (!localStorage) {
       chrome.storage.local.get(function localLoaded(local) {
         app.bitRate = local.bitRate || 320;
@@ -418,5 +464,8 @@
   });
 
   window.onresize = appResize;
-
+  
+  window.onhashchange = routing;
 })();
+
+

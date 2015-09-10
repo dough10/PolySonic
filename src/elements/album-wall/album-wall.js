@@ -1,22 +1,33 @@
 Polymer({
   is: 'album-wall',
+  
   behaviors: [
     Polymer.NeonAnimatableBehavior,
     Polymer.NeonAnimationRunnerBehavior,
     Polymer.NeonSharedElementAnimatableBehavior
   ],
+  
   properties: {
+    
     albumWall: {
-      type: Array
+      type: Array,
+      value: []
     },
+    
     showing: {
       type: Number,
       value: 0
     },
+    
     fabShowing: {
       type: Boolean,
       value: false
     },
+    
+    post: {
+      type: Object
+    },
+    
     animationConfig: {
       type: Object,
       value: function() {
@@ -61,9 +72,11 @@ Polymer({
       }
     }
   },
+  
   listeners: {
     'neon-animation-finish': '_onAnimationFinish'
   },
+  
   _onAnimationFinish: function (e) {
     if (!this.fabShowing && !this.showingDetails) {
       this.$.fab.hidden = true;
@@ -74,6 +87,7 @@ Polymer({
       this.$.fab.style.bottom = '16px';
     }
   },
+  
   moveFabToDetailsPos: function () {
     this.$.fab.icon = 'av:play-arrow';
     this.$.fab.hidden = false;
@@ -81,6 +95,7 @@ Polymer({
     this.fabShowing = true;
     this.playAnimation('detailsOpen');
   },
+  
   moveFabBackToBottom: function () {
     this.$.fab.icon = 'arrow-drop-up';
     this.$.fab.hidden = false;
@@ -88,14 +103,17 @@ Polymer({
     this.fabShowing = false;
     this.playAnimation('detailsClose');
   },
+  
   jumpToTop: function () {
     if (this.$.header.scroller.scrollTop !== 0) {
       this.$.header.scroller.scrollTop = 0;
     }
   },
+  
   _openDrawer: function () {
     this.app.openDrawer();
   },
+  
   resizeElement: function () {
     if (!this.app.narrow) {
       this.$.menuButton.hidden = true;
@@ -103,6 +121,7 @@ Polymer({
       this.$.menuButton.hidden = false;
     }
   },
+  
   ready: function () {
     this.app = document.querySelector('#app');
     this.async(this.resizeElement);
@@ -119,7 +138,16 @@ Polymer({
       this.position = this.$.header.scroller.scrollTop;
       if (!this.isLoading && !this.pageLimit && this.$.header.scroller.scrollTop >= (this.$.header.scroller.scrollHeight - 1700) && app.request !== 'getStarred' && app.request !== 'getStarred2') {
         this.isLoading = true;
-        console.log('load me!!!');
+        this.post.offset = Number(this.post.offset) + Number(app.querySize);
+        this.app.fetchJSON(this.app.buildUrl('getAlbumList', this.post)).then(function (json) {
+          var newAlbums = json.albumList.album;
+          if (newAlbums) {
+            this.albumWall = this.albumWall.concat(newAlbums);
+          } else  {
+            this.pageLimit = true;
+          }
+          this.isLoading = false;
+        }.bind(this));
       }
     }.bind(this);
   }

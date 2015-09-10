@@ -19,12 +19,23 @@
       bottom:16px;
       --paper-fab-background: #db4437;
     }
+    section {
+      margin:auto;
+      text-align:center;
+    }
+    #menuHeader {
+      margin-right:16px;
+    }
+    #headerText {
+      font-size: 17px;
+    }
   </style>
   <template>
     <paper-header-panel id="header">
       <paper-toolbar>
         <paper-icon-button id="menuButton" icon="menu" 
                             on-tap="_openDrawer"></paper-icon-button>
+        <div id="headerText">PolySonic</div>
       </paper-toolbar>
       <paper-fab class="bottomFab" id="fab" icon="arrow-drop-up" hidden on-tap="jumpToTop"></paper-fab>
       <neon-animated-pages selected="{{showing}}"
@@ -34,7 +45,7 @@
           <template is="dom-repeat" items="{{albumWall}}" as="album">
             <album-art album="[[album]]"></album-art>
           </template>
-          <div style="min-height: 1000px"></div>
+          <div style="min-height: 100px"></div>
         </section>
         <section></section>
         <section></section>

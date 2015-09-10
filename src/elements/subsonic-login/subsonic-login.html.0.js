@@ -32,14 +32,16 @@ Polymer({
           this.app.localStorageSet(data);
         }
         this.app.$.firstRun.close();
-        this.app.fetchJSON(this.app.buildUrl('getAlbumList', {
+        var wall = docume;nt.querySelector('album-wall');
+        wall.post = {
           type: 'newest',
-          size: this.app.querySize,
+          size: app.querySize,
           offset: 0
-        })).then(function (json) {
+        };
+        this.app.fetchJSON(this.app.buildUrl('getAlbumList', wall.post)).then(function (json) {
           if (json.status === 'ok') {
             this.app.showApp();
-            document.querySelector('album-wall').albumWall = json.albumList.album;
+            wall = json.albumList.album;
           }
         }.bind(this));
       } else {
