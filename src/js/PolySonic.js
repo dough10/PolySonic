@@ -206,6 +206,13 @@
 
   function appResize() {
     document.querySelector('album-wall').resizeElement();
+    var albums = document.querySelectorAll('album-art');
+    var aLength = albums.length;
+    for (var i = 0; i < aLength; i++) {
+      if (albums[i].$.details.opened) {
+        albums[i].size();
+      }
+    }
   }
 
   function firstRun() {
@@ -517,6 +524,26 @@
       });
     }
   });
+  
+  app.makeNoise = function () {
+    var audio = document.createElement('audio');
+    audio.src = 'http://dough10.me:4040/rest/stream.view?u=admin&v=1.12.0&c=PolySonic&f=json&p=enc%3A6f6963753831326269746368&format=raw&estimateContentLength=true&id=6631';
+    document.querySelector('#audioContainer').appendChild(audio);
+    audio.play();
+  };
+  
+  app.moreAlbums = function () {
+    var wall = document.querySelector('album-wall');
+    app.dataLoading = true;
+    app.fetchJSON(app.buildUrl(
+      'getAlbumList', 
+      wall.post
+    )).then(function (json) {
+      var newAlbums = json.albumList.album;
+      wall.albumWall = newAlbums;
+      app.dataLoading = false;
+    });
+  };
 
   window.onresize = appResize;
   

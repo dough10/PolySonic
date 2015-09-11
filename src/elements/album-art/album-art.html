@@ -128,8 +128,13 @@
       right:0;
       bottom:0;
     }
+    #fab {
+      position: fixed;
+      z-index: 15;
+    }
   </style>
   <template>
+    <paper-fab icon="av:play-arrow" hidden id="fab"></paper-fab>
     <paper-material id="art" animated on-mouseover="mouseIn" on-mouseout="mouseOut" elevation="1">
       <div id="loading">
         <paper-spinner active></paper-spinner>

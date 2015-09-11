@@ -1,5 +1,11 @@
 Polymer({
   is: 'album-art',
+  
+  behaviors: [
+    Polymer.NeonAnimatableBehavior,
+    Polymer.NeonAnimationRunnerBehavior,
+    Polymer.NeonSharedElementAnimatableBehavior
+  ],
 
   properties: {
 
@@ -21,6 +27,32 @@ Polymer({
     isFavorite: {
       type: Boolean,
       value: false
+    },
+    
+    animationConfig: {
+      type: Object,
+      value: function() {
+        return {
+          'fabIn': {
+            name: 'scale-up-animation',
+            node: this.$.fab
+          },
+          'fabOut': {
+            name: 'scale-down-animation',
+            node: this.$.fab
+          }
+        };
+      }
+    }
+  },
+  
+  listeners: {
+    'neon-animation-finish': '_onAnimationFinish'
+  },
+  
+  _onAnimationFinish: function (e) {
+    if (!this.$.details.opened) {
+      this.$.fab.hidden = true;
     }
   },
 
@@ -123,11 +155,13 @@ Polymer({
         if (json.status === 'ok') {
           this.makePlaylist(json.directory.child).then(function () {
             if (!this.$.details.opened) {
+              this.$.fab.hidden = false;
+              this.playAnimation('fabIn');
               this.$.details.open();
               var wall = document.querySelector('album-wall');
-              wall.$.fab.style.background = this.palette[0];
-              wall.$.fab.style.color = this.palette[1];
-              wall.moveFabToDetailsPos(this.id);
+              wall.playAnimation('fabDown');
+              wall.fabShowing = false;
+              this.size();
               this.app.dataLoading = false;
             }
           }.bind(this));
@@ -138,11 +172,8 @@ Polymer({
 
   closeDetails: function () {
     if (this.$.details.opened) {
-      var wall = document.querySelector('album-wall');
-      wall.$.fab.style.background = '';
-      wall.$.fab.style.color = '';
-      wall.moveFabBackToBottom();
       this.$.details.close();
+      this.playAnimation('fabOut');
     }
   },
 
@@ -166,5 +197,12 @@ Polymer({
   _paletteChanged: function (newVal) {
     this.$.closeDialog.style.background = newVal[1];
     this.$.closeDialog.style.color = newVal[0];
+    this.$.fab.style.color = newVal[1];
+    this.$.fab.style.background = newVal[0];
+  },
+  
+  size: function () {
+    this.$.fab.style.right = ((window.innerWidth / 2) - 260)+ 'px';
+    this.$.fab.style.bottom = ((window.innerHeight / 2) - 75) + 'px';
   }
 });

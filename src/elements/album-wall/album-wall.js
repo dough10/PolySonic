@@ -57,16 +57,6 @@ Polymer({
             name: 'transform-animation',
             node: this.$.fab,
             transformTo: "translateY(130%)"
-          },
-          'detailsOpen': {
-            name: 'transform-animation',
-            node:this.$.fab,
-            transformTo: "translateY(-290px)"
-          },
-          'detailsClose': {
-            name: 'transform-animation',
-            node:this.$.fab,
-            transformTo: "translateY(360px)"
           }
         };
       }
@@ -78,38 +68,8 @@ Polymer({
   },
   
   _onAnimationFinish: function (e) {
-    if (!this.fabShowing && !this.showingDetails) {
+    if (!this.fabShowing) {
       this.$.fab.hidden = true;
-    }
-    if (this.showingDetails && this.fabShowing) {
-      this.$.fab.style.bottom = '310px';
-    } else {
-      this.$.fab.style.bottom = '16px';
-    }
-  },
-  
-  moveFabToDetailsPos: function (id) {
-    this.$.fab.icon = 'av:play-arrow';
-    this.$.fab.hidden = false;
-    this.showingDetails = true;
-    this.fabShowing = true;
-    this.playAnimation('detailsOpen');
-    this.viewing = id;
-  },
-  
-  moveFabBackToBottom: function () {
-    this.$.fab.icon = 'arrow-drop-up';
-    this.$.fab.hidden = false;
-    this.showingDetails = false;
-    this.fabShowing = false;
-    this.playAnimation('detailsClose');
-  },
-  
-  action: function () {
-    if (this.showingDetails) {
-      console.log(this.querySelector('#' + this.viewing).playlist);
-    } else {
-      this.jumpToTop();
     }
   },
 
@@ -148,15 +108,17 @@ Polymer({
       if (!this.isLoading && !this.pageLimit && this.$.header.scroller.scrollTop >= (this.$.header.scroller.scrollHeight - 1700) && app.request !== 'getStarred' && app.request !== 'getStarred2') {
         this.isLoading = true;
         this.post.offset = Number(this.post.offset) + Number(app.querySize);
-        this.app.fetchJSON(this.app.buildUrl('getAlbumList', this.post)).then(function (json) {
-          var newAlbums = json.albumList.album;
-          if (newAlbums) {
-            this.albumWall = this.albumWall.concat(newAlbums);
-          } else  {
-            this.pageLimit = true;
-          }
-          this.isLoading = false;
-        }.bind(this));
+        this.async(function () {
+          this.app.fetchJSON(this.app.buildUrl('getAlbumList', this.post)).then(function (json) {
+            var newAlbums = json.albumList.album;
+            if (newAlbums) {
+              this.albumWall = this.albumWall.concat(newAlbums);
+            } else  {
+              this.pageLimit = true;
+            }
+            this.isLoading = false;
+          }.bind(this));
+        });
       }
     }.bind(this);
   }
