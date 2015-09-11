@@ -9,6 +9,10 @@ HTML5 Subsonic client
 
 
 Changelog
+0.2.8
+
+- upgraded to Polymer 1.0
+
 0.2.7
 
 - bitrate is now a install specific setting

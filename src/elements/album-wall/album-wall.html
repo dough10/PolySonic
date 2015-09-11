@@ -8,7 +8,7 @@
     paper-fab {
       pointer-events:auto;
       right:16px;
-      z-index:5;
+      z-index:13;
       position:fixed !important;
       transition: background 500ms linear;
     }
@@ -37,7 +37,7 @@
                             on-tap="_openDrawer"></paper-icon-button>
         <div id="headerText">PolySonic</div>
       </paper-toolbar>
-      <paper-fab class="bottomFab" id="fab" icon="arrow-drop-up" hidden on-tap="jumpToTop"></paper-fab>
+      <paper-fab class="bottomFab" id="fab" icon="arrow-drop-up" hidden on-tap="action"></paper-fab>
       <neon-animated-pages selected="{{showing}}"
                             entry="fade-in-animation"
                             exit="fade-out-animation">

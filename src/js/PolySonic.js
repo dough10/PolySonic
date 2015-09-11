@@ -225,11 +225,13 @@
             size: app.querySize,
             offset: 0
           };
-          app.fetchJSON(app.buildUrl('getAlbumList', thing.post)).then(function (json) {
-            if (json.status === 'ok') {
-              thing.albumWall = json.albumList.album;
-              resolve();
-            }
+          app.userDetails(function () {
+            app.fetchJSON(app.buildUrl('getAlbumList', thing.post)).then(function (json) {
+              if (json.status === 'ok') {
+                thing.albumWall = json.albumList.album;
+                resolve();
+              }
+            });
           });
         } else {
           if (!app.$.firstRun.opened) {
@@ -376,12 +378,64 @@
     app.$.toast.show();
   };
 
-  app.putInDb = function (obj) {
-    return new Promise(function (resolve, reject) {
-      var transaction = app.db.transaction(["metadata"], "readwrite");
-      if (obj.id) {
-        transaction.objectStore("metadata").put(obj.data, obj.id);
-        transaction.objectStore("metadata").get(obj.id).onsuccess = resolve;
+  app.getColor = function (image) {
+    var colorThief = new ColorThief();
+    return colorThief.getPalette(image, 4);
+  };
+
+  app.getContrast50  = function (hexcolor) {
+    return (parseInt(hexcolor, 16) > 0xffffff / 2) ? 'black' : 'white';
+  };
+
+  app.componentToHex = function (c) {
+    var hex = c.toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
+  };
+
+  app.rgbToHex = function (r, g, b) {
+    return app.componentToHex(r) + app.componentToHex(g) + app.componentToHex(b);
+  };
+
+  app.colorThief = function (imgURL, artId) {
+    return new Promise(function(resolve, reject) {
+      var imgElement = new Image();
+      imgElement.src = imgURL;
+      imgElement.onload = function () {
+        var color = app.getColor(imgElement),
+          colorArray = [],
+          r = color[1][0],
+          g = color[1][1],
+          b = color[1][2],
+          hex = app.rgbToHex(r, g, b);
+        colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ')';
+        colorArray[1] = app.getContrast50(hex);
+        colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4)';
+        if (colorArray[1] !== 'white') {
+          colorArray[3] = '#444444';
+        } else {
+          colorArray[3] = '#c8c8c8';
+        }
+        app.storeInDb(colorArray, artId + '-palette').then(function (colorArray) {
+          resolve(colorArray);
+        });
+      };
+    });
+  };
+
+  app.secondsToMins = function (sec) {
+    var mins = Math.floor(sec / 60);
+    return mins + ':' + ('0' + Math.floor(sec - (mins * 60))).slice(-2);
+  };
+
+  app.userDetails = function (callback) {
+    app.fetchJSON(app.buildUrl('getUser', {
+      username: app.user
+    })).then(function (response) {
+      if (response.status === 'ok') {
+        app.activeUser = response.user;
+        callback();
+      } else {
+        console.error('Error getting User details');
       }
     });
   };
@@ -389,6 +443,7 @@
   app.addEventListener('dom-change', function domChanged() {
     var service = analytics.getService('PolySonic');
     app.tracker = service.getTracker('UA-50154238-6');
+    app.playlist = [];
     routing();
     if (!localStorage) {
       chrome.storage.local.get(function localLoaded(local) {

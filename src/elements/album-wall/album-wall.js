@@ -61,12 +61,12 @@ Polymer({
           'detailsOpen': {
             name: 'transform-animation',
             node:this.$.fab,
-            transformTo: "translateY(-230px)"
+            transformTo: "translateY(-290px)"
           },
           'detailsClose': {
             name: 'transform-animation',
             node:this.$.fab,
-            transformTo: "translateY(300px)"
+            transformTo: "translateY(360px)"
           }
         };
       }
@@ -82,18 +82,19 @@ Polymer({
       this.$.fab.hidden = true;
     }
     if (this.showingDetails && this.fabShowing) {
-      this.$.fab.style.bottom = '246px';
+      this.$.fab.style.bottom = '310px';
     } else {
       this.$.fab.style.bottom = '16px';
     }
   },
   
-  moveFabToDetailsPos: function () {
+  moveFabToDetailsPos: function (id) {
     this.$.fab.icon = 'av:play-arrow';
     this.$.fab.hidden = false;
     this.showingDetails = true;
     this.fabShowing = true;
     this.playAnimation('detailsOpen');
+    this.viewing = id;
   },
   
   moveFabBackToBottom: function () {
@@ -104,6 +105,14 @@ Polymer({
     this.playAnimation('detailsClose');
   },
   
+  action: function () {
+    if (this.showingDetails) {
+      console.log(this.querySelector('#' + this.viewing).playlist);
+    } else {
+      this.jumpToTop();
+    }
+  },
+
   jumpToTop: function () {
     if (this.$.header.scroller.scrollTop !== 0) {
       this.$.header.scroller.scrollTop = 0;

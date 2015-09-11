@@ -38,12 +38,15 @@ Polymer({
           size: app.querySize,
           offset: 0
         };
-        this.app.fetchJSON(this.app.buildUrl('getAlbumList', wall.post)).then(function (json) {
-          if (json.status === 'ok') {
-            this.app.showApp();
-            wall = json.albumList.album;
-          }
-        }.bind(this));
+        this.app.userDetails(function () {
+          this.app.fetchJSON(this.app.buildUrl('getAlbumList', wall.post)).then(function (json) {
+            if (json.status === 'ok') {
+              this.app.showApp();
+              this.app.userDetails();
+              wall = json.albumList.album;
+            }
+          }.bind(this));
+        });
       } else {
         this.app.makeToast(json.error);
       }

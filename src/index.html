@@ -26,6 +26,9 @@
       </div>
     </div>
     <template is="dom-bind" id="app">
+      <div id="loading"  hidden$="[[!dataLoading]]">
+        <paper-spinner class="blackSpinner" active></paper-spinner>
+      </div>
       <paper-drawer-panel id="drawer" narrow="{{narrow}}" responsive-width="1000px">
         <paper-header-panel drawer>
           <paper-toolbar class="menuHeader"></paper-toolbar>
