@@ -56,6 +56,13 @@ Polymer({
     }
   },
 
+  _dialogAnimationFinished: function () {
+    if (this.$.details.opened) {
+      this.$.fab.hidden = false;
+      this.playAnimation('fabIn');
+    }
+  },
+
   ready: function () {
     this.app = document.querySelector('#app');
   },
@@ -155,8 +162,6 @@ Polymer({
         if (json.status === 'ok') {
           this.makePlaylist(json.directory.child).then(function () {
             if (!this.$.details.opened) {
-              this.$.fab.hidden = false;
-              this.playAnimation('fabIn');
               this.$.details.open();
               var wall = document.querySelector('album-wall');
               wall.playAnimation('fabDown');
@@ -204,5 +209,20 @@ Polymer({
   size: function () {
     this.$.fab.style.right = ((window.innerWidth / 2) - 260)+ 'px';
     this.$.fab.style.bottom = ((window.innerHeight / 2) - 75) + 'px';
+  },
+
+  playTrack: function (e) {
+    var item = this.playlist[e.model.index];
+    console.log(item);
+  },
+
+  addSingle2Playlist: function (e) {
+    var item = this.playlist[e.model.index];
+    console.log(item);
+  },
+
+  trackDownload: function (e) {
+    var item = this.playlist[e.model.index];
+    console.log(item);
   }
 });

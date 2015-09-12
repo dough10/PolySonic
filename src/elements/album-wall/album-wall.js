@@ -105,7 +105,7 @@ Polymer({
         this.playAnimation('fabDown');
       }
       this.position = this.$.header.scroller.scrollTop;
-      if (!this.isLoading && !this.pageLimit && this.$.header.scroller.scrollTop >= (this.$.header.scroller.scrollHeight - 1700) && app.request !== 'getStarred' && app.request !== 'getStarred2') {
+      if (!this.isLoading && !this.pageLimit && this.$.header.scroller.scrollTop >= (this.$.header.scroller.scrollHeight - 1000) && app.request !== 'getStarred' && app.request !== 'getStarred2') {
         this.isLoading = true;
         this.post.offset = Number(this.post.offset) + Number(app.querySize);
         this.async(function () {

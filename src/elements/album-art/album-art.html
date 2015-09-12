@@ -1,4 +1,5 @@
 <link href="../../bower_components/polymer/polymer.html" rel="import">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <dom-module id="album-art">
   <style is="custom-style">
     #art {
@@ -132,6 +133,15 @@
       position: fixed;
       z-index: 15;
     }
+    .alignLeft {
+      text-align:left;
+    }
+    .trackDeets {
+      font-size: 14px;
+      padding: 12px;
+      max-height: 7px;
+      overflow: hidden;
+    }
   </style>
   <template>
     <paper-fab icon="av:play-arrow" hidden id="fab"></paper-fab>
@@ -155,7 +165,8 @@
     </paper-material>
     <paper-dialog id="details" modal
                   entry-animation="scale-up-animation"
-                  exit-animation="scale-down-animation">
+                  exit-animation="scale-down-animation"
+                  on-neon-animation-finish="_dialogAnimationFinished">
       <div id="detailsArt">
         <paper-icon-button id="closeDialog"
                            icon="arrow-back" on-tap="closeDetails"></paper-icon-button>
@@ -176,15 +187,22 @@
       </div>
       <div id="detailsScroller">
         <template is="dom-repeat" items="[[playlist]]" as="track">
-          <paper-item style="font-size: 12px;">
-            <div class="horizontal layout">
-              <div class="flex">
-                <template is="dom-if" if="{{track.track}}">T.<span>{{track.track}}</span>: </template>
-                <span>[[track.title]]</span>
-              </div>
-              <div></div>
+          <div class="horizontal layout alignLeft">
+            <div class="flex trackDeets">
+              <template is="dom-if" if="{{track.disk}}">D.<span>{{track.disk}}</span>,</template>
+              <template is="dom-if" if="{{track.track}}">T.<span>{{track.track}}</span>: </template>
+              <span>[[track.title]]</span>
             </div>
-          </paper-item>
+            <div>
+              <paper-icon-button icon="av:play-arrow" on-tap="playTrack"></paper-icon-button>
+            </div>
+            <div>
+              <paper-icon-button on-tap="addSingle2Playlist" icon="av:playlist-add"></paper-icon-button>
+            </div>
+            <div>
+              <paper-icon-button on-tap="trackDownload" icon="file-download"></paper-icon-button>
+            </div>
+          </div>
         </template>
       </div>
     </paper-dialog>

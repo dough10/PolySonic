@@ -534,7 +534,11 @@
   
   app.moreAlbums = function () {
     var wall = document.querySelector('album-wall');
+    if (wall.$.header.scroller.scrollTop !== 0) {
+      wall.$.header.scroller.scrollTop =  0;
+    }
     app.dataLoading = true;
+    wall.post.offset = 0;
     app.fetchJSON(app.buildUrl(
       'getAlbumList', 
       wall.post
