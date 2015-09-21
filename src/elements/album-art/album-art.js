@@ -108,6 +108,7 @@ Polymer({
 
   makePlaylist: function (tracks) {
     return new Promise(function (resolve, reject) {
+      this.playlist.length = 0;
       var tlength = tracks.length;
       for (var i = 0; i < tlength; i++) {
         this.albumSize = Number(this.albumSize) + Number(tracks[i].size);
@@ -126,7 +127,7 @@ Polymer({
           this.bookmarkIndex = i;
         }
         if (i === tlength - 1) {
-          resolve();
+          resolve(this.playlist);
         }
       }
     }.bind(this));
@@ -153,7 +154,6 @@ Polymer({
 
   openDetails: function () {
     this.app.dataLoading = true;
-    this.playlist.length = 0;
     this.app.getDbItem(this.item + '-palette', function (e) {
       this.palette = e.target.result;
       this.app.fetchJSON(this.app.buildUrl('getMusicDirectory', {
@@ -213,8 +213,15 @@ Polymer({
 
   playTrack: function (e) {
     var item = this.playlist[e.model.index];
+    if (item.bookmarkPosition && this.$.bookmarkOption.opened) {
+      // give option to play from bookmark or start from beginning 
+    }
     console.log(item);
   },
+  
+  resumeFromBookmark: function () {},
+  
+  playFromBeginning: function () {},
 
   addSingle2Playlist: function (e) {
     var item = this.playlist[e.model.index];
