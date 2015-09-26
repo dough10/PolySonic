@@ -9,21 +9,33 @@ Polymer({
   
   properties: {
     
+    /**
+     * the list of albums
+     */
     albumWall: {
       type: Array,
       value: []
     },
     
+    /**
+     * page currentlly showing
+     */
     showing: {
       type: Number,
       value: 0
     },
     
+    /*
+     * is fab on screen 
+     */
     fabShowing: {
       type: Boolean,
       value: false
     },
     
+    /**
+     * the details about the request
+     */
     post: {
       type: Object
     },
@@ -67,22 +79,35 @@ Polymer({
     'neon-animation-finish': '_onAnimationFinish'
   },
   
+  /**
+   * animation is finished
+   * @param {Event} e
+   */
   _onAnimationFinish: function (e) {
     if (!this.fabShowing) {
       this.$.fab.hidden = true;
     }
   },
 
+  /**
+   * jupm to top of page
+   */
   jumpToTop: function () {
     if (this.$.header.scroller.scrollTop !== 0) {
       this.$.header.scroller.scrollTop = 0;
     }
   },
   
+  /**
+   * open the app drawer
+   */
   _openDrawer: function () {
     this.app.openDrawer();
   },
   
+  /**
+   * app resize callback
+   */
   resizeElement: function () {
     if (!this.app.narrow) {
       this.$.menuButton.hidden = true;
@@ -91,6 +116,28 @@ Polymer({
     }
   },
   
+  /**
+   * load more items to list
+   */
+  lazyLoad: function () {
+    console.timeStamp('start lazy load');
+    this.app.fetchJSON(this.app.buildUrl('getAlbumList', this.post)).then(function (json) {
+      console.timeStamp('end lazy load');
+      var newAlbums = json.albumList.album;
+      if (newAlbums) {
+        console.timeStamp('concat results');
+        this.albumWall = this.albumWall.concat(newAlbums);
+        console.timeStamp('output results');
+      } else  {
+        this.pageLimit = true;
+      }
+      this.isLoading = false;
+    }.bind(this));
+  },
+  
+  /**
+   * element is ready 
+   */
   ready: function () {
     this.app = document.querySelector('#app');
     this.async(this.resizeElement);
@@ -108,17 +155,7 @@ Polymer({
       if (!this.isLoading && !this.pageLimit && this.$.header.scroller.scrollTop >= (this.$.header.scroller.scrollHeight - 1000) && app.request !== 'getStarred' && app.request !== 'getStarred2') {
         this.isLoading = true;
         this.post.offset = Number(this.post.offset) + Number(app.querySize);
-        this.async(function () {
-          this.app.fetchJSON(this.app.buildUrl('getAlbumList', this.post)).then(function (json) {
-            var newAlbums = json.albumList.album;
-            if (newAlbums) {
-              this.albumWall = this.albumWall.concat(newAlbums);
-            } else  {
-              this.pageLimit = true;
-            }
-            this.isLoading = false;
-          }.bind(this));
-        });
+        this.async(lazyload);
       }
     }.bind(this);
   }

@@ -9,21 +9,33 @@ Polymer({
 
   properties: {
 
+    /**
+     * a array the is the playlist for this album
+     */
     playlist: {
       type: Array,
       value: []
     },
 
+    /**
+     * a Object with the details about this ablum
+     */
     album: {
       type: Object,
       observer: "_albumChanged"
     },
 
+    /**
+     * a Array with the palette of colors matching the artwork for this album
+     */
     palette: {
       type: Array,
       observer: '_paletteChanged'
     },
 
+    /**
+     * a Boolean if this album is in favorites list
+     */
     isFavorite: {
       type: Boolean,
       value: false
@@ -50,12 +62,18 @@ Polymer({
     'neon-animation-finish': '_onAnimationFinish'
   },
   
+  /**
+   * animation finished callback
+   */
   _onAnimationFinish: function (e) {
     if (!this.$.details.opened) {
       this.$.fab.hidden = true;
     }
   },
 
+  /**
+   * animation of dialog has finished callback
+   */
   _dialogAnimationFinished: function () {
     if (this.$.details.opened) {
       this.$.fab.hidden = false;
@@ -63,24 +81,41 @@ Polymer({
     }
   },
 
+  /**
+   * element is ready
+   */
   ready: function () {
     this.app = document.querySelector('#app');
   },
 
+  /**
+   * set the background immage url
+   */
   setArt: function (url) {
     this.$.art.style.backgroundImage = "url('" + url + "')";
     this.$.detailsArt.style.backgroundImage = "url('" + url + "')";
     this.imgURL = url;
   },
 
+  /**
+   * mouse is over this item
+   */
   mouseIn: function () {
     this.$.art.elevation = 3;
   },
 
+  /**
+   * mouse has left this item
+   */
   mouseOut: function () {
     this.$.art.elevation = 1;
   },
 
+  /**
+   * request the image from Subsonic
+   * request the image as a blob strores it in database
+   * then processes image and extracts a color palette and saves that palette to database
+   */
   getImage: function () {
     return new Promise(function (resolve, reject) {
       this.app.getDbItem(this.item, function (e) {
@@ -106,6 +141,10 @@ Polymer({
     }.bind(this));
   },
 
+  /**
+   * builds a playlist from the Subsonic response
+   * @param {Array} tracks       the array from Subsonic response
+   */
   makePlaylist: function (tracks) {
     return new Promise(function (resolve, reject) {
       this.playlist.length = 0;
@@ -133,6 +172,9 @@ Polymer({
     }.bind(this));
   },
 
+  /**
+   * requests the playlist from Subsonic and starts playing the album
+   */
   playAlbum: function () {
     this.app.dataLoading = true;
     this.app.playlist.length = 0;
@@ -152,6 +194,9 @@ Polymer({
     }.bind(this));
   },
 
+  /**
+   * opens the album details dialog
+   */
   openDetails: function () {
     this.app.dataLoading = true;
     this.app.getDbItem(this.item + '-palette', function (e) {
@@ -175,6 +220,9 @@ Polymer({
     }.bind(this));
   },
 
+  /**
+   * close the albums details dialog
+   */
   closeDetails: function () {
     if (this.$.details.opened) {
       this.$.details.close();
@@ -182,6 +230,9 @@ Polymer({
     }
   },
 
+  /**
+   * the album property has changed
+   */
   _albumChanged: function (newVal) {
     this.async(function ablumChanged() {
       if (newVal) {
@@ -199,6 +250,10 @@ Polymer({
     });
   },
 
+  /**
+   * the pallet array has changed
+   * sets the color palette of this album
+   */
   _paletteChanged: function (newVal) {
     this.$.closeDialog.style.background = newVal[1];
     this.$.closeDialog.style.color = newVal[0];
@@ -206,11 +261,19 @@ Polymer({
     this.$.fab.style.background = newVal[0];
   },
   
+  /**
+   * app resize callback
+   * sets the position of the details play fab 
+   */
   size: function () {
     this.$.fab.style.right = ((window.innerWidth / 2) - 260)+ 'px';
     this.$.fab.style.bottom = ((window.innerHeight / 2) - 75) + 'px';
   },
 
+  /**
+   * play back 1 single
+   * @param {Event} e
+   */
   playTrack: function (e) {
     var item = this.playlist[e.model.index];
     if (item.bookmarkPosition && this.$.bookmarkOption.opened) {
@@ -219,15 +282,28 @@ Polymer({
     console.log(item);
   },
   
+  /**
+   * resume playback of a album from a bookmarked position
+   */
   resumeFromBookmark: function () {},
   
+  /**
+   * play the album from the beginning
+   */
   playFromBeginning: function () {},
 
+  /**
+   * add a single to the app play queue
+   */
   addSingle2Playlist: function (e) {
     var item = this.playlist[e.model.index];
     console.log(item);
   },
 
+  /**
+   * queue the track to downlaod
+   * @param {Event} e
+   */
   trackDownload: function (e) {
     var item = this.playlist[e.model.index];
     console.log(item);

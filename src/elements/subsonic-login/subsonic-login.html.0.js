@@ -1,19 +1,35 @@
 Polymer({
   is: 'subsonic-login',
   properties: {
+    
+    /**
+     * a Array with the login data we are checking with the server
+     */
     post: {
       type: Array,
       value: []
     },
+    
+    /**
+     * a Boolean designating of the request is processing
+     */
     isLoading: {
       type: Boolean,
       value: false
     }
   },
+  
+  /**
+   * the element is ready
+   */
   ready: function () {
     'use strict';
     this.app = document.querySelector('#app');
   },
+  
+  /**
+   * submit the info to the server
+   */
   submit: function () {
     this.isLoading = true;
     this.$.load.hidden = false;
@@ -58,6 +74,10 @@ Polymer({
       }
     });
   },
+  
+  /**
+   * change the password input field from text to password hiding the password from view
+   */
   hidePass: function () {
     'use strict';
     var type = this.$.password.type, button = this.$.showPass, timer = this.timer;
@@ -78,12 +98,24 @@ Polymer({
       }.bind(this), 15000);
     }
   },
+  
+  /**
+   * update the elements url arrtibute
+   */
   _updateURL: function () {
     this.app.url = this.url;
   },
+  
+  /**
+   * update the elements user attribute
+   */
   _updateUser: function () {
     this.app.user = this.user;
   },
+  
+  /**
+   * update the elements pass attribute
+   */
   _updatePass: function () {
     this.app.pass = this.pass;
   }

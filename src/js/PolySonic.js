@@ -10,10 +10,16 @@
 
   var request = indexedDB.open("albumInfo", dbVersion);
 
+  /**
+   * error setting up indexeddb callback
+   */
   request.onerror = function () {
     console.log("Error creating/accessing IndexedDB database");
   };
 
+  /**
+   * indexeddb config callback
+   */
   request.onsuccess = function () {
     console.log("Success creating/accessing IndexedDB database");
     app.db = request.result;
@@ -29,15 +35,28 @@
     }
   };
   
+  /**
+   * update the indexeddb database
+   * @param {Event} event 
+   */
   request.onupgradeneeded = function (event) {
     createObjectStore(event.target.result);
   };
 
+  /**
+   * setup the indexeddb storage
+   * @param {Object} database
+   */
   function createObjectStore(dataBase) {
     console.log("Creating objectStore");
     dataBase.createObjectStore("albumInfo");
   }
   
+  /**
+   * request a item from indexeddb
+   * @param {String} id           the id of the item
+   * @param {Function} callback   function run when item search is finished
+   */
   app.getDbItem = function (id, callback) {
     var transaction = app.db.transaction(["albumInfo"], "readwrite"),
       request = transaction.objectStore("albumInfo").get(id);
@@ -45,6 +64,11 @@
     request.onerror = app.dbErrorHandler;
   };
 
+  /**
+   * save a item into indexeddb
+   * @param {Object, Blob, Array} data
+   * @param {String} the id to find this item later
+   */
   app.storeInDb = function (data, id) {
     return new Promise(function (resolve, reject) {
       var transaction = app.db.transaction(["albumInfo"], "readwrite");
@@ -55,6 +79,7 @@
     });
   };
 
+  // text strings used throughout the app 
   app.text = {
     appName: chrome.i18n.getMessage('appName'),
     appDesc: chrome.i18n.getMessage('appDesc'),
@@ -163,6 +188,9 @@
     }
   ];
   
+  /**
+   * a String prototype the returns a hex encoded version of that string
+   */
   String.prototype.hexEncode = function () {
     var r = '';
     var i = 0;
@@ -177,16 +205,29 @@
     return 'enc:'+r;
   };
   
+  /**
+   * register a app route
+   * @param {String} route          the route 
+   * @param {Function}              things to execute when this route is called
+   */
   function createRoute(route, callback) {
     if (location.hash === route) {
       callback();
     }
   }
   
+  /**
+   * send the app to a route
+   * @param {String} route          the route to go to 
+   */
   function setRoute(route) {
     location.hash = route;
   }
   
+  /**
+   * location hash change callback
+   * where we register all the routes for the app
+   */
   function routing() {
     createRoute('', function () {
       app.page = 0;
@@ -197,6 +238,10 @@
     });
   }
 
+  /**
+   * convery Bytes to readable form
+   * @param {Number} bytes
+   */
   function formatBytes(bytes) {
     if (bytes < 1024) return bytes + ' Bytes';
     else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
@@ -204,6 +249,9 @@
     else return (bytes / 1073741824).toFixed(2) + ' GB';
   }
 
+  /**
+   * app resize callback
+   */
   function appResize() {
     document.querySelector('album-wall').resizeElement();
     var albums = document.querySelectorAll('album-art');
@@ -215,12 +263,22 @@
     }
   }
 
+  /**
+   * open the first run dialog
+   * called if no setting in localStorage
+   */
   function firstRun() {
     if (!app.$.firstRun.opened) {
       app.$.firstRun.open();
     }
   }
   
+  /**
+   * make the first request to Subsonic server
+   * first make ping with no creds to get the api version
+   * then makes another ping with the creds to determine if valid info
+   * if valid request deets about the user then fetches the first 60 albums 
+   */
   function makeFirstConnection() {
     return new Promise(function (resolve, reject) {
       app.getApiVersion().then(function (json) {
@@ -249,6 +307,10 @@
     });
   }
   
+  /**
+   * create a random string
+   * @param {Number} length         length of the string to return
+   */
   function makeSalt(length) {
     var text = "";
     var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -259,6 +321,10 @@
     return text;
   }
 
+  /**
+   * convert a object or array to a post string
+   * @param {Object, Array} params      object to convert 
+   */
   function toQueryString(params) {
     var r = [];
     for (var n in params) {
@@ -268,6 +334,11 @@
     return r.join('&');
   }
 
+  /**
+   * request api version
+   * first ping no deets 
+   * second requesthas deets to authenticate
+   */
   app.getApiVersion = function () {
     return new Promise(function (resolve, reject) {
       app.fetchJSON(app.url + '/rest/ping.view?f=json').then(function versionPingCallback(json) {
@@ -285,10 +356,18 @@
     });
   };
 
+  /**
+   * restart the app
+   */
   app.reloadApp = function () {
     chrome.runtime.reload();
   };
 
+  /**
+   *  returns a string of the url to call
+   * @param {String} method               the method of the request
+   * @param {Object, String} options      the specifics about the requst to be made
+   */
   app.buildUrl = function(method, options) {
     if (options !== null && typeof options === 'object') {
       options = '&' + toQueryString(options);
@@ -316,18 +395,27 @@
     }
   };
   
+  /**
+   * open the app drawer if it is not opened
+   */
   app.openDrawer = function () {
     if (!app.$.drawer.opened) {
       app.$.drawer.openDrawer();
     }
   };
   
+  /**
+   * close the app drawer if it is opened
+   */
   app.closeDrawer = function () {
     if (app.$.drawer.opened) {
       app.$.drawer.closeDrawer();
     }
   };
   
+  /**
+   * hides the loading screen 
+   */
   app.showApp = function () {
     var loader = document.getElementById("loader"),
       box = document.getElementById("box");
@@ -340,6 +428,10 @@
     }
   };
 
+  /**
+   * request data
+   * uses fetch api
+   */
   app.fetchJSON = function (url) {
     return new Promise(function (resolve, reject) {
       app.fetching = fetch(url).then(function fetchCallback(response) {
@@ -354,6 +446,10 @@
     });
   };
 
+  /**
+   * request image
+   * uses fatch api
+   */
   app.fetchImage = function (url) {
     return new Promise(function (resolve, reject) {
       fetch(url).then(function fetchCallback(response) {
@@ -368,41 +464,76 @@
     });
   };
   
+  /**
+   * save a object into localStorage
+   * @param {Object} obj
+   */
   app.localStorageSet = function (obj) {
     for (var key in odj) {
       localStorage[key] = obj[key];
     }
   };
   
+  /**
+   *  fetch localStorage data
+   */
   app.localStorageGet = function () {
     return new Promise(function (resolve, reject) {
       resolve(localStorage);
     });
   };
   
+  /**
+   * show the user a toast
+   * @param {String} text         text to show user in toast
+   */
   app.makeToast = function (text) {
     app.$.toast.text = text;
     app.$.toast.show();
   };
 
+  /**
+   * extract color from a given image url
+   * @param {String} image
+   */
   app.getColor = function (image) {
     var colorThief = new ColorThief();
     return colorThief.getPalette(image, 4);
   };
 
+  /**
+   * returns a contrasting color to the color given
+   * @param {String} hexcolor             the color to find a contrasting color of
+   */
   app.getContrast50  = function (hexcolor) {
     return (parseInt(hexcolor, 16) > 0xffffff / 2) ? 'black' : 'white';
   };
 
+  /**
+   * convert component to hex
+   */
   app.componentToHex = function (c) {
     var hex = c.toString(16);
     return hex.length === 1 ? "0" + hex : hex;
   };
 
+  /**
+   * convert rgb color to hex color
+   * @param {String} r          red
+   * @param {String} g          green
+   * @param {String} b          blue
+   */
   app.rgbToHex = function (r, g, b) {
     return app.componentToHex(r) + app.componentToHex(g) + app.componentToHex(b);
   };
 
+  /**
+   * steal the color palette from a image url
+   * returns a Array with a palette of colors
+   * 
+   * @param {String} imgURl       url of the image to get the palette of 
+   * @param {String} artid        the id we will use to call the image from indexeddb
+   */
   app.colorThief = function (imgURL, artId) {
     return new Promise(function(resolve, reject) {
       var imgElement = new Image();
@@ -429,11 +560,19 @@
     });
   };
 
+  /**
+   * convert seconds to a readable time string
+   * @param {Number} sec          seconds to convert
+   */
   app.secondsToMins = function (sec) {
     var mins = Math.floor(sec / 60);
     return mins + ':' + ('0' + Math.floor(sec - (mins * 60))).slice(-2);
   };
 
+  /**
+   * fetch Subsonic user details
+   * @param {Function} callback
+   */
   app.userDetails = function (callback) {
     app.fetchJSON(app.buildUrl('getUser', {
       username: app.user
@@ -446,6 +585,8 @@
       }
     });
   };
+
+  // event callbacks
 
   app.addEventListener('dom-change', function domChanged() {
     var service = analytics.getService('PolySonic');
@@ -524,7 +665,12 @@
       });
     }
   });
+
+  window.onresize = appResize;
   
+  window.onhashchange = routing;
+  
+  /* temp */
   app.makeNoise = function () {
     var audio = document.createElement('audio');
     audio.src = 'http://dough10.me:4040/rest/stream.view?u=admin&v=1.12.0&c=PolySonic&f=json&p=enc%3A6f6963753831326269746368&format=raw&estimateContentLength=true&id=6631';
@@ -532,6 +678,7 @@
     audio.play();
   };
   
+  /* temp */
   app.moreAlbums = function () {
     var wall = document.querySelector('album-wall');
     if (wall.$.header.scroller.scrollTop !== 0) {
@@ -549,9 +696,6 @@
     });
   };
 
-  window.onresize = appResize;
-  
-  window.onhashchange = routing;
 })();
 
 
