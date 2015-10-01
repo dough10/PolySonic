@@ -34,7 +34,6 @@
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
-      app.md5Auth = result.md5Auth;
       app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
       app.repeatState = chrome.i18n.getMessage('disabled');
       app.$.repeatButton.style.color = '#db4437';
@@ -51,10 +50,6 @@
         app.doXhr(app.buildUrl('ping', ''), 'json', function (e) {
           if (e.target.status === 200) {
             app.version = e.target.response['subsonic-response'].version;
-            // if version greater then or equal to 1.13.0 will show authentication option in settings
-            if (versionCompare(app.version, '1.13.0') >= 0) {
-              document.querySelector('settings-menu').$.md5Auth.hidden = false;
-            }
             if (e.target.response['subsonic-response'].status === 'ok') {
               app.userDetails();
               console.log('Connected to Subconic loading data');
@@ -871,6 +866,13 @@
       });
     }
   };
+  
+  app.searchCheck = function (e) {
+    if (e.keyIdentifier === "Enter") {
+      e.target.blur();
+      app.doSearch();
+    }
+  };
 
   app.doSearch = function () {
     if (app.searchQuery) {
@@ -987,6 +989,11 @@
     app.closeDrawer(function () {
       app.doXhr(app.buildUrl('getGenres', ''), 'json', function (e) {
         app.genres = e.target.response['subsonic-response'].genres.genre;
+        app.genres.sort(function(a, b){
+          if(a.value < b.value) return -1;
+          if(a.value > b.value) return 1;
+          return 0;
+        });
         app.dataLoading = false;
         app.async(function () {
           app.$.shuffleOptions.open();
@@ -1279,19 +1286,19 @@
     if (app.version !== app.params.v) {
       app.params.v = app.version;
     }
-    if (!app.md5Auth) {
-      if (app.params.t) {
-        delete app.params.t;
-        delete app.params.s;
-      }
-      app.params.p = app.pass.hexEncode();
-      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
-    } else {
+    if (versionCompare(app.version, '1.13.0') >= 0) {
       if (app.params.p) {
         delete app.params.p;
       }
       app.params.s = makeSalt(16);
       app.params.t = md5(app.pass + app.params.s);
+      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
+    } else {
+      if (app.params.t) {
+        delete app.params.t;
+        delete app.params.s;
+      }
+      app.params.p = app.pass.hexEncode();
       return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
     }
   };

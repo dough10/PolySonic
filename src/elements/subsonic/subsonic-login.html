@@ -46,20 +46,21 @@
       {{appDesc}}
       <div id="validate">
         <paper-input-decorator id="input1" disabled?="{{isLoading}}" autoValidate isInvalid="{{invalid1}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
-          <input is="core-input"  disabled?="{{isLoading}}" id="address" type="URL" value="{{post.url}}" required="">
+          <input is="core-input" on-blur="{{testURL}}"  disabled?="{{isLoading}}" id="address" type="URL" value="{{post.url}}" required="">
         </paper-input-decorator>
+        <paper-spinner hidden?="{{!testingURL}}" active></paper-spinner>
         <br>
         <paper-input-decorator id="input2" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid2}}" labelvisible="" floatinglabel="" error="{{usernameError}}" label="{{usernameLabel}}">
           <input is="core-input"  disabled?="{{isLoading}}" type="text" value="{{post.user}}" required="">
         </paper-input-decorator>
         <br>
         <paper-input-decorator id="input3" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid3}}" labelvisible="" floatinglabel="" label="{{passwordLabel}}">
-          <input is="core-input"  disabled?="{{isLoading}}" id="password" type="password" value="{{post.pass}}">
+          <input is="core-input" on-keyup="{{checkKeyup}}" disabled?="{{isLoading}}" id="password" type="password" value="{{post.pass}}">
         </paper-input-decorator>
         <br>
         <div id="showPass" on-tap="{{hidePass}}">{{showPass}}</div><br>
         <br>
-        <paper-button on-tap="{{submit}}" disabled?="{{isLoading}}">
+        <paper-button id='submit' on-tap="{{submit}}" disabled?="{{isLoading}}">
           <template if="{{isLoading}}">
             <div id="load">
               <paper-spinner active=""></paper-spinner>

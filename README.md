@@ -11,15 +11,23 @@ HTML5 Subsonic client
 Changelog
 0.2.7
 
-- bitrate is now a install specific setting
+- bitrate is now a install specific setting (not synced between sessions)
 
 - fix endless loader if connecting to a subsonic server without content.
 
-- new authentication method is optional and off by default (switch will be shown in settings if api version 1.13.0 or above)
+- app will now correctly check if md5 authentication method can be used  (using a method taken from a discussion here. http://stackoverflow.com/a/6832721)
 
-- remove main page animation. (improves performance)
+- remove main page animation. (attempt to improve performance)
+
+- added option to precache the next song making playback near gapless (true gapless could take some time to implement)
 
 - app will now only scrobble to lastFM if more then half the song has been played
+
+- pressing enter while search box is focused will start the search query
+
+- genre list in shuffle options dialog now sorted alphabetically
+
+- after entering server address on first login when box loses focus app will attempt to connect to address given / valid response will set api version and help app determine if it should use md5 authentication (this method will help keep from sending account details insecurely)
 
 0.2.6
 

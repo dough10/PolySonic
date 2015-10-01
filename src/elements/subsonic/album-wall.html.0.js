@@ -85,6 +85,7 @@ Polymer('album-wall', {
     'use strict';
     this.app.dataLoading = false;
     this.app.showApp();
+    console.profileEnd('get albums');
   },
 
   responseChanged: function () {
@@ -167,6 +168,7 @@ Polymer('album-wall', {
 
   getPodcast: function () {
     'use strict';
+    console.profile('get albums');
     this.showing = 'podcast';
     this.clearData(function () {
       this.app.pageLimit = false;
@@ -186,6 +188,7 @@ Polymer('album-wall', {
 
   getStarred: function () {
     'use strict';
+    console.profile('get albums');
     this.showing = this.listMode;
     this.clearData(function () {
       this.app.pageLimit = false;
@@ -209,6 +212,7 @@ Polymer('album-wall', {
 
   getArtist: function () {
     'use strict';
+    console.profile('get albums');
     this.clearData(function () {
       this.app.pageLimit = false;
       this.request = 'getArtists';
@@ -228,6 +232,7 @@ Polymer('album-wall', {
 
   sortChanged: function () {
     'use strict';
+    console.profile('get albums');
     this.showing = this.listMode;
     this.clearData(function () {
       this.app.pageLimit = false;

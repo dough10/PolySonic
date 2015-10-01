@@ -7,8 +7,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <title>PolySonic</title>
-  <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
-  <script src="bower_components/x-notification/x-notification.js"></script>
   <link href="imports.html" rel="import">
   <link rel="stylesheet" href="styles/PolySonic.css" shim-shadowdom>
 </head>
@@ -50,7 +48,7 @@
             <div class="sysbar" horizontal layout></div>
             <div class="bottom" horizontal layout>
               <div flex style="text-align: center;">
-                <paper-input class="search-box" label="Search" value="{{searchQuery}}" style="width: 175px;"></paper-input>
+                <paper-input class="search-box" label="Search" on-keyup="{{searchCheck}}" value="{{searchQuery}}" style="width: 175px;"></paper-input>
               </div>
               <div>
                 <paper-icon-button on-tap="{{doSearch}}" title="Search" disabled?="{{dataLoading || shuffleLoading}}" icon="search"></paper-icon-button>
@@ -149,9 +147,6 @@
                 <core-tooltip hidden?="{{!isDownloading}}" class="bottom" label="{{showDownloads}}">
                   <paper-icon-button icon="file-download" on-tap="{{openDownloads}}" disabled?="{{dataLoading || shuffleLoading}}"></paper-icon-button>
                 </core-tooltip>
-                <!--<core-tooltip hidden?="{{!isNowPlaying}}" label="{{nowPlayingLabel}}" class="bottom">
-                  <paper-icon-button on-tap="{{nowPlaying}}" disabled?="{{dataLoading || shuffleLoading}}" icon="av:hearing"></paper-icon-button>
-                </core-tooltip>-->
               </core-toolbar>
               <album-wall id="wall" listMode="{{listMode}}" bitRate="{{bitRate}}" querySize="{{querySize}}" isLoading="{{isLoading}}" showing="{{showing}}" queryMethod="{{queryMethod}}" mediaFolder="{{folder}}" colorThiefEnabled="{{colorThiefEnabled}}" artists="{{artists}}"></album-wall>
             </core-header-panel>
@@ -653,10 +648,11 @@
 
     </template>
   </div>
-  <script src="js/PolySonic.js"></script>
-  <script src="js/google-analytics-bundle.js"></script>
-  <script src="js/md5.js"></script>
-  <script src="js/color-thief.min.js"></script>
-  <script src="js/version_compare.js"></script>
+  <script src="js/PolySonic.js" async></script>
+  <script src="js/google-analytics-bundle.js" async></script>
+  <script src="js/md5.js" async></script>
+  <script src="js/color-thief.min.js" async></script>
+  <script src="js/version_compare.js" async></script>
+  <script src="bower_components/x-notification/x-notification.js" async></script>
 </body>
 </html>
