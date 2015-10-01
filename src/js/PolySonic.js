@@ -160,6 +160,7 @@
     createPlaylistLabel: chrome.i18n.getMessage('createPlaylistLabel')
   };
 
+  // shuffle playlist lengths
   app.shuffleSizes = [
     20,
     40,
@@ -169,6 +170,7 @@
     200
   ];
 
+  // album sort options
   app.sortTypes = [
     {
       sort: 'newest',
@@ -239,7 +241,7 @@
   }
 
   /**
-   * convery Bytes to readable form
+   * convery Bytes to readable format
    * @param {Number} bytes
    */
   function formatBytes(bytes) {
@@ -337,7 +339,7 @@
   /**
    * request api version
    * first ping no deets 
-   * second requesthas deets to authenticate
+   * second request has deets to authenticate
    */
   app.getApiVersion = function () {
     return new Promise(function (resolve, reject) {
@@ -358,6 +360,8 @@
 
   /**
    * restart the app
+   * 
+   * callback when clearing settings / indexeddb
    */
   app.reloadApp = function () {
     chrome.runtime.reload();

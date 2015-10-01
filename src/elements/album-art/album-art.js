@@ -113,8 +113,9 @@ Polymer({
 
   /**
    * request the image from Subsonic
-   * request the image as a blob strores it in database
-   * then processes image and extracts a color palette and saves that palette to database
+   * request the image as a blob then strores it in database
+   * then extracts a color palette and saves that palette to database
+   * returns the image object url 
    */
   getImage: function () {
     return new Promise(function (resolve, reject) {
@@ -236,6 +237,8 @@ Polymer({
   _albumChanged: function (newVal) {
     this.async(function ablumChanged() {
       if (newVal) {
+        console.time(newVal.id);
+        console.timeStamp(newVal.id);
         this.$.downloadLink.hidden = !this.app.activeUser.downloadRole;
         this.setArt('../../../images/default-cover-art.png');
         this.albumTitle = newVal.album;
@@ -245,6 +248,7 @@ Polymer({
         this.getImage().then(function (image) {
           this.setArt(image);
           this.$.loading.hidden = true;
+          console.timeEnd(newVal.id);
         }.bind(this));
       }
     });

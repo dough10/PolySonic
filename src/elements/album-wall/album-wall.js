@@ -120,18 +120,18 @@ Polymer({
    * load more items to list
    */
   lazyLoad: function () {
-    console.timeStamp('start lazy load');
+    console.count('lazy load called');
+    console.time('lazy load');
     this.app.fetchJSON(this.app.buildUrl('getAlbumList', this.post)).then(function (json) {
-      console.timeStamp('end lazy load');
+
       var newAlbums = json.albumList.album;
       if (newAlbums) {
-        console.timeStamp('concat results');
         this.albumWall = this.albumWall.concat(newAlbums);
-        console.timeStamp('output results');
       } else  {
         this.pageLimit = true;
       }
       this.isLoading = false;
+      console.timeEnd('lazy load');
     }.bind(this));
   },
   
@@ -155,7 +155,7 @@ Polymer({
       if (!this.isLoading && !this.pageLimit && this.$.header.scroller.scrollTop >= (this.$.header.scroller.scrollHeight - 1000) && app.request !== 'getStarred' && app.request !== 'getStarred2') {
         this.isLoading = true;
         this.post.offset = Number(this.post.offset) + Number(app.querySize);
-        this.async(lazyload);
+        this.async(this.lazyLoad.bind(this));
       }
     }.bind(this);
   }
