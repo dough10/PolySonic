@@ -1,6 +1,11 @@
 /*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief, setTimeout */
 (function () {
   'use strict';
+  window.addEventListener('keyup', function (e) {
+    if (e.keyCode ===  32) {
+      //
+    }
+  });
   var app = document.querySelector('#tmpl');
   app.scrolling = false;
   app.addEventListener('template-bound', function () {

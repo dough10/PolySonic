@@ -48,7 +48,6 @@ Polymer('music-player',{
     this.async(function () {
       if (this.app.alreadyPlaying) {
         // ignore default functions when shuffleing
-        console.log('skipped');
         this.app.alreadyPlaying = false;
       } else {
         this.$.cover2.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
