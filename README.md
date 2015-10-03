@@ -29,6 +29,10 @@ Changelog
 
 - after entering server address on first login when box loses focus app will attempt to connect to address given / valid response will set api version and help app determine if it should use md5 authentication (this method will help keep from sending account details insecurely)
 
+- greatly reduece the number of dom nodes generated for album wall (that content will now be conditionaly loaded)
+
+- attempt to fix bug where it looks as if played content was not being garbage collected
+
 0.2.6
 
 - new icon (thanks William Kray)

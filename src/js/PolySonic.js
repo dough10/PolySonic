@@ -440,7 +440,7 @@
   };
 
   function endLoop() {
-    if (app.$.player.$.audio.paused) {
+    if (app.$.player.audio.paused) {
       app.doShufflePlayback();
       app.dataLoading = false;
       app.closePlaylists();
@@ -601,7 +601,7 @@
     app.dataLoading = true;
     app.playlist = null;
     app.playlist = [];
-    app.$.player.$.audio.pause();
+    app.$.player.audio.pause();
     app.doXhr(app.buildUrl('getPlaylist', {id: sender.attributes.ident.value}), 'json', function (e) {
       var tracks = e.target.response['subsonic-response'].playlist.entry;
       var length = tracks.length;
@@ -624,7 +624,7 @@
     app.shuffleLoading = true;
     app.playlist.length = 0;
     if (!app.startYearInvalid && !app.endYearInvalid) {
-      app.$.player.$.audio.pause();
+      app.$.player.audio.pause();
       if (app.shuffleSettings.genre === 0) {
         delete app.shuffleSettings.genre;
       }
@@ -655,7 +655,7 @@
   };
 
   app.doShufflePlayback = function () {
-    if (app.$.player.$.audio.paused) {
+    if (app.$.player.app.$.player.audio.paused.paused) {
       if (app.playing === 0) {
         app.$.player.playAudio(app.playlist[0]);
       } else {
@@ -674,7 +674,7 @@
   */
   app.clearPlaylist = function () {
     app.tracker.sendEvent('Clear Playlist', new Date());
-    app.$.player.$.audio.pause();
+    app.$.player.audio.pause();
     app.$.playlistDialog.close();
     app.page = 0;
     app.playlist = null;

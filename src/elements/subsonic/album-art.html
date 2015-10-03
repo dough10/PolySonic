@@ -229,21 +229,33 @@
         transform: translate3d(0, 0, 0);
       }
     </style>
+    
+    <!-- delete bookmark comfirmation dialog -->
     <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
-      <div style="min-width:280px"></div>
-      <h4>{{app.deletebookMarkConfirm}}</h4>
-      <paper-button affirmative>{{app.decline}}</paper-button>
-      <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{app.accept}}</paper-button>
+      <template if="{{$.bookmarkConfirm.opened}}">
+        <div style="min-width:280px"></div>
+        <h4>{{app.deletebookMarkConfirm}}</h4>
+        <paper-button affirmative>{{app.decline}}</paper-button>
+        <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{app.accept}}</paper-button>
+      </template>
     </paper-action-dialog>
+    
+    <!-- bookmark playback confirmation dialog -->
     <paper-action-dialog id="playbackConfirm" transition="core-transition-center">
-      <h4>{{hasBookmark}}</h4>
-      <paper-button style="background: green; color: white;" affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" artist="{{bookMark.artist}}" bookmark="{{bookMark.bookmarkPosition}}" trackTitle="{{bookMark.title}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{playFrom}} {{bookmarkTime}}</paper-button>
-      <paper-button affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" trackTitle="{{bookMark.title}}" artist="{{bookmark.artist}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{fromStart}}</paper-button>
+      <template if="{{$.playbackConfirm.opened}}">
+        <h4>{{hasBookmark}}</h4>
+        <paper-button style="background: green; color: white;" affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" artist="{{bookMark.artist}}" bookmark="{{bookMark.bookmarkPosition}}" trackTitle="{{bookMark.title}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{playFrom}} {{bookmarkTime}}</paper-button>
+        <paper-button affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" trackTitle="{{bookMark.title}}" artist="{{bookmark.artist}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{fromStart}}</paper-button>
+      </template>
     </paper-action-dialog>
+    
+    <!-- album bookmark playback confirmation dialog -->
     <paper-action-dialog id="albumPlaybackConfirm" transition="core-transition-center">
-      <h4>{{hasBookmark}}</h4>
-      <paper-button style="background: green; color: white;" affirmative on-tap="{{playFromBookmark}}">{{playFrom}} Track {{bookmarkIndex + 1}} @ {{bookmarkTime}}</paper-button>
-      <paper-button affirmative on-tap="{{playAlbum}}">{{fromStart}}</paper-button>
+      <template if="{{$.albumPlaybackConfirm.opened}}">
+        <h4>{{hasBookmark}}</h4>
+        <paper-button style="background: green; color: white;" affirmative on-tap="{{playFromBookmark}}">{{playFrom}} Track {{bookmarkIndex + 1}} @ {{bookmarkTime}}</paper-button>
+        <paper-button affirmative on-tap="{{playAlbum}}">{{fromStart}}</paper-button>
+      </template>
     </paper-action-dialog>
     <paper-shadow z="1" id="card" page="cover" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
       <div class="wrapper">
@@ -334,111 +346,113 @@
       </style>
       <paper-icon-button id="closeDialog" icon="arrow-back" on-tap="{{closeDialog}}"></paper-icon-button>
       <div id="topper"></div>
-      <div style="font-size:10pt; left: 8px; position:absolute; top:400px; width:455px;">
-        <div style="font-size:14pt; margin:8px; margin-right: 30px; max-height:30px;">
-          {{artist}} / {{album}}
-        </div>
-        <core-tooltip label="{{add2PlayQueue}}" position="right">
-          <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add"></paper-icon-button>
-        </core-tooltip>
-        <core-tooltip label="{{favoriteAlbum}}" position="right">
-          <template if="{{!isFavorite}}">
-            <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
-          </template>
-          <template if="{{isFavorite}}">
-            <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
-          </template>
-        </core-tooltip>
-        <template if="{{app.activeUser.downloadRole}}">
-          <core-tooltip label="{{downloadButton}}" position="right">
-            <paper-icon-button on-tap="{{doAlbumDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
+      <template if="{{$.detailsDialog.opened}}">
+        <div style="font-size:10pt; left: 8px; position:absolute; top:400px; width:455px;">
+          <div style="font-size:14pt; margin:8px; margin-right: 30px; max-height:30px;">
+            {{artist}} / {{album}}
+          </div>
+          <core-tooltip label="{{add2PlayQueue}}" position="right">
+            <paper-icon-button on-tap="{{doAdd2Playlist}}" icon="av:playlist-add"></paper-icon-button>
           </core-tooltip>
-        </template>
-        <core-tooltip label="{{moreLikeThis}}" position="right">
-          <paper-icon-button on-tap="{{moreLike}}" ident="{{albumID}}" icon="av:radio"></paper-icon-button>
-        </core-tooltip>
-<!--        <span class="ratings">
-          <template if="{{app.queryMethod !== 'ID3'}}">
-            <core-tooltip label="Current Rating: {{rating}} stars">
-              <template if="{{!rating}}">
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
-              </template>
-              <template if="{{rating === 1}}">
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
-              </template>
-              <template if="{{rating === 2}}">
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
-              </template>
-              <template if="{{rating === 3}}">
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
-              </template>
-              <template if="{{rating === 4}}">
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
-              </template>
-              <template if="{{rating === 5}}">
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="5"></paper-icon-button>
-              </template>
+          <core-tooltip label="{{favoriteAlbum}}" position="right">
+            <template if="{{!isFavorite}}">
+              <paper-icon-button on-tap="{{addFavorite}}" ident="{{item}}" icon="favorite-outline"></paper-icon-button>
+            </template>
+            <template if="{{isFavorite}}">
+              <paper-icon-button on-tap="{{removeFavorite}}" ident="{{item}}" icon="favorite"></paper-icon-button>
+            </template>
+          </core-tooltip>
+          <template if="{{app.activeUser.downloadRole}}">
+            <core-tooltip label="{{downloadButton}}" position="right">
+              <paper-icon-button on-tap="{{doAlbumDownload}}" ident="{{albumID}}" icon="file-download"></paper-icon-button>
             </core-tooltip>
           </template>
-        </span>-->
-      </div>
-      <div class="trackWrapper">
-        <template repeat="{{track in playlist}}">
-          <core-item>
-            <template if="{{track.bookmarkPosition}}">
-              <paper-icon-button ident="{{track.id}}" on-tap="{{conBookDel}}" icon="bookmark"></paper-icon-button>
-            </template>
-            <div flex style="margin-right:8px; overflow: hidden;">
-              <template if="{{track.disk}}">D.{{track.disk}}.</template>
-              <template if="{{track.track}}">T.{{track.track}}: </template>
-              {{track.title}}
-              <template if="{{app.playlist[app.playing].id === track.id}}">
-                <core-icon icon="av:volume-up"></core-icon>
-              </template>
-            </div>
-            <core-tooltip label="{{playTrackLabel}}" position="left">
-              <template if="{{track.bookmarkPosition}}">
-                <paper-icon-button icon="av:play-arrow" on-tap="{{playChoice}}" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}" bookmark="{{track.bookmarkPosition}}"></paper-icon-button>
-              </template>
-              <template if="{{!track.bookmarkPosition}}">
-                <paper-icon-button icon="av:play-arrow" on-tap="{{playTrack}}" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
-              </template>
-            </core-tooltip>
-            <core-tooltip label="{{add2PlayQueue}}" position="left">
-              <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
-            </core-tooltip>
-            <template if="{{app.activeUser.downloadRole}}">
-              <core-tooltip label="{{downloadButton}}" position="left">
-                <paper-icon-button on-tap="{{doTrackDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
+          <core-tooltip label="{{moreLikeThis}}" position="right">
+            <paper-icon-button on-tap="{{moreLike}}" ident="{{albumID}}" icon="av:radio"></paper-icon-button>
+          </core-tooltip>
+  <!--        <span class="ratings">
+            <template if="{{app.queryMethod !== 'ID3'}}">
+              <core-tooltip label="Current Rating: {{rating}} stars">
+                <template if="{{!rating}}">
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="1"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="2"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="3"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
+                </template>
+                <template if="{{rating === 1}}">
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="2"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="3"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
+                </template>
+                <template if="{{rating === 2}}">
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="3"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
+                </template>
+                <template if="{{rating === 3}}">
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="3"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
+                </template>
+                <template if="{{rating === 4}}">
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="3"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="4"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
+                </template>
+                <template if="{{rating === 5}}">
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="3"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="4"></paper-icon-button>
+                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="5"></paper-icon-button>
+                </template>
               </core-tooltip>
             </template>
-          </core-item>
-        </template>
-      </div>
+          </span>-->
+        </div>
+        <div class="trackWrapper">
+          <template repeat="{{track in playlist}}">
+            <core-item>
+              <template if="{{track.bookmarkPosition}}">
+                <paper-icon-button ident="{{track.id}}" on-tap="{{conBookDel}}" icon="bookmark"></paper-icon-button>
+              </template>
+              <div flex style="margin-right:8px; overflow: hidden;">
+                <template if="{{track.disk}}">D.{{track.disk}}.</template>
+                <template if="{{track.track}}">T.{{track.track}}: </template>
+                {{track.title}}
+                <template if="{{app.playlist[app.playing].id === track.id}}">
+                  <core-icon icon="av:volume-up"></core-icon>
+                </template>
+              </div>
+              <core-tooltip label="{{playTrackLabel}}" position="left">
+                <template if="{{track.bookmarkPosition}}">
+                  <paper-icon-button icon="av:play-arrow" on-tap="{{playChoice}}" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}" bookmark="{{track.bookmarkPosition}}"></paper-icon-button>
+                </template>
+                <template if="{{!track.bookmarkPosition}}">
+                  <paper-icon-button icon="av:play-arrow" on-tap="{{playTrack}}" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
+                </template>
+              </core-tooltip>
+              <core-tooltip label="{{add2PlayQueue}}" position="left">
+                <paper-icon-button on-tap="{{addSingle2Playlist}}" icon="av:playlist-add" trackTitle="{{track.title}}" artist="{{track.artist}}" ident="{{track.id}}" cover="{{track.cover}}" duration="{{track.duration}}"></paper-icon-button>
+              </core-tooltip>
+              <template if="{{app.activeUser.downloadRole}}">
+                <core-tooltip label="{{downloadButton}}" position="left">
+                  <paper-icon-button on-tap="{{doTrackDownload}}" ident="{{track.id}}"  icon="file-download"></paper-icon-button>
+                </core-tooltip>
+              </template>
+            </core-item>
+          </template>
+        </div>
+      </template>
     </paper-dialog>
   </template>
   <script src="album-art.html.0.js"></script>

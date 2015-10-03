@@ -48,7 +48,7 @@ Polymer('album-wall', {
   domReady: function () {
     'use strict';
     this.app = document.getElementById("tmpl");
-    this.audio = this.app.$.player.$.audio;
+    this.audio = this.app.$.player.audio;
     this.scrollTarget = this.app.appScroller();
   },
 
@@ -70,6 +70,8 @@ Polymer('album-wall', {
 
   clearData: function (callback) {
     'use strict';
+    console.time('data request');
+    console.profile('albums');
     this.wall.length = 0;
     this.artist.length = 0;
     this.podcast.length = 0;
@@ -85,13 +87,14 @@ Polymer('album-wall', {
     'use strict';
     this.app.dataLoading = false;
     this.app.showApp();
-    console.profileEnd('get albums');
+    console.profileEnd('albums');
+    console.timeEnd('data request');
   },
 
   responseChanged: function () {
     'use strict';
     if (this.response) {
-      this.async(function () {
+      this.async(function responseCallback() {
         var response = this.response['subsonic-response'];
         if (response.status === 'failed') {
           console.log(response.error.message);
@@ -168,9 +171,8 @@ Polymer('album-wall', {
 
   getPodcast: function () {
     'use strict';
-    console.profile('get albums');
     this.showing = 'podcast';
-    this.clearData(function () {
+    this.clearData(function podcastCallback() {
       this.app.pageLimit = false;
       this.request = 'getPodcasts';
       if (this.post.type) {
@@ -188,9 +190,8 @@ Polymer('album-wall', {
 
   getStarred: function () {
     'use strict';
-    console.profile('get albums');
     this.showing = this.listMode;
-    this.clearData(function () {
+    this.clearData(function starredCallback() {
       this.app.pageLimit = false;
       if (this.queryMethod === 'ID3') {
         this.request = 'getStarred2';
@@ -212,8 +213,7 @@ Polymer('album-wall', {
 
   getArtist: function () {
     'use strict';
-    console.profile('get albums');
-    this.clearData(function () {
+    this.clearData(function artistSearch() {
       this.app.pageLimit = false;
       this.request = 'getArtists';
       if (this.post.type) {
@@ -232,9 +232,8 @@ Polymer('album-wall', {
 
   sortChanged: function () {
     'use strict';
-    console.profile('get albums');
     this.showing = this.listMode;
-    this.clearData(function () {
+    this.clearData(function sortCallback() {
       this.app.pageLimit = false;
       if (this.queryMethod === 'ID3') {
         this.request = 'getAlbumList2';

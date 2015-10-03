@@ -3,20 +3,13 @@ Polymer('music-player',{
   bookmarkDeleted: false,
   ready: function () {
     this.page = 0;
-    //turntable 1
-    this.audio = this.$.audio;
-    this.audio.onwaiting = this.playerProgress.bind(this);
-    this.audio.ontimeupdate = this.playerProgress.bind(this);
-    this.audio.onended = this.nextTrack.bind(this);
-    this.audio.onerror = this.audioError.bind(this);
-    // turntable 2
-    this.audio2 = this.$.audio2;
-    this.audio2.onwaiting = this.playerProgress.bind(this);
-    this.audio2.ontimeupdate = this.playerProgress.bind(this);
-    this.audio2.onended = this.nextTrack.bind(this);
-    this.audio2.onerror = this.audioError.bind(this);
-    // player currently being used
-    this.currentPlayer = 1;
+  },
+  applyAudioListeners: function (element) {
+    element.onprogress = this.buffering.bind(this);
+    element.onwaiting = this.playerProgress.bind(this);
+    element.ontimeupdate = this.playerProgress.bind(this);
+    element.onended = this.nextTrack.bind(this);
+    element.onerror = this.audioError.bind(this);
   },
   resize: function () {
     if (this.app){
@@ -67,29 +60,43 @@ Polymer('music-player',{
       minis[i].setPlaying(obj);
     }
     
-    // if it is a podcast do not transcode 
-    if (obj.artist === '') {
-      this.app.currentPlaying = obj.title;
-      this.note.title = obj.title;
-      if (!this.isCued) {
-        this.audio.src = this.app.buildUrl('stream', {
-          format: 'raw',
-          estimateContentLength: true,
-          id: obj.id
-        });
-      }
-      
-    // default playback  * transcoded audio * 
+    // gapless playback if cached
+    if (this.app.gapless && this.isCued) {
+      this.audio = this.isCued;
+      this.applyAudioListeners(this.audio);
+      this.audio.play();
+      this.isCued = false;
     } else {
-      this.app.currentPlaying = obj.artist + ' - ' + obj.title;
-      this.note.title = obj.artist + ' - ' + obj.title;
-      if (!this.isCued) {
-        this.audio.src = this.app.buildUrl('stream', {
-          maxBitRate: this.app.bitRate,
-          id: obj.id
-        });
+      if (this.audio && !this.audio.paused) {
+        this.audio.pause();
       }
+      this.audio = new Audio();
+      this.applyAudioListeners(this.audio);
+      if (obj.artist === '') {
+        this.app.currentPlaying = obj.title;
+        this.note.title = obj.title;
+        if (!this.isCued) {
+          this.audio.src = this.app.buildUrl('stream', {
+            format: 'raw',
+            estimateContentLength: true,
+            id: obj.id
+          });
+        }
+        
+      // default playback  * transcoded audio * 
+      } else {
+        this.app.currentPlaying = obj.artist + ' - ' + obj.title;
+        this.note.title = obj.artist + ' - ' + obj.title;
+        if (!this.isCued) {
+          this.audio.src = this.app.buildUrl('stream', {
+            maxBitRate: this.app.bitRate,
+            id: obj.id
+          });
+        }
+      }
+      this.audio.play();
     }
+    
     this.note.icon = obj.cover;
     
     // set playback position if bookmarked file
@@ -99,31 +106,6 @@ Polymer('music-player',{
       this.audio.currentTime = 0;
     }
     
-    // gapless playback if cached
-    if (this.app.gapless && this.isCued) {
-      
-      // configure buffer callback
-      if (this.isCued === 'audio') {
-        this.currentPlayer = 1;
-        this.audio.onprogress = this.buffering.bind(this);
-        this.audio2.onProgress = null;
-      } else {
-        this.currentPlayer = 2;
-        this.audio2.onprogress = this.buffering.bind(this);
-        this.audio.onprogress = null;
-      }
-      this.$[this.isCued].play();
-      // clear cache 
-      this.async(function () {
-        this.isCued = false;
-      }, null, 500);
-    } else {
-      // default playback 
-      this.audio2.pause();
-      this.currentPlayer = 1;
-      this.audio.play();
-      this.audio.onprogress = this.buffering.bind(this);
-    }
     this.note.show();
     this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
@@ -159,7 +141,7 @@ Polymer('music-player',{
     } else if (this.app.playlist[next]) {
       this.app.playing = next;
     } else {
-      this.$.audio.pause();
+      this.audio.pause();
       this.app.clearPlaylist();
       var minis = document.querySelectorAll('mini-player');
       var length = minis.length;
@@ -171,7 +153,7 @@ Polymer('music-player',{
   nextTrack: function () {
     // if track longer then 20 min and autobookmark enabled 
     // will delete the bookmark 
-    if (this.app.autoBookmark && this.$.audio.duration > 1200) {
+    if (this.app.autoBookmark && this.audio.duration > 1200) {
       this.app.doXhr(this.app.buildUrl('deleteBookmark', {
         id: this.app.playlist[this.app.playing].id
       }), 'json', function (e) {
@@ -203,20 +185,12 @@ Polymer('music-player',{
   playerProgress: function (e) {
     var audio = e.srcElement;
     // gapless?
-    if (this.app.gapless && audio.currentTime >= audio.duration - 60 && !this.isCued) {
-      if (audio.id === 'audio') {
-        this.isCued = 'audio2';
-        this.$.audio2.src = this.app.buildUrl('stream', {
-          maxBitRate: this.app.bitRate,
-          id: this.app.playlist[this.app.playing + 1].id
-        });
-      } else {
-        this.isCued = 'audio';
-        this.$.audio.src = this.app.buildUrl('stream', {
-          maxBitRate: this.app.bitRate,
-          id: this.app.playlist[this.app.playing + 1].id
-        });
-      }
+    if (this.app.gapless && audio.currentTime >= audio.duration - 60 
+    && !this.isCued && this.app.playlist[this.app.playing + 1]) {
+      this.isCued = new Audio(this.app.buildUrl('stream', {
+        maxBitRate: this.app.bitRate,
+        id: this.app.playlist[this.app.playing + 1].id
+      }));
     }
     
     // if waiting for playback to start
@@ -305,10 +279,10 @@ Polymer('music-player',{
       width = 500;
       x = event.x - (window.innerWidth - width) / 2;
     }
-    var duration = this.$.audio.duration;
+    var duration = this.audio.duration;
     var clicked = (x / width);
     this.progress = clicked * 100;
-    this.$.audio.currentTime = duration - (duration - (duration * clicked));
+    this.audio.currentTime = duration - (duration - (duration * clicked));
   },
   toggleRepeat: function () {
     if (this.app.repeatPlaylist) {
@@ -344,11 +318,11 @@ Polymer('music-player',{
     var track = this.app.playlist[this.app.playing].title;
     this.app.$.playlistDialog.close();
     this.app.$.bookmarkDialog.open();
-    this.app.bookmarkComment = this.app.playlist[this.app.playing].title + ' at ' + this.app.secondsToMins(this.$.audio.currentTime);
+    this.app.bookmarkComment = this.app.playlist[this.app.playing].title + ' at ' + this.app.secondsToMins(this.audio.currentTime);
   },
   submitBookmark: function () {
     this.app.submittingBookmark = true;
-    var pos = Math.floor(this.$.audio.currentTime * 1000);
+    var pos = Math.floor(this.audio.currentTime * 1000);
     this.app.doXhr(
       this.app.buildUrl('createBookmark', {
         id: this.app.playlist[this.app.playing].id,
