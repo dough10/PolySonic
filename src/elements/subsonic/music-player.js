@@ -3,6 +3,7 @@ Polymer('music-player',{
   bookmarkDeleted: false,
   ready: function () {
     this.page = 0;
+    this.audio = new Audio();
   },
   applyAudioListeners: function (element) {
     element.onprogress = this.buffering.bind(this);
@@ -10,6 +11,7 @@ Polymer('music-player',{
     element.ontimeupdate = this.playerProgress.bind(this);
     element.onended = this.nextTrack.bind(this);
     element.onerror = this.audioError.bind(this);
+    element.volume = this.app.volume / 100;
   },
   resize: function () {
     if (this.app){
@@ -66,6 +68,7 @@ Polymer('music-player',{
       this.applyAudioListeners(this.audio);
       this.audio.play();
       this.isCued = false;
+      this.app.currentPlaying = obj.artist + ' - ' + obj.title;
     } else {
       if (this.audio && !this.audio.paused) {
         this.audio.pause();

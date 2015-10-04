@@ -110,7 +110,7 @@
           </core-menu>
         </core-header-panel>
 
-        <core-animated-pages main  class="pages" selected="{{page}}">
+        <core-animated-pages main  class="pages" selected="{{page}}" transitions="slide-from-right hero-transition">
 
           <section>
             <core-header-panel class="pages" id="headerPanel" flex mode="waterfall">
@@ -268,18 +268,20 @@
           </div>
         </div>
         <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
-          <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
-            <template repeat="{{playlist}}">
-              <paper-item on-tap="{{playThis}}" style="color:#000000">
-                <div flex style="overflow:hidden">
-                  {{artist}} - {{title}}
-                </div>
-                <div style="margin-left:8px">
-                  {{duration}}
-                </div>
-              </paper-item>
-            </template>
-          </core-menu>
+          <template if="{{$.playlistDialog.opened}}">
+            <core-menu class="menu" id="playlistMenu" selected="{{playing}}">
+              <template repeat="{{playlist}}">
+                <paper-item on-tap="{{playThis}}" style="color:#000000">
+                  <div flex style="overflow:hidden">
+                    {{artist}} - {{title}}
+                  </div>
+                  <div style="margin-left:8px">
+                    {{duration}}
+                  </div>
+                </paper-item>
+              </template>
+            </core-menu>
+          </template>
         </div>
       </paper-dialog>
 
@@ -293,16 +295,18 @@
           </div>
         </div>
         <div style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto;">
-          <template repeat="{{allBookmarks}}">
-            <core-item>
-              <div flex style="font-size: 16px; margin-left: 16px; overflow:hidden;">
-                {{comment}}
-              </div>
-              <div>
-                <paper-icon-button icon="av:play-arrow" on-tap="{{queBookmark}}" data-id="{{entry.id}}" data-pos="{{entry.bookmarkPosition}}"></paper-icon-button>
-                <paper-icon-button icon="remove-circle" on-tap="{{conBookDel}}" data-id="{{entry.id}}" style="margin-right:8px; color:#db4437;"></paper-icon-button>
-              </div>
-            </core-item>
+          <template if="{{$.showBookmarks.opened}}">
+            <template repeat="{{allBookmarks}}">
+              <core-item>
+                <div flex style="font-size: 16px; margin-left: 16px; overflow:hidden;">
+                  {{comment}}
+                </div>
+                <div>
+                  <paper-icon-button icon="av:play-arrow" on-tap="{{queBookmark}}" data-id="{{entry.id}}" data-pos="{{entry.bookmarkPosition}}"></paper-icon-button>
+                  <paper-icon-button icon="remove-circle" on-tap="{{conBookDel}}" data-id="{{entry.id}}" style="margin-right:8px; color:#db4437;"></paper-icon-button>
+                </div>
+              </core-item>
+            </template>
           </template>
         </div>
       </paper-dialog>

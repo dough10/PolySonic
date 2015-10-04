@@ -94,7 +94,7 @@
               {{addAlbums}}
             </paper-shadow>
           </template>
-          <core-list id="cover" runwayFactor="8" data="{{wall}}" grid scrollTarget="{{scrollTarget}}">
+          <core-list id="cover" runwayFactor="6" data="{{wall}}" grid scrollTarget="{{scrollTarget}}">
             <template>
               <div>
                 <album-art id='ac{{model.id}}' listMode="cover" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name || model.title}}" isFavorite="{{model.starred}}"></album-art>

@@ -17,8 +17,6 @@ Changelog
 
 - app will now correctly check if md5 authentication method can be used  (using a method taken from a discussion here. http://stackoverflow.com/a/6832721)
 
-- remove main page animation. (attempt to improve performance)
-
 - added option to precache the next song making playback near gapless (true gapless could take some time to implement)
 
 - app will now only scrobble to lastFM if more then half the song has been played

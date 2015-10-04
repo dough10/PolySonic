@@ -655,7 +655,18 @@
   };
 
   app.doShufflePlayback = function () {
-    if (app.$.player.audio.paused) {
+    if (app.$.player.audio && app.$.player.audio.paused) {
+      if (app.playing === 0) {
+        app.$.player.playAudio(app.playlist[0]);
+      } else {
+        app.playing = 0;
+      }
+      app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
+        app.setFabColor(app.playlist[0]);
+        app.$.shuffleOptions.close();
+        app.shuffleLoading = false;
+      });
+    } else if (!app.$.player.audio) {
       if (app.playing === 0) {
         app.$.player.playAudio(app.playlist[0]);
       } else {

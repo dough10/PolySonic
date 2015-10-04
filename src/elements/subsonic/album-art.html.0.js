@@ -478,7 +478,7 @@ Polymer('album-art', {
             },
             artId = 'al-' + response[i].albumId;
           this.app.getDbItem(artId, function (ev) {
-            this.moreCallback(ev,obj);
+            this.moreCallback(ev,obj,artId);
           }.bind(this));
         }
       } else {
@@ -488,7 +488,7 @@ Polymer('album-art', {
     }.bind(this));
   },
   
-  moreCallback: function (artEvent, obj) {
+  moreCallback: function (artEvent, obj, artId) {
     if (artEvent.target.result) {
       obj.cover = window.URL.createObjectURL(artEvent.target.result);
       this.app.getDbItem(artId + '-palette', function (paletteEvent) {
