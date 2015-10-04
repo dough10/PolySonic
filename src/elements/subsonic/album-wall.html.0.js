@@ -71,7 +71,6 @@ Polymer('album-wall', {
   clearData: function (callback) {
     'use strict';
     console.time('data request');
-    console.profile('albums');
     this.wall.length = 0;
     this.artist.length = 0;
     this.podcast.length = 0;
@@ -86,8 +85,11 @@ Polymer('album-wall', {
   responseCallback: function () {
     'use strict';
     this.app.dataLoading = false;
+    console.log(this.isLoading);
+    this.async(function () {
+      this.isLoading = false;
+    }, null, 1000);
     this.app.showApp();
-    console.profileEnd('albums');
     console.timeEnd('data request');
   },
 
@@ -264,6 +266,7 @@ Polymer('album-wall', {
     this.$.threshold.clearLower();
     if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.app.pageLimit && this.app.page === 0) {
       this.isLoading = true;
+      console.count('lazy load');
       this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
       this.async(this.doAjax);
     }

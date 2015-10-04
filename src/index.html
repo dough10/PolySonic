@@ -43,15 +43,14 @@
       <core-drawer-panel id="panel" narrow="{{narrow}}" disableSwipe?="{{page !== 0}}" responsiveWidth="1000px">
 
         <!-- menu -->
-        <core-header-panel drawer flex mode="waterfall">
-          <core-toolbar class="medium-tall">
-            <div class="sysbar" horizontal layout></div>
+        <core-header-panel drawer flex mode="standard">
+          <core-toolbar style="background: white; color: #333;">
             <div class="bottom" horizontal layout>
               <div flex style="text-align: center;">
                 <paper-input class="search-box" label="Search" on-keyup="{{searchCheck}}" value="{{searchQuery}}" style="width: 175px;"></paper-input>
               </div>
               <div>
-                <paper-icon-button on-tap="{{doSearch}}" title="Search" disabled?="{{dataLoading || shuffleLoading}}" icon="search"></paper-icon-button>
+                <paper-icon-button style="color: #333;" on-tap="{{doSearch}}" title="Search" disabled?="{{dataLoading || shuffleLoading}}" icon="search"></paper-icon-button>
               </div>
             </div>
           </core-toolbar>
@@ -113,15 +112,8 @@
         <core-animated-pages main  class="pages" selected="{{page}}" transitions="slide-from-right hero-transition">
 
           <section>
-            <core-header-panel class="pages" id="headerPanel" flex mode="waterfall">
-              <core-toolbar id="toolbar" class="medium-tall">
-                <div class="sysbar" horizontal layout>
-                  <div flex class='drag'></div>
-                  <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-                  <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
-                  <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
-                </div>
-
+            <core-header-panel class="pages" id="headerPanel" flex mode="standard">
+              <core-toolbar id="toolbar">
                 <paper-icon-button hidden?="{{!narrow}}" icon="menu" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
                 <div flex  class="bottom alignLeft">{{appName}}</div>
 
@@ -154,26 +146,14 @@
           </section>
           <section>
             <core-toolbar class="medium-tall">
-              <div class="sysbar" horizontal layout>
-                <div flex class='drag'></div>
-                <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-                <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
-                <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
-              </div>
               <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
-              <div class="bottom" style="text-align: center;" flex>{{currentPlaying}}</div>
+              <div class="top" style="text-align: center;" flex>{{currentPlaying}}</div>
             </core-toolbar>
             <music-player id="player" playing="{{playing}}" progress="{{progress}}"></music-player>
           </section>
           <section>
-            <core-header-panel class="pages" mode="waterfall">
-              <core-toolbar class="medium-tall">
-                <div class="sysbar" horizontal layout>
-                  <div flex class='drag'></div>
-                  <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-                  <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
-                  <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
-                </div>
+            <core-header-panel class="pages" mode="standard">
+              <core-toolbar>
                 <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
                 <div class="bottom" flex></div>
               </core-toolbar>
@@ -185,16 +165,8 @@
             </core-header-panel>
           </section>
           <section>
-            <core-header-panel class="pages" mode="waterfall">
-              <core-toolbar class="medium-tall">
-                <div class="sysbar" horizontal layout>
-                  <!-- click area to move app -->
-                  <div flex class='drag'></div>
-                  <!-- app minimize / close buttons -->
-                  <paper-icon-button icon="remove" on-tap="{{minimize}}"></paper-icon-button>
-                  <paper-icon-button class="max" on-tap="{{maximize}}"></paper-icon-button>
-                  <paper-icon-button icon="close" on-tap="{{close}}"></paper-icon-button>
-                </div>
+            <core-header-panel class="pages" mode="standard">
+              <core-toolbar>
                 <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
                 <div class="bottom" flex></div>
                 <core-tooltip hidden?="{{!isDownloading}}" class="bottom" label="{{showDownloads}}">
@@ -657,6 +629,7 @@
   <script src="js/md5.js" async></script>
   <script src="js/color-thief.min.js" async></script>
   <script src="js/version_compare.js" async></script>
+  <script src="js/Pool.js" async></script>
   <script src="bower_components/x-notification/x-notification.js" async></script>
 </body>
 </html>

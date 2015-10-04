@@ -1,10 +1,36 @@
 Polymer('music-player',{
   count: 0,
   bookmarkDeleted: false,
+
+  /**
+   * create a array of  audio elements to create a object pool with
+   * @param {Number} num - # of elements desired
+   */
+  createAudioPool: function (num) {
+    var array = [];
+    for (var i = 0; i < num; i++) {
+      array.push(new Audio());
+      if (i === num - 1) {
+        return array;
+      }
+    }
+  },
+
+  /**
+   * element is ready
+   */
   ready: function () {
     this.page = 0;
-    this.audio = new Audio();
+    this.pool = new Pool(this.createAudioPool(3));
+    this.pool.act(function (audio) {
+      this.audio = audio;
+    }.bind(this));
   },
+
+  /**
+   * apply all needed callbacks and values to the audio element
+   * @param {Object} element - the audio element to add callbacks / values
+   */
   applyAudioListeners: function (element) {
     element.onprogress = this.buffering.bind(this);
     element.onwaiting = this.playerProgress.bind(this);
@@ -13,18 +39,19 @@ Polymer('music-player',{
     element.onerror = this.audioError.bind(this);
     element.volume = this.app.volume / 100;
   },
+
+  /**
+   * app resize callback
+   * position and style things
+   */
   resize: function () {
     if (this.app){
-      
-      // repeat active 
       if (this.app.repeatPlaylist) {
         if (this.page === 0) {
           this.$.rButton.style.color = 'white';
         } else {
           this.$.rButton2.style.color = 'black';
         }
-        
-      // repeat off
       } else {
         this.$.rButton.style.color = 'rgb(158, 158, 158)';
         this.$.rButton2.style.color = 'rgb(158, 158, 158)';
@@ -32,10 +59,20 @@ Polymer('music-player',{
     }
     this.$.wrap.style.height = Math.floor(window.innerHeight - 128) + 'px';
   },
+
+  /**
+   * dom ready to use
+   */
   domReady: function () {
     this.app = document.getElementById('tmpl');
     this.note = this.app.$.playNotify;
   },
+
+  /**
+   * index of playlist item being played has changed
+   * @param {Object} oldVal - value changing form
+   * @param {Object} newVal - then new value after change
+   */
   playingChanged: function (oldVal, newVal) {
     if (this.isCued && newVal !== oldVal + 1) {
       this.isCued = false;
@@ -67,37 +104,43 @@ Polymer('music-player',{
       this.audio = this.isCued;
       this.applyAudioListeners(this.audio);
       this.audio.play();
+      this.pool.add(this.isCued);
       this.isCued = false;
       this.app.currentPlaying = obj.artist + ' - ' + obj.title;
     } else {
-      if (this.audio && !this.audio.paused) {
-        this.audio.pause();
-      }
-      this.audio = new Audio();
-      this.applyAudioListeners(this.audio);
-      if (obj.artist === '') {
-        this.app.currentPlaying = obj.title;
-        this.note.title = obj.title;
-        if (!this.isCued) {
-          this.audio.src = this.app.buildUrl('stream', {
-            format: 'raw',
-            estimateContentLength: true,
-            id: obj.id
-          });
+      if (this.audio) {
+        if (!this.audio.paused) {
+          this.audio.pause();
         }
-        
-      // default playback  * transcoded audio * 
-      } else {
-        this.app.currentPlaying = obj.artist + ' - ' + obj.title;
-        this.note.title = obj.artist + ' - ' + obj.title;
-        if (!this.isCued) {
-          this.audio.src = this.app.buildUrl('stream', {
-            maxBitRate: this.app.bitRate,
-            id: obj.id
-          });
-        }
+        this.pool.add(this.audio);
       }
-      this.audio.play();
+      this.pool.act(function (audio) {
+        this.audio = audio;
+        this.applyAudioListeners(this.audio);
+        if (obj.artist === '') {
+          this.app.currentPlaying = obj.title;
+          this.note.title = obj.title;
+          if (!this.isCued) {
+            this.audio.src = this.app.buildUrl('stream', {
+              format: 'raw',
+              estimateContentLength: true,
+              id: obj.id
+            });
+          }
+
+        // default playback  * transcoded audio *
+        } else {
+          this.app.currentPlaying = obj.artist + ' - ' + obj.title;
+          this.note.title = obj.artist + ' - ' + obj.title;
+          if (!this.isCued) {
+            this.audio.src = this.app.buildUrl('stream', {
+              maxBitRate: this.app.bitRate,
+              id: obj.id
+            });
+          }
+        }
+        this.audio.play();
+      }.bind(this));
     }
     
     this.note.icon = obj.cover;
@@ -124,18 +167,10 @@ Polymer('music-player',{
     }
   },
   playPause: function () {
-    if (this.currentPlayer === 1) {
-      if (!this.audio.paused) {
-        this.audio.pause();
-      } else {
-        this.audio.play();
-      }
+    if (!this.audio.paused) {
+      this.audio.pause();
     } else {
-      if (!this.audio2.paused) {
-        this.audio2.pause();
-      } else {
-        this.audio2.play();
-      }  
+      this.audio.play();
     }
   },
   playNext: function (next) {
@@ -190,10 +225,13 @@ Polymer('music-player',{
     // gapless?
     if (this.app.gapless && audio.currentTime >= audio.duration - 60 
     && !this.isCued && this.app.playlist[this.app.playing + 1]) {
-      this.isCued = new Audio(this.app.buildUrl('stream', {
-        maxBitRate: this.app.bitRate,
-        id: this.app.playlist[this.app.playing + 1].id
-      }));
+      this.pool.act(function (audio) {
+        this.isCued = audio;
+        this.isCued.src = this.app.buildUrl('stream', {
+          maxBitRate: this.app.bitRate,
+          id: this.app.playlist[this.app.playing + 1].id
+        });
+      }.bind(this));
     }
     
     // if waiting for playback to start
