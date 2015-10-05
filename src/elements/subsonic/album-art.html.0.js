@@ -380,12 +380,12 @@ Polymer('album-art', {
 
   itemChanged: function () {
     'use strict';
-    console.time('album changed');
     this.async(function itemUpdate() {
-      var inUse = this.isObjectInPlaylist();
-      if (!inUse && this.imgURL 
+      if (this.imgURL 
       && this.imgURL !== '../../../images/default-cover-art.png') {
-        window.URL.revokeObjectURL(this.imgURL);
+        this.isObjectInPlaylist(function () {
+          window.URL.revokeObjectURL(this.imgURL);
+        }.bind(this));
       }
       this.bookmarkIndex = undefined;
       this.showArt(this.defaultImgURL);
@@ -543,20 +543,20 @@ Polymer('album-art', {
     this.bookmarkTime = this.app.secondsToMins(sender.attributes.bookmark.value / 1000);
   },
   
-  isObjectInPlaylist: function () {
+  isObjectInPlaylist: function (cb) {
     var pl = this.app.playlist;
     var plLength = pl.length;
     if (plLength > 0) {
       for (var i = 0; i < plLength; i++) {
         if (pl[i].cover === this.imgURL) {
-          return true;
+          return;
         }
         if (i === plLength - 1) {
-          return false;
+          cb();
         }
       }
     } else {
-      return false;
+      cb();
     }
   }
 });

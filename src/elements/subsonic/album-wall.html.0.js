@@ -85,7 +85,6 @@ Polymer('album-wall', {
   responseCallback: function () {
     'use strict';
     this.app.dataLoading = false;
-    console.log(this.isLoading);
     this.async(function () {
       this.isLoading = false;
     }, null, 1000);

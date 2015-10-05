@@ -145,7 +145,7 @@
             <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}" progress="{{progress}}" hero></mini-player>
           </section>
           <section>
-            <core-toolbar class="medium-tall">
+            <core-toolbar class="medium-tall" style="max-height:99px;">
               <paper-icon-button class="bottom" icon="arrow-back" disabled?="{{dataLoading || shuffleLoading}}" on-tap="{{back2List}}"></paper-icon-button>
               <div class="top" style="text-align: center;" flex>{{currentPlaying}}</div>
             </core-toolbar>

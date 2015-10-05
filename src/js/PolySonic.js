@@ -35,7 +35,7 @@
       app.autoBookmark = Boolean(result.autoBookmark);
       app.shuffleSettings.size = app.shuffleSettings.size || '50';
       app.version = '1.11.0';
-      app.querySize = 100;
+      app.querySize = 50;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
