@@ -29,11 +29,11 @@
         320
       ],
       timer: 0,
-      
+
       created: function () {
         this.elementReady = false;
       },
-      
+
       domReady: function () {
         this.app = document.getElementById("tmpl");
         this.wall = document.getElementById("wall");
@@ -42,12 +42,12 @@
           this.elementReady = true;
         }.bind(this), 500);
       },
-      
+
       outputVersion: function (manifest) {
         this.polysonicVersion = manifest.version;
         console.log('App version: ' + this.polysonicVersion);
       },
-      
+
       validate: function (callback) {
         'use strict';
 
@@ -60,7 +60,7 @@
         });
         callback();
       },
-      
+
       submit: function () {
         'use strict';
         /*
@@ -91,6 +91,7 @@
           }
         }.bind(this));
       },
+
       hidePass: function (event, detail, sender) {
         'use strict';
         var type = this.$.password.type,
@@ -114,6 +115,7 @@
           }.bind(this), 15000);
         }
       },
+
       methodSelect: function () {
         this.async(function () {
           chrome.storage.sync.set({
@@ -123,11 +125,13 @@
           console.log('Query Method: ' + this.post.queryMethod);
         });
       },
+
       doClearCache: function () {
         this.clearCache(function () {
           this.app.$.recommendReloadDialog.open();
         }.bind(this));
       },
+
       clearCache: function (callback) {
         var req = indexedDB.deleteDatabase('albumInfo');
         req.onsuccess = function () {
@@ -145,6 +149,7 @@
         }.bind(this);
         callback();
       },
+
       clearSettings: function () {
         chrome.storage.sync.clear();
         this.app.url = '';
@@ -158,6 +163,7 @@
           this.app.$.reloadAppDialog.open();
         }.bind(this));
       },
+
       responseChanged: function () {
         'use strict';
         /*
@@ -184,9 +190,11 @@
               'user': this.post.user,
               'pass': this.post.pass,
               'version': this.response['subsonic-response'].version,
-              'bitRate': this.post.bitRate,
               'querySize': this.post.querySize,
               'queryMethod': this.post.queryMethod
+            });
+            chrome.storage.local.set({
+              'bitRate': this.post.bitRate
             });
 
             this.app.url = this.post.url;
@@ -211,15 +219,17 @@
           }
         }
       },
+
       bitRateSelect: function () {
         this.async(function () {
-          chrome.storage.sync.set({
+          chrome.storage.local.set({
             'bitRate': this.post.bitRate
           });
           this.app.bitRate = this.post.bitRate;
           console.log('Bitrate: ' + this.post.bitRate);
         });
       },
+
       querySelect: function () {
         chrome.storage.sync.set({
           'querySize': this.post.querySize
@@ -227,6 +237,7 @@
         this.app.querySize = this.post.querySize;
         console.log('Query Size: ' + this.post.querySize);
       },
+
       errorChanged: function () {
         'use strict';
         /*
@@ -260,7 +271,7 @@
       querySizeChanged: function () {
         this.post.querySize = this.querySize;
       },
-      
+
       queryMethodChanged: function () {
         this.post.queryMethod = this.queryMethod;
       },
@@ -299,6 +310,18 @@
       toggleAutobookmark: function () {
         chrome.storage.sync.set({
           autoBookmark: this.app.autoBookmark
+        });
+      },
+
+      toggleMD5Auth: function () {
+        chrome.storage.sync.set({
+          md5Auth: this.app.md5Auth
+        });
+      },
+      
+      toggleGapless: function () {
+        chrome.storage.sync.set({
+          gapless: this.app.gapless
         });
       }
     });

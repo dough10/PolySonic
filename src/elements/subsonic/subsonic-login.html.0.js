@@ -13,6 +13,41 @@
         this.showPass = chrome.i18n.getMessage("showPass");
         this.hideThePass = chrome.i18n.getMessage("hidePass");
         this.submitButton = chrome.i18n.getMessage("submitButton");
+        this.testingURL = false;
+      },
+      testURL: function (e) {
+        var element = e.target;
+        if (!this.invalid1) {
+          this.testingURL = true;
+          this.$.submit.disabled = true;
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", element.value + '/rest/ping.view?f=json', true);
+          xhr.responseType = 'json';
+          xhr.onload = function (e) {
+            var json = e.target.response['subsonic-response'];
+            this.post.version = json.version;
+            console.log('API Version: ' + json.version);
+            this.testingURL = false;
+            this.$.submit.disabled = false;
+            this.attempt = false;
+          }.bind(this);
+          xhr.onerror = function (e) {
+            this.testingURL = false;
+            this.$.submit.disabled = false;
+            this.attempt = false;
+          }.bind(this);
+          if (this.attempt) {
+            this.attempt.abort();
+          }
+          xhr.send();
+          this.attempt = xhr;
+        }
+      },
+      checkKeyup: function (e) {
+        if (e.keyIdentifier === "Enter" && !this.$.submit.disabled) {
+          e.target.blur();
+          this.submit();
+        }
       },
       submit: function () {
         'use strict';
@@ -29,21 +64,6 @@
             this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
           }
           this.$.ajax.go();
-          this.count = 0;
-          if (this.interval) {
-            clearInterval(this.interval);
-            this.interval = 0;
-          } else {
-            this.interval = setInterval(function () {
-              this.count + 1;
-              if (this.count === 20) {
-                this.$.ajax.abort();
-                clearInterval(this.interval);
-                this.count = 0;
-                this.interval = 0;
-              }
-            }, 1000);
-          }
         }
       },
       hidePass: function (event, detail, sender) {
@@ -84,12 +104,16 @@
             this.app.pass = this.post.pass;
             this.app.userDetails();
             this.app.version = this.response['subsonic-response'].version;
+            // if version greater then or equal to 1.13.0 will show authentication option in settings
+            if (versionCompare(this.app.version, '1.13.0') >= 0) {
+              document.querySelector('settings-menu').$.md5Auth.hidden = false;
+            }
             this.app.doToast("Loading Data");
             this.app.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
             this.app.$.firstRun.close();
             this.app.doXhr(this.app.buildUrl('getMusicFolders', ''), 'json', function (e) {
               this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-              if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+              if (e.target.response['subsonic-response'].musicFolders.musicFolder && !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                 this.app.$.sortBox.style.display = 'none';
               }
             }.bind(this));

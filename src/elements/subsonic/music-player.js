@@ -1,15 +1,49 @@
 Polymer('music-player',{
   count: 0,
   bookmarkDeleted: false,
+
+  /**
+   * create a array of  audio elements to create a object pool with
+   * @param {Number} num - # of elements desired
+   */
+  createAudioPool: function (num) {
+    var array = [];
+    for (var i = 0; i < num; i++) {
+      array.push(new Audio());
+      if (i === num - 1) {
+        return array;
+      }
+    }
+  },
+
+  /**
+   * element is ready
+   */
   ready: function () {
     this.page = 0;
-    this.audio = this.$.audio;
-    this.audio.onwaiting = this.playerProgress.bind(this);
-    this.audio.onprogress = this.buffering.bind(this);
-    this.audio.ontimeupdate = this.playerProgress.bind(this);
-    this.audio.onended = this.nextTrack.bind(this);
-    this.audio.onerror = this.audioError.bind(this);
+    this.pool = new Pool(this.createAudioPool(3));
+    this.pool.act(function (audio) {
+      this.audio = audio;
+    }.bind(this));
   },
+
+  /**
+   * apply all needed callbacks and values to the audio element
+   * @param {Object} element - the audio element to add callbacks / values
+   */
+  applyAudioListeners: function (element) {
+    element.onprogress = this.buffering.bind(this);
+    element.onwaiting = this.playerProgress.bind(this);
+    element.ontimeupdate = this.playerProgress.bind(this);
+    element.onended = this.nextTrack.bind(this);
+    element.onerror = this.audioError.bind(this);
+    element.volume = this.app.volume / 100;
+  },
+
+  /**
+   * app resize callback
+   * position and style things
+   */
   resize: function () {
     if (this.app){
       if (this.app.repeatPlaylist) {
@@ -25,15 +59,27 @@ Polymer('music-player',{
     }
     this.$.wrap.style.height = Math.floor(window.innerHeight - 128) + 'px';
   },
+
+  /**
+   * dom ready to use
+   */
   domReady: function () {
     this.app = document.getElementById('tmpl');
     this.note = this.app.$.playNotify;
   },
+
+  /**
+   * index of playlist item being played has changed
+   * @param {Object} oldVal - value changing form
+   * @param {Object} newVal - then new value after change
+   */
   playingChanged: function (oldVal, newVal) {
+    if (this.isCued && newVal !== oldVal + 1) {
+      this.isCued = false;
+    }
     this.async(function () {
       if (this.app.alreadyPlaying) {
-        // ignore default functions
-        console.log('skipped');
+        // ignore default functions when shuffleing
         this.app.alreadyPlaying = false;
       } else {
         this.$.cover2.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
@@ -45,47 +91,72 @@ Polymer('music-player',{
     });
   },
   playAudio: function (obj) {
+    
+    // set playing on mini player 
     var minis = document.querySelectorAll('mini-player');
     var length = minis.length;
     for (var i = 0; i < length; i++) {
       minis[i].setPlaying(obj);
     }
-    if (obj.artist === '') {
-      this.app.currentPlaying = obj.title;
-      this.note.title = obj.title;
-      this.audio.src = this.app.buildUrl('stream', {
-        format: 'raw',
-        estimateContentLength: true,
-        id: obj.id
-      });
-    } else {
-      this.app.currentPlaying = obj.artist + ' - ' + obj.title;
+    
+    // gapless playback if cached
+    if (this.app.gapless && this.isCued) {
+      this.audio = this.isCued;
+      this.applyAudioListeners(this.audio);
       this.note.title = obj.artist + ' - ' + obj.title;
-      this.audio.src = this.app.buildUrl('stream', {
-        maxBitRate: this.app.bitRate,
-        id: obj.id
-      });
+      this.audio.play();
+      this.pool.add(this.isCued);
+      this.isCued = false;
+      this.app.currentPlaying = obj.artist + ' - ' + obj.title;
+    } else {
+      if (this.audio) {
+        if (!this.audio.paused) {
+          this.audio.pause();
+        }
+        this.pool.add(this.audio);
+      }
+      this.audio = new Audio();
+      this.applyAudioListeners(this.audio);
+      if (obj.artist === '') {
+        this.app.currentPlaying = obj.title;
+        this.note.title = obj.title;
+        if (!this.isCued) {
+          this.audio.src = this.app.buildUrl('stream', {
+            format: 'raw',
+            estimateContentLength: true,
+            id: obj.id
+          });
+        }
+
+      // default playback  * transcoded audio *
+      } else {
+        this.app.currentPlaying = obj.artist + ' - ' + obj.title;
+        this.note.title = obj.artist + ' - ' + obj.title;
+        if (!this.isCued) {
+          this.audio.src = this.app.buildUrl('stream', {
+            maxBitRate: this.app.bitRate,
+            id: obj.id
+          });
+        }
+      }
+      this.audio.play();
     }
+    
     this.note.icon = obj.cover;
+    
+    // set playback position if bookmarked file
     if (obj.bookmarkPosition) {
       this.audio.currentTime = obj.bookmarkPosition / 1000;
     } else {
       this.audio.currentTime = 0;
     }
-    this.audio.play();
+    
     this.note.show();
     this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.bg.style.backgroundImage = "url('" + obj.cover + "')";
     this.app.tracker.sendEvent('Playback Started', new Date());
-    if (this.app.activeUser.scrobblingEnabled) {
-      this.app.doXhr(this.app.buildUrl('scrobble', {id: obj.id, time: new Date().getTime()}), 'json', function (e) {
-        if (e.target.response['subsonic-response'].status === 'failed') {
-          console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
-          this.app.tracker.sendEvent('Last FM submission', 'Failed');
-        }
-      }.bind(this));
-    }
+    this.scrobbled = false;
   },
   getImageForPlayer: function (url, callback) {
     this.$.coverArt.style.backgroundImage = "url('" + url + "')";
@@ -107,7 +178,7 @@ Polymer('music-player',{
     } else if (this.app.playlist[next]) {
       this.app.playing = next;
     } else {
-      this.$.audio.pause();
+      this.audio.pause();
       this.app.clearPlaylist();
       var minis = document.querySelectorAll('mini-player');
       var length = minis.length;
@@ -117,7 +188,9 @@ Polymer('music-player',{
     }
   },
   nextTrack: function () {
-    if (this.app.autoBookmark && this.$.audio.duration > 1200) {
+    // if track longer then 20 min and autobookmark enabled 
+    // will delete the bookmark 
+    if (this.app.autoBookmark && this.audio.duration > 1200) {
       this.app.doXhr(this.app.buildUrl('deleteBookmark', {
         id: this.app.playlist[this.app.playing].id
       }), 'json', function (e) {
@@ -148,6 +221,17 @@ Polymer('music-player',{
   },
   playerProgress: function (e) {
     var audio = e.srcElement;
+    // gapless?
+    if (this.app.gapless && audio.currentTime >= audio.duration - 60 
+    && !this.isCued && this.app.playlist[this.app.playing + 1]) {
+      this.isCued = new Audio();
+      this.isCued.src = this.app.buildUrl('stream', {
+        maxBitRate: this.app.bitRate,
+        id: this.app.playlist[this.app.playing + 1].id
+      });
+    }
+    
+    // if waiting for playback to start
     if (e) {
       if (e.type === 'waiting') {
         this.app.waitingToPlay = true;   // spinner on album art shown
@@ -159,7 +243,27 @@ Polymer('music-player',{
     this.currentSecs = Math.floor(audio.currentTime - (this.currentMins * 60));
     this.totalMins = Math.floor(audio.duration / 60);
     this.totalSecs = Math.floor(audio.duration - (this.totalMins * 60));
+    
+    // scrobble lastFM if over half of song has been played played & it is not a podcast
+    if (this.app.activeUser.scrobblingEnabled 
+    && Math.abs(audio.currentTime / audio.duration * 100) > 50
+    && !this.scrobbled
+    && this.app.playlist[this.app.playing].artist !== '') {
+      this.scrobbled = true;
+      this.app.doXhr(this.app.buildUrl('scrobble', {
+        id: this.app.playlist[this.app.playing].id, 
+        time: new Date().getTime()
+      }), 'json', function (e) {
+        if (e.target.response['subsonic-response'].status === 'failed') {
+          console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
+          this.app.tracker.sendEvent('Last FM submission', 'Failed');
+        }
+      }.bind(this));
+    }
 
+
+    // if file longer then 20 min and autobookmark enabled 
+    // creates a bookmark about every 1 min.
     if (this.app.autoBookmark && audio.duration > 1200
       && audio.currentTime > 60 && !this.app.waitingToPlay
       && Math.floor(audio.currentTime / audio.duration * 100) < 98) {
@@ -213,10 +317,10 @@ Polymer('music-player',{
       width = 500;
       x = event.x - (window.innerWidth - width) / 2;
     }
-    var duration = this.$.audio.duration;
+    var duration = this.audio.duration;
     var clicked = (x / width);
     this.progress = clicked * 100;
-    this.$.audio.currentTime = duration - (duration - (duration * clicked));
+    this.audio.currentTime = duration - (duration - (duration * clicked));
   },
   toggleRepeat: function () {
     if (this.app.repeatPlaylist) {
@@ -252,11 +356,11 @@ Polymer('music-player',{
     var track = this.app.playlist[this.app.playing].title;
     this.app.$.playlistDialog.close();
     this.app.$.bookmarkDialog.open();
-    this.app.bookmarkComment = this.app.playlist[this.app.playing].title + ' at ' + this.app.secondsToMins(this.$.audio.currentTime);
+    this.app.bookmarkComment = this.app.playlist[this.app.playing].title + ' at ' +     this.app.secondsToMins(this.audio.currentTime);
   },
   submitBookmark: function () {
     this.app.submittingBookmark = true;
-    var pos = Math.floor(this.$.audio.currentTime * 1000);
+    var pos = Math.floor(this.audio.currentTime * 1000);
     this.app.doXhr(
       this.app.buildUrl('createBookmark', {
         id: this.app.playlist[this.app.playing].id,

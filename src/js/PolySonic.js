@@ -1,6 +1,11 @@
 /*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief, setTimeout */
 (function () {
   'use strict';
+  window.addEventListener('keyup', function (e) {
+    if (e.keyCode ===  32) {
+      //
+    }
+  });
   var app = document.querySelector('#tmpl');
   app.scrolling = false;
   app.addEventListener('template-bound', function () {
@@ -16,6 +21,9 @@
         button[ii].icon = 'check-box-outline-blank';
       }
     }
+    chrome.storage.local.get(function (result) {
+      app.bitRate = result.bitRate || 320;
+    });
     chrome.storage.sync.get(function (result) {
       if (result.url === undefined) {
         app.$.firstRun.open();
@@ -25,10 +33,9 @@
       app.pass = result.pass;
       app.listMode = 'cover';
       app.autoBookmark = Boolean(result.autoBookmark);
-      app.bitRate = result.bitRate || 320;
       app.shuffleSettings.size = app.shuffleSettings.size || '50';
       app.version = '1.11.0';
-      app.querySize = 60;
+      app.querySize = 50;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
@@ -37,6 +44,7 @@
       app.$.repeatButton.style.color = '#db4437';
       app.colorThiefEnabled = true;
       app.dataLoading = false;
+      app.gapless = result.gapless;
       app.params = {
         u: app.user,
         v: app.version,
@@ -54,7 +62,8 @@
                 app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                 /* setting mediaFolder causes a ajax call to get album wall data */
                 app.folder = result.mediaFolder || 0;
-                if (!e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+                if (e.target.response['subsonic-response'].musicFolders.musicFolder === undefined 
+                || !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                   app.$.sortBox.style.display = 'none';
                 }
                 app.tracker.sendAppView('Album Wall');
@@ -74,16 +83,12 @@
     });
     app.appScroller().onscroll = app.scrollCallback;
     window.onresize = function () {
-      app.async(function () {
-        app.$.fab.setPos();
-        app.$.player.resize();
-        app.$.fab.resize();
-        app.async(function () {
-          if (chrome.app.window.current().innerBounds.width < 571) {
-            chrome.app.window.current().innerBounds.height = 761;
-          }
-        }, null, 100);
-      });
+      app.$.fab.setPos();
+      app.$.player.resize();
+      app.$.fab.resize();
+      if (chrome.app.window.current().innerBounds.width < 571) {
+        chrome.app.window.current().innerBounds.height = 761;
+      }
     };
     app.service = analytics.getService('PolySonic');
     app.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
@@ -157,11 +162,22 @@
   ];
 
   app.sortTypes = [
-    {sort: 'newest', name: chrome.i18n.getMessage("newButton")},
-    {sort: 'alphabeticalByArtist', name: chrome.i18n.getMessage("byArtistButton")},
-    {sort: 'alphabeticalByName', name: chrome.i18n.getMessage("titleButton")},
-    {sort: 'frequent', name: chrome.i18n.getMessage("frequentButton")},
-    {sort: 'recent', name: chrome.i18n.getMessage("recentButton")}
+    {
+      sort: 'newest', 
+      name: chrome.i18n.getMessage("newButton")
+    }, {
+      sort: 'alphabeticalByArtist', 
+      name: chrome.i18n.getMessage("byArtistButton")
+    }, {
+      sort: 'alphabeticalByName', 
+      name: chrome.i18n.getMessage("titleButton")
+    }, {
+      sort: 'frequent', 
+      name: chrome.i18n.getMessage("frequentButton")
+    }, {
+      sort: 'recent', 
+      name: chrome.i18n.getMessage("recentButton")
+    }
   ];
 
   app.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
@@ -424,11 +440,9 @@
   };
 
   function endLoop() {
-    if (app.$.player.$.audio.paused) {
       app.doShufflePlayback();
       app.dataLoading = false;
       app.closePlaylists();
-    }
   }
 
   function shuffleArray(array) {
@@ -585,7 +599,7 @@
     app.dataLoading = true;
     app.playlist = null;
     app.playlist = [];
-    app.$.player.$.audio.pause();
+    app.$.player.audio.pause();
     app.doXhr(app.buildUrl('getPlaylist', {id: sender.attributes.ident.value}), 'json', function (e) {
       var tracks = e.target.response['subsonic-response'].playlist.entry;
       var length = tracks.length;
@@ -608,14 +622,16 @@
     app.shuffleLoading = true;
     app.playlist.length = 0;
     if (!app.startYearInvalid && !app.endYearInvalid) {
-      app.$.player.$.audio.pause();
+      if (app.$.player.audio && !app.$.player.audio.paused) {
+        app.$.player.audio.pause();
+      }
       if (app.shuffleSettings.genre === 0) {
         delete app.shuffleSettings.genre;
       }
       app.doXhr(app.buildUrl('getRandomSongs', app.shuffleSettings), 'json', function (event) {
         var data = event.target.response['subsonic-response'].randomSongs.song;
-        var length = data.length;
-        if (data && length !== 0) {
+        if (data) {
+          var length = data.length;
           for (var i = 0; i < length; i++) {
             var obj = {
               id: data[i].id,
@@ -629,6 +645,7 @@
         } else {
           app.doToast(chrome.i18n.getMessage("noMatch"));
           app.shuffleLoading = false;
+          app.dataLoading = false;
         }
       });
     } else {
@@ -638,7 +655,18 @@
   };
 
   app.doShufflePlayback = function () {
-    if (app.$.player.$.audio.paused) {
+    if (app.$.player.audio && app.$.player.audio.paused) {
+      if (app.playing === 0) {
+        app.$.player.playAudio(app.playlist[0]);
+      } else {
+        app.playing = 0;
+      }
+      app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
+        app.setFabColor(app.playlist[0]);
+        app.$.shuffleOptions.close();
+        app.shuffleLoading = false;
+      });
+    } else if (!app.$.player.audio) {
       if (app.playing === 0) {
         app.$.player.playAudio(app.playlist[0]);
       } else {
@@ -657,7 +685,7 @@
   */
   app.clearPlaylist = function () {
     app.tracker.sendEvent('Clear Playlist', new Date());
-    app.$.player.$.audio.pause();
+    app.$.player.audio.pause();
     app.$.playlistDialog.close();
     app.page = 0;
     app.playlist = null;
@@ -854,6 +882,13 @@
       });
     }
   };
+  
+  app.searchCheck = function (e) {
+    if (e.keyIdentifier === "Enter") {
+      e.target.blur();
+      app.doSearch();
+    }
+  };
 
   app.doSearch = function () {
     if (app.searchQuery) {
@@ -970,6 +1005,11 @@
     app.closeDrawer(function () {
       app.doXhr(app.buildUrl('getGenres', ''), 'json', function (e) {
         app.genres = e.target.response['subsonic-response'].genres.genre;
+        app.genres.sort(function(a, b){
+          if(a.value < b.value) return -1;
+          if(a.value > b.value) return 1;
+          return 0;
+        });
         app.dataLoading = false;
         app.async(function () {
           app.$.shuffleOptions.open();
@@ -1178,8 +1218,13 @@
       if (response.status === 'ok') {
         app.serverLicense = response.license;
         var fromServer = new Date(app.serverLicense.date);
-        var nextYear = Math.floor(fromServer.getFullYear() + 1);
-        var expires = new Date(fromServer.setFullYear(nextYear));
+        var nextYear = Math.abs(fromServer.getFullYear() + 1);
+        var expires;
+        if (app.serverLicense.trialExpires) {
+          expires = new Date(app.serverLicense.trialExpires);
+        } else {
+          expires = new Date(fromServer.setFullYear(nextYear));
+        }
         var now = new Date();
         var minute = 1000 * 60;
         var hour = minute * 60;
@@ -1257,19 +1302,19 @@
     if (app.version !== app.params.v) {
       app.params.v = app.version;
     }
-    if (parseFloat(app.version, 10) <= 1.12) {
-      if (app.params.t) {
-        delete app.params.t;
-        delete app.params.s;
-      }
-      app.params.p = app.pass.hexEncode();
-      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
-    } else {
+    if (versionCompare(app.version, '1.13.0') >= 0) {
       if (app.params.p) {
         delete app.params.p;
       }
       app.params.s = makeSalt(16);
       app.params.t = md5(app.pass + app.params.s);
+      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
+    } else {
+      if (app.params.t) {
+        delete app.params.t;
+        delete app.params.s;
+      }
+      app.params.p = app.pass.hexEncode();
       return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
     }
   };

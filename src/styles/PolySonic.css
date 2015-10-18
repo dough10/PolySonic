@@ -67,7 +67,7 @@ paper-icon-button {
   position: absolute;
   bottom:0;
   right:0;
-  top: 40px;
+  top: 0px;
   left: 0;
   background: #e5e5e5;
   display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
@@ -154,7 +154,7 @@ core-menu core-icon {
   overflow:hidden;
   position:fixed;
   z-index:2;
-  top:128px;
+  top:65px;
   bottom:0;
   left:0;
   right:0;
@@ -172,26 +172,17 @@ core-menu core-icon {
 .spinner::shadow .circle {
   border-color: #000;
 }
-.sysbar {
-  position: absolute;
-  top: 0;
-  left: -8px;
-  right: -8px;;
-  margin-top:8px;
-  background:rgba(0,0,0,0.2);
-  min-height:40px;
-}
 .jumpList {
   position:fixed;
   right:8px;
   z-index:2;
 }
 .search-box /deep/ .floated-label .label-text {
-  color:#ffffff;
+  color:#db4437;
   background:#ffffff;
 }
 .search-box /deep/ .focused-underline {
-  background-color: #ffffff;
+  background-color: #db4437;
 }
 core-tooltip::shadow .core-tooltip {
   opacity: 0;

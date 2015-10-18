@@ -74,7 +74,7 @@
         color:#db4437;
       }
     </style>
-    <core-ajax auto="false" id="ajax" method="GET" loading="{{isLoading}}" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
+    <core-ajax auto="false" id="ajax" method="GET" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
     <core-scroll-threshold id="threshold" lowerThreshold="1000" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
     <div id="all">
@@ -89,12 +89,12 @@
           <template if="{{!isLoading && !wall[0] && request !== 'getStarred2'}}">
             <paper-shadow class='card' style="text-align:center;">
               <h3>{{addContent}}</h3>
-              {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
+              {{foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
               <br><br>
               {{addAlbums}}
             </paper-shadow>
           </template>
-          <core-list id="cover" data="{{wall}}" flex grid="false" scrollTarget="{{scrollTarget}}">
+          <core-list id="cover" data="{{wall}}" grid scrollTarget="{{scrollTarget}}">
             <template>
               <div>
                 <album-art id='ac{{model.id}}' listMode="cover" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name || model.title}}" isFavorite="{{model.starred}}"></album-art>
@@ -107,7 +107,7 @@
           <template if="{{!isLoading && !podcast[0]}}">
             <paper-shadow class='card' style="text-align:center;">
               <h3>{{addContent}}</h3>
-              {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
+              {{foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
               <br><br>
               {{addPodcast}}
             </paper-shadow>
@@ -203,7 +203,7 @@
           <template if="{{!isLoading && !artist[0]}}">
             <paper-shadow class='card' style="text-align:center;">
               <h3>{{addContent}}</h3>
-              {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
+              {{foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
               <br><br>
               {{addAlbums}}
             </paper-shadow>

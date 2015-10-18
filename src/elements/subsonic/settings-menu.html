@@ -111,7 +111,7 @@
         <br>
         <div id="showPass" on-tap="{{hidePass}}">{{showPass}}</div><br>
         <br>
-        <paper-button on-tap="{{submit}}">
+        <paper-button on-tap="{{submit}}" raised>
           <template if="{{isLoading}}">
             <div id="load">
               <paper-spinner active></paper-spinner>
@@ -178,6 +178,15 @@
             Autobookmark long files
           </div>
           <paper-toggle-button class="redSwitch" checked="{{app.autoBookmark}}" on-change="{{toggleAutobookmark}}"></paper-toggle-button>
+        </div>
+        <br>
+        <br>
+        <br>
+        <div center horizontal layout class="switchBox">
+          <div flex class="switchLabel">
+            Precache next track
+          </div>
+          <paper-toggle-button class="redSwitch" checked="{{app.gapless}}" on-change="{{toggleGapless}}"></paper-toggle-button>
         </div>
       </core-label>
       <br>

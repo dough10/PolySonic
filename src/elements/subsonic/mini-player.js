@@ -32,9 +32,9 @@ Polymer('mini-player', {
       }
     }
     if (this.app) {
-      if (this.app.$.player.$.audio.paused) {
+      if (this.app.$.player.audio.paused) {
         this.$.playButton.icon = 'av:play-arrow';
-      } else {
+      } else  {
         this.$.playButton.icon = 'av:pause';
       }
     }
@@ -45,7 +45,7 @@ Polymer('mini-player', {
   },
   playPause: function () {
     'use strict';
-    if (!this.app.$.player.$.audio.paused) {
+    if (!this.app.$.player.audio.paused) {
       this.$.playButton.icon = 'av:play-arrow';
     } else {
       this.$.playButton.icon = 'av:pause';
@@ -59,7 +59,7 @@ Polymer('mini-player', {
   progressClick: function (event, detail) {
     'use strict';
     this.async(function () {
-      var audio = this.app.$.player.$.audio;
+      var audio = this.app.$.player.audio;
       var slide = this.progress / 100;
       audio.currentTime = audio.duration - (audio.duration - (audio.duration * slide));
     });

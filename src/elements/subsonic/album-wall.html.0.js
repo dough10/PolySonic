@@ -48,7 +48,7 @@ Polymer('album-wall', {
   domReady: function () {
     'use strict';
     this.app = document.getElementById("tmpl");
-    this.audio = this.app.$.player.$.audio;
+    this.audio = this.app.$.player.audio;
     this.scrollTarget = this.app.appScroller();
   },
 
@@ -70,27 +70,32 @@ Polymer('album-wall', {
 
   clearData: function (callback) {
     'use strict';
+    console.time('data request');
     this.wall.length = 0;
     this.artist.length = 0;
     this.podcast.length = 0;
     this.isLoading = true;
     this.app.dataLoading = true;
-    this.async(function () {
-      callback();
-      this.resizeLists();
-    }, null, 50);
+    this.$.cover.updateSize();
+    this.$.podcast.updateSize();
+    this.$.artists.updateSize();
+    this.async(callback);
   },
 
   responseCallback: function () {
     'use strict';
     this.app.dataLoading = false;
+    this.async(function () {
+      this.isLoading = false;
+    }, null, 1000);
     this.app.showApp();
+    console.timeEnd('data request');
   },
 
   responseChanged: function () {
     'use strict';
     if (this.response) {
-      this.async(function () {
+      this.async(function responseCallback() {
         var response = this.response['subsonic-response'];
         if (response.status === 'failed') {
           console.log(response.error.message);
@@ -140,6 +145,7 @@ Polymer('album-wall', {
               }
             }
           } else {
+            this.app.showApp();
             this.app.pageLimit = true;
           }
           if (!this.isLoading && !this.wall[0]) {
@@ -167,7 +173,7 @@ Polymer('album-wall', {
   getPodcast: function () {
     'use strict';
     this.showing = 'podcast';
-    this.clearData(function () {
+    this.clearData(function podcastCallback() {
       this.app.pageLimit = false;
       this.request = 'getPodcasts';
       if (this.post.type) {
@@ -186,7 +192,7 @@ Polymer('album-wall', {
   getStarred: function () {
     'use strict';
     this.showing = this.listMode;
-    this.clearData(function () {
+    this.clearData(function starredCallback() {
       this.app.pageLimit = false;
       if (this.queryMethod === 'ID3') {
         this.request = 'getStarred2';
@@ -208,7 +214,7 @@ Polymer('album-wall', {
 
   getArtist: function () {
     'use strict';
-    this.clearData(function () {
+    this.clearData(function artistSearch() {
       this.app.pageLimit = false;
       this.request = 'getArtists';
       if (this.post.type) {
@@ -228,7 +234,7 @@ Polymer('album-wall', {
   sortChanged: function () {
     'use strict';
     this.showing = this.listMode;
-    this.clearData(function () {
+    this.clearData(function sortCallback() {
       this.app.pageLimit = false;
       if (this.queryMethod === 'ID3') {
         this.request = 'getAlbumList2';
@@ -245,14 +251,7 @@ Polymer('album-wall', {
       this.async(this.doAjax);
     }.bind(this));
   },
-
-  resizeLists: function () {
-    'use strict';
-    this.$.cover.updateSize();
-    this.$.podcast.updateSize();
-    this.$.artists.updateSize();
-  },
-
+  
   errorChanged: function () {
     'use strict';
     if (this.error) {
@@ -266,6 +265,7 @@ Polymer('album-wall', {
     this.$.threshold.clearLower();
     if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.app.pageLimit && this.app.page === 0) {
       this.isLoading = true;
+      console.count('lazy load');
       this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
       this.async(this.doAjax);
     }
