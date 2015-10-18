@@ -3,28 +3,10 @@ Polymer('music-player',{
   bookmarkDeleted: false,
 
   /**
-   * create a array of  audio elements to create a object pool with
-   * @param {Number} num - # of elements desired
-   */
-  createAudioPool: function (num) {
-    var array = [];
-    for (var i = 0; i < num; i++) {
-      array.push(new Audio());
-      if (i === num - 1) {
-        return array;
-      }
-    }
-  },
-
-  /**
    * element is ready
    */
   ready: function () {
     this.page = 0;
-    this.pool = new Pool(this.createAudioPool(3));
-    this.pool.act(function (audio) {
-      this.audio = audio;
-    }.bind(this));
   },
 
   /**
@@ -105,7 +87,6 @@ Polymer('music-player',{
       this.applyAudioListeners(this.audio);
       this.note.title = obj.artist + ' - ' + obj.title;
       this.audio.play();
-      this.pool.add(this.isCued);
       this.isCued = false;
       this.app.currentPlaying = obj.artist + ' - ' + obj.title;
     } else {
@@ -113,7 +94,6 @@ Polymer('music-player',{
         if (!this.audio.paused) {
           this.audio.pause();
         }
-        this.pool.add(this.audio);
       }
       this.audio = new Audio();
       this.applyAudioListeners(this.audio);
