@@ -103,6 +103,7 @@ Polymer('music-player',{
     if (this.app.gapless && this.isCued) {
       this.audio = this.isCued;
       this.applyAudioListeners(this.audio);
+      this.note.title = obj.artist + ' - ' + obj.title;
       this.audio.play();
       this.pool.add(this.isCued);
       this.isCued = false;
@@ -355,7 +356,7 @@ Polymer('music-player',{
     var track = this.app.playlist[this.app.playing].title;
     this.app.$.playlistDialog.close();
     this.app.$.bookmarkDialog.open();
-    this.app.bookmarkComment = this.app.playlist[this.app.playing].title + ' at ' + this.app.secondsToMins(this.audio.currentTime);
+    this.app.bookmarkComment = this.app.playlist[this.app.playing].title + ' at ' +     this.app.secondsToMins(this.audio.currentTime);
   },
   submitBookmark: function () {
     this.app.submittingBookmark = true;
