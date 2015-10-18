@@ -114,33 +114,31 @@ Polymer('music-player',{
         }
         this.pool.add(this.audio);
       }
-      this.pool.act(function (audio) {
-        this.audio = audio;
-        this.applyAudioListeners(this.audio);
-        if (obj.artist === '') {
-          this.app.currentPlaying = obj.title;
-          this.note.title = obj.title;
-          if (!this.isCued) {
-            this.audio.src = this.app.buildUrl('stream', {
-              format: 'raw',
-              estimateContentLength: true,
-              id: obj.id
-            });
-          }
-
-        // default playback  * transcoded audio *
-        } else {
-          this.app.currentPlaying = obj.artist + ' - ' + obj.title;
-          this.note.title = obj.artist + ' - ' + obj.title;
-          if (!this.isCued) {
-            this.audio.src = this.app.buildUrl('stream', {
-              maxBitRate: this.app.bitRate,
-              id: obj.id
-            });
-          }
+      this.audio = new Audio();
+      this.applyAudioListeners(this.audio);
+      if (obj.artist === '') {
+        this.app.currentPlaying = obj.title;
+        this.note.title = obj.title;
+        if (!this.isCued) {
+          this.audio.src = this.app.buildUrl('stream', {
+            format: 'raw',
+            estimateContentLength: true,
+            id: obj.id
+          });
         }
-        this.audio.play();
-      }.bind(this));
+
+      // default playback  * transcoded audio *
+      } else {
+        this.app.currentPlaying = obj.artist + ' - ' + obj.title;
+        this.note.title = obj.artist + ' - ' + obj.title;
+        if (!this.isCued) {
+          this.audio.src = this.app.buildUrl('stream', {
+            maxBitRate: this.app.bitRate,
+            id: obj.id
+          });
+        }
+      }
+      this.audio.play();
     }
     
     this.note.icon = obj.cover;
@@ -225,13 +223,11 @@ Polymer('music-player',{
     // gapless?
     if (this.app.gapless && audio.currentTime >= audio.duration - 60 
     && !this.isCued && this.app.playlist[this.app.playing + 1]) {
-      this.pool.act(function (audio) {
-        this.isCued = audio;
-        this.isCued.src = this.app.buildUrl('stream', {
-          maxBitRate: this.app.bitRate,
-          id: this.app.playlist[this.app.playing + 1].id
-        });
-      }.bind(this));
+      this.isCued = new Audio();
+      this.isCued.src = this.app.buildUrl('stream', {
+        maxBitRate: this.app.bitRate,
+        id: this.app.playlist[this.app.playing + 1].id
+      });
     }
     
     // if waiting for playback to start

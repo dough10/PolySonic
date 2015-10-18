@@ -193,7 +193,7 @@
     "message": "Add content by opening the official Subsonic webapp"
   },
   "addAlbums": {
-    "message": "To add albums navigate to Settings > Media Folders."
+    "message": "To add albums open the link above navigate to Settings > Media Folders."
   },
   "addPodcast": {
     "message": "Add Podcast by clicking plus button on the bottom right. Then input the XML feed for your favorite podcasts and enjoy."

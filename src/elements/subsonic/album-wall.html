@@ -89,7 +89,7 @@
           <template if="{{!isLoading && !wall[0] && request !== 'getStarred2'}}">
             <paper-shadow class='card' style="text-align:center;">
               <h3>{{addContent}}</h3>
-              {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
+              {{foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
               <br><br>
               {{addAlbums}}
             </paper-shadow>
@@ -107,7 +107,7 @@
           <template if="{{!isLoading && !podcast[0]}}">
             <paper-shadow class='card' style="text-align:center;">
               <h3>{{addContent}}</h3>
-              {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
+              {{foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
               <br><br>
               {{addPodcast}}
             </paper-shadow>
@@ -203,7 +203,7 @@
           <template if="{{!isLoading && !artist[0]}}">
             <paper-shadow class='card' style="text-align:center;">
               <h3>{{addContent}}</h3>
-              {{foundHere}} <a href="{{url}}" target='_blank'>{{url}}</a>
+              {{foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
               <br><br>
               {{addAlbums}}
             </paper-shadow>
