@@ -9,6 +9,10 @@ HTML5 Subsonic client
 
 
 Changelog
+0.2.8
+
+- attempt to fix a issue that would cause audio to stop randomly if precache enabled and user has a podcast in playlist
+
 0.2.7
 
 - bitrate is now a install specific setting (not synced between sessions)

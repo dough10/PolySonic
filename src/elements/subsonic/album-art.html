@@ -370,54 +370,6 @@
           <core-tooltip label="{{moreLikeThis}}" position="right">
             <paper-icon-button on-tap="{{moreLike}}" ident="{{albumID}}" icon="av:radio"></paper-icon-button>
           </core-tooltip>
-  <!--        <span class="ratings">
-            <template if="{{app.queryMethod !== 'ID3'}}">
-              <core-tooltip label="Current Rating: {{rating}} stars">
-                <template if="{{!rating}}">
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
-                </template>
-                <template if="{{rating === 1}}">
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
-                </template>
-                <template if="{{rating === 2}}">
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
-                </template>
-                <template if="{{rating === 3}}">
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
-                </template>
-                <template if="{{rating === 4}}">
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star-outline" on-tap="{{setRating}}" star="5"></paper-icon-button>
-                </template>
-                <template if="{{rating === 5}}">
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="1"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="2"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="3"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="4"></paper-icon-button>
-                  <paper-icon-button class="star" icon="star" on-tap="{{setRating}}" star="5"></paper-icon-button>
-                </template>
-              </core-tooltip>
-            </template>
-          </span>-->
         </div>
         <div class="trackWrapper">
           <template repeat="{{track in playlist}}">
