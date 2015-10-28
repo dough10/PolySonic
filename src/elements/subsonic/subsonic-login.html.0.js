@@ -3,7 +3,6 @@
       timer: 0,
       ready: function () {
         'use strict';
-        this.post = [];
         this.app = document.getElementById("tmpl");
         this.urlError = chrome.i18n.getMessage("urlError");
         this.urlLabel = chrome.i18n.getMessage("urlLabel");
@@ -25,7 +24,7 @@
           xhr.responseType = 'json';
           xhr.onload = function (e) {
             var json = e.target.response['subsonic-response'];
-            this.post.version = json.version;
+            this.app.version = json.version;
             console.log('API Version: ' + json.version);
             this.testingURL = false;
             this.$.submit.disabled = false;
@@ -51,18 +50,19 @@
       },
       submit: function () {
         'use strict';
-        if (this.invalid1 && this.invalid2 && this.post.version === undefined) {
-          this.app.doToast("URL, Username & Version Required");
+        if (this.invalid1 && this.invalid2) {
+          this.app.doToast("URL & Username Required");
         } else if (this.invalid1) {
           this.app.doToast("URL Required");
         } else if (this.invalid2) {
           this.app.doToast("Username Required");
         } else if (!this.invalid1 && !this.invalid2 && !this.invalid3) {
           /* trim off trailing forward slash */
-          var lastChar = this.post.url.substr(-1); // Selects the last character
+          var lastChar = this.app.url.substr(-1); // Selects the last character
           if (lastChar === '/') {         // If the last character is a slash
-            this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
+            this.app.url = this.app.url.substring(0, this.app.url.length - 1);  // remove the slash from end of string
           }
+          this.$.ajax.url = this.app.buildUrl('ping', {});
           this.$.ajax.go();
         }
       },
@@ -95,19 +95,12 @@
         if (this.response) {
           if (this.response['subsonic-response'].status === 'ok') {
             chrome.storage.sync.set({
-              'url': this.post.url,
-              'user': this.post.user,
-              'pass': this.post.pass,
+              'url': this.app.url,
+              'user': this.app.user,
+              'pass': this.app.pass,
             });
-            this.app.url = this.post.url;
-            this.app.user = this.post.user;
-            this.app.pass = this.post.pass;
             this.app.userDetails();
             this.app.version = this.response['subsonic-response'].version;
-            // if version greater then or equal to 1.13.0 will show authentication option in settings
-            if (versionCompare(this.app.version, '1.13.0') >= 0) {
-              document.querySelector('settings-menu').$.md5Auth.hidden = false;
-            }
             this.app.doToast("Loading Data");
             this.app.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
             this.app.$.firstRun.close();
@@ -135,17 +128,5 @@
           this.app.$.firstRun.open();
           this.app.doToast(chrome.i18n.getMessage('connectionError'));
         }
-      },
-      urlChanged: function () {
-        this.post.url = this.url;
-      },
-      userChanged: function () {
-        this.post.user = this.user;
-      },
-      passChanged: function () {
-        this.post.pass = this.pass;
-      },
-      versionChanged: function () {
-        this.post.version = this.version;
       }
     });

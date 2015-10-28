@@ -9,6 +9,18 @@ HTML5 Subsonic client
 
 
 Changelog
+0.2.7.2
+
+- fix issue keeping some users from loging in to server
+
+- attempt to fix a issue that would cause audio to stop randomly if precache enabled and user has a podcast in playlist
+
+- fix bug that would send password as plaing text when loging in on api version 1.13.0
+
+0.2.7.1
+
+- bug fix
+
 0.2.7
 
 - bitrate is now a install specific setting (not synced between sessions)

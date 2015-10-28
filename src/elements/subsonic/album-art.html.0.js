@@ -151,7 +151,7 @@ Polymer('album-art', {
 
   playTrack: function (event, detail, sender) {
     'use strict';
-    console.log(event);
+    //console.log(event);
     this.$.detailsDialog.close();
     this.app.playlist = [
       {

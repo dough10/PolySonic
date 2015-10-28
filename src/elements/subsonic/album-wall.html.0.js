@@ -145,11 +145,10 @@ Polymer('album-wall', {
               }
             }
           } else {
+            this.app.dataLoading = false;
+            this.isLoading = false;
             this.app.showApp();
             this.app.pageLimit = true;
-          }
-          if (!this.isLoading && !this.wall[0]) {
-            this.app.dataLoading = false;
           }
         }
       });
@@ -411,7 +410,7 @@ Polymer('album-wall', {
           obj.cover = imgURL;
           this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
             obj.palette = palette;
-            if (this.audio.paused) {
+            if (this.audio && this.audio.paused) {
               this.app.$.player.getImageForPlayer(imgURL, function () {
                 this.app.setFabColor(obj);
                 this.doPlay(obj);
@@ -434,7 +433,7 @@ Polymer('album-wall', {
             this.app.colorThiefHandler(imgURL, sender.attributes.cover.value, function (colorArray) {
               obj.palette = colorArray;
             });
-            if (this.audio.paused) {
+            if (this.audio && this.audio.paused) {
               this.app.$.player.getImageForPlayer(imgURL, function () {
                 this.app.dataLoading = false;
                 this.app.setFabColor(obj);
@@ -451,7 +450,7 @@ Polymer('album-wall', {
       }.bind(this));
     } else {
       imgURL = '../../../images/default-cover-art.png';
-      if (this.audio.paused) {
+      if (this.audio && this.audio.paused) {
         obj.cover = imgURL;
         this.app.$.player.getImageForPlayer(imgURL);
         this.doPlay(obj);

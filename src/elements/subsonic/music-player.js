@@ -72,6 +72,11 @@ Polymer('music-player',{
       }
     });
   },
+
+  /**
+   * the main play function
+   * @param {Object} obj - the playlist object to playback
+   */
   playAudio: function (obj) {
     
     // set playing on mini player 
@@ -89,10 +94,12 @@ Polymer('music-player',{
       this.audio.play();
       this.isCued = false;
       this.app.currentPlaying = obj.artist + ' - ' + obj.title;
+    // when not using gapless playback
     } else {
       if (this.audio) {
         if (!this.audio.paused) {
           this.audio.pause();
+          this.audio = null;
         }
       }
       this.audio = new Audio();
@@ -205,10 +212,18 @@ Polymer('music-player',{
     if (this.app.gapless && audio.currentTime >= audio.duration - 60 
     && !this.isCued && this.app.playlist[this.app.playing + 1]) {
       this.isCued = new Audio();
-      this.isCued.src = this.app.buildUrl('stream', {
-        maxBitRate: this.app.bitRate,
-        id: this.app.playlist[this.app.playing + 1].id
-      });
+      if (this.app.playlist[this.app.playing + 1].artist === '') {
+        this.isCued.src = this.app.buildUrl('stream', {
+          format: 'raw',
+          estimateContentLength: true,
+          id: this.app.playlist[this.app.playing + 1].id
+        });
+      } else {
+        this.isCued.src = this.app.buildUrl('stream', {
+          maxBitRate: this.app.bitRate,
+          id: this.app.playlist[this.app.playing + 1].id
+        });
+      }
     }
     
     // if waiting for playback to start
