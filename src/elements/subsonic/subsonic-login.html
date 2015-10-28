@@ -40,22 +40,22 @@
         display:inline-block;
       }
     </style>
-    <core-ajax id="ajax" auto="false" method="GET" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v=1.11.0&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" response="{{response}}">
+    <core-ajax id="ajax" auto="false" method="GET" handleas="json" loading="{{isLoading}}" error="{{error}}" response="{{response}}">
     </core-ajax>
       <h3>{{appName}}</h3>
       {{appDesc}}
       <div id="validate">
         <paper-input-decorator id="input1" disabled?="{{isLoading}}" autoValidate isInvalid="{{invalid1}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
-          <input is="core-input" on-blur="{{testURL}}"  disabled?="{{isLoading}}" id="address" type="URL" value="{{post.url}}" required="">
+          <input is="core-input" on-blur="{{testURL}}"  disabled?="{{isLoading}}" id="address" type="URL" value="{{app.url}}" required="">
         </paper-input-decorator>
         <paper-spinner hidden?="{{!testingURL}}" active></paper-spinner>
         <br>
         <paper-input-decorator id="input2" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid2}}" labelvisible="" floatinglabel="" error="{{usernameError}}" label="{{usernameLabel}}">
-          <input is="core-input"  disabled?="{{isLoading}}" type="text" value="{{post.user}}" required="">
+          <input is="core-input"  disabled?="{{isLoading}}" type="text" value="{{app.user}}" required="">
         </paper-input-decorator>
         <br>
         <paper-input-decorator id="input3" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid3}}" labelvisible="" floatinglabel="" label="{{passwordLabel}}">
-          <input is="core-input" on-keyup="{{checkKeyup}}" disabled?="{{isLoading}}" id="password" type="password" value="{{post.pass}}">
+          <input is="core-input" on-keyup="{{checkKeyup}}" disabled?="{{isLoading}}" id="password" type="password" value="{{app.pass}}">
         </paper-input-decorator>
         <br>
         <div id="showPass" on-tap="{{hidePass}}">{{showPass}}</div><br>

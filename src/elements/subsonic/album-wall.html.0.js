@@ -145,11 +145,10 @@ Polymer('album-wall', {
               }
             }
           } else {
+            this.app.dataLoading = false;
+            this.isLoading = false;
             this.app.showApp();
             this.app.pageLimit = true;
-          }
-          if (!this.isLoading && !this.wall[0]) {
-            this.app.dataLoading = false;
           }
         }
       });

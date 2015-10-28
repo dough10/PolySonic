@@ -182,9 +182,11 @@
                         <div flex class="title">
                           {{title}}
                         </div>
-                        <core-tooltip label="{{downloadButton}}" position="left">
-                          <paper-icon-button on-tap="{{downloadEpisode}}" icon="file-download" ident="{{id}}"></paper-icon-button>
-                        </core-tooltip>
+                        <template if="{{podcastRole}}">
+                          <core-tooltip label="{{downloadButton}}" position="left">
+                            <paper-icon-button on-tap="{{downloadEpisode}}" icon="file-download" ident="{{id}}"></paper-icon-button>
+                          </core-tooltip>
+                        </template>
                       </core-item>
                     </template>
                   </template>
