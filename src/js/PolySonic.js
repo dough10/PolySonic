@@ -1,36 +1,21 @@
 /*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief, setTimeout */
 (function () {
   'use strict';
-  window.addEventListener('keyup', function (e) {
-    if (e.keyCode ===  32) {
-      //
-    }
-  });
   var app = document.querySelector('#tmpl');
   app.scrolling = false;
   app.addEventListener('template-bound', function () {
     app.$.player.resize();
-    var button = document.querySelectorAll('.max');
-    var length = button.length;
-    if (chrome.app.window.current().isMaximized()) {
-      for (var i = 0; i < length; i++) {
-        button[i].icon = 'flip-to-back';
-      }
-    } else {
-      for (var ii = 0; ii < length; ii++) {
-        button[ii].icon = 'check-box-outline-blank';
-      }
-    }
-    chrome.storage.local.get(function (result) {
+    simpleStorage.getLocal().then(function (result) {
       app.bitRate = result.bitRate || 320;
     });
-    chrome.storage.sync.get(function (result) {
+    simpleStorage.getSync().then(function (result) {
       if (result.url === undefined) {
         app.$.firstRun.open();
       }
       app.url = result.url;
       app.user = result.user;
       app.pass = result.pass;
+      app.md5Auth = result.md5Auth || true;
       app.listMode = 'cover';
       app.autoBookmark = Boolean(result.autoBookmark);
       app.shuffleSettings.size = app.shuffleSettings.size || '50';
@@ -741,7 +726,7 @@
 
   /* request premission for analistics */
   app.askAnalistics = function () {
-    chrome.storage.sync.get(function (result) {
+    simpleStorage.getSync().then(function (result) {
       app.service.getConfig().addCallback(
         /** @param {!analytics.Config} config */
         function (config) {
@@ -754,7 +739,7 @@
           app.allowAnalistics = function () {
             app.analisticsEnabled = true;
             config.setTrackingPermitted(true);
-            chrome.storage.sync.set({
+            simpleStorage.setSync({
               'analistics': true
             });
           };
@@ -762,7 +747,7 @@
           app.disAllowAnalistics = function () {
             app.analisticsEnabled = false;
             config.setTrackingPermitted(false);
-            chrome.storage.sync.set({
+            simpleStorage.setSync({
               'analistics': false
             });
           };
@@ -777,7 +762,7 @@
 
   app.setFolder = function (event, detail, sender) {
     app.folder = parseInt(sender.attributes.i.value, 10);
-    chrome.storage.sync.set({
+    simpleStorage.setSync({
       'mediaFolder': app.folder
     });
   };
@@ -1031,12 +1016,12 @@
     var wall = app.$.wall;
     if (wall.listMode === 'cover') {
       wall.listMode = 'list';
-      chrome.storage.sync.set({
+      simpleStorage.setSync({
         'listMode': 'list'
       });
     } else {
       wall.listMode = 'cover';
-      chrome.storage.sync.set({
+      simpleStorage.setSync({
         'listMode': 'cover'
       });
     }
@@ -1304,7 +1289,7 @@
     if (app.version !== app.params.v) {
       app.params.v = app.version;
     }
-    if (versionCompare(app.version, '1.13.0') >= 0) {
+    if (versionCompare(app.version, '1.13.0') >= 0 && app.md5Auth) {
       if (app.params.p) {
         delete app.params.p;
       }

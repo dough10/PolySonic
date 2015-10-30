@@ -39,6 +39,13 @@
         cursor:pointer;
         display:inline-block;
       }
+      paper-toggle-button.redSwitch::shadow [checked] .toggle-ink {
+        color: #db4437;
+      }
+
+      paper-toggle-button.redSwitch::shadow [checked] .toggle {
+        background-color: #db4437;
+      }
     </style>
     <core-ajax id="ajax" auto="false" method="GET" handleas="json" loading="{{isLoading}}" error="{{error}}" response="{{response}}">
     </core-ajax>
@@ -59,6 +66,11 @@
         </paper-input-decorator>
         <br>
         <div id="showPass" on-tap="{{hidePass}}">{{showPass}}</div><br>
+        <br>
+        <div id="auth" hidden horizontal layout>
+          <div style="text-align: left;" flex>MD5 Authentication</div>
+          <paper-toggle-button class="redSwitch" on-change="{{authChanged}}" checked="{{app.md5Auth}}"></paper-toggle-button>
+        </div>
         <br>
         <paper-button id='submit' on-tap="{{submit}}" disabled?="{{isLoading}}">
           <template if="{{isLoading}}">

@@ -18,7 +18,7 @@ Polymer('album-wall', {
   hasBookmark: chrome.i18n.getMessage('hasBookmark'),
   created: function () {
     'use strict';
-    chrome.storage.sync.get(function (res) {
+    simpleStorage.getSync().then(function (res) {
       this.post = {
         type: res.sortType || 'newest',
         size: 20,

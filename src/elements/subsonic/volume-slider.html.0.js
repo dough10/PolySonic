@@ -8,7 +8,7 @@
         if (audio) {
           audio.volume = this.volume / 100;
         }
-        chrome.storage.sync.set({
+        simpleStorage.setSync({
           'volume': this.volume
         });
       }
