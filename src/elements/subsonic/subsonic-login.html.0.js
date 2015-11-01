@@ -25,6 +25,10 @@
           xhr.onload = function (e) {
             var json = e.target.response['subsonic-response'];
             this.app.version = json.version;
+            if (versionCompare(this.app.version, '1.13.0') >= 0) {
+              this.$.auth.hidden = false;
+              document.querySelector('settings-menu').$.auth.hidden = false;
+            }
             console.log('API Version: ' + json.version);
             this.testingURL = false;
             this.$.submit.disabled = false;
@@ -62,7 +66,7 @@
           if (lastChar === '/') {         // If the last character is a slash
             this.app.url = this.app.url.substring(0, this.app.url.length - 1);  // remove the slash from end of string
           }
-          this.$.ajax.url = this.app.buildUrl('ping', {});
+          this.$.ajax.url = this.app.buildUrl('ping', '');
           this.$.ajax.go();
         }
       },
@@ -94,7 +98,7 @@
         var wall = document.getElementById('wall');
         if (this.response) {
           if (this.response['subsonic-response'].status === 'ok') {
-            chrome.storage.sync.set({
+            simpleStorage.setSync({
               'url': this.app.url,
               'user': this.app.user,
               'pass': this.app.pass,
@@ -118,6 +122,12 @@
             this.app.doToast(this.response['subsonic-response'].error.message);
           }
         }
+      },
+      authChanged: function (e) {
+        var element = e.target;
+        simpleStorage.setSync({
+          md5Auth: element.checked
+        });
       },
       errorChanged: function () {
         'use strict';

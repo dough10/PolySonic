@@ -106,9 +106,7 @@
         <div view="podcast">
           <template if="{{!isLoading && !podcast[0]}}">
             <paper-shadow class='card' style="text-align:center;">
-              <h3>{{addContent}}</h3>
-              {{foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
-              <br><br>
+              <h3>{{addPodcasts}}</h3>
               {{addPodcast}}
             </paper-shadow>
           </template>
@@ -196,7 +194,7 @@
           </core-list>
           <template if="{{!isLoading}}">
             <div style="margin:auto; text-align:center;">
-              <paper-button on-tap="{{topOfPage}}">Back to Top</paper-button>
+              <paper-button hidden?="{{!isLoading && !podcast[0]}}" on-tap="{{topOfPage}}">Back to Top</paper-button>
             </div>
           </template>
           <div class="foot"></div>

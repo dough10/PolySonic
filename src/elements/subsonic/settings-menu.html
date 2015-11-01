@@ -188,6 +188,15 @@
           </div>
           <paper-toggle-button class="redSwitch" checked="{{app.gapless}}" on-change="{{toggleGapless}}"></paper-toggle-button>
         </div>
+        <div id="auth" hidden>
+          <br>
+          <br>
+          <br>
+          <div horizontal layout class="switchBox">
+            <div class="switchLabel" style="text-align: left;" flex>MD5 Authentication</div>
+            <paper-toggle-button class="redSwitch" on-change="{{authChanged}}" checked="{{app.md5Auth}}"></paper-toggle-button>
+          </div>
+        </div>
       </core-label>
       <br>
       <paper-button on-tap="{{showQuota}}">{{cacheDetails}}</paper-button>

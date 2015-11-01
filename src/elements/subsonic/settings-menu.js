@@ -39,6 +39,9 @@
         this.wall = document.getElementById("wall");
         this.outputVersion(this.manifest);
         setTimeout(function () {
+          if (versionCompare(this.app.version, '1.13.0') >= 0) {
+            this.$.auth.hidden = false;
+          }
           this.elementReady = true;
         }.bind(this), 500);
       },
@@ -46,6 +49,13 @@
       outputVersion: function (manifest) {
         this.polysonicVersion = manifest.version;
         console.log('App version: ' + this.polysonicVersion);
+      },
+
+      authChanged: function (e) {
+        var element = e.target;
+        simpleStorage.setSync({
+          md5Auth: element.checked
+        });
       },
 
       validate: function (callback) {
@@ -118,7 +128,7 @@
 
       methodSelect: function () {
         this.async(function () {
-          chrome.storage.sync.set({
+          simpleStorage.setSync({
             'queryMethod': this.post.queryMethod
           });
           this.app.queryMethod = this.post.queryMethod;
@@ -185,7 +195,7 @@
               };
             }
 
-            chrome.storage.sync.set({
+            simpleStorage.setSync({
               'url': this.post.url,
               'user': this.post.user,
               'pass': this.post.pass,
@@ -193,7 +203,7 @@
               'querySize': this.post.querySize,
               'queryMethod': this.post.queryMethod
             });
-            chrome.storage.local.set({
+            simpleStorage.setLocal({
               'bitRate': this.post.bitRate
             });
 
@@ -222,7 +232,7 @@
 
       bitRateSelect: function () {
         this.async(function () {
-          chrome.storage.local.set({
+          simpleStorage.setSync({
             'bitRate': this.post.bitRate
           });
           this.app.bitRate = this.post.bitRate;
@@ -231,7 +241,7 @@
       },
 
       querySelect: function () {
-        chrome.storage.sync.set({
+        simpleStorage.setSync({
           'querySize': this.post.querySize
         });
         this.app.querySize = this.post.querySize;
@@ -287,7 +297,7 @@
       },
 
       analisticsToggle: function () {
-        chrome.storage.sync.set({
+        simpleStorage.setSync({
           'analistics': this.app.analisticsEnabled
         });
       },
@@ -308,19 +318,13 @@
       },
 
       toggleAutobookmark: function () {
-        chrome.storage.sync.set({
+        simpleStorage.setSync({
           autoBookmark: this.app.autoBookmark
-        });
-      },
-
-      toggleMD5Auth: function () {
-        chrome.storage.sync.set({
-          md5Auth: this.app.md5Auth
         });
       },
       
       toggleGapless: function () {
-        chrome.storage.sync.set({
+        simpleStorage.setSync({
           gapless: this.app.gapless
         });
       }

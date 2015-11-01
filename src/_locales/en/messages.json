@@ -183,11 +183,14 @@
   "noResults": {
     "message": "No results"
   },
+  "addPodcasts": {
+    "message": "You have not downloaded any podcasts"
+  },
   "noFavoriteHeader": {
-    "message": "Favorite something!!"
+    "message": "Show a album some love!!"
   },
   "noFavoriteMessage": {
-    "message": "To add a album to your favorites just click the heart on the album you want to favorite."
+    "message": "Add a album to your favorites by clicking the heart on the album you want to display here."
   },
   "addContent": {
     "message": "Add content by opening the official Subsonic webapp"
