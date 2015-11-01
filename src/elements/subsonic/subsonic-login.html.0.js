@@ -27,6 +27,7 @@
             this.app.version = json.version;
             if (versionCompare(this.app.version, '1.13.0') >= 0) {
               this.$.auth.hidden = false;
+              document.querySelector('settings-menu').$.auth.hidden = false;
             }
             console.log('API Version: ' + json.version);
             this.testingURL = false;

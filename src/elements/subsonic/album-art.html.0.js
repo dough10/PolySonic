@@ -335,7 +335,7 @@ Polymer('album-art', {
     this.albumID = this.trackResponse['subsonic-response'].album.song[0].parent;
     var tracks = this.trackResponse['subsonic-response'].album.song;
     /* sort tracks by diskNumber thanks Joe Shelby */
-    tracks.sort(function doSort(a, b) {
+    tracks.sort(function sorting(a, b) {
       var da = a.discNumber || 0, db = b.discNumber || 0,
         ta = a.track || 0, tb = b.track || 0;
       if (da === db) {

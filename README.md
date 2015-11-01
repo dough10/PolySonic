@@ -9,6 +9,10 @@ HTML5 Subsonic client
 
 
 Changelog
+0.2.7.3
+
+- add option to disable md5 authentication
+
 0.2.7.2
 
 - fix issue keeping some users from loging in to server

@@ -6,6 +6,7 @@ Polymer('album-wall', {
   noFavoriteHeader: chrome.i18n.getMessage("noFavoriteHeader"),
   noFavoriteMessage: chrome.i18n.getMessage("noFavoriteMessage"),
   addContent: chrome.i18n.getMessage("addContent"),
+  addPodcasts: chrome.i18n.getMessage("addPodcasts"),
   addAlbums: chrome.i18n.getMessage("addAlbums"),
   addPodcast: chrome.i18n.getMessage("addPodcast"),
   foundHere: chrome.i18n.getMessage("foundHere"),

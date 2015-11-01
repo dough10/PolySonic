@@ -39,6 +39,9 @@
         this.wall = document.getElementById("wall");
         this.outputVersion(this.manifest);
         setTimeout(function () {
+          if (versionCompare(this.app.version, '1.13.0') >= 0) {
+            this.$.auth.hidden = false;
+          }
           this.elementReady = true;
         }.bind(this), 500);
       },
@@ -46,6 +49,13 @@
       outputVersion: function (manifest) {
         this.polysonicVersion = manifest.version;
         console.log('App version: ' + this.polysonicVersion);
+      },
+
+      authChanged: function (e) {
+        var element = e.target;
+        simpleStorage.setSync({
+          md5Auth: element.checked
+        });
       },
 
       validate: function (callback) {
