@@ -7,6 +7,33 @@ HTML5 Subsonic client
   <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png">
 </a>
 
+Required software for development environment
+
+- NPM
+
+- Bower
+
+- Grunt
+
+Steps to install development environment
+
+1. install NPM
+
+2. install Bower 'npm install -g bower'
+
+3. install Grunt 'npm install -g grunt-cli'
+
+4. clone repo 'git clone https://github.com/dough10/PolySonic.git'
+
+5. cd to project root dir 'cd PolySonic'
+
+6. run 'npm install' this will install the rest of the build environment
+
+7. cd to src folder 'cd src'
+
+8. run 'bower install'
+
+After making changes run 'grunt' from the project root directory
 
 Changelog
 0.2.7.3
@@ -123,11 +150,11 @@ Changelog
 
 - Last FM scrobble support
 
-- restyle system button bar to better match other material design apps 
+- restyle system button bar to better match other material design apps
 
 - minor performance changes
 
-- artist list now has a dropdown to jump to artist starting a letter 
+- artist list now has a dropdown to jump to artist starting a letter
 
 0.1.8
 
@@ -137,19 +164,19 @@ Changelog
 
 - corrected error toast when app fails to connect to server at login
 
-- fix error when clearing stored settings that caused bit rate not to default back to 320kbps 
+- fix error when clearing stored settings that caused bit rate not to default back to 320kbps
 
 - option to playback saved playlists as well as save current play queue to a playlist for playback at a later time
 
 0.1.7
 
-- minor performance enhancement for album-art / album-wall 
+- minor performance enhancement for album-art / album-wall
 
 - configured with chrome.i18n api / localization support currently only US English configured
 
 - fix issue with download button cause by 0.1.6
 
-- changed close button on album details to a back button 
+- changed close button on album details to a back button
 
 0.1.6
 
@@ -175,7 +202,7 @@ Changelog
 
 0.1.4
 
-- performance fix when using Color Thief mode / must clear cache in settings 
+- performance fix when using Color Thief mode / must clear cache in settings
 
 0.1.3.1
 

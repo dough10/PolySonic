@@ -3,24 +3,23 @@
   'use strict';
   var app = document.querySelector('#tmpl');
   app.scrolling = false;
+  app.shuffleSettings = {};
   app.addEventListener('template-bound', function () {
     app.$.player.resize();
     simpleStorage.getLocal().then(function (result) {
       app.bitRate = result.bitRate || 320;
     });
     simpleStorage.getSync().then(function (result) {
-      if (result.url === undefined) {
-        app.$.firstRun.open();
-      }
       app.url = result.url;
       app.user = result.user;
       app.pass = result.pass;
-      app.md5Auth = result.md5Auth || true;
-      app.listMode = 'cover';
-      app.autoBookmark = Boolean(result.autoBookmark);
-      app.shuffleSettings.size = app.shuffleSettings.size || '50';
-      app.version = '1.11.0';
+      app.md5Auth = result.md5Auth;
+      app.autoBookmark = result.autoBookmark;
+      app.gapless = result.gapless;
+      app.shuffleSettings.size = '50';
+      app.version = result.version || '1.11.0';
       app.querySize = 50;
+      app.listMode = 'cover';
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
@@ -29,17 +28,26 @@
       app.$.repeatButton.style.color = '#db4437';
       app.colorThiefEnabled = true;
       app.dataLoading = false;
-      app.gapless = result.gapless;
       app.params = {
         u: app.user,
         v: app.version,
         c: 'PolySonic',
         f: 'json'
       };
-      if (app.url && app.user && app.pass && app.version) {
+      if (app.md5Auth === undefined) {
+        app.md5Auth = true;
+      }
+      if (app.url && app.user && app.pass) {
         app.doXhr(app.buildUrl('ping', ''), 'json', function (e) {
           if (e.target.status === 200) {
-            app.version = e.target.response['subsonic-response'].version;
+
+            if (versionCompare(e.target.response['subsonic-response'].version, app.version) >= 0) {
+              app.version = e.target.response['subsonic-response'].version;
+              simpleStorage.setSync({
+                version: app.version
+              });
+            }
+
             if (e.target.response['subsonic-response'].status === 'ok') {
               app.userDetails();
               console.log('Connected to Subconic loading data');
@@ -47,7 +55,7 @@
                 app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                 /* setting mediaFolder causes a ajax call to get album wall data */
                 app.folder = result.mediaFolder || 0;
-                if (e.target.response['subsonic-response'].musicFolders.musicFolder === undefined 
+                if (e.target.response['subsonic-response'].musicFolders.musicFolder === undefined
                 || !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                   app.$.sortBox.style.display = 'none';
                 }
@@ -58,12 +66,16 @@
               app.$.firstRun.open();
               app.doToast(e.target.response['subsonic-response'].error.meessage);
             }
+
           } else {
             app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
             app.$.firstRun.open();
             app.doToast(e.target.response['subsonic-response'].error.meessage);
           }
         });
+
+      } else {
+        app.$.firstRun.open();
       }
     });
     app.appScroller().onscroll = app.scrollCallback;
@@ -79,7 +91,6 @@
     app.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
   });
 
-  app.shuffleSettings = {};
   app.appName = chrome.i18n.getMessage("appName");
   app.appDesc = chrome.i18n.getMessage("appDesc");
   app.folderSelector = chrome.i18n.getMessage("folderSelector");
@@ -148,19 +159,19 @@
 
   app.sortTypes = [
     {
-      sort: 'newest', 
+      sort: 'newest',
       name: chrome.i18n.getMessage("newButton")
     }, {
-      sort: 'alphabeticalByArtist', 
+      sort: 'alphabeticalByArtist',
       name: chrome.i18n.getMessage("byArtistButton")
     }, {
-      sort: 'alphabeticalByName', 
+      sort: 'alphabeticalByName',
       name: chrome.i18n.getMessage("titleButton")
     }, {
-      sort: 'frequent', 
+      sort: 'frequent',
       name: chrome.i18n.getMessage("frequentButton")
     }, {
-      sort: 'recent', 
+      sort: 'recent',
       name: chrome.i18n.getMessage("recentButton")
     }
   ];
@@ -869,7 +880,7 @@
       });
     }
   };
-  
+
   app.searchCheck = function (e) {
     if (e.keyIdentifier === "Enter") {
       e.target.blur();
@@ -1307,7 +1318,3 @@
   };
 
 }());
-
-
-
-

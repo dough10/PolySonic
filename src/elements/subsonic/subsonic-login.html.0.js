@@ -102,6 +102,7 @@
               'url': this.app.url,
               'user': this.app.user,
               'pass': this.app.pass,
+              'version': this.app.version
             });
             this.app.userDetails();
             this.app.version = this.response['subsonic-response'].version;
