@@ -4,7 +4,7 @@
   "short_name": "__MSG_appName__",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
-  "version": "0.2.7.4",
+  "version": "0.2.7.5",
   "minimum_chrome_version": "38",
 
   "icons": {
@@ -30,5 +30,38 @@
         "directory"
       ]
     }
-  ]
+  ],
+
+  "commands": {
+    "mediaPlay": {
+      "suggested_key": {
+        "default": "MediaPlayPause"
+      },
+      "description": "Play Pause Media"
+    },
+    "mediaStop": {
+      "suggested_key": {
+        "default": "MediaStop"
+      },
+      "description": "Stop Media"
+    },
+    "mediaForward": {
+      "suggested_key": {
+        "default": "MediaNextTrack"
+      },
+      "description": "next track"
+    },
+    "mediaBack": {
+      "suggested_key": {
+        "default": "MediaPrevTrack"
+      },
+      "description": "previous track"
+    },
+    "volumeUp": {
+      "description": "volume +"
+    },
+    "volumeDown": {
+      "description": "volume -"
+    }
+  }
 }

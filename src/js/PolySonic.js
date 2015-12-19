@@ -1,6 +1,7 @@
 /*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief, setTimeout */
 (function () {
   'use strict';
+
   var app = document.querySelector('#tmpl');
   app.scrolling = false;
   app.shuffleSettings = {};
@@ -1316,5 +1317,22 @@
       return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
     }
   };
+
+  chrome.commands.onCommand.addListener(function(command) {
+    var player = document.querySelector('music-player');
+    if (command === 'mediaPlay') {
+      player.playPause();
+    } else if (command === 'mediaStop') {
+      app.clearPlaylist();
+    } else if (command === 'mediaForward') {
+      player.nextTrack();
+    } else if (command === 'mediaBack') {
+      player.lastTrack();
+    } else if (command === 'volumeUp' && app.volume !== 100) {
+      app.volume = Math.abs(app.volume + 1);
+    } else if (command === 'volumeDown' && app.volume !== 0) {
+      app.volume = Math.abs(app.volume - 1);
+    }
+  });
 
 }());
