@@ -4,12 +4,29 @@
 
   var app = document.querySelector('#tmpl');
   app.scrolling = false;
+
+  // object for shuffle option
   app.shuffleSettings = {};
+
+  // app playlist array
+  app.playlist = [];
+
+  // default page
+  app.page = app.page || 0;
+
+  // if true lazy load trigger will not needlessly call xhr
+  app.pageLimit = false;
+
+  /**
+   * elements stamped to template & ready to use
+   */
   app.addEventListener('template-bound', function () {
     app.$.player.resize();
+    // bitrate
     simpleStorage.getLocal().then(function (result) {
       app.bitRate = result.bitRate || 320;
     });
+    // all synced settings
     simpleStorage.getSync().then(function (result) {
       app.url = result.url;
       app.user = result.user;
@@ -79,7 +96,9 @@
         app.$.firstRun.open();
       }
     });
+    // scrolling callback
     app.appScroller().onscroll = app.scrollCallback;
+    // app resize callback
     window.onresize = function () {
       app.$.fab.setPos();
       app.$.player.resize();
@@ -88,10 +107,14 @@
         chrome.app.window.current().innerBounds.height = 761;
       }
     };
+    // analistics
     app.service = analytics.getService('PolySonic');
-    app.tracker = this.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
+    app.tracker = app.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
   });
 
+  /**
+   * internationalization
+   */
   app.appName = chrome.i18n.getMessage("appName");
   app.appDesc = chrome.i18n.getMessage("appDesc");
   app.folderSelector = chrome.i18n.getMessage("folderSelector");
@@ -149,6 +172,7 @@
   app.createBookmarkText = chrome.i18n.getMessage('createBookmark');
   app.deletebookMarkConfirm = chrome.i18n.getMessage('deletebookMarkConfirm');
 
+  // shuffle size options
   app.shuffleSizes = [
     20,
     40,
@@ -158,6 +182,7 @@
     200
   ];
 
+  // menu album sort options
   app.sortTypes = [
     {
       sort: 'newest',
@@ -177,18 +202,24 @@
     }
   ];
 
+  /**
+   * indexDB setup
+   */
   app.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
-
   app.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
-
   app.dbVersion = 1.0;
-
   app.request = app.indexedDB.open("albumInfo", app.dbVersion);
 
+  /**
+   * indexdb error callback
+   */
   app.request.onerror = function () {
     console.log("Error creating/accessing IndexedDB database");
   };
 
+  /**
+   * indexdb successful initiate callback
+   */
   app.request.onsuccess = function () {
     console.log("Success creating/accessing IndexedDB database");
     app.db = app.request.result;
@@ -204,41 +235,63 @@
     }
   };
 
-  app.maximize = function () {
-    var button = document.querySelectorAll('.max');
-    var length = button.length;
-    if (chrome.app.window.current().isMaximized()) {
-      chrome.app.window.current().restore();
-      for (var i = 0; i < length; i++) {
-        button[i].icon = 'check-box-outline-blank';
-      }
-    } else {
-      chrome.app.window.current().maximize();
-      for (var ii = 0; ii < length; ii++) {
-        button[ii].icon = 'flip-to-back';
-      }
-    }
-  };
+//  app.maximize = function () {
+//    var button = document.querySelectorAll('.max');
+//    var length = button.length;
+//    if (chrome.app.window.current().isMaximized()) {
+//      chrome.app.window.current().restore();
+//      for (var i = 0; i < length; i++) {
+//        button[i].icon = 'check-box-outline-blank';
+//      }
+//    } else {
+//      chrome.app.window.current().maximize();
+//      for (var ii = 0; ii < length; ii++) {
+//        button[ii].icon = 'flip-to-back';
+//      }
+//    }
+//  };
 
+  /**
+   * indexdb upgraded
+   */
   app.request.onupgradeneeded = function (event) {
     app.createObjectStore(event.target.result);
   };
 
+  /**
+   * create indexdb storage object
+   */
   app.createObjectStore = function (dataBase) {
     console.log("Creating objectStore");
     dataBase.createObjectStore("albumInfo");
   };
 
+  /**
+   * indexdb fetch error callback
+   * @param {Error} e
+   */
   app.dbErrorHandler = function (e) {
     console.error(e);
   };
 
+  /**
+   * Fetch image from subsonic server and store it in indexeddb
+   * @param {String} url
+   * @param {String} id
+   * @param {Function} callback
+   */
   app.getImageFile = function (url, id, callback) {
     app.doXhr(url, 'blob', function (e) {
       app.putInDb(new Blob([e.target.response], {type: 'image/jpeg'}), id, callback);
     });
   };
 
+  /**
+   * store object in indexeddb
+   * @param {Object} data
+   * @param {String} id
+   * @param {Function} callback
+   */
   app.putInDb = function (data, id, callback) {
     var transaction = app.db.transaction(["albumInfo"], "readwrite");
     if (id) {
@@ -247,6 +300,10 @@
     }
   };
 
+  /**
+   * convert bytes to a readable form
+   * @param {Number} bytes
+   */
   function formatBytes(bytes) {
     if (bytes < 1024) return bytes + ' Bytes';
     else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
@@ -254,6 +311,9 @@
     else return (bytes / 1073741824).toFixed(2) + ' GB';
   }
 
+  /**
+   * display currently used storage on settings menu
+   */
   app.calculateStorageSize = function () {
     navigator.webkitTemporaryStorage.queryUsageAndQuota(function (used, remaining) {
       app.storageQuota = app.diskUsed + ": " + formatBytes(used) + ', ' + app.diskRemaining + ": " + formatBytes(remaining);
@@ -262,6 +322,11 @@
     });
   };
 
+  /**
+   * fetch a item from indexeddb
+   * @param {String} id
+   * @param {Function} callback
+   */
   app.getDbItem = function (id, callback) {
     if (id) {
       var transaction = app.db.transaction(["albumInfo"], "readwrite"),
@@ -271,6 +336,10 @@
     }
   };
 
+  /**
+   * default xhr error
+   * @param {Error} e
+   */
   function xhrError(e) {
     app.dataLoading = false;
     app.doToast(chrome.i18n.getMessage("connectionError"));
@@ -280,6 +349,12 @@
     }
   }
 
+  /**
+   * xhr
+   * @param {String} url
+   * @param {String} dataType
+   * @param {Function} callback
+   */
   app.doXhr = function (url, dataType, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
@@ -289,28 +364,35 @@
     xhr.send();
   };
 
-  app.playlist = [];
-
-  app.page = app.page || 0;
-
-  app.pageLimit = false;
-
+  /**
+   * reload the app
+   */
   app.reloadApp = function () {
     chrome.runtime.reload();
   };
 
-  app.minimize = function () {
-    chrome.app.window.current().minimize();
-  };
+//  app.minimize = function () {
+//    chrome.app.window.current().minimize();
+//  };
 
+  /**
+   * open download dialog
+   */
   app.openDownloads = function () {
     app.$.downloadDialog.open();
   };
 
+  /**
+   * close downloads dialog
+   */
   app.closeDownloads = function () {
     app.$.downloadDialog.close();
   };
 
+  /**
+   * close the app drawer if open
+   * @param {Function} callback
+   */
   app.closeDrawer = function (callback) {
     app.dataLoading = true;
     app.$.panel.closeDrawer();
@@ -319,20 +401,33 @@
     }
   };
 
+  /**
+   * open the app drawer
+   */
   app.openPanel = function () {
     app.$.panel.openDrawer();
   };
 
+  /**
+   * returns the apps main content scrolling element
+   */
   app.appScroller = function () {
     return app.$.headerPanel.scroller;
   };
 
+  /**
+   * display toast message to user
+   * @param {String} text
+   */
   app.doToast = function (text) {
     var toast = app.$.toast;
     toast.text = text;
     toast.show();
   };
 
+  /**
+   * scrolling callback
+   */
   app.scrollCallback = function () {
     var fab = app.$.fab;
     var wall = app.$.wall;
@@ -360,56 +455,79 @@
     }
   };
 
-  app.close = function () {
-    app.checkUnsavedDownloads(function () {
-      window.close();
-    }, function () {
-      this.$.unsavedDownloads.open();
-    }.bind(this));
-  };
+//  app.close = function () {
+//    app.checkUnsavedDownloads(function () {
+//      window.close();
+//    }, function () {
+//      this.$.unsavedDownloads.open();
+//    }.bind(this));
+//  };
 
-  app.checkUnsavedDownloads = function (callback, haveUnsaved) {
-    if (this.$.downloads.childElementCount !== 0) {
-      var downloads = this.$.downloads.querySelectorAll('download-manager');
-      var length = downloads.length;
-      var count = 0;
-      for (var i = 0; i < length; i++) {
-        if (!downloads[i].hasSaved) {
-          count = count + 1;
-        }
-        if (i === length - 1 && count ===0) {
-          callback();
-        } else {
-          haveUnsaved();
-        }
-      }
-    } else {
-      callback();
-    }
-  };
+//  app.checkUnsavedDownloads = function (callback, haveUnsaved) {
+//    if (this.$.downloads.childElementCount !== 0) {
+//      var downloads = this.$.downloads.querySelectorAll('download-manager');
+//      var length = downloads.length;
+//      var count = 0;
+//      for (var i = 0; i < length; i++) {
+//        if (!downloads[i].hasSaved) {
+//          count = count + 1;
+//        }
+//        if (i === length - 1 && count ===0) {
+//          callback();
+//        } else {
+//          haveUnsaved();
+//        }
+//      }
+//    } else {
+//      callback();
+//    }
+//  };
 
-  app.closeAnyway = function () {
-    window.close();
-  };
+//  app.closeAnyway = function () {
+//    window.close();
+//  };
 
+  /**
+   * use colorthief to get palette from cover art
+   * @param {image element} image
+   */
   app.getColor = function (image) {
     var colorThief = new ColorThief();
     return colorThief.getPalette(image, 4);
   };
 
+  /**
+   * get contrasting color
+   * @param {String} hexcolor
+   */
   app.getContrast50  = function (hexcolor) {
     return (parseInt(hexcolor, 16) > 0xffffff / 2) ? 'black' : 'white';
   };
 
+  /**
+   * convert component to hex value
+   */
   app.componentToHex = function (c) {
     var hex = c.toString(16);
     return hex.length === 1 ? "0" + hex : hex;
   };
 
+  /**
+   * convert rgb values to hex color
+   * @param {Number} r
+   * @param {Number} g
+   * @param {Number} b
+   */
   app.rgbToHex = function (r, g, b) {
     return app.componentToHex(r) + app.componentToHex(g) + app.componentToHex(b);
   };
 
+  /**
+   * capture color palette from image and store in indexeddb
+   * @param {String} imgURL
+   * @param {String} artId
+   * @param {Function} callback - returns an array of colors
+   */
   app.colorThiefHandler = function (imgURL, artId, callback) {
     var imgElement = new Image();
     imgElement.src = imgURL;
@@ -436,12 +554,16 @@
     };
   };
 
-  function endLoop() {
-      app.doShufflePlayback();
-      app.dataLoading = false;
-      app.closePlaylists();
-  }
+//  function endLoop() {
+//    app.doShufflePlayback();
+//    app.dataLoading = false;
+//    app.closePlaylists();
+//  }
 
+  /**
+   * shuffle the order of a given array
+   * @param {Array} array
+   */
   function shuffleArray(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
     while (0 !== currentIndex) {
@@ -454,6 +576,9 @@
     return array;
   }
 
+  /**
+   * shuffle app playlist
+   */
   app.shufflePlaylist = function () {
     app.tracker.sendEvent('Playlist Shuffled', new Date());
     var temp = app.playlist[app.playing];
@@ -469,6 +594,9 @@
     }
   };
 
+  /**
+   * open bookmarks dialog
+   */
   app.openBookmarks = function () {
     app.closeDrawer(function () {
       app.doXhr(app.buildUrl('getBookmarks', ''), 'json', function (e) {
@@ -484,7 +612,7 @@
     });
   };
 
-  // playback for bookmarks
+  // playback handler for bookmarks
   function handlePlay(obj) {
     app.dataLoading = false;
     app.playlist = [obj];
@@ -496,7 +624,10 @@
     app.setFabColor(obj);
   }
 
-  // que a bookmark
+  /**
+   * que a bookmark
+   * @param {Event} event
+   */
   app.queBookmark = function (event) {
     var resumePos = event.path[0].dataset.pos;
     app.dataLoading = true;
@@ -547,12 +678,19 @@
     });
   };
 
+  /**
+   * open bookmark deleting confirmation dialog
+   */
   app.conBookDel = function (event) {
     app.$.showBookmarks.close();
     app.delID = event.path[0].dataset.id;
     app.$.bookmarkConfirm.open();
   };
 
+  /**
+   * delete a bookmark
+   * @param {Event} event
+   */
   app.deleteBookmark = function (event) {
     app.doXhr(
       app.buildUrl('deleteBookmark', {
@@ -571,27 +709,49 @@
     });
   };
 
+  /**
+   * convert seconds to readable form
+   * @param {Number} sec
+   */
   app.secondsToMins = function (sec) {
     var mins = Math.floor(sec / 60);
     return mins + ':' + ('0' + Math.floor(sec - (mins * 60))).slice(-2);
   };
 
+  /**
+   * close bookmarks dialog
+   */
   app.closeBookmarks = function () {
     app.$.showBookmarks.close();
   };
 
+  /**
+   * close dialog creation dialog?
+   */
   app.closeBookmark = function () {
     app.$.bookmarkDialog.close();
   };
 
+  /**
+   * open bookmark creation dialog
+   */
   app.createBookmark = function () {
     app.$.player.createBookmark();
   };
 
+  /**
+   * submit a bookmark to the server
+   */
   app.submitBookmark = function () {
     app.$.player.submitBookmark();
   };
 
+  /**
+   * ques playback of a subsonic playlist
+   * @param {Event} event
+   * @param {Object} detail
+   * @param {Object} sender
+   */
   app.playPlaylist = function (event, detail, sender) {
     app.dataLoading = true;
     app.playlist = null;
@@ -615,6 +775,9 @@
     });
   };
 
+  /**
+   * que shuffle playback
+   */
   app.shufflePlay = function () {
     app.tracker.sendEvent('Shuffle From Menu', new Date());
     app.dataLoading = true;
@@ -653,6 +816,9 @@
     }
   };
 
+  /**
+   * start shuffle playback
+   */
   app.doShufflePlayback = function () {
     if (app.$.player.audio && app.$.player.audio.paused) {
       if (app.playing === 0) {
@@ -692,38 +858,47 @@
   };
 
 
-  /*
-    volume controls
+  /**
+   * open volume dialog
   */
   app.toggleVolume = function () {
     app.$.volumeDialog.open();
   };
 
+  /**
+   * close volume dialog
+   */
   app.closeVolume = function () {
     app.$.volumeDialog.close();
   };
 
-  app.volUp = function () {
-    if (app.volume < 100) {
-      app.volume = app.volume + 2;
-    }
-  };
+//  app.volUp = function () {
+//    if (app.volume < 100) {
+//      app.volume = app.volume + 2;
+//    }
+//  };
+//
+//  app.volDown = function () {
+//    if (app.volume > 0) {
+//      app.volume = app.volume - 2;
+//    }
+//  };
 
-  app.volDown = function () {
-    if (app.volume > 0) {
-      app.volume = app.volume - 2;
-    }
-  };
-
+  /**
+   * toggle playlist looping
+   */
   app.toggleRepeat = function () {
     app.$.player.toggleRepeat();
   };
 
-  app.defaultPlayImage = function () {
-    app.$.coverArt.style.backgroundImage =  "url('images/default-cover-art.png')";
-    app.$.playNotify.icon = 'images/default-cover-art.png';
-  };
+//  app.defaultPlayImage = function () {
+//    app.$.coverArt.style.backgroundImage =  "url('images/default-cover-art.png')";
+//    app.$.playNotify.icon = 'images/default-cover-art.png';
+//  };
 
+  /**
+   * hide loading screen
+   */
   app.showApp = function () {
     var loader = document.getElementById("loader"),
       box = document.getElementById("box");
@@ -736,7 +911,9 @@
     }
   };
 
-  /* request premission for analistics */
+  /**
+   * request premission for analistics
+   */
   app.askAnalistics = function () {
     simpleStorage.getSync().then(function (result) {
       app.service.getConfig().addCallback(
@@ -768,10 +945,19 @@
     });
   };
 
+  /**
+   * scroll to letter section on artist list
+   */
   app.jumpTo = function (event, detail, sender) {
     app.$.wall.jumpToLetter(sender.attributes.it.value);
   };
 
+  /**
+   * click handler for items in folder filter list
+   * @param {Event} event
+   * @param {Object} detail
+   * @param {Object} sender
+   */
   app.setFolder = function (event, detail, sender) {
     app.folder = parseInt(sender.attributes.i.value, 10);
     simpleStorage.setSync({
@@ -779,6 +965,11 @@
     });
   };
 
+  /**
+   * attach image object url to a playlist item object
+   * @param {Object} obj
+   * @param {Function} callback
+   */
   app.fixCoverArtForShuffle = function (obj, callback) {
     var artId = obj.cover;
     app.getDbItem(artId, function (ev) {
@@ -804,6 +995,10 @@
     });
   };
 
+  /**
+   * set color of accent colors in player
+   * @param {Array} array
+   */
   app.setFabColor = function (array) {
     if (app.colorThiefEnabled && array.palette) {
       app.colorThiefFab = array.palette[0];
@@ -813,10 +1008,13 @@
     }
   };
 
+  /**
+   * open playlist save dialog  set default name to curent time & date
+   */
   app.savePlayQueue = function () {
     app.$.playlistDialog.close();
     app.$.createPlaylist.open();
-    app.defaultName = new Date().toString();
+    app.defaultName = new Date().toLocalString();
   };
 
   function save2PlayQueueCallback (e) {
