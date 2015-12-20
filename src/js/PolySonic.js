@@ -554,11 +554,14 @@
     };
   };
 
-//  function endLoop() {
-//    app.doShufflePlayback();
-//    app.dataLoading = false;
-//    app.closePlaylists();
-//  }
+  /**
+   * callback for shuffle playback
+   */
+  function endLoop() {
+    app.doShufflePlayback();
+    app.dataLoading = false;
+    app.closePlaylists();
+  }
 
   /**
    * shuffle the order of a given array
@@ -1017,6 +1020,9 @@
     app.defaultName = new Date().toLocalString();
   };
 
+  /**
+   * callback for saving a playlist
+   */
   function save2PlayQueueCallback (e) {
     if (e.target.response['subsonic-response'].status === 'ok') {
       app.doToast(chrome.i18n.getMessage('playlistCreated'));
@@ -1028,6 +1034,9 @@
     }
   }
 
+  /**
+   * save a playlist
+   */
   app.savePlayQueue2Playlist = function () {
     var url = app.buildUrl('createPlaylist', {name: app.defaultName}),
       length = app.playlist.length;
