@@ -199,7 +199,7 @@ Polymer('album-art', {
     }
     this.app.doToast(chrome.i18n.getMessage("added2Queue"));
   },
-  
+
   chooseOption: function () {
     'use strict';
     if (this.bookmarkIndex !== undefined) {
@@ -213,7 +213,7 @@ Polymer('album-art', {
       this.playAlbum();
     }
   },
-  
+
   playFromBookmark: function () {
     'use strict';
     this.shortPlaylist = this.playlist.splice(this.bookmarkIndex);
@@ -381,7 +381,7 @@ Polymer('album-art', {
   itemChanged: function () {
     'use strict';
     this.async(function itemUpdate() {
-      if (this.imgURL 
+      if (this.imgURL
       && this.imgURL !== '../../../images/default-cover-art.png') {
         this.isObjectInPlaylist(function () {
           window.URL.revokeObjectURL(this.imgURL);
@@ -487,7 +487,7 @@ Polymer('album-art', {
       }
     }.bind(this));
   },
-  
+
   moreCallback: function (artEvent, obj, artId) {
     if (artEvent.target.result) {
       obj.cover = window.URL.createObjectURL(artEvent.target.result);
@@ -542,7 +542,7 @@ Polymer('album-art', {
     };
     this.bookmarkTime = this.app.secondsToMins(sender.attributes.bookmark.value / 1000);
   },
-  
+
   isObjectInPlaylist: function (cb) {
     var pl = this.app.playlist;
     var plLength = pl.length;
@@ -560,5 +560,3 @@ Polymer('album-art', {
     }
   }
 });
-
-

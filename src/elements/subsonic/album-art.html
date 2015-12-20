@@ -229,7 +229,7 @@
         transform: translate3d(0, 0, 0);
       }
     </style>
-    
+
     <!-- delete bookmark comfirmation dialog -->
     <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
       <template if="{{$.bookmarkConfirm.opened}}">
@@ -239,7 +239,7 @@
         <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{app.accept}}</paper-button>
       </template>
     </paper-action-dialog>
-    
+
     <!-- bookmark playback confirmation dialog -->
     <paper-action-dialog id="playbackConfirm" transition="core-transition-center">
       <template if="{{$.playbackConfirm.opened}}">
@@ -248,7 +248,7 @@
         <paper-button affirmative on-tap="{{playTrack}}" duration="{{bookMark.duration}}" trackTitle="{{bookMark.title}}" artist="{{bookmark.artist}}" ident="{{bookMark.id}}" cover="{{bookMark.cover}}">{{fromStart}}</paper-button>
       </template>
     </paper-action-dialog>
-    
+
     <!-- album bookmark playback confirmation dialog -->
     <paper-action-dialog id="albumPlaybackConfirm" transition="core-transition-center">
       <template if="{{$.albumPlaybackConfirm.opened}}">
@@ -257,7 +257,9 @@
         <paper-button affirmative on-tap="{{playAlbum}}">{{fromStart}}</paper-button>
       </template>
     </paper-action-dialog>
-    <paper-shadow z="1" id="card" page="cover" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
+
+    <!-- art element -->
+    <paper-shadow z="1" id="card" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
       <div class="wrapper">
         <template if="{{isLoading}}">
           <div class="spinWrapper">
@@ -277,6 +279,8 @@
         </div>
       </div>
     </paper-shadow>
+
+    <!-- album details -->
     <paper-dialog id="detailsDialog" style="min-height:695px; min-width:471px;" backdrop autoclosedisabled transition="core-transition-center">
       <style>
         #topper {
