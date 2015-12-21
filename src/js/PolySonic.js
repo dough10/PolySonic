@@ -96,8 +96,10 @@
         app.$.firstRun.open();
       }
     });
-    // scrolling callback
+
+    // set main content scrolling callback
     app.appScroller().onscroll = app.scrollCallback;
+
     // app resize callback
     window.onresize = function () {
       app.$.fab.setPos();
@@ -107,6 +109,7 @@
         chrome.app.window.current().innerBounds.height = 761;
       }
     };
+
     // analistics
     app.service = analytics.getService('PolySonic');
     app.tracker = app.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
@@ -1049,10 +1052,19 @@
     }
   };
 
+  /**
+   * close playlist creaton dialog
+   */
   app.closePlaylistSaver = function () {
     app.$.createPlaylist.close();
   };
 
+  /**
+   * FAB click handler
+   * @param {Event} event
+   * @param {Object} detail
+   * @param {Object} sender
+   */
   app.doAction = function (event, detail, sender) {
     var scroller = app.appScroller(),
       wall = app.$.wall,
@@ -1060,8 +1072,11 @@
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
-      {opacity: 1},
-      {opacity: 0}
+      {
+        opacity: 1
+      }, {
+        opacity: 0
+      }
     ];
     animation.target = sender;
     if (app.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast' && app.$.fab.state === 'bottom') {
@@ -1089,6 +1104,9 @@
     }
   };
 
+  /**
+   * check key press to see if we should start searching
+   */
   app.searchCheck = function (e) {
     if (e.keyIdentifier === "Enter") {
       e.target.blur();
@@ -1096,6 +1114,9 @@
     }
   };
 
+  /**
+   * run the search & display results
+   */
   app.doSearch = function () {
     if (app.searchQuery) {
       app.async(function () {
@@ -1138,8 +1159,11 @@
     }
   };
 
+  /**
+   * open the playlist / play que dialog
+   * @param {String} p - just a small string I send with the click to set animation
+   */
   app.showPlaylist = function (p) {
-    /* p is just a small string i send with the click function */
     if (p) {
       app.$.playlistDialog.transition = "core-transition-bottom";
     } else {
@@ -1150,12 +1174,18 @@
     });
   };
 
+  /**
+   * close the playlist / play que dialog
+   */
   app.closePlaylist = function () {
     app.async(function () {
       app.$.playlistDialog.close();
     });
   };
 
+  /**
+   * open subsonic playlists dialog
+   */
   app.openPlaylists = function () {
     app.closeDrawer(function ()  {
       app.dataLoading = false;
@@ -1170,12 +1200,18 @@
     });
   };
 
+  /**
+   * close sudsonic playlists dialog
+   */
   app.closePlaylists = function () {
     app.async(function () {
       app.$.playlistsDialog.close();
     });
   };
 
+  /**
+   * open playlist delete confirmation dialog
+   */
   app.reallyDelete = function (event, detail, sender) {
     app.delID =  sender.attributes.ident.value;
     app.async(function () {
@@ -1184,6 +1220,9 @@
     });
   };
 
+  /**
+   * send playlist delete command to server
+   */
   app.deletePlaylist = function (event, detail, sender) {
     app.doXhr(app.buildUrl('deletePlaylist', {id: sender.attributes.ident.value}), 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
@@ -1201,12 +1240,18 @@
     });
   };
 
+  /**
+   * close shuffle options dialog
+   */
   app.closeShuffleOptions = function () {
     app.async(function () {
       app.$.shuffleOptions.close();
     });
   };
 
+  /**
+   * open shuffle options dialog
+   */
   app.shuffleOptions = function () {
     app.closeDrawer(function () {
       app.doXhr(app.buildUrl('getGenres', ''), 'json', function (e) {
@@ -1224,42 +1269,56 @@
     });
   };
 
+  /**
+   * close podcast add dialog
+   */
   app.closePodcastDialog = function () {
     app.async(function () {
       app.$.addPodcast.close();
     });
   };
 
-  app.toggleWall = function () {
-    app.dataLoading = true;
-    var wall = app.$.wall;
-    if (wall.listMode === 'cover') {
-      wall.listMode = 'list';
-      simpleStorage.setSync({
-        'listMode': 'list'
-      });
-    } else {
-      wall.listMode = 'cover';
-      simpleStorage.setSync({
-        'listMode': 'cover'
-      });
-    }
-    app.tracker.sendEvent('ListMode Changed', wall.listMode);
-  };
+//  app.toggleWall = function () {
+//    app.dataLoading = true;
+//    var wall = app.$.wall;
+//    if (wall.listMode === 'cover') {
+//      wall.listMode = 'list';
+//      simpleStorage.setSync({
+//        'listMode': 'list'
+//      });
+//    } else {
+//      wall.listMode = 'cover';
+//      simpleStorage.setSync({
+//        'listMode': 'cover'
+//      });
+//    }
+//    app.tracker.sendEvent('ListMode Changed', wall.listMode);
+//  };
 
+  /**
+   * navigate back to albumd list
+   */
   app.back2List = function () {
     app.async(function () {
       app.page = 0;
     });
   };
 
+  /**
+   * navigate to now playing page
+   */
   app.nowPlaying = function () {
     app.async(function () {
       app.page = 1;
     });
   };
 
-  /*jslint unparam: true*/
+  /**
+   * app menu sort option click handler
+   * @param {Event} event
+   * @param {Object} detail
+   * @param {Object} sender
+   */
   app.selectAction = function (event, detail, sender) {
     var wall = app.$.wall;
     app.tracker.sendEvent('Sorting By ' + wall.sort, new Date());
@@ -1312,8 +1371,10 @@
       });
     }
   };
-  /*jslint unparam: false*/
 
+  /**
+   * fetch podcasts
+   */
   app.getPodcast = function () {
     app.tracker.sendEvent('Showing Podcast', new Date());
     if (!app.narrow && app.page !== 0) {
@@ -1330,6 +1391,9 @@
     }
   };
 
+  /**
+   * fetch starred albums
+   */
   app.getStarred = function () {
     app.tracker.sendEvent('Showing Favorites', new Date());
     if (!app.narrow && app.page !== 0) {
@@ -1346,6 +1410,9 @@
     }
   };
 
+  /**
+   * fetch artist list
+   */
   app.getArtist = function () {
     app.tracker.sendEvent('Showing Artist List', new Date());
     if (!app.narrow && app.page !== 0) {
@@ -1362,6 +1429,9 @@
     }
   };
 
+  /**
+   * navigate to settings page
+   */
   app.gotoSettings = function () {
     app.tracker.sendEvent('Settings Page', new Date());
     app.async(function () {
@@ -1370,6 +1440,12 @@
     });
   };
 
+  /**
+   * refersh the podcast list
+   * @param {Event} event
+   * @param {Object} detail
+   * @param {Object} sender
+   */
   app.refreshPodcast = function (event, detail, sender) {
     var animation = new CoreAnimation();
     animation.duration = 1000;
@@ -1389,6 +1465,9 @@
     });
   };
 
+  /**
+   * add a podcast channel
+   */
   app.addChannel = function () {
     app.tracker.sendEvent('Adding Podcast', new Date());
     if (!app.castURL) {
@@ -1410,14 +1489,23 @@
     }
   };
 
+  /**
+   * delete a podcast channel
+   */
   app.doDelete = function (event, detail, sender) {
     app.$.wall.deleteChannel(sender.attributes.ident.value);
   };
 
+  /**
+   * delete a podcast episode
+   */
   app.deleteEpisode = function (event, detail, sender) {
     app.$.wall.deleteEpisode(sender.attributes.ident.value);
   };
 
+  /**
+   * display user license info dialog
+   */
   app.getLicense = function (callback) {
     app.doXhr(app.buildUrl('getLicense', ''), 'json', function (e) {
       var response = e.target.response['subsonic-response'];
@@ -1448,10 +1536,17 @@
     });
   };
 
+  /**
+   * close license dialog
+   */
   app.licenseDialogClose = function () {
     app.$.licenseDialog.close();
   };
 
+  /**
+   * fetch and set user account details
+   * used to set flags for access restrictions
+   */
   app.userDetails = function () {
     app.async(function () {
       app.doXhr(app.buildUrl('getUser', {username: app.user}), 'json', function (e) {
@@ -1465,6 +1560,10 @@
     });
   };
 
+  /**
+   * convert object a query string
+   * @param {Object} params
+   */
   function toQueryString(params) {
     var r = [];
     for (var n in params) {
@@ -1474,6 +1573,9 @@
     return r.join('&');
   }
 
+  /**
+   * hex encode a text string
+   */
   String.prototype.hexEncode = function () {
     var r = '';
     var i = 0;
@@ -1488,6 +1590,10 @@
     return 'enc:'+r;
   };
 
+  /**
+   * create a random string of a given length
+   * @param {number} length
+   */
   function makeSalt(length) {
     var text = "";
     var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -1498,6 +1604,11 @@
     return text;
   }
 
+  /**
+   * generate a subsonic url string
+   * @param {String} method
+   * @param {Object} options
+   */
   app.buildUrl = function(method, options) {
     if (options !== null && typeof options === 'object') {
       options = '&' + toQueryString(options);
@@ -1525,6 +1636,9 @@
     }
   };
 
+  /**
+   * key binding listener
+   */
   chrome.commands.onCommand.addListener(function(command) {
     var player = document.querySelector('music-player');
     if (command === 'mediaPlay') {

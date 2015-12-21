@@ -1,5 +1,8 @@
 /*global Polymer, console, chrome, document, Blob, window, Image, CoreAnimation, DownloadManager */
 Polymer('album-art', {
+  /**
+   * int
+   */
   fromStart: chrome.i18n.getMessage('fromStart'),
   playFrom: chrome.i18n.getMessage('playFrom'),
   hasBookmark: chrome.i18n.getMessage('hasBookmark'),
@@ -20,22 +23,14 @@ Polymer('album-art', {
 
   ready: function () {
     'use strict';
-
     this.artist = this.artist || "Artist Name";
-
     this.album = this.album || "Album Title";
-
     this.app = document.getElementById("tmpl");
-
-    this.playerArt = document.getElementById("coverArt");
-
+    //this.playerArt = document.getElementById("coverArt");
     this.app.colorThiefAlbum = this.app.colorThiefAlbum  || '#db4437';
-
     this.app.colorThiefAlbumOff = this.app.colorThiefAlbumOff  || 'white';
-
   },
 
-  /* setup image  */
   setImage: function (event, callback) {
     'use strict';
     var imgURL = window.URL.createObjectURL(event.target.result);
@@ -107,8 +102,11 @@ Polymer('album-art', {
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
-      {opacity: 1},
-      {opacity: 0}
+      {
+        opacity: 1}
+      , {
+        opacity: 0
+      }
     ];
     animation.target = sender;
     animation.play();
@@ -134,8 +132,11 @@ Polymer('album-art', {
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
-      {opacity: 1},
-      {opacity: 0}
+      {
+        opacity: 1}
+      , {
+        opacity: 0
+      }
     ];
     animation.target = sender;
     animation.play();
@@ -257,8 +258,11 @@ Polymer('album-art', {
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
-      {opacity: 1},
-      {opacity: 0}
+      {
+        opacity: 1}
+      , {
+        opacity: 0
+      }
     ];
     animation.target = sender;
     animation.play();
@@ -280,8 +284,11 @@ Polymer('album-art', {
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
-      {opacity: 1},
-      {opacity: 0}
+      {
+        opacity: 1}
+      , {
+        opacity: 0
+      }
     ];
     animation.target = sender;
     animation.play();
@@ -425,8 +432,11 @@ Polymer('album-art', {
     animation.duration = 1000;
     animation.iterations = 'Infinity';
     animation.keyframes = [
-      {opacity: 1},
-      {opacity: 0}
+      {
+        opacity: 1}
+      , {
+        opacity: 0
+      }
     ];
     animation.target = sender;
     animation.play();
