@@ -23,6 +23,9 @@ Polymer('artist-details', {
             id: this.artistId
           }), 'json', function (event) {
           this.data = event.target.response['subsonic-response'].artist.album;
+          for (var i = 0; i < this.data.length; i++) {
+            this.data[i].listMode = this.listMode;
+          }
           this.app.dataLoading = false;
           this.async(function () {
             this.app.page = 3;

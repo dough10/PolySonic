@@ -56,6 +56,7 @@ Polymer('album-art', {
   showArt: function (image) {
     'use strict';
     this.$.card.style.backgroundImage = "url('" + image + "')";
+    this.$.listArt.src = image;
     this.imgURL = image;
   },
 

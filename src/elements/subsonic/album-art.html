@@ -10,10 +10,6 @@
 </head><body><polymer-element name="album-art" attributes="artist album cover item isFavorite listMode">
   <template>
     <style shim-shadowdom>
-      :host {
-        display:inline-block;
-        margin:2px;
-      }
       #card {
         border-radius:2px;
         height: {{size}};
@@ -22,6 +18,8 @@
         background-position: center;
         background-origin: content-box;
         background-size:{{size}};
+        margin: 2px;
+        display: inline-block;
       }
       core-animated-pages {
         height:100%;
@@ -43,6 +41,15 @@
         background:rgba(255,255,255, 0.97);
         border:1px solid #d8d8d8;
         text-align:left;
+      }
+      #list {
+        margin: auto;
+        max-width: 800px;
+        display: block;
+        padding-top:8px;
+        padding-left:8px;
+        background: #fff;
+        margin-top:1px;
       }
       .left-icon {
         position:relative;
@@ -228,6 +235,10 @@
         -webkit-transform: translate3d(0, 0, 0);
         transform: translate3d(0, 0, 0);
       }
+      #listArt {
+        border-radius: 50%;
+        margin-right:16px;
+      }
     </style>
 
     <!-- delete bookmark comfirmation dialog -->
@@ -258,8 +269,9 @@
       </template>
     </paper-action-dialog>
 
-    <!-- art element -->
-    <paper-shadow z="1" id="card" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
+
+    <!-- cover -->
+    <paper-shadow z="1" id="card" hidden?="{{listMode !== 'cover'}}" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
       <div class="wrapper">
         <template if="{{isLoading}}">
           <div class="spinWrapper">
@@ -279,6 +291,27 @@
         </div>
       </div>
     </paper-shadow>
+
+    <!-- list -->
+    <paper-shadow z="1" id="list" hidden?="{{listMode !== 'list'}}" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
+      <div horizontal layout>
+        <div>
+          <img id="listArt" src="../../../images/default-cover-art.png" height="40" width="40">
+        </div>
+        <div vertical layout flex style="margin-top:10px; text-align: left;">
+          <div class="artist">{{artist}}</div>
+          <div class="album">{{album}}</div>
+        </div>
+        <div style="margin-top:10px;">
+          <core-tooltip class="left-icon" label="{{moreOptionsLabel}}" position="left">
+            <paper-icon-button on-tap="{{doDetails}}" icon="more-vert"></paper-icon-button>
+          </core-tooltip>
+        </div>
+      </div>
+    </paper-shadow>
+
+
+
 
     <!-- album details -->
     <paper-dialog id="detailsDialog" style="min-height:695px; min-width:471px;" backdrop autoclosedisabled transition="core-transition-center">

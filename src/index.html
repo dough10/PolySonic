@@ -44,7 +44,7 @@
 
         <!-- menu -->
         <core-header-panel drawer flex mode="standard">
-          <core-toolbar style="background: white; color: #333;">
+          <core-toolbar style="background: white; color: #333;" class="medium-tall">
             <div class="bottom" horizontal layout>
               <div flex style="text-align: center;">
                 <paper-input class="search-box" label="Search" on-keyup="{{searchCheck}}" value="{{searchQuery}}" style="width: 175px;"></paper-input>
@@ -123,6 +123,13 @@
                                    on-tap="{{openPanel}}" class="bottom"></paper-icon-button>
                 <div flex  class="bottom alignLeft">{{appName}}</div>
 
+                <!-- listMode button -->
+                <core-tooltip label="Toggle List Mode" class="bottom">
+                  <paper-icon-button on-tap="{{toggleWall}}" class="wallToggle"
+                                     disabled?="{{dataLoading || shuffleLoading}}"
+                                     icon="list"></paper-icon-button>
+                </core-tooltip>
+
                 <!-- podcast refresh button -->
                 <core-tooltip hidden?="{{showing !== 'podcast'}}"
                               label="{{refreshPodcastLabel}}" class="bottom">
@@ -149,7 +156,7 @@
                   </paper-dropdown>
                 </paper-menu-button>
 
-                <!-- doanload dialog button -->
+                <!-- download dialog button -->
                 <core-tooltip hidden?="{{!isDownloading}}"
                               class="bottom" label="{{showDownloads}}">
                   <paper-icon-button icon="file-download"
@@ -203,9 +210,15 @@
             <core-header-panel class="pages" mode="standard">
               <core-toolbar>
                 <paper-icon-button class="bottom" icon="arrow-back"
-                                   isabled?="{{dataLoading || shuffleLoading}}" o
-                                   n-tap="{{back2List}}"></paper-icon-button>
+                                   isabled?="{{dataLoading || shuffleLoading}}"
+                                   on-tap="{{back2List}}"></paper-icon-button>
                 <div class="bottom" flex></div>
+                <!-- listMode button -->
+                <core-tooltip label="Toggle List Mode" class="bottom">
+                  <paper-icon-button on-tap="{{toggleWall}}" class="wallToggle"
+                                     disabled?="{{dataLoading || shuffleLoading}}"
+                                     icon="list"></paper-icon-button>
+                </core-tooltip>
                 <core-tooltip hidden?="{{!isDownloading}}" class="bottom" label="{{showDownloads}}">
                   <paper-icon-button icon="file-download" on-tap="{{openDownloads}}"
                                      disabled?="{{dataLoading || shuffleLoading}}"></paper-icon-button>

@@ -104,15 +104,27 @@ Polymer('album-wall', {
         } else {
           if (response.albumList2 && response.albumList2.album) {
             this.wall = this.wall.concat(response.albumList2.album);
+            for (var i = 0; i < this.wall.length; i++) {
+              this.wall[i].listMode = this.listMode;
+            }
             this.async(this.responseCallback);
           } else if (response.albumList && response.albumList.album) {
             this.wall = this.wall.concat(response.albumList.album);
+            for (var i = 0; i < this.wall.length; i++) {
+              this.wall[i].listMode = this.listMode;
+            }
             this.async(this.responseCallback);
           } else if (response.starred2 && response.starred2.album) {
             this.wall = this.wall.concat(response.starred2.album);
+            for (var i = 0; i < this.wall.length; i++) {
+              this.wall[i].listMode = this.listMode;
+            }
             this.async(this.responseCallback);
           } else if (response.starred && response.starred.album) {
             this.wall = this.wall.concat(response.starred.album);
+            for (var i = 0; i < this.wall.length; i++) {
+              this.wall[i].listMode = this.listMode;
+            }
             this.async(this.responseCallback);
           } else if (response.podcasts && response.podcasts.channel) {
             /* inject podcastRole into response so it can be used inside the repeating template scope */

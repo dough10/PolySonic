@@ -42,6 +42,9 @@
         text-decoration: none;
         color: #000;
       }
+      paper-tab {
+        cursor: pointer;
+      }
     </style>
     <div class="host">
       <paper-shadow class='card' z='1' on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
@@ -58,7 +61,7 @@
     </div>
     <div id="all">
       <template repeat="{{data}}">
-        <album-art id='ac{{id}}' listMode="cover" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" isFavorite="{{starred}}"></album-art>
+        <album-art id='ac{{id}}' listMode="{{listMode}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" isFavorite="{{starred}}"></album-art>
       </template>
       <div style="min-height:150px"></div>
     </div>

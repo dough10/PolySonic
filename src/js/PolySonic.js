@@ -37,7 +37,7 @@
       app.shuffleSettings.size = '50';
       app.version = result.version || '1.11.0';
       app.querySize = 50;
-      app.listMode = 'cover';
+      app.listMode = result.listMode || 'cover';
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
@@ -52,6 +52,14 @@
         c: 'PolySonic',
         f: 'json'
       };
+      var wallToggles = document.querySelectorAll('.wallToggle');
+      for (var i = 0; i < wallToggles.length; i++) {
+        if (app.listMode === 'cover') {
+          wallToggles[i].icon = 'view-stream';
+        } else {
+          wallToggles[i].icon = 'view-module';
+        }
+      }
       if (app.md5Auth === undefined) {
         app.md5Auth = true;
       }
@@ -1278,22 +1286,31 @@
     });
   };
 
-//  app.toggleWall = function () {
-//    app.dataLoading = true;
-//    var wall = app.$.wall;
-//    if (wall.listMode === 'cover') {
-//      wall.listMode = 'list';
-//      simpleStorage.setSync({
-//        'listMode': 'list'
-//      });
-//    } else {
-//      wall.listMode = 'cover';
-//      simpleStorage.setSync({
-//        'listMode': 'cover'
-//      });
-//    }
-//    app.tracker.sendEvent('ListMode Changed', wall.listMode);
-//  };
+  app.toggleWall = function (e , detail, sender) {
+    if (app.listMode === 'cover') {
+      app.listMode = 'list';
+      simpleStorage.setSync({
+        'listMode': 'list'
+      });
+    } else {
+      app.listMode = 'cover';
+      simpleStorage.setSync({
+        'listMode': 'cover'
+      });
+    }
+    app.tracker.sendEvent('ListMode Changed', app.listMode);
+    if (app.page === 3) {
+      app.$.aDetails.queryData();
+    }
+    var wallToggles = document.querySelectorAll('.wallToggle');
+    for (var i = 0; i < wallToggles.length; i++) {
+      if (app.listMode === 'cover') {
+        wallToggles[i].icon = 'view-stream';
+      } else {
+        wallToggles[i].icon = 'view-module';
+      }
+    }
+  };
 
   /**
    * navigate back to albumd list
