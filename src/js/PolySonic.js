@@ -1566,7 +1566,9 @@
    */
   app.userDetails = function () {
     app.async(function () {
-      app.doXhr(app.buildUrl('getUser', {username: app.user}), 'json', function (e) {
+      app.doXhr(app.buildUrl('getUser', {
+        username: app.user
+      }), 'json', function (e) {
         var response = e.target.response['subsonic-response'];
         if (response.status === 'ok') {
           app.activeUser = response.user;
