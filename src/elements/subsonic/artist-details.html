@@ -38,6 +38,10 @@
         max-width: 800px;
         padding: 8px;
       }
+      .tabs {
+        max-width: 800px;
+        margin:auto;
+      }
       a {
         text-decoration: none;
         color: #000;
@@ -60,6 +64,11 @@
       </paper-shadow>
     </div>
     <div id="all">
+      <paper-tabs class="tabs" selected="{{sortBy}}">
+        <paper-tab>by Name</paper-tab>
+        <paper-tab>by Year Ascending</paper-tab>
+        <paper-tab>by Year Decending</paper-tab>
+      </paper-tabs>
       <template repeat="{{data}}">
         <album-art id='ac{{id}}' listMode="{{listMode}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" isFavorite="{{starred}}"></album-art>
       </template>

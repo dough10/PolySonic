@@ -2,6 +2,7 @@ Polymer('artist-details', {
   domReady: function () {
     this.app = document.getElementById("tmpl");
     this.scrollTarget = this.app.appScroller();
+    this.sortBy = 0;
   },
   queryData: function () {
     this.async(function () {
@@ -28,10 +29,39 @@ Polymer('artist-details', {
           }
           this.app.dataLoading = false;
           this.async(function () {
-            this.app.page = 3;
+            if (this.app.page !== 3) {
+              this.app.page = 3;
+            }
+            this.sortByChanged();
           });
         }.bind(this));
       }.bind(this));
+    });
+  },
+  sortByChanged: function () {
+    this.async(function () {
+      if (this.data !== undefined) {
+        switch (this.sortBy) {
+          case 0:
+            this.data.sort(function(a, b){
+              if(a.name < b.name) return -1;
+              if(a.name > b.name) return 1;
+              return 0;
+            });
+            break;
+          case 1:
+            this.data.sort(function (a,b) {
+              return a.year - b.year;
+            });
+            break;
+          case 2:
+            this.data.sort(function (a,b) {
+              return a.year - b.year;
+            });
+            this.data.reverse();
+            break;
+        }
+      }
     });
   },
   playSomething: function (id, callback) {

@@ -182,10 +182,9 @@
         border-color: #FFF;
       }
       #smallCover {
-        margin-left:16px;
-        margin-right:8px;
-        height:43px;
-        width:43px;
+        margin-right:16px;
+        height:40px;
+        width:40px;
         border-radius:50%;
         background-image:url("../../../images/default-cover-art.png");
         background-repeat: no-repeat;
@@ -201,8 +200,8 @@
         -webkit-align-items: center;
         justify-content: center;
         align-items: center;
-        margin-top:16px;
         border: 1px solid #444;
+        position:relative;
       }
       .smallArtist {
         overflow:hidden;
@@ -238,6 +237,8 @@
       #listArt {
         border-radius: 50%;
         margin-right:16px;
+        height: 40px;
+        width:40px;
       }
     </style>
 
@@ -296,12 +297,19 @@
     <paper-shadow z="1" id="list" hidden?="{{listMode !== 'list'}}" on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
       <div horizontal layout>
         <div>
-          <img id="listArt" src="../../../images/default-cover-art.png" height="40" width="40">
+          <div id="smallCover">
+            <template if="{{isLoading}}">
+              <div class="spinWrapper">
+                <paper-spinner class="spinner" active></paper-spinner>
+              </div>
+            </template>
+          </div>
         </div>
         <div vertical layout flex style="margin-top:10px; text-align: left;">
           <div class="artist">{{artist}}</div>
           <div class="album">{{album}}</div>
         </div>
+        <paper-icon-button icon="av:play-arrow" on-tap="{{doPlayback}}" style='margin-right:24px;'></paper-icon-button>
         <div style="margin-top:10px;">
           <core-tooltip class="left-icon" label="{{moreOptionsLabel}}" position="left">
             <paper-icon-button on-tap="{{doDetails}}" icon="more-vert"></paper-icon-button>

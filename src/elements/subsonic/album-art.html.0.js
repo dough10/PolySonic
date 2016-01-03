@@ -26,7 +26,6 @@ Polymer('album-art', {
     this.artist = this.artist || "Artist Name";
     this.album = this.album || "Album Title";
     this.app = document.getElementById("tmpl");
-    //this.playerArt = document.getElementById("coverArt");
     this.app.colorThiefAlbum = this.app.colorThiefAlbum  || '#db4437';
     this.app.colorThiefAlbumOff = this.app.colorThiefAlbumOff  || 'white';
   },
@@ -56,7 +55,7 @@ Polymer('album-art', {
   showArt: function (image) {
     'use strict';
     this.$.card.style.backgroundImage = "url('" + image + "')";
-    this.$.listArt.src = image;
+    this.$.smallCover.style.backgroundImage = "url('" + image + "')";
     this.imgURL = image;
   },
 
@@ -104,8 +103,8 @@ Polymer('album-art', {
     animation.iterations = 'Infinity';
     animation.keyframes = [
       {
-        opacity: 1}
-      , {
+        opacity: 1
+      }, {
         opacity: 0
       }
     ];
@@ -134,8 +133,8 @@ Polymer('album-art', {
     animation.iterations = 'Infinity';
     animation.keyframes = [
       {
-        opacity: 1}
-      , {
+        opacity: 1
+      }, {
         opacity: 0
       }
     ];
@@ -286,8 +285,8 @@ Polymer('album-art', {
     animation.iterations = 'Infinity';
     animation.keyframes = [
       {
-        opacity: 1}
-      , {
+        opacity: 1
+      }, {
         opacity: 0
       }
     ];
@@ -434,8 +433,8 @@ Polymer('album-art', {
     animation.iterations = 'Infinity';
     animation.keyframes = [
       {
-        opacity: 1}
-      , {
+        opacity: 1
+      }, {
         opacity: 0
       }
     ];
