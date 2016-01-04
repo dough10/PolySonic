@@ -3,6 +3,7 @@ Polymer('artist-details', {
     this.app = document.getElementById("tmpl");
     this.scrollTarget = this.app.appScroller();
     this.sortBy = 0;
+    this.loadingBio = false;
   },
   queryData: function () {
     this.async(function () {
@@ -12,18 +13,18 @@ Polymer('artist-details', {
         }), 'json', function (e) {
         this.artistBio = e.target.response['subsonic-response'].artistInfo2;
         this.$.bio.innerHTML = this.artistBio.biography;
-        this.app.doXhr(
-          this.app.buildUrl('getCoverArt', {
-            id: 'ar-' + this.artistId,
-            size: 250
-          }), 'blob', function (xhrEvent) {
-          this.$.bioImage.src = window.URL.createObjectURL(xhrEvent.target.response);
+        this.loadingBio = true;
+        this.app.doXhr(this.artistBio.largeImageUrl, 'blob', function (xhrEvent) {
+          var image = window.URL.createObjectURL(xhrEvent.target.response);
+          this.$.bioImage.style.backgroundImage = "url('" + image + "')";
+          this.loadingBio = false;
         }.bind(this));
         this.app.doXhr(
           this.app.buildUrl('getArtist', {
             id: this.artistId
           }), 'json', function (event) {
           this.data = event.target.response['subsonic-response'].artist.album;
+          this.artist = this.data[0].artist;
           for (var i = 0; i < this.data.length; i++) {
             this.data[i].listMode = this.listMode;
           }
@@ -73,7 +74,30 @@ Polymer('artist-details', {
   changeArtist: function (event, detail, sender) {
     this.artistId = sender.dataset.id;
     this.app.dataLoading = true;
+    this.otherLike = undefined;
     this.async(this.queryData);
+  },
+  playAllAlbums: function () {
+    var albums = this.$.all.querySelectorAll('album-art');
+    var albumsLength = albums.length;
+    var playlist = [];
+    for (var i = 0; i < albums.length; i++) {
+      (function (i) {
+        albums[i].getPalette(albums[i].doQuery(function () {
+          playlist = playlist.concat(albums[i].playlist);
+          this.job('return', function () {
+            this.app.playlist = playlist;
+            if (this.app.playing === 0) {
+              this.app.setFabColor(this.app.playlist[0]);
+              this.app.$.player.playAudio(this.playlist[0]);
+            } else {
+              this.app.playing = 0;
+            }
+            this.app.shufflePlaylist();
+          }, 300);
+        }.bind(this)));
+      }.bind(this))(i);
+    }
   },
   mouseIn: function (event, detail, sender) {
     sender.setZ(2);

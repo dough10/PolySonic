@@ -19,6 +19,7 @@
   },
 
   "permissions": [
+    "http://*/",
     "https://www.google-analytics.com/",
     "storage",
     "notifications",

@@ -49,14 +49,53 @@
       paper-tab {
         cursor: pointer;
       }
+      #bioImage {
+        height:250px;
+        width:250px;
+        background-image:url("../../../images/default-cover-art.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:250px;
+        position: relative;
+        margin-right: 24px;
+      }
+      .spinWrapper {
+        background:rgba(255,255,255,0.6);
+        overflow:hidden;
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        right:0;
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
+        pointer-events:none;
+      }
     </style>
     <div class="host">
       <paper-shadow class='card' z='1' on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
         <div horizontal layout>
-          <img height="250" width="250" id="bioImage">
-          <div id="bio" flex></div>
+          <div id="bioImage">
+            <template if="{{loadingBio}}">
+              <div class="spinWrapper">
+                <paper-spinner class="spinner" active></paper-spinner>
+              </div>
+            </template>
+          </div>
+          <div flex>
+            <h3>{{artist}}</h3>
+            <p id="bio">{{bio}}</p>
+          </div>
         </div>
-        <paper-tabs nobar noink noslide scrollable>
+        <paper-tabs noslide scrollable selected="{{othersLike}}">
           <template repeat="{{artistBio.similarArtist}}">
             <paper-tab on-tap="{{changeArtist}}" data-id="{{id}}" noink>{{name}}</paper-tab>
           </template>
@@ -64,11 +103,17 @@
       </paper-shadow>
     </div>
     <div id="all">
+    <template if="{{data.length > 1}}">
+      <paper-button style="margin:auto;" on-tap="{{playAllAlbums}}">
+        <core-icon icon="av:play-arrow"></core-icon>
+        Shuffle All Albums
+      </paper-button>
       <paper-tabs class="tabs" selected="{{sortBy}}">
         <paper-tab>by Name</paper-tab>
         <paper-tab>by Year Ascending</paper-tab>
         <paper-tab>by Year Decending</paper-tab>
       </paper-tabs>
+    </template>
       <template repeat="{{data}}">
         <album-art id='ac{{id}}' listMode="{{listMode}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" isFavorite="{{starred}}"></album-art>
       </template>
