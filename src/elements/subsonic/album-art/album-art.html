@@ -1,0 +1,322 @@
+<html>
+  <head>
+    <link href="../../../bower_components/polymer/polymer.html" rel="import">
+    <link href="../../../bower_components/paper-shadow/paper-shadow.html" rel="import">
+    <link href="../../../bower_components/paper-icon-button/paper-icon-button.html" rel="import">
+    <link href="../../../bower_components/core-icons/av-icons.html" rel="import">
+    <link href="../../../bower_components/core-media-query/core-media-query.html" rel="import">
+    <link href="../../../bower_components/paper-item/paper-item.html" rel="import">
+    <link href="../../../bower_components/core-ajax/core-ajax.html" rel="import">
+    <link href="../../../bower_components/core-item/core-item.html" rel="import">
+    <link href="../../../bower_components/core-animation/core-animation.html" rel="import">
+    <link href="../../../elements/app-globals.html" rel="import">
+  </head>
+  <body>
+    <polymer-element name="album-art"
+                     attributes="artist album cover item isFavorite listMode">
+      <template>
+
+        <!-- styles-->
+        <link rel="stylesheet" href="styles.css">
+
+        <!-- globals -->
+        <app-globals id="globals"></app-globals>
+
+
+        <!-- delete bookmark comfirmation dialog -->
+        <paper-action-dialog id='bookmarkConfirm'
+                             autoclosedisabled
+                             transition="core-transition-center"
+                             layered>
+          <link rel="stylesheet" href="styles.css">
+          <template if="{{$.bookmarkConfirm.opened}}">
+            <div class="minW280">
+              <h4>
+                {{$.globals.texts.deletebookMarkConfirm}}
+              </h4>
+            </div>
+            <paper-button affirmative>
+              {{$.globals.texts.decline}}
+            </paper-button>
+            <paper-button affirmative data-id="{{delID}}"
+                          on-tap="{{deleteBookmark}}">
+              {{$.globals.texts.accept}}
+            </paper-button>
+          </template>
+        </paper-action-dialog>
+
+
+        <!-- bookmark playback confirmation dialog -->
+        <paper-action-dialog id="playbackConfirm"
+                             transition="core-transition-center">
+          <link rel="stylesheet" href="styles.css">
+          <template if="{{$.playbackConfirm.opened}}">
+            <h4>{{$.globals.texts.hasBookmark}}</h4>
+            <!-- play from bookmark -->
+            <paper-button class="greenButton"
+                          affirmative
+                          on-tap="{{playSingle}}"
+                          duration="{{bookMark.duration}}"
+                          artist="{{bookMark.artist}}"
+                          bookmark="{{bookMark.bookmarkPosition}}"
+                          trackTitle="{{bookMark.title}}"
+                          ident="{{bookMark.id}}"
+                          cover="{{bookMark.cover}}">
+              {{$.globals.texts.playFrom}} {{bookmarkTime}}
+            </paper-button>
+            <!-- start over -->
+            <paper-button affirmative
+                          on-tap="{{playSingle}}"
+                          duration="{{bookMark.duration}}"
+                          trackTitle="{{bookMark.title}}"
+                          artist="{{bookmark.artist}}"
+                          ident="{{bookMark.id}}"
+                          cover="{{bookMark.cover}}">
+              {{$.globals.texts.fromStart}}
+            </paper-button>
+          </template>
+        </paper-action-dialog>
+
+        <!-- album bookmark playback confirmation dialog -->
+        <paper-action-dialog id="albumPlaybackConfirm" transition="core-transition-center">
+          <link rel="stylesheet" href="styles.css">
+          <template if="{{$.albumPlaybackConfirm.opened}}">
+            <h4>{{$.globals.texts.hasBookmark}}</h4>
+            <paper-button class="greenButton"
+                          affirmative
+                          on-tap="{{playFromBookmark}}">
+              {{$.globals.texts.playFrom}} Track {{bookmarkIndex + 1}} @ {{bookmarkTime}}
+            </paper-button>
+            <paper-button affirmative on-tap="{{playAlbum}}">{{$.globals.texts.fromStart}}</paper-button>
+          </template>
+        </paper-action-dialog>
+
+
+        <!-- cover -->
+        <paper-shadow z="1"
+                      id="card"
+                      hidden?="{{listMode !== 'cover'}}"
+                      on-mouseover="{{mouseIn}}"
+                      on-mouseout="{{mouseOut}}">
+          <div class="wrapper">
+            <template if="{{isLoading}}">
+              <div class="spinWrapper">
+                <paper-spinner class="spinner" active></paper-spinner>
+              </div>
+            </template>
+            <div class="playWrapper">
+              <paper-icon-button class="huge"
+                                 icon="av:play-arrow"
+                                 on-tap="{{doPlayback}}">
+              </paper-icon-button>
+            </div>
+            <div id="overlay-low"
+                 hero-id="hero"
+                 hero="">
+              <core-tooltip id="icon"
+                            class="left-icon"
+                            label="{{$.globals.texts.moreOptionsLabel}}"
+                            position="left">
+                <paper-icon-button on-tap="{{showDetails}}"
+                                   icon="more-vert">
+                </paper-icon-button>
+              </core-tooltip>
+              <div class="artist">
+                {{artist}}
+              </div>
+              <br>
+              <div class="album">
+                {{album}}
+              </div>
+            </div>
+          </div>
+        </paper-shadow>
+
+        <!-- list -->
+        <paper-shadow z="1"
+                      id="list"
+                      hidden?="{{listMode !== 'list'}}"
+                      on-mouseover="{{mouseIn}}"
+                      on-mouseout="{{mouseOut}}">
+          <div horizontal layout>
+            <div>
+              <div id="smallCover">
+                <template if="{{isLoading}}">
+                  <div class="spinWrapper">
+                    <paper-spinner class="spinner" active></paper-spinner>
+                  </div>
+                </template>
+              </div>
+            </div>
+            <div vertical layout flex class="listDeets">
+              <div class="artist">{{artist}}</div>
+              <div class="album">{{album}}</div>
+            </div>
+            <paper-icon-button icon="av:play-arrow"
+                               on-tap="{{doPlayback}}"
+                               class="marginR24">
+            </paper-icon-button>
+            <div class="marginT10">
+              <core-tooltip class="left-icon"
+                            label="{{$.globals.texts.moreOptionsLabel}}"
+                            position="left">
+                <paper-icon-button on-tap="{{showDetails}}"
+                                   icon="more-vert">
+                </paper-icon-button>
+              </core-tooltip>
+            </div>
+          </div>
+        </paper-shadow>
+
+
+
+
+        <!-- album details -->
+        <paper-dialog id="detailsDialog" backdrop autoclosedisabled transition="core-transition-center">
+          <link rel="stylesheet" href="styles.css">
+
+          <!-- close button -->
+          <paper-icon-button id="closeDialog" icon="arrow-back"
+                             on-tap="{{closeDialog}}"></paper-icon-button>
+
+          <!-- artwork  -->
+          <div id="topper"></div>
+
+          <!-- keed content from rendering if dialog isn't opened -->
+          <template if="{{$.detailsDialog.opened}}">
+
+
+            <div id="detailsHeader">
+
+              <!-- artist / album -->
+              <div class="nameTitle">
+                {{artist}} / {{album}}
+              </div>
+
+              <!-- add ablum to queue -->
+              <core-tooltip label="{{$.globals.texts.add2PlayQueue}}"
+                            position="top">
+                <paper-icon-button on-tap="{{doAdd2Playlist}}"
+                                   icon="av:playlist-add">
+                </paper-icon-button>
+              </core-tooltip>
+
+              <!-- favorites -->
+              <core-tooltip label="{{$.globals.texts.favoriteAlbum}}"
+                            position="top">
+                <!--is not favorite-->
+                <template if="{{!isFavorite}}">
+                  <paper-icon-button on-tap="{{addFavorite}}"
+                                     ident="{{item}}"
+                                     icon="favorite-outline">
+                  </paper-icon-button>
+                </template>
+                <!-- is favorite -->
+                <template if="{{isFavorite}}">
+                  <paper-icon-button on-tap="{{removeFavorite}}"
+                                     ident="{{item}}"
+                                     icon="favorite">
+                  </paper-icon-button>
+                </template>
+              </core-tooltip>
+
+              <!-- download option -->
+              <template if="{{app.activeUser.downloadRole}}">
+                <core-tooltip label="{{$.globals.texts.downloadButton}}" position="top">
+                  <paper-icon-button on-tap="{{downloadAlbum}}"
+                                     ident="{{albumID}}"
+                                     icon="file-download">
+                  </paper-icon-button>
+                </core-tooltip>
+              </template>
+
+              <!-- more like this album option -->
+              <core-tooltip label="{{$.globals.texts.moreLikeThis}}" position="top">
+                <paper-icon-button on-tap="{{moreLike}}"
+                                   ident="{{albumID}}"
+                                   icon="av:radio">
+                </paper-icon-button>
+              </core-tooltip>
+
+            </div>
+            <div class="trackWrapper">
+
+              <!-- track list -->
+              <template repeat="{{track in playlist}}">
+                <core-item>
+                  <!-- bookmark indicator -->
+                  <template if="{{track.bookmarkPosition}}">
+                    <paper-icon-button ident="{{track.id}}"
+                                       on-tap="{{conBookDel}}"
+                                       icon="bookmark">
+                    </paper-icon-button>
+                  </template>
+
+                  <!-- track / disk number & name -->
+                  <div flex class="trackDetails">
+                    <template if="{{track.disk}}">D.{{track.disk}}.</template>
+                    <template if="{{track.track}}">T.{{track.track}}: </template>
+                    {{track.title}}
+                    <!-- track playing indicator -->
+                    <template if="{{app.playlist[app.playing].id === track.id}}">
+                      <core-icon icon="av:volume-up"></core-icon>
+                    </template>
+                  </div>
+
+                  <!-- play the single -->
+                  <core-tooltip label="{{$.globals.texts.playTrackLabel}}" position="left">
+                    <!--has saved bookmark postion -->
+                    <template if="{{track.bookmarkPosition}}">
+                      <paper-icon-button icon="av:play-arrow"
+                                         on-tap="{{playChoice}}"
+                                         trackTitle="{{track.title}}"
+                                         artist="{{track.artist}}"
+                                         ident="{{track.id}}"
+                                         cover="{{track.cover}}"
+                                         duration="{{track.duration}}"
+                                         bookmark="{{track.bookmarkPosition}}">
+                      </paper-icon-button>
+                    </template>
+                    <!-- has no bookmark postion -->
+                    <template if="{{!track.bookmarkPosition}}">
+                      <paper-icon-button icon="av:play-arrow"
+                                         on-tap="{{playSingle}}"
+                                         trackTitle="{{track.title}}"
+                                         artist="{{track.artist}}"
+                                         ident="{{track.id}}"
+                                         cover="{{track.cover}}"
+                                         duration="{{track.duration}}">
+                      </paper-icon-button>
+                    </template>
+                  </core-tooltip>
+
+                  <!-- add single tp queue -->
+                  <core-tooltip label="{{$.globals.texts.add2PlayQueue}}" position="left">
+                    <paper-icon-button on-tap="{{addSingle2Playlist}}"
+                                       icon="av:playlist-add"
+                                       trackTitle="{{track.title}}"
+                                       artist="{{track.artist}}"
+                                       ident="{{track.id}}"
+                                       cover="{{track.cover}}"
+                                       duration="{{track.duration}}">
+                    </paper-icon-button>
+                  </core-tooltip>
+
+                  <!-- download the single -->
+                  <template if="{{app.activeUser.downloadRole}}">
+                    <core-tooltip label="{{$.globals.texts.downloadButton}}" position="left">
+                      <paper-icon-button on-tap="{{doTrackDownload}}"
+                                         ident="{{track.id}}"
+                                         icon="file-download">
+                      </paper-icon-button>
+                    </core-tooltip>
+                  </template>
+                </core-item>
+              </template>
+            </div>
+          </template>
+        </paper-dialog>
+      </template>
+  <script src="album-art.html.0.js"></script>
+</polymer-element>
+</body></html>

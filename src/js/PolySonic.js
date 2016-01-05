@@ -44,7 +44,6 @@
       app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
       app.repeatState = chrome.i18n.getMessage('disabled');
       app.$.repeatButton.style.color = '#db4437';
-      app.colorThiefEnabled = true;
       app.dataLoading = false;
       app.params = {
         u: app.user,
@@ -498,72 +497,72 @@
 //    window.close();
 //  };
 
-  /**
-   * use colorthief to get palette from cover art
-   * @param {image element} image
-   */
-  app.getColor = function (image) {
-    var colorThief = new ColorThief();
-    return colorThief.getPalette(image, 4);
-  };
-
-  /**
-   * get contrasting color
-   * @param {String} hexcolor
-   */
-  app.getContrast50  = function (hexcolor) {
-    return (parseInt(hexcolor, 16) > 0xffffff / 2) ? 'black' : 'white';
-  };
-
-  /**
-   * convert component to hex value
-   */
-  app.componentToHex = function (c) {
-    var hex = c.toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
-  };
-
-  /**
-   * convert rgb values to hex color
-   * @param {Number} r
-   * @param {Number} g
-   * @param {Number} b
-   */
-  app.rgbToHex = function (r, g, b) {
-    return app.componentToHex(r) + app.componentToHex(g) + app.componentToHex(b);
-  };
-
-  /**
-   * capture color palette from image and store in indexeddb
-   * @param {String} imgURL
-   * @param {String} artId
-   * @param {Function} callback - returns an array of colors
-   */
-  app.colorThiefHandler = function (imgURL, artId, callback) {
-    var imgElement = new Image();
-    imgElement.src = imgURL;
-    imgElement.onload = function () {
-      var color = app.getColor(imgElement),
-        colorArray = [],
-        r = color[1][0],
-        g = color[1][1],
-        b = color[1][2],
-        hex = app.rgbToHex(r, g, b);
-      colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-      colorArray[1] = app.getContrast50(hex);
-      colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4);';
-      if (colorArray[1] !== 'white') {
-        colorArray[3] = '#444444';
-      } else {
-        colorArray[3] = '#c8c8c8';
-      }
-      app.putInDb(colorArray, artId + '-palette', function () {
-        if (callback) {
-          callback(colorArray);
-        }
-      });
-    };
-  };
+//  /**
+//   * use colorthief to get palette from cover art
+//   * @param {image element} image
+//   */
+//  app.getColor = function (image) {
+//    var colorThief = new ColorThief();
+//    return colorThief.getPalette(image, 4);
+//  };
+//
+//  /**
+//   * get contrasting color
+//   * @param {String} hexcolor
+//   */
+//  app.getContrast50  = function (hexcolor) {
+//    return (parseInt(hexcolor, 16) > 0xffffff / 2) ? 'black' : 'white';
+//  };
+//
+//  /**
+//   * convert component to hex value
+//   */
+//  app.componentToHex = function (c) {
+//    var hex = c.toString(16);
+//    return hex.length === 1 ? "0" + hex : hex;
+//  };
+//
+//  /**
+//   * convert rgb values to hex color
+//   * @param {Number} r
+//   * @param {Number} g
+//   * @param {Number} b
+//   */
+//  app.rgbToHex = function (r, g, b) {
+//    return app.componentToHex(r) + app.componentToHex(g) + app.componentToHex(b);
+//  };
+//
+//  /**
+//   * capture color palette from image and store in indexeddb
+//   * @param {String} imgURL
+//   * @param {String} artId
+//   * @param {Function} callback - returns an array of colors
+//   */
+//  app.colorThiefHandler = function (imgURL, artId, callback) {
+//    var imgElement = new Image();
+//    imgElement.src = imgURL;
+//    imgElement.onload = function () {
+//      var color = app.getColor(imgElement),
+//        colorArray = [],
+//        r = color[1][0],
+//        g = color[1][1],
+//        b = color[1][2],
+//        hex = app.rgbToHex(r, g, b);
+//      colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
+//      colorArray[1] = app.getContrast50(hex);
+//      colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4);';
+//      if (colorArray[1] !== 'white') {
+//        colorArray[3] = '#444444';
+//      } else {
+//        colorArray[3] = '#c8c8c8';
+//      }
+//      app.putInDb(colorArray, artId + '-palette', function () {
+//        if (callback) {
+//          callback(colorArray);
+//        }
+//      });
+//    };
+//  };
 
   /**
    * callback for shuffle playback
@@ -1014,7 +1013,7 @@
    * @param {Array} array
    */
   app.setFabColor = function (array) {
-    if (app.colorThiefEnabled && array.palette) {
+    if (array.palette) {
       app.colorThiefFab = array.palette[0];
       app.colorThiefFabOff = array.palette[1];
       app.colorThiefBuffered = array.palette[2];

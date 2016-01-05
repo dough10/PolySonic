@@ -278,6 +278,7 @@ Polymer('music-player',{
     }
 
     if (!audio.paused) {
+      this.app.isNowPlaying = true;
       this.$.avIcon.icon = "av:pause";
       if (!audio.duration) {
         this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ?:??';
@@ -287,12 +288,8 @@ Polymer('music-player',{
         this.progress = Math.floor(audio.currentTime / audio.duration * 100);
       }
     } else {
-      this.$.avIcon.icon = "av:play-arrow";
-    }
-    if (!audio.paused) {
-      this.app.isNowPlaying = true;
-    } else {
       this.app.isNowPlaying = false;
+      this.$.avIcon.icon = "av:play-arrow";
     }
     audio = null;
     e = null;
