@@ -204,15 +204,13 @@ Polymer('album-art', {
     }
     this.app.dataLoading = false;
     this.$.detailsDialog.close();
-    this.app.$.player.getImageForPlayer(this.imgURL,() => {
-      this.app.playlist = this.playlist;
-      this.app.setFabColor(this.playlist[0]);
-      if (this.app.playing === 0) {
-        this.app.$.player.playAudio(this.playlist[0]);
-      } else {
-        this.app.playing = 0;
-      }
-    });
+    this.app.playlist = this.playlist;
+    this.app.setFabColor(this.playlist[0]);
+    if (this.app.playing === 0) {
+      this.app.$.player.playAudio(this.playlist[0]);
+    } else {
+      this.app.playing = 0;
+    }
   },
 
   addFavorite: function (event, detail, sender) {
@@ -349,23 +347,6 @@ Polymer('album-art', {
     });
   },
 
-//  setRating: function (event, detail, sender) {
-//    'use strict';
-//    var rating = parseInt(sender.attributes.star.value, 10);
-//    var animation = this.$.globals.attachAnimation(sender);
-//    animation.play();
-//    this.$.globals.doXhr(this.$.globals.buildUrl('setRating', {
-//      id: this.item,
-//      rating: rating
-//    }), 'json', function (e) {
-//      var json = e.target.response['subsonic-response'];
-//      animation.cancel();
-//      if (json.status === 'ok') {
-//        this.rating = rating;
-//      }
-//    }.bind(this));
-//  },
-
   moreLikeCallback: function () {
     if (this.app.$.player.audio.paused) {
       this.app.$.player.getImageForPlayer(this.app.playlist[0].cover, function () {
@@ -392,18 +373,18 @@ Polymer('album-art', {
       if (response) {
         this.app.$.player.audio.pause();
         this.app.playlist.length = 0;
-        var length = response.length;
-        for (var i = 0; i < length; i++) {
+        var rlength = response.length;
+        for (var i = 0; i < rlength; i++) {
           var obj = {
-              id: response[i].id,
-              artist: response[i].artist,
-              title: response[i].title,
-              duration: this.$.globals.secondsToMins(response[i].duration)
-            },
-            artId = 'al-' + response[i].albumId;
-          this.$.globals.getDbItem(artId, function (ev) {
+            id: response[i].id,
+            artist: response[i].artist,
+            title: response[i].title,
+            duration: this.$.globals.secondsToMins(response[i].duration)
+          },
+          artId = 'al-' + response[i].albumId;
+          this.$.globals.getDbItem(artId, (ev) => {
             this.moreCallback(ev,obj,artId);
-          }.bind(this));
+          });
         }
       } else {
         this.app.dataLoading = false;
