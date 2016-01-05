@@ -56,6 +56,7 @@
     var colorThief = new ColorThief();
     return colorThief.getPalette(image, 4);
   }
+
   /**
    * get contrasting color
    * @param {String} hexcolor

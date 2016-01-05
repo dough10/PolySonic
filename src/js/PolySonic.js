@@ -1315,7 +1315,7 @@
    * navigate back to albumd list
    */
   app.back2List = function () {
-    app.async(function () {
+    app.async(() => {
       app.page = 0;
     });
   };
