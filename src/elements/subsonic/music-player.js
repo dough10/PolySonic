@@ -108,7 +108,7 @@ Polymer('music-player',{
         this.app.currentPlaying = obj.title;
         this.note.title = obj.title;
         if (!this.isCued) {
-          this.audio.src = this.app.buildUrl('stream', {
+          this.audio.src = this.$.globals.buildUrl('stream', {
             format: 'raw',
             estimateContentLength: true,
             id: obj.id
@@ -120,7 +120,7 @@ Polymer('music-player',{
         this.app.currentPlaying = obj.artist + ' - ' + obj.title;
         this.note.title = obj.artist + ' - ' + obj.title;
         if (!this.isCued) {
-          this.audio.src = this.app.buildUrl('stream', {
+          this.audio.src = this.$.globals.buildUrl('stream', {
             maxBitRate: this.app.bitRate,
             id: obj.id
           });

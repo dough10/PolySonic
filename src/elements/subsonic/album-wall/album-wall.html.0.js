@@ -3,20 +3,6 @@ Polymer('album-wall', {
   wall: [],
   podcast: [],
   artist: [],
-  noFavoriteHeader: chrome.i18n.getMessage("noFavoriteHeader"),
-  noFavoriteMessage: chrome.i18n.getMessage("noFavoriteMessage"),
-  addContent: chrome.i18n.getMessage("addContent"),
-  addPodcasts: chrome.i18n.getMessage("addPodcasts"),
-  addAlbums: chrome.i18n.getMessage("addAlbums"),
-  addPodcast: chrome.i18n.getMessage("addPodcast"),
-  foundHere: chrome.i18n.getMessage("foundHere"),
-  deleteLabel: chrome.i18n.getMessage("deleteLabel"),
-  downloadButton: chrome.i18n.getMessage("downloadButton"),
-  playPodcastLabel: chrome.i18n.getMessage("playPodcast"),
-  add2PlayQueue: chrome.i18n.getMessage("add2PlayQueue"),
-  fromStart: chrome.i18n.getMessage('fromStart'),
-  playFrom: chrome.i18n.getMessage('playFrom'),
-  hasBookmark: chrome.i18n.getMessage('hasBookmark'),
   created: function () {
     'use strict';
     simpleStorage.getSync().then(function (res) {
@@ -56,7 +42,7 @@ Polymer('album-wall', {
   mediaFolderChanged: function (oldVal, newVal) {
     'use strict';
     this.async(function () {
-      this.app.closeDrawer(function () {
+      this.$.globals.closeDrawer().then(function () {
         if (Number(newVal) !== 0) {
           this.post.musicFolderId = Number(newVal);
         } else {
@@ -180,7 +166,7 @@ Polymer('album-wall', {
 
   doAjax: function () {
     'use strict';
-    this.$.ajax.url = this.app.buildUrl(this.request, this.post);
+    this.$.ajax.url = this.$.globals.buildUrl(this.request, this.post);
     this.$.ajax.go();
   },
 
@@ -265,7 +251,7 @@ Polymer('album-wall', {
       this.async(this.doAjax);
     }.bind(this));
   },
-  
+
   errorChanged: function () {
     'use strict';
     if (this.error) {
@@ -390,12 +376,12 @@ Polymer('album-wall', {
       this.app.page = 1;
     }
   },
-  
+
   conBookDel: function (event) {
     this.delID = event.path[0].dataset.id;
     this.$.bookmarkConfirm.open();
   },
-  
+
   deleteBookmark: function (event) {
     this.app.doXhr(
       this.app.buildUrl('deleteBookmark', {
@@ -413,9 +399,9 @@ Polymer('album-wall', {
     'use strict';
     var imgURL,
       obj = {
-        id: sender.attributes.streamId.value, 
-        artist: '', 
-        title: sender.attributes.trackTitle.value, 
+        id: sender.attributes.streamId.value,
+        artist: '',
+        title: sender.attributes.trackTitle.value,
       };
     this.app.dataLoading = true;
     if (sender.attributes.cover.value) {

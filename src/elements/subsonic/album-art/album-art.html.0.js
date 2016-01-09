@@ -27,7 +27,7 @@ Polymer('album-art', {
   },
 
   setImage: function (event, callback) {
-    return new Promise((resolve, reject) => {
+    return new Promise(function (resolve, reject) {
       var imgURL = window.URL.createObjectURL(event.target.result);
       this.$.card.style.backgroundImage = "url('" + imgURL + "')";
       this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
@@ -35,13 +35,12 @@ Polymer('album-art', {
       this.isLoading = false;
       this.imgURL = imgURL;
       resolve(imgURL);
-    });
+    }.bind(this));
   },
-
 
   showDialog: function () {
     'use strict';
-    this.async(() => {
+    this.async(function () {
       this.app.dataLoading = false;
       this.app.tracker.sendAppView('Album Details');
       if (this.playlist[0].palette) {
@@ -84,7 +83,7 @@ Polymer('album-art', {
     var manager = new DownloadManager();
     var animation = this.$.globals.attachAnimation(sender);
     animation.play();
-    this.doQuery().then(() => {
+    this.doQuery().then(function () {
       this.app.$.downloads.appendChild(manager);
       this.app.isDownloading = true;
       animation.cancel();
@@ -93,10 +92,10 @@ Polymer('album-art', {
         artist: this.artist,
         album: this.album,
         size: this.albumSize
-      }, () => {
+      }, function () {
         console.log('Download Finished: ' + this.artist + ' - ' + this.album);
-      });
-    });
+      }.bind(this));
+    }.bind(this));
   },
 
   doTrackDownload: function (event, detail, sender) {
@@ -221,12 +220,12 @@ Polymer('album-art', {
     var animation = this.$.globals.attachAnimation(sender);
     animation.target = sender;
     animation.play();
-    this.$.globals.doXhr(url, 'json').then((e) => {
+    this.$.globals.doXhr(url, 'json').then(function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.isFavorite = true;
         animation.cancel();
       }
-    });
+    }.bind(this));
   },
 
   removeFavorite: function (event, detail, sender) {
@@ -236,12 +235,12 @@ Polymer('album-art', {
     });
     var animation = this.$.globals.attachAnimation(sender);
     animation.play();
-    this.$.globals.doXhr(url, 'json').then((e) => {
+    this.$.globals.doXhr(url, 'json').then(function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         this.isFavorite = false;
         animation.cancel();
       }
-    });
+    }.bind(this));
   },
 
   doPlayback: function () {
@@ -265,7 +264,7 @@ Polymer('album-art', {
 
   processJSON: function (e) {
     'use strict';
-    return new Promise((resolve, reject) => {
+    return new Promise(function (resolve, reject) {
       this.playlist.length = 0;
       this.albumID = e.target.response['subsonic-response'].album.song[0].parent;
       var tracks = e.target.response['subsonic-response'].album.song;
@@ -300,32 +299,32 @@ Polymer('album-art', {
           this.async(resolve);
         }
       }
-    });
+    }.bind(this));
   },
 
   doQuery: function () {
     'use strict';
-    return new Promise((resolve, reject) => {
-      this.$.globals.getDbItem("al-" + this.item + '-palette').then((e) => {
+    return new Promise(function (resolve, reject) {
+      this.$.globals.getDbItem("al-" + this.item + '-palette').then(function (e) {
         this.palette = e.target.result;
         var url = this.$.globals.buildUrl('getAlbum', {
           id: this.item
         });
         this.$.globals.doXhr(url, 'json').then(this.processJSON.bind(this)).then(resolve);
-      });
-    });
+      }.bind(this));
+    }.bind(this));
   },
 
   itemChanged: function () {
     'use strict';
-    this.async(() => {
+    this.async(function () {
       this.bookmarkIndex = undefined;
       if (this.item && !this.app.scrolling) {
         var artId = "al-" + this.item;
         this.playlist = [];
         this.albumSize = 0;
         this.isLoading = true;
-        this.$.globals.getDbItem(artId).then((e) => {
+        this.$.globals.getDbItem(artId).then(function (e) {
           if (e.target.result) {
             this.setImage(e);
             artId = null;
@@ -334,11 +333,11 @@ Polymer('album-art', {
               size: 550,
               id: artId
             });
-            this.$.globals.getImageFile(url, artId).then(this.setImage.bind(this)).then((imgURL) => {
+            this.$.globals.getImageFile(url, artId).then(this.setImage.bind(this)).then(function (imgURL) {
               this.$.globals.stealColor(imgURL, artId);
-            });
+            }.bind(this));
           }
-        }, (e) => {
+        }.bind(this), function (e) {
           console.log(e);
         });
       } else {
@@ -382,9 +381,9 @@ Polymer('album-art', {
             duration: this.$.globals.secondsToMins(response[i].duration)
           },
           artId = 'al-' + response[i].albumId;
-          this.$.globals.getDbItem(artId, (ev) => {
+          this.$.globals.getDbItem(artId, function (ev) {
             this.moreCallback(ev,obj,artId);
-          });
+          }.bind(this));
         }
       } else {
         this.app.dataLoading = false;

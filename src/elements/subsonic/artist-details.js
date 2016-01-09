@@ -83,19 +83,24 @@ Polymer('artist-details', {
     var playlist = [];
     for (var i = 0; i < albums.length; i++) {
       (function (i) {
-        albums[i].getPalette(albums[i].doQuery(function () {
+
+        albums[i].doQuery().then(function () {
           playlist = playlist.concat(albums[i].playlist);
           this.job('return', function () {
             this.app.playlist = playlist;
+            if ('audio' in this.app.$.player && !this.app.$.player.audio.paused) {
+              this.app.$.player.audio.pause();
+            }
             if (this.app.playing === 0) {
               this.app.setFabColor(this.app.playlist[0]);
-              this.app.$.player.playAudio(this.playlist[0]);
+              this.app.$.player.playAudio(this.app.playlist[0]);
             } else {
               this.app.playing = 0;
             }
             this.app.shufflePlaylist();
           }, 300);
-        }.bind(this)));
+        }.bind(this));
+
       }.bind(this))(i);
     }
   },

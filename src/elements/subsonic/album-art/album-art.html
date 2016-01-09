@@ -253,7 +253,7 @@
                   </template>
 
                   <!-- track / disk number & name -->
-                  <div flex class="trackDetails">
+                  <div flex class="trackDetails" style="overflow: hidden;">
                     <template if="{{track.disk}}">D.{{track.disk}}.</template>
                     <template if="{{track.track}}">T.{{track.track}}: </template>
                     {{track.title}}

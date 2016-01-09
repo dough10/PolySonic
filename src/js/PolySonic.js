@@ -63,7 +63,8 @@
         app.md5Auth = true;
       }
       if (app.url && app.user && app.pass) {
-        app.doXhr(app.buildUrl('ping', ''), 'json', function (e) {
+        var firstPing = app.$.globals.buildUrl('ping', '');
+        app.$.globals.doXhr(firstPing, 'json').then(function (e) {
           if (e.target.status === 200) {
 
             if (versionCompare(e.target.response['subsonic-response'].version, app.version) >= 0) {
@@ -76,7 +77,8 @@
             if (e.target.response['subsonic-response'].status === 'ok') {
               app.userDetails();
               console.log('Connected to Subconic loading data');
-              app.doXhr(app.buildUrl('getMusicFolders', ''), 'json', function (e) {
+              var folders = app.$.globals.buildUrl('getMusicFolders', '');
+              app.$.globals.doXhr(folders, 'json').then(function (e) {
                 app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                 /* setting mediaFolder causes a ajax call to get album wall data */
                 app.folder = result.mediaFolder || 0;
@@ -245,22 +247,6 @@
     }
   };
 
-//  app.maximize = function () {
-//    var button = document.querySelectorAll('.max');
-//    var length = button.length;
-//    if (chrome.app.window.current().isMaximized()) {
-//      chrome.app.window.current().restore();
-//      for (var i = 0; i < length; i++) {
-//        button[i].icon = 'check-box-outline-blank';
-//      }
-//    } else {
-//      chrome.app.window.current().maximize();
-//      for (var ii = 0; ii < length; ii++) {
-//        button[ii].icon = 'flip-to-back';
-//      }
-//    }
-//  };
-
   /**
    * indexdb upgraded
    */
@@ -359,20 +345,20 @@
     }
   }
 
-  /**
-   * xhr
-   * @param {String} url
-   * @param {String} dataType
-   * @param {Function} callback
-   */
-  app.doXhr = function (url, dataType, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-    xhr.responseType = dataType;
-    xhr.onload = callback;
-    xhr.onerror = xhrError;
-    xhr.send();
-  };
+//  /**
+//   * xhr
+//   * @param {String} url
+//   * @param {String} dataType
+//   * @param {Function} callback
+//   */
+//  app.doXhr = function (url, dataType, callback) {
+//    var xhr = new XMLHttpRequest();
+//    xhr.open("GET", url, true);
+//    xhr.responseType = dataType;
+//    xhr.onload = callback;
+//    xhr.onerror = xhrError;
+//    xhr.send();
+//  };
 
   /**
    * reload the app
@@ -380,10 +366,6 @@
   app.reloadApp = function () {
     chrome.runtime.reload();
   };
-
-//  app.minimize = function () {
-//    chrome.app.window.current().minimize();
-//  };
 
   /**
    * open download dialog
@@ -399,17 +381,6 @@
     app.$.downloadDialog.close();
   };
 
-  /**
-   * close the app drawer if open
-   * @param {Function} callback
-   */
-  app.closeDrawer = function (callback) {
-    app.dataLoading = true;
-    app.$.panel.closeDrawer();
-    if (callback) {
-      app.async(callback, null, 500);
-    }
-  };
 
   /**
    * open the app drawer
@@ -611,7 +582,7 @@
    * open bookmarks dialog
    */
   app.openBookmarks = function () {
-    app.closeDrawer(function () {
+    app.$.globals.closeDrawer().then(function () {
       app.doXhr(app.buildUrl('getBookmarks', ''), 'json', function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           app.allBookmarks = e.target.response['subsonic-response'].bookmarks.bookmark;
@@ -803,7 +774,8 @@
       if (app.shuffleSettings.genre === 0) {
         delete app.shuffleSettings.genre;
       }
-      app.doXhr(app.buildUrl('getRandomSongs', app.shuffleSettings), 'json', function (event) {
+      var url = app.$.globals.buildUrl('getRandomSongs', app.shuffleSettings);
+      app.$.globals.doXhr(url, 'json').then(function (event) {
         var data = event.target.response['subsonic-response'].randomSongs.song;
         if (data) {
           var length = data.length;
@@ -985,20 +957,21 @@
    */
   app.fixCoverArtForShuffle = function (obj, callback) {
     var artId = obj.cover;
-    app.getDbItem(artId, function (ev) {
+    app.$.globals.getDbItem(artId).then(function (ev) {
       if (ev.target.result) {
         var imgURL = window.URL.createObjectURL(ev.target.result);
         obj.cover = imgURL;
-        app.getDbItem(artId + '-palette', function (ev) {
+        app.$.globals.getDbItem(artId + '-palette').then(function (ev) {
           obj.palette = ev.target.result;
           app.playlist.push(obj);
           app.async(callback);
         });
       } else {
-        app.getImageFile(app.buildUrl('getCoverArt', {id: artId}), artId, function (ev) {
+        var url = app.$.globals.buildUrl('getCoverArt', {id: artId});
+        app.$.globals.getImageFile(url, artId).then(function (ev) {
           var imgURL = window.URL.createObjectURL(ev.target.result);
           obj.cover = imgURL;
-          app.colorThiefHandler(imgURL, artId, function (colorArray) {
+          app.$.globals.stealColor(imgURL, artId).then(function (colorArray) {
             obj.palette = colorArray;
             app.playlist.push(obj);
             app.async(callback);
@@ -1127,7 +1100,7 @@
   app.doSearch = function () {
     if (app.searchQuery) {
       app.async(function () {
-        app.closeDrawer(function () {
+        app.$.globals.closeDrawer().then(function () {
           app.async(function () {
             app.doXhr(app.buildUrl('search3', {query: encodeURIComponent(app.searchQuery)}), 'json', function (e) {
               app.dataLoading = true;
@@ -1194,7 +1167,7 @@
    * open subsonic playlists dialog
    */
   app.openPlaylists = function () {
-    app.closeDrawer(function ()  {
+    app.$.globals.closeDrawer().then(function ()  {
       app.dataLoading = false;
       app.playlistsLoading = true;
       app.doXhr(app.buildUrl('getPlaylists', ''), 'json', function (e) {
@@ -1260,8 +1233,9 @@
    * open shuffle options dialog
    */
   app.shuffleOptions = function () {
-    app.closeDrawer(function () {
-      app.doXhr(app.buildUrl('getGenres', ''), 'json', function (e) {
+    app.$.globals.closeDrawer().then(function () {
+      var url = app.$.globals.buildUrl('getGenres', '');
+      app.$.globals.doXhr(url, 'json').then(function (e) {
         app.genres = e.target.response['subsonic-response'].genres.genre;
         app.genres.sort(function(a, b){
           if(a.value < b.value) return -1;
@@ -1315,7 +1289,7 @@
    * navigate back to albumd list
    */
   app.back2List = function () {
-    app.async(() => {
+    app.async(function () {
       app.page = 0;
     });
   };
@@ -1370,7 +1344,7 @@
       }
       wall.sort = sender.attributes.i.value;
     } else {
-      app.closeDrawer(function () {
+      app.$.globals.closeDrawer().then(function () {
         if (wall.sort === sender.attributes.i.value) {
           app.pageLimit = false;
           if (app.queryMethod === 'ID3') {
@@ -1401,7 +1375,7 @@
     } else if (!app.narrow) {
       app.$.wall.getPodcast();
     } else {
-      app.closeDrawer(function () {
+      app.$.globals.closeDrawer().then(function () {
         app.$.wall.getPodcast();
       });
     }
@@ -1420,7 +1394,7 @@
     } else if (!app.narrow) {
       app.$.wall.getStarred();
     } else {
-      app.closeDrawer(function () {
+      app.$.globals.closeDrawer().then(function () {
         app.$.wall.getStarred();
       });
     }
@@ -1439,7 +1413,7 @@
     } else if (!app.narrow) {
       app.$.wall.getArtist();
     } else {
-      app.closeDrawer(function () {
+      app.$.globals.closeDrawer().then(function () {
         app.$.wall.getArtist();
       });
     }
@@ -1463,16 +1437,10 @@
    * @param {Object} sender
    */
   app.refreshPodcast = function (event, detail, sender) {
-    var animation = new CoreAnimation();
-    animation.duration = 1000;
-    animation.iterations = 'Infinity';
-    animation.keyframes = [
-      {opacity: 1},
-      {opacity: 0}
-    ];
-    animation.target = sender;
+    var animation = app.$.globals.attachAnimation(sender);
     animation.play();
-    app.doXhr(app.buildUrl('refreshPodcasts', ''), 'json', function (e) {
+    var url = app.buildUrl('refreshPodcasts', '');
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         animation.cancel();
         app.$.wall.refreshContent();
@@ -1491,7 +1459,8 @@
     }
     if (!app.invalidURL) {
       app.addingChannel = true;
-      app.doXhr(app.buildUrl('createPodcastChannel', {url: encodeURIComponent(app.castURL)}), 'json', function (e) {
+      var url = app.buildUrl('createPodcastChannel', {url: encodeURIComponent(app.castURL)});
+      app.$.globals.doXhr(url, 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           app.addingChannel = false;
           app.$.addPodcast.close();
@@ -1565,9 +1534,10 @@
    */
   app.userDetails = function () {
     app.async(function () {
-      app.doXhr(app.buildUrl('getUser', {
+      var url = app.$.globals.buildUrl('getUser', {
         username: app.user
-      }), 'json', function (e) {
+      });
+      app.$.globals.doXhr(url, 'json').then(function (e) {
         var response = e.target.response['subsonic-response'];
         if (response.status === 'ok') {
           app.activeUser = response.user;
@@ -1622,37 +1592,37 @@
     return text;
   }
 
-  /**
-   * generate a subsonic url string
-   * @param {String} method
-   * @param {Object} options
-   */
-  app.buildUrl = function(method, options) {
-    if (options !== null && typeof options === 'object') {
-      options = '&' + toQueryString(options);
-    }
-    if (app.user !== app.params.u) {
-      app.params.u = app.user;
-    }
-    if (app.version !== app.params.v) {
-      app.params.v = app.version;
-    }
-    if (versionCompare(app.version, '1.13.0') >= 0 && app.md5Auth) {
-      if (app.params.p) {
-        delete app.params.p;
-      }
-      app.params.s = makeSalt(16);
-      app.params.t = md5(app.pass + app.params.s);
-      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
-    } else {
-      if (app.params.t) {
-        delete app.params.t;
-        delete app.params.s;
-      }
-      app.params.p = app.pass.hexEncode();
-      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
-    }
-  };
+//  /**
+//   * generate a subsonic url string
+//   * @param {String} method
+//   * @param {Object} options
+//   */
+//  app.buildUrl = function(method, options) {
+//    if (options !== null && typeof options === 'object') {
+//      options = '&' + toQueryString(options);
+//    }
+//    if (app.user !== app.params.u) {
+//      app.params.u = app.user;
+//    }
+//    if (app.version !== app.params.v) {
+//      app.params.v = app.version;
+//    }
+//    if (versionCompare(app.version, '1.13.0') >= 0 && app.md5Auth) {
+//      if (app.params.p) {
+//        delete app.params.p;
+//      }
+//      app.params.s = makeSalt(16);
+//      app.params.t = md5(app.pass + app.params.s);
+//      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
+//    } else {
+//      if (app.params.t) {
+//        delete app.params.t;
+//        delete app.params.s;
+//      }
+//      app.params.p = app.pass.hexEncode();
+//      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
+//    }
+//  };
 
   /**
    * key binding listener

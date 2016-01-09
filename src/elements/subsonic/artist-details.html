@@ -95,7 +95,7 @@
             <p id="bio">{{bio}}</p>
           </div>
         </div>
-        <paper-tabs noslide scrollable selected="{{othersLike}}">
+        <paper-tabs nobar noslide scrollable selected="{{othersLike}}">
           <template repeat="{{artistBio.similarArtist}}">
             <paper-tab on-tap="{{changeArtist}}" data-id="{{id}}" noink>{{name}}</paper-tab>
           </template>

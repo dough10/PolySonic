@@ -99,8 +99,22 @@
     deletebookMarkConfirm: getMessage('deletebookMarkConfirm'),
     accept: getMessage("accept"),
     decline: getMessage("decline"),
-    added2Queue: chrome.i18n.getMessage("added2Queue"),
-    noResults: chrome.i18n.getMessage("noResults")
+    added2Queue: getMessage("added2Queue"),
+    noResults: getMessage("noResults"),
+    noFavoriteHeader: getMessage("noFavoriteHeader"),
+    noFavoriteMessage: getMessage("noFavoriteMessage"),
+    addContent: getMessage("addContent"),
+    addPodcasts: getMessage("addPodcasts"),
+    addAlbums: getMessage("addAlbums"),
+    addPodcast: getMessage("addPodcast"),
+    foundHere: getMessage("foundHere"),
+    deleteLabel: getMessage("deleteLabel"),
+    downloadButton: getMessage("downloadButton"),
+    playPodcastLabel: getMessage("playPodcast"),
+    add2PlayQueue: getMessage("add2PlayQueue"),
+    fromStart: getMessage('fromStart'),
+    playFrom: getMessage('playFrom'),
+    hasBookmark: getMessage('hasBookmark')
   };
 
   /**
@@ -150,7 +164,13 @@
       toast.show();
     },
 
-
+    closeDrawer: function () {
+      return new Promise(function (resolve, reject) {
+        app.dataLoading = true;
+        app.$.panel.closeDrawer();
+        app.async(resolve);
+      });
+    },
 
     /**
      * xhr
@@ -159,7 +179,7 @@
      * @param {Function} callback
      */
     doXhr: function (url, dataType) {
-      return new Promise((resolve, reject) => {
+      return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
         xhr.responseType = dataType;
@@ -177,7 +197,7 @@
      * @param {Function} callback
      */
     putInDb: function (data, id) {
-      return new Promise((resolve, reject) => {
+      return new Promise(function (resolve, reject) {
         var transaction = app.db.transaction(["albumInfo"], "readwrite");
         if (id) {
           transaction.objectStore("albumInfo").put(data, id);
@@ -193,10 +213,10 @@
      * @param {Function} callback
      */
     getDbItem: function (id) {
-      return new Promise((resolve, reject) => {
+      return new Promise(function (resolve, reject) {
         if (id) {
-          var transaction = app.db.transaction(["albumInfo"], "readwrite"),
-            request = transaction.objectStore("albumInfo").get(id);
+          var transaction = app.db.transaction(["albumInfo"], "readwrite");
+          var request = transaction.objectStore("albumInfo").get(id);
           request.onsuccess = resolve;
           request.onerror = reject;
         }
@@ -211,15 +231,15 @@
      * @param {Function} callback
      */
     getImageFile: function (url, id) {
-      return new Promise((resolve, reject) => {
-        this.doXhr(url, 'blob').then((e) => {
+      return new Promise(function (resolve, reject) {
+        this.doXhr(url, 'blob').then(function (e) {
           this.putInDb(
             new Blob([ e.target.response ], { type: 'image/jpeg' }), id
-          ).then((e) => {
+          ).then(function (e) {
             resolve(e);
           });
-        });
-      });
+        }.bind(this));
+      }.bind(this));
     },
 
 
@@ -230,10 +250,10 @@
      * @param {Function} callback - returns an array of colors
      */
     stealColor: function (imgURL, artId) {
-      return new Promise((resolve, reject) => {
+      return new Promise(function (resolve, reject) {
         var imgElement = new Image();
         imgElement.src = imgURL;
-        imgElement.onload = () => {
+        imgElement.onload = function () {
           var color = getColor(imgElement);
           var colorArray = [];
           var r = color[1][0];
@@ -250,8 +270,8 @@
           this.putInDb(colorArray, artId + '-palette', function () {
             resolve(colorArray);
           });
-        };
-      });
+        }.bind(this);
+      }.bind(this));
     },
 
     /**
