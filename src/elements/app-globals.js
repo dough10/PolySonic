@@ -72,8 +72,7 @@
       default:
         msg = 'Unknown Error';
         break;
-    };
-
+    }
     console.log('Error: ' + msg);
   }
 
@@ -132,9 +131,9 @@
    * use colorthief to get palette from cover art
    * @param {image element} image
    */
-  function getColor(image) {
+  function getColor(imageEl) {
     var colorThief = new ColorThief();
-    return colorThief.getPalette(image, 4);
+    return colorThief.getPalette(imageEl, 4);
   }
 
   /**
@@ -168,7 +167,7 @@
    */
   function createDir(rootDirEntry, folders) {
     // Throw out './' or '/' and move on to prevent something like '/foo/.//bar'.
-    if (folders[0] == '.' || folders[0] == '') {
+    if (folders[0] === '.' || folders[0] === '') {
       folders = folders.slice(1);
     }
     rootDirEntry.getDirectory(folders[0], {create: true}, function(dirEntry) {
@@ -208,12 +207,10 @@
     addPodcast: getMessage("addPodcast"),
     foundHere: getMessage("foundHere"),
     deleteLabel: getMessage("deleteLabel"),
-    downloadButton: getMessage("downloadButton"),
     playPodcastLabel: getMessage("playPodcast"),
-    add2PlayQueue: getMessage("add2PlayQueue"),
-    fromStart: getMessage('fromStart'),
-    playFrom: getMessage('playFrom'),
-    hasBookmark: getMessage('hasBookmark')
+    removeDownloadLabel: getMessage('removeDownloadLabel'),
+    saveFileLabel: getMessage('saveFileLabel'),
+    pauseDownload: getMessage('abortDownload')
   };
 
   /**

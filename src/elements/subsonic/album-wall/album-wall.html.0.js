@@ -8,11 +8,7 @@ Polymer('album-wall', {
   },
 
   ready: function () {
-    /* locale settings */
     'use strict';
-    this.$.cover.grid = true;
-    this.$.cover.width = '260';
-    this.$.cover.height = '260';
     simpleStorage.getSync().then(function (res) {
       console.log(res);
       this.post = {
@@ -21,12 +17,12 @@ Polymer('album-wall', {
         offset: 0
       };
       this.request = res.request || 'getAlbumList2';
-      this.showing = this.showing || 'cover';
+      this.showing = this.showing || 'wall';
       this.queryMethod = this.queryMethod || 'ID3';
       if (res.request === 'getPodcasts') {
         this.showing = 'podcast';
       } else if (res.request === 'getStarred2') {
-        this.showing = this.listMode;
+        this.showing = 'wall';
       } else if (res.request === 'getArtists') {
         this.showing = 'artists';
       }
@@ -52,7 +48,7 @@ Polymer('album-wall', {
         this.app.pageLimit = false;
         this.$.threshold.clearLower();
         this.async(this.refreshContent);
-      }.bind(this))
+      }.bind(this));
     });
   },
 
@@ -64,7 +60,7 @@ Polymer('album-wall', {
     this.podcast.length = 0;
     this.isLoading = true;
     this.app.dataLoading = true;
-    this.$.cover.updateSize();
+    this.$.list.updateSize();
     this.$.podcast.updateSize();
     this.$.artists.updateSize();
     this.async(callback);
@@ -72,8 +68,8 @@ Polymer('album-wall', {
 
   responseCallback: function () {
     'use strict';
-    this.app.dataLoading = false;
     this.async(function () {
+      this.app.dataLoading = false;
       this.isLoading = false;
     }, null, 1000);
     this.app.showApp();
@@ -135,17 +131,18 @@ Polymer('album-wall', {
           } else if (response.searchResult3 && response.searchResult3.album) {
             /* filter out duplicate albums from response array */
             var data = response.searchResult3.album;
-            var length2 = response.searchResult3.album.length;
+            var length2 = data.length;
             var tmpArray = [];
-            for  (var i2 = 0; i2 < length2; i2++) {
-              if (!this.containsObject(data[i2], tmpArray)) {
-                tmpArray.push(data[i2]);
-              }
-              if (i2 === length2 - 1) {
-                this.wall = tmpArray;
-                this.async(this.responseCallback);
+            for  (var i = 0; i < length2; i++) {
+              if (!this.containsObject(data[i], tmpArray)) {
+                tmpArray.push(data[i]);
               }
             }
+            this.wall = tmpArray;
+            for (var i = 0; i < this.wall.length; i++) {
+              this.wall[i].listMode = this.listMode;
+            }
+            this.async(this.responseCallback);
           } else {
             this.app.dataLoading = false;
             this.isLoading = false;
@@ -164,11 +161,38 @@ Polymer('album-wall', {
     artist.artistId = sender.attributes.ident.value;
     artist.queryData();
   },
+  
+  listModeChanged: function () {
+    'use strict';
+    this.async(function () {
+      if (this.listMode) {
+        if (this.request !== 'getArtists' && this.request !== 'getPodcasts') {
+          this.app.dataLoading = true;
+          for (var i = 0; i < this.wall.length; i++) {
+            this.wall[i].listMode = this.listMode;
+          }
+          switch (this.listMode) {
+            case 'cover':
+              this.$.list.width = '260';
+              this.$.list.grid = true;
+              this.$.list.height = '260';
+              break;
+            case 'list':
+              this.$.list.grid = false;
+              this.$.list.width = chrome.app.window.current().innerBounds.width;
+              this.$.list.height = '60';
+              break;
+          }
+          this.app.dataLoading = false;
+        }
+      }
+    });
+  },
 
   doAjax: function () {
     'use strict';
     this.async(function () {
-      this.request = this.request || 'getAlbumList2'
+      this.request = this.request || 'getAlbumList2';
       this.$.ajax.url = this.$.globals.buildUrl(this.request, this.post);
       this.$.ajax.go();
     }, null, 100);
@@ -195,7 +219,7 @@ Polymer('album-wall', {
 
   getStarred: function () {
     'use strict';
-    this.showing = this.listMode;
+    this.showing = 'wall';
     this.clearData(function starredCallback() {
       this.app.pageLimit = false;
       if (this.queryMethod === 'ID3') {
@@ -237,7 +261,7 @@ Polymer('album-wall', {
 
   sortChanged: function () {
     'use strict';
-    this.showing = this.listMode;
+    this.showing = 'wall';
     this.clearData(function sortCallback() {
       this.app.pageLimit = false;
       if (this.queryMethod === 'ID3') {
@@ -278,22 +302,6 @@ Polymer('album-wall', {
   querySizeChanged: function () {
     'use strict';
     this.post.size = this.querySize;
-  },
-
-  listModeChanged: function () {
-    'use strict';
-    this.async(function () {
-      if (this.listMode) {
-        if (this.request !== 'getArtists' && this.request !== 'getPodcasts') {
-          if (this.listMode === 'cover') {
-            this.showing = 'cover';
-          } else {
-            this.showing = 'list';
-          }
-          this.app.dataLoading = false;
-        }
-      }
-    });
   },
 
   getPaletteFromDb: function (id, callback) {

@@ -90,53 +90,25 @@
       <core-animated-pages selected="{{showing}}" valueattr="view">
 
 
-        <div view="cover">
+        <div view="wall">
           <template if="{{!isLoading && !wall[0] && request === 'getStarred2'}}">
             <paper-shadow class='card' style="text-align:center;">
-              <h3>{{$.globals.text.noFavoriteHeader}}</h3>
-              {{$.globals.text.noFavoriteMessage}}
+              <h3>{{$.globals.texts.noFavoriteHeader}}</h3>
+              {{$.globals.texts.noFavoriteMessage}}
             </paper-shadow>
           </template>
           <template if="{{!isLoading && !wall[0] && request !== 'getStarred2'}}">
             <paper-shadow class='card' style="text-align:center;">
-              <h3>{{$.globals.text.addContent}}</h3>
-              {{$.globals.text.foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
+              <h3>{{$.globals.texts.addContent}}</h3>
+              {{$.globals.texts.foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
               <br><br>
-              {{$.globals.text.addAlbums}}
-            </paper-shadow>
-          </template>
-          <core-list id="cover" data="{{wall}}" grid scrollTarget="{{scrollTarget}}">
-            <template>
-              <div>
-                <album-art id='ac{{model.id}}' listMode="cover" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name || model.title}}" isFavorite="{{model.starred}}"></album-art>
-              </div>
-            </template>
-          </core-list>
-          <div class="center">
-            <paper-spinner class="black" hidden?="{{!isLoading}}" active></paper-spinner>
-          </div>
-          <div class="foot"></div>
-        </div>
-
-        <div view="list">
-          <template if="{{!isLoading && !wall[0] && request === 'getStarred2'}}">
-            <paper-shadow class='card' style="text-align:center;">
-              <h3>{{$.globals.text.noFavoriteHeader}}</h3>
-              {{$.globals.text.noFavoriteMessage}}
-            </paper-shadow>
-          </template>
-          <template if="{{!isLoading && !wall[0] && request !== 'getStarred2'}}">
-            <paper-shadow class='card' style="text-align:center;">
-              <h3>{{$.globals.text.addContent}}</h3>
-              {{$.globals.text.foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
-              <br><br>
-              {{$.globals.text.addAlbums}}
+              {{$.globals.texts.addAlbums}}
             </paper-shadow>
           </template>
           <core-list id="list" data="{{wall}}" scrollTarget="{{scrollTarget}}">
             <template>
               <div>
-                <album-art id='al{{model.id}}' listMode="list" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name || model.title}}" isFavorite="{{model.starred}}"></album-art>
+                <album-art id='ac{{model.id}}' listMode="{{model.listMode}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name || model.title}}" isFavorite="{{model.starred}}"></album-art>
               </div>
             </template>
           </core-list>
@@ -149,8 +121,8 @@
         <div view="podcast">
           <template if="{{!isLoading && !podcast[0]}}">
             <paper-shadow class='card' style="text-align:center;">
-              <h3>{{$.globals.text.addPodcasts}}</h3>
-              {{$.globals.text.addPodcast}}
+              <h3>{{$.globals.texts.addPodcasts}}</h3>
+              {{$.globals.texts.addPodcast}}
             </paper-shadow>
           </template>
           <core-list id="podcast" data="{{podcast}}" flex scrollTarget="{{scrollTarget}}">
@@ -170,7 +142,7 @@
                         <core-menu class="menu">
                           <paper-item on-tap="{{deleteDialog}}" ident="{{model.id}}">
                             <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
-                            {{$.globals.text.deleteLabel}}
+                            {{$.globals.texts.deleteLabel}}
                           </paper-item>
                         </core-menu>
                       </paper-dropdown>
@@ -250,10 +222,10 @@
         <div view="artists">
           <template if="{{!isLoading && !artist[0]}}">
             <paper-shadow class='card' style="text-align:center;">
-              <h3>{{$.globals.text.addContent}}</h3>
-              {{$.globals.text.foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
+              <h3>{{$.globals.texts.addContent}}</h3>
+              {{$.globals.texts.foundHere}} <a href="{{app.url}}" target='_blank'>{{app.url}}</a>
               <br><br>
-              {{$.globals.text.addAlbums}}
+              {{$.globals.texts.addAlbums}}
             </paper-shadow>
           </template>
           <core-list id="artists" data="{{artist}}" flex scrollTarget="{{scrollTarget}}">
@@ -278,15 +250,15 @@
       </core-animated-pages>
     </div>
     <paper-action-dialog id="playbackConfirm" transition="core-transition-center">
-      <h4>{{$.globals.text.hasBookmark}}</h4>
-      <paper-button style="background: green; color: white;" affirmative on-tap="{{playPodcast}}" bookmark="{{bookMark.bookmarkPosition}}" trackTitle="{{bookMark.title}}" streamId="{{bookMark.id}}" cover="{{bookMark.cover}}">{{$.globals.text.playFrom}} {{bookmarkTime}}</paper-button>
-      <paper-button affirmative on-tap="{{playPodcast}}" trackTitle="{{bookMark.title}}" streamId="{{bookMark.id}}" cover="{{bookMark.cover}}">{{$.globals.text.fromStart}}</paper-button>
+      <h4>{{$.globals.texts.hasBookmark}}</h4>
+      <paper-button style="background: green; color: white;" affirmative on-tap="{{playPodcast}}" bookmark="{{bookMark.bookmarkPosition}}" trackTitle="{{bookMark.title}}" streamId="{{bookMark.id}}" cover="{{bookMark.cover}}">{{$.globals.texts.playFrom}} {{bookmarkTime}}</paper-button>
+      <paper-button affirmative on-tap="{{playPodcast}}" trackTitle="{{bookMark.title}}" streamId="{{bookMark.id}}" cover="{{bookMark.cover}}">{{$.globals.texts.fromStart}}</paper-button>
     </paper-action-dialog>
     <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
       <div style="min-width:280px"></div>
       <h4>{{app.deletebookMarkConfirm}}</h4>
-      <paper-button affirmative>{{$.globals.text.decline}}</paper-button>
-      <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{$.globals.text.accept}}</paper-button>
+      <paper-button affirmative>{{$.globals.texts.decline}}</paper-button>
+      <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{$.globals.texts.accept}}</paper-button>
     </paper-action-dialog>
   </template>
   <script src="album-wall.html.0.js"></script>

@@ -848,15 +848,17 @@
                       app.page = 0;
                       app.async(function () {
                         app.$.wall.response = response;
-                        app.showing = app.listMode;
+                        app.showing = 'wall';
+                        app.pageLimit = true;
                       }, null, 550);
                     } else if (app.narrow) {
                       app.$.wall.response = response;
-                      app.showing = app.listMode;
+                      app.showing = 'wall';
+                      app.pageLimit = true;
                     } else {
                       app.$.wall.clearData(function () {
                         app.$.wall.response = response;
-                        app.showing = app.listMode;
+                        app.showing = 'wall';
                         app.pageLimit = true;
                       });
                     }
