@@ -2,7 +2,6 @@ Polymer('mini-player', {
   ready: function () {
     'use strict';
     this.timer = 0;
-    this.label = chrome.i18n.getMessage('nowPlayingTitle');
   },
   domReady: function () {
     'use strict';

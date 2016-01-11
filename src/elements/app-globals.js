@@ -210,7 +210,8 @@
     playPodcastLabel: getMessage("playPodcast"),
     removeDownloadLabel: getMessage('removeDownloadLabel'),
     saveFileLabel: getMessage('saveFileLabel'),
-    pauseDownload: getMessage('abortDownload')
+    pauseDownload: getMessage('abortDownload'),
+    label: getMessage('nowPlayingTitle')
   };
 
   /**
@@ -408,6 +409,10 @@
           this.putInDb(colorArray, artId + '-palette').then(resolve);
         }.bind(this);
       }.bind(this));
+    },
+    
+    notify: function (string, icon) {
+      console.log(string, icon);
     },
 
     /**

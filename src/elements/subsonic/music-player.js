@@ -139,20 +139,14 @@ Polymer('music-player',{
       this.audio.currentTime = 0;
     }
     
-    this.note.show();
     this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.bg.style.backgroundImage = "url('" + obj.cover + "')";
     this.app.tracker.sendEvent('Playback Started', new Date());
     this.scrobbled = false;
+    this.note.show();
   },
-  getImageForPlayer: function (url, callback) {
-    this.$.coverArt.style.backgroundImage = "url('" + url + "')";
-    this.app.$.playNotify.icon = url;
-    if (callback) {
-      this.async(callback);
-    }
-  },
+  
   playPause: function () {
     if (!this.audio.paused) {
       this.audio.pause();
@@ -160,6 +154,7 @@ Polymer('music-player',{
       this.audio.play();
     }
   },
+  
   playNext: function (next) {
     if (this.app.repeatPlaylist && !this.app.playlist[next]) {
       this.app.playing = 0;
@@ -175,6 +170,7 @@ Polymer('music-player',{
       }
     }
   },
+  
   nextTrack: function () {
     // if track longer then 20 min and autobookmark enabled 
     // will delete the bookmark 
@@ -189,9 +185,11 @@ Polymer('music-player',{
     }
     this.playNext(this.app.playing + 1);
   },
+  
   lastTrack: function () {
     this.playNext(this.app.playing - 1);
   },
+  
   audioError: function (e) {
     this.app.page = 0;
     console.error('audio playback error ', e);

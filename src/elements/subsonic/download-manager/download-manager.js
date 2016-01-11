@@ -140,7 +140,7 @@ Polymer('download-manager', {
 
   downloadSinglePodcast: function (details, callback) {
     var url = this.$.globals.buildUrl('download', {id: details.id});
-    this.app.doNotify(this.app.downloadStarted);
+    this.$.globals.notify(this.$.globals.texts.downloadStarted);
     this.fileName = details.title.replace(':', '') + '.' + details.suffix;
     this.isDownloading = true;
     this.downloadSize = details.size;

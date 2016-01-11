@@ -86,6 +86,7 @@
         width:18px;
       }
     </style>
+    <app-globals id="globals"></app-globals>
     <core-animated-pages selected="{{page}}" transitions="hero-transition">
       <section>
         <div class="player offscreen" hero-id="bar" hero=""></div>
@@ -95,7 +96,7 @@
           <paper-slider on-change="{{progressClick}}" value="{{progress}}"></paper-slider>
           <div horizontal layout>
             <div>
-              <core-tooltip label="{{label}}" position="top">
+              <core-tooltip label="{{$.globals.texts.label}}" position="top">
                 <img on-tap="{{toPlayer}}" src="{{img}}" height="71" widht="71">
               </core-tooltip>
             </div>
