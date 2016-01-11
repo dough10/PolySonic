@@ -143,7 +143,7 @@
       },
 
       clearCache: function (callback) {
-        var req = indexedDB.deleteDatabase('albumInfo');
+        var req = indexedDB.deleteDatabase(this.app.dbname);
         req.onsuccess = function () {
           console.log("Deleted database successfully");
           this.app.createObjectStore();

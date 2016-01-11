@@ -3,6 +3,86 @@
 
   var app = document.querySelector('#tmpl');
 
+  window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
+
+  var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
+
+  var dbVersion = 1.0;
+
+  var dbName = 'metaData';
+  app.dbname = dbName;
+
+  var request = indexedDB.open(dbName, dbVersion);
+
+  function createObjectStore(dataBase) {
+    console.log("Creating objectStore");
+    dataBase.createObjectStore(dbName);
+  }
+  app.createObjectStore = createObjectStore;
+
+  var db;
+
+  request.onerror = function () {
+    console.log("Error creating/accessing IndexedDB database");
+  };
+
+  request.onsuccess = function () {
+    console.log("Success creating/accessing IndexedDB database");
+    db = this.result;
+
+    // Interim solution for Google Chrome to create an objectStore. Will be deprecated
+    if (db.setVersion) {
+      if (db.version !== dbVersion) {
+        var setVersion = db.setVersion(dbVersion);
+        setVersion.onsuccess = function () {
+          createObjectStore(db);
+        };
+      }
+    }
+  };
+
+  request.onupgradeneeded = function (event) {
+    createObjectStore(event.target.result);
+  };
+
+  function onInitFs(fs) {
+    app.fs = fs;
+    console.log('Opened file system: ' + fs.name);
+  }
+
+  function fsErrorHandler(e) {
+    var msg = '';
+
+    switch (e.code) {
+      case FileError.QUOTA_EXCEEDED_ERR:
+        msg = 'QUOTA_EXCEEDED_ERR';
+        break;
+      case FileError.NOT_FOUND_ERR:
+        msg = 'NOT_FOUND_ERR';
+        break;
+      case FileError.SECURITY_ERR:
+        msg = 'SECURITY_ERR';
+        break;
+      case FileError.INVALID_MODIFICATION_ERR:
+        msg = 'INVALID_MODIFICATION_ERR';
+        break;
+      case FileError.INVALID_STATE_ERR:
+        msg = 'INVALID_STATE_ERR';
+        break;
+      default:
+        msg = 'Unknown Error';
+        break;
+    };
+
+    console.log('Error: ' + msg);
+  }
+
+  navigator.webkitPersistentStorage.requestQuota(1024*1024*512, function(grantedBytes) {
+    window.requestFileSystem(PERSISTENT, grantedBytes, onInitFs, fsErrorHandler);
+  }, function(e) {
+    console.log('Error', e);
+  });
+
   /**
    * return chrome localization string
    */
@@ -83,6 +163,25 @@
     return componentToHex(r) + componentToHex(g) + componentToHex(b);
   }
 
+  /**
+   * method to create folder structure
+   */
+  function createDir(rootDirEntry, folders) {
+    // Throw out './' or '/' and move on to prevent something like '/foo/.//bar'.
+    if (folders[0] == '.' || folders[0] == '') {
+      folders = folders.slice(1);
+    }
+    rootDirEntry.getDirectory(folders[0], {create: true}, function(dirEntry) {
+      // Recursively add the new subfolder (if we still have another to create).
+      if (folders.length) {
+        createDir(dirEntry, folders.slice(1));
+      }
+    }, errorHandler);
+  }
+
+  /**
+   * localization texts
+   */
   var texts = {
     fromStart: getMessage('fromStart'),
     playFrom: getMessage('playFrom'),
@@ -164,6 +263,9 @@
       toast.show();
     },
 
+    /**
+     * closes menu if in narrow mode
+     */
     closeDrawer: function () {
       return new Promise(function (resolve, reject) {
         app.dataLoading = true;
@@ -198,10 +300,12 @@
      */
     putInDb: function (data, id) {
       return new Promise(function (resolve, reject) {
-        var transaction = app.db.transaction(["albumInfo"], "readwrite");
+        var transaction = db.transaction([dbName], "readwrite");
         if (id) {
-          transaction.objectStore("albumInfo").put(data, id);
-          transaction.objectStore("albumInfo").get(id).onsuccess = resolve;
+          transaction.objectStore(dbName).put(data, id);
+          transaction.objectStore(dbName).get(id).onsuccess = function (e) {
+            resolve(e.target.result);
+          };
         }
       });
     },
@@ -215,8 +319,8 @@
     getDbItem: function (id) {
       return new Promise(function (resolve, reject) {
         if (id) {
-          var transaction = app.db.transaction(["albumInfo"], "readwrite");
-          var request = transaction.objectStore("albumInfo").get(id);
+          var transaction = db.transaction([dbName], "readwrite");
+          var request = transaction.objectStore(dbName).get(id);
           request.onsuccess = resolve;
           request.onerror = reject;
         }
@@ -232,12 +336,49 @@
      */
     getImageFile: function (url, id) {
       return new Promise(function (resolve, reject) {
+        var fileName = id + '.jpg';
         this.doXhr(url, 'blob').then(function (e) {
-          this.putInDb(
-            new Blob([ e.target.response ], { type: 'image/jpeg' }), id
-          ).then(function (e) {
-            resolve(e);
+          app.fs.root.getFile(fileName, {create: true}, function(fileEntry) {
+            fileEntry.createWriter(function(fileWriter) {
+
+              fileWriter.onwriteend = function(e) {
+                app.fs.root.getFile(fileName, {create: false}, function(fileEntry) {
+                  resolve(fileEntry.toURL());
+                });
+              };
+
+              fileWriter.onerror = function(e) {
+                console.log('Write failed: ' + e.toString());
+              };
+              var blob = new Blob([ e.target.response ], { type: 'image/jpeg' });
+
+              fileWriter.write(blob);
+            }.bind(this), fsErrorHandler);
+          }.bind(this), fsErrorHandler);
+        }.bind(this));
+      }.bind(this));
+    },
+
+    /**
+     * returns image url will get from either local image or will get from server and save as local then give url
+     * @param {String} artId
+     */
+    fetchImage: function (artId) {
+      return new Promise(function (resolve, reject) {
+        app.fs.root.getFile(artId + '.jpg', {
+          create: false,
+          exclusive: true
+        }, function(fileEntry) {
+          resolve(fileEntry.toURL());
+        }.bind(this), function () {
+          var url = this.buildUrl('getCoverArt', {
+            size: 550,
+            id: artId
           });
+          this.getImageFile(url, artId).then(function (imgURL) {
+            this.stealColor(imgURL, artId);
+            resolve(imgURL);
+          }.bind(this));
         }.bind(this));
       }.bind(this));
     },
@@ -267,9 +408,7 @@
           } else {
             colorArray[3] = '#c8c8c8';
           }
-          this.putInDb(colorArray, artId + '-palette', function () {
-            resolve(colorArray);
-          });
+          this.putInDb(colorArray, artId + '-palette').then(resolve);
         }.bind(this);
       }.bind(this));
     },
@@ -288,6 +427,9 @@
       }
       if (app.version !== app.params.v) {
         app.params.v = app.version;
+      }
+      if (!options) {
+        options = '';
       }
       if (versionCompare(app.version, '1.13.0') >= 0 && app.md5Auth) {
         if (app.params.p) {

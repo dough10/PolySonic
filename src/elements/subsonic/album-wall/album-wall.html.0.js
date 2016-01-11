@@ -4,8 +4,17 @@ Polymer('album-wall', {
   podcast: [],
   artist: [],
   created: function () {
+
+  },
+
+  ready: function () {
+    /* locale settings */
     'use strict';
+    this.$.cover.grid = true;
+    this.$.cover.width = '260';
+    this.$.cover.height = '260';
     simpleStorage.getSync().then(function (res) {
+      console.log(res);
       this.post = {
         type: res.sortType || 'newest',
         size: 20,
@@ -22,14 +31,6 @@ Polymer('album-wall', {
         this.showing = 'artists';
       }
     }.bind(this));
-  },
-
-  ready: function () {
-    /* locale settings */
-    'use strict';
-    this.$.cover.grid = true;
-    this.$.cover.width = '260';
-    this.$.cover.height = '260';
   },
 
   domReady: function () {
@@ -51,7 +52,7 @@ Polymer('album-wall', {
         this.app.pageLimit = false;
         this.$.threshold.clearLower();
         this.async(this.refreshContent);
-      }.bind(this));
+      }.bind(this))
     });
   },
 
@@ -166,8 +167,11 @@ Polymer('album-wall', {
 
   doAjax: function () {
     'use strict';
-    this.$.ajax.url = this.$.globals.buildUrl(this.request, this.post);
-    this.$.ajax.go();
+    this.async(function () {
+      this.request = this.request || 'getAlbumList2'
+      this.$.ajax.url = this.$.globals.buildUrl(this.request, this.post);
+      this.$.ajax.go();
+    }, null, 100);
   },
 
   getPodcast: function () {
@@ -502,9 +506,7 @@ Polymer('album-wall', {
     if (this.post.offset !== 0) {
       this.post.offset = 0;
     }
-    this.clearData(function () {
-      this.doAjax();
-    }.bind(this));
+    this.clearData(this.doAjax);
   },
 
   downloadEpisode: function (event, detail, sender) {

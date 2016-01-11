@@ -92,14 +92,15 @@ Polymer('music-player',{
       this.applyAudioListeners(this.audio);
       this.note.title = obj.artist + ' - ' + obj.title;
       this.audio.play();
-      this.isCued = false;
+      delete this.isCued;
+      console.log(this.isCued);
       this.app.currentPlaying = obj.artist + ' - ' + obj.title;
     // when not using gapless playback
     } else {
       if (this.audio) {
         if (!this.audio.paused) {
           this.audio.pause();
-          this.audio = null;
+          delete this.audio;
         }
       }
       this.audio = new Audio();
@@ -178,9 +179,9 @@ Polymer('music-player',{
     // if track longer then 20 min and autobookmark enabled 
     // will delete the bookmark 
     if (this.app.autoBookmark && this.audio.duration > 1200) {
-      this.app.doXhr(this.app.buildUrl('deleteBookmark', {
+      this.$.globals.doXhr(this.$.globals.buildUrl('deleteBookmark', {
         id: this.app.playlist[this.app.playing].id
-      }), 'json', function (e) {
+      }), 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'failed') {
           console.error(e.target.response['subsonic-response'].error.message);
         }
@@ -194,7 +195,7 @@ Polymer('music-player',{
   audioError: function (e) {
     this.app.page = 0;
     console.error('audio playback error ', e);
-    this.app.doToast('Audio Playback Error');
+    this.$.globals.makeToast('Audio Playback Error');
     this.app.tracker.sendEvent('Audio Playback Error', e.target);
   },
   buffering: function (e) {
@@ -213,13 +214,13 @@ Polymer('music-player',{
     && !this.isCued && this.app.playlist[this.app.playing + 1]) {
       this.isCued = new Audio();
       if (this.app.playlist[this.app.playing + 1].artist === '') {
-        this.isCued.src = this.app.buildUrl('stream', {
+        this.isCued.src = this.$.globals.buildUrl('stream', {
           format: 'raw',
           estimateContentLength: true,
           id: this.app.playlist[this.app.playing + 1].id
         });
       } else {
-        this.isCued.src = this.app.buildUrl('stream', {
+        this.isCued.src = this.$.globals.buildUrl('stream', {
           maxBitRate: this.app.bitRate,
           id: this.app.playlist[this.app.playing + 1].id
         });
@@ -245,10 +246,10 @@ Polymer('music-player',{
     && !this.scrobbled
     && this.app.playlist[this.app.playing].artist !== '') {
       this.scrobbled = true;
-      this.app.doXhr(this.app.buildUrl('scrobble', {
+      this.$.globals.doXhr(this.$.globals.buildUrl('scrobble', {
         id: this.app.playlist[this.app.playing].id, 
         time: new Date().getTime()
-      }), 'json', function (e) {
+      }), 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'failed') {
           console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
           this.app.tracker.sendEvent('Last FM submission', 'Failed');
@@ -261,15 +262,15 @@ Polymer('music-player',{
     // creates a bookmark about every 1 min.
     if (this.app.autoBookmark && audio.duration > 1200
       && audio.currentTime > 60 && !this.app.waitingToPlay
-      && Math.floor(audio.currentTime / audio.duration * 100) < 98) {
+      && Math.abs(audio.currentTime / audio.duration * 100) < 98) {
       this.count = this.count + 1;
       if (this.count >= 250) {
         this.count = 0;
-        this.app.doXhr(this.app.buildUrl('createBookmark', {
+        this.$.globals.doXhr(this.$.globals.buildUrl('createBookmark', {
           id: this.app.playlist[this.app.playing].id,
           position: Math.floor(audio.currentTime * 1000),
           comment: this.app.playlist[this.app.playing].title + ' at ' + this.app.secondsToMins(audio.currentTime)
-        }), 'json', function (e) {
+        }), 'json').then(function (e) {
           if (e.target.response['subsonic-response'].status === 'failed') {
             console.error(e.target.response['subsonic-response'].error.message);
           }
@@ -353,18 +354,18 @@ Polymer('music-player',{
   submitBookmark: function () {
     this.app.submittingBookmark = true;
     var pos = Math.floor(this.audio.currentTime * 1000);
-    this.app.doXhr(
-      this.app.buildUrl('createBookmark', {
+    this.$.globals.doXhr(
+      this.$.globals.buildUrl('createBookmark', {
         id: this.app.playlist[this.app.playing].id,
         position: pos,
         comment: this.app.bookmarkComment
-      }), 'json', function (e) {
+      }), 'json').then(function (e) {
       this.app.submittingBookmark = false;
       if (e.target.response['subsonic-response'].status === 'ok') {
-        this.app.doToast(this.app.markCreated);
+        this.$.globals.makeToast(this.app.markCreated);
         this.app.$.bookmarkDialog.close();
       } else {
-        this.app.doToast(e.target.response['subsonic-response'].error.message);
+        this.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
       }
     }.bind(this));
   },

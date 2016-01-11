@@ -91,13 +91,13 @@
             } else {
               app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
               app.$.firstRun.open();
-              app.doToast(e.target.response['subsonic-response'].error.meessage);
+              app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
             }
 
           } else {
             app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
             app.$.firstRun.open();
-            app.doToast(e.target.response['subsonic-response'].error.meessage);
+            app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
           }
         });
 
@@ -215,88 +215,6 @@
   ];
 
   /**
-   * indexDB setup
-   */
-  app.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
-  app.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
-  app.dbVersion = 1.0;
-  app.request = app.indexedDB.open("albumInfo", app.dbVersion);
-
-  /**
-   * indexdb error callback
-   */
-  app.request.onerror = function () {
-    console.log("Error creating/accessing IndexedDB database");
-  };
-
-  /**
-   * indexdb successful initiate callback
-   */
-  app.request.onsuccess = function () {
-    console.log("Success creating/accessing IndexedDB database");
-    app.db = app.request.result;
-
-    // Interim solution for Google Chrome to create an objectStore. Will be deprecated
-    if (app.db.setVersion) {
-      if (app.db.version !== app.dbVersion) {
-        var setVersion = app.db.setVersion(this.dbVersion);
-        setVersion.onsuccess = function () {
-          app.createObjectStore(this.db);
-        };
-      }
-    }
-  };
-
-  /**
-   * indexdb upgraded
-   */
-  app.request.onupgradeneeded = function (event) {
-    app.createObjectStore(event.target.result);
-  };
-
-  /**
-   * create indexdb storage object
-   */
-  app.createObjectStore = function (dataBase) {
-    console.log("Creating objectStore");
-    dataBase.createObjectStore("albumInfo");
-  };
-
-  /**
-   * indexdb fetch error callback
-   * @param {Error} e
-   */
-  app.dbErrorHandler = function (e) {
-    console.error(e);
-  };
-
-  /**
-   * Fetch image from subsonic server and store it in indexeddb
-   * @param {String} url
-   * @param {String} id
-   * @param {Function} callback
-   */
-  app.getImageFile = function (url, id, callback) {
-    app.doXhr(url, 'blob', function (e) {
-      app.putInDb(new Blob([e.target.response], {type: 'image/jpeg'}), id, callback);
-    });
-  };
-
-  /**
-   * store object in indexeddb
-   * @param {Object} data
-   * @param {String} id
-   * @param {Function} callback
-   */
-  app.putInDb = function (data, id, callback) {
-    var transaction = app.db.transaction(["albumInfo"], "readwrite");
-    if (id) {
-      transaction.objectStore("albumInfo").put(data, id);
-      transaction.objectStore("albumInfo").get(id).onsuccess = callback;
-    }
-  };
-
-  /**
    * convert bytes to a readable form
    * @param {Number} bytes
    */
@@ -317,48 +235,6 @@
       console.log('Error', e);
     });
   };
-
-  /**
-   * fetch a item from indexeddb
-   * @param {String} id
-   * @param {Function} callback
-   */
-  app.getDbItem = function (id, callback) {
-    if (id) {
-      var transaction = app.db.transaction(["albumInfo"], "readwrite"),
-        request = transaction.objectStore("albumInfo").get(id);
-      request.onsuccess = callback;
-      request.onerror = app.dbErrorHandler;
-    }
-  };
-
-  /**
-   * default xhr error
-   * @param {Error} e
-   */
-  function xhrError(e) {
-    app.dataLoading = false;
-    app.doToast(chrome.i18n.getMessage("connectionError"));
-    console.error(e);
-    if (!document.querySelector('#loader').classList.contains("hide")) {
-      app.$.firstRun.open();
-    }
-  }
-
-//  /**
-//   * xhr
-//   * @param {String} url
-//   * @param {String} dataType
-//   * @param {Function} callback
-//   */
-//  app.doXhr = function (url, dataType, callback) {
-//    var xhr = new XMLHttpRequest();
-//    xhr.open("GET", url, true);
-//    xhr.responseType = dataType;
-//    xhr.onload = callback;
-//    xhr.onerror = xhrError;
-//    xhr.send();
-//  };
 
   /**
    * reload the app
@@ -397,16 +273,6 @@
   };
 
   /**
-   * display toast message to user
-   * @param {String} text
-   */
-  app.doToast = function (text) {
-    var toast = app.$.toast;
-    toast.text = text;
-    toast.show();
-  };
-
-  /**
    * scrolling callback
    */
   app.scrollCallback = function () {
@@ -426,114 +292,10 @@
     }
     app.position = scroller.scrollTop;
     app.scrolling = true;
-    if (timer) {
-      clearTimeout(timer);
-      timer = 0;
-    } else {
-      timer = setTimeout(function () {
-        app.scrolling = false;
-      }.bind(this), 50);
-    }
+    app.job('scroll', function () {
+      app.scrolling = false;
+    }, 50);
   };
-
-//  app.close = function () {
-//    app.checkUnsavedDownloads(function () {
-//      window.close();
-//    }, function () {
-//      this.$.unsavedDownloads.open();
-//    }.bind(this));
-//  };
-
-//  app.checkUnsavedDownloads = function (callback, haveUnsaved) {
-//    if (this.$.downloads.childElementCount !== 0) {
-//      var downloads = this.$.downloads.querySelectorAll('download-manager');
-//      var length = downloads.length;
-//      var count = 0;
-//      for (var i = 0; i < length; i++) {
-//        if (!downloads[i].hasSaved) {
-//          count = count + 1;
-//        }
-//        if (i === length - 1 && count ===0) {
-//          callback();
-//        } else {
-//          haveUnsaved();
-//        }
-//      }
-//    } else {
-//      callback();
-//    }
-//  };
-
-//  app.closeAnyway = function () {
-//    window.close();
-//  };
-
-//  /**
-//   * use colorthief to get palette from cover art
-//   * @param {image element} image
-//   */
-//  app.getColor = function (image) {
-//    var colorThief = new ColorThief();
-//    return colorThief.getPalette(image, 4);
-//  };
-//
-//  /**
-//   * get contrasting color
-//   * @param {String} hexcolor
-//   */
-//  app.getContrast50  = function (hexcolor) {
-//    return (parseInt(hexcolor, 16) > 0xffffff / 2) ? 'black' : 'white';
-//  };
-//
-//  /**
-//   * convert component to hex value
-//   */
-//  app.componentToHex = function (c) {
-//    var hex = c.toString(16);
-//    return hex.length === 1 ? "0" + hex : hex;
-//  };
-//
-//  /**
-//   * convert rgb values to hex color
-//   * @param {Number} r
-//   * @param {Number} g
-//   * @param {Number} b
-//   */
-//  app.rgbToHex = function (r, g, b) {
-//    return app.componentToHex(r) + app.componentToHex(g) + app.componentToHex(b);
-//  };
-//
-//  /**
-//   * capture color palette from image and store in indexeddb
-//   * @param {String} imgURL
-//   * @param {String} artId
-//   * @param {Function} callback - returns an array of colors
-//   */
-//  app.colorThiefHandler = function (imgURL, artId, callback) {
-//    var imgElement = new Image();
-//    imgElement.src = imgURL;
-//    imgElement.onload = function () {
-//      var color = app.getColor(imgElement),
-//        colorArray = [],
-//        r = color[1][0],
-//        g = color[1][1],
-//        b = color[1][2],
-//        hex = app.rgbToHex(r, g, b);
-//      colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-//      colorArray[1] = app.getContrast50(hex);
-//      colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4);';
-//      if (colorArray[1] !== 'white') {
-//        colorArray[3] = '#444444';
-//      } else {
-//        colorArray[3] = '#c8c8c8';
-//      }
-//      app.putInDb(colorArray, artId + '-palette', function () {
-//        if (callback) {
-//          callback(colorArray);
-//        }
-//      });
-//    };
-//  };
 
   /**
    * callback for shuffle playback
@@ -569,7 +331,7 @@
     app.playlist.splice(app.playing, 1);
     shuffleArray(app.playlist);
     app.playlist.unshift(temp);
-    app.doToast(app.randomized);
+    app.$.globals.makeToast(app.randomized);
     if (app.playing !== 0) {
       app.alreadyPlaying = true; // tell player this track is already playing other wise will start play over again
       app.async(function () {
@@ -583,14 +345,14 @@
    */
   app.openBookmarks = function () {
     app.$.globals.closeDrawer().then(function () {
-      app.doXhr(app.buildUrl('getBookmarks', ''), 'json', function (e) {
+      app.$.globals.doXhr(app.$.globals.buildUrl('getBookmarks', ''), 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           app.allBookmarks = e.target.response['subsonic-response'].bookmarks.bookmark;
           app.dataLoading = false;
           app.$.showBookmarks.open();
         } else {
           app.dataLoading = false;
-          app.doToast(e.target.response['subsonic-response'].error.message);
+          app.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
         }
       });
     });
@@ -615,9 +377,10 @@
   app.queBookmark = function (event) {
     var resumePos = event.path[0].dataset.pos;
     app.dataLoading = true;
-    app.doXhr(app.buildUrl('getSong', {
+    var url = app.$.globals.buildUrl('getSong', {
       id: event.path[0].dataset.id
-    }), 'json', function (e) {
+    });
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       app.$.showBookmarks.close();
       var song = e.target.response['subsonic-response'].song,
         obj = {},
@@ -637,27 +400,12 @@
         obj.artist = song.artist;
       }
       obj.bookmarkPosition = song.bookmarkPosition;
-      app.getDbItem(artId, function (cov) {
-        if (cov.target.result) {
-          var img = cov.target.result;
-          obj.cover = window.URL.createObjectURL(img);
-          app.getDbItem(artId + '-palette', function (palette) {
-            obj.palette = palette.target.result;
-            handlePlay(obj);
-          });
-        } else {
-          app.getImageFile(
-            app.buildUrl('getCoverArt', {
-              id: artId
-            }), 'json', function (xhrCov) {
-            var img = xhrCov.target.result;
-            obj.cover = window.URL.createObjectURL(img);
-            app.colorThiefHandler(obj.cover, artId, function (colorArray) {
-              obj.palette = colorArray;
-              handlePlay(obj);
-            });
-          });
-        }
+      app.$.globals.fetchImage(artId).then(function (imgURL) {
+        obj.cover = imgURL;
+        app.$.globals.getDbItem(artId + '-palette').then(function (palette) {
+          obj.palette = palette.target.result;
+          handlePlay(obj);
+        });
       });
     });
   };
@@ -676,19 +424,19 @@
    * @param {Event} event
    */
   app.deleteBookmark = function (event) {
-    app.doXhr(
-      app.buildUrl('deleteBookmark', {
+    app.$.globals.doXhr(
+      app.$.globals.buildUrl('deleteBookmark', {
         id: app.delID
       }), 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         app.dataLoading = true;
-        app.doXhr(app.buildUrl('getBookmarks', ''), 'json', function (ev) {
+        app.$.globals.doXhr(app.$.globals.buildUrl('getBookmarks', ''), 'json').then(function (ev) {
           app.allBookmarks = ev.target.response['subsonic-response'].bookmarks.bookmark;
           app.$.showBookmarks.open();
           app.dataLoading = false;
         });
       } else {
-        app.doToast(e.target.response['subsonic-response'].error.message);
+        app.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
       }
     });
   };
@@ -743,7 +491,8 @@
     if (app.$.player.audio) {
       app.$.player.audio.pause();
     }
-    app.doXhr(app.buildUrl('getPlaylist', {id: sender.attributes.ident.value}), 'json', function (e) {
+    var url = app.$.globals.buildUrl('getPlaylist', {id: sender.attributes.ident.value});
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       var tracks = e.target.response['subsonic-response'].playlist.entry;
       var length = tracks.length;
       for (var i = 0; i < length; i++) {
@@ -790,14 +539,14 @@
             app.fixCoverArtForShuffle(obj, endLoop);
           }
         } else {
-          app.doToast(chrome.i18n.getMessage("noMatch"));
+          app.$.globals.makeToast(chrome.i18n.getMessage("noMatch"));
           app.shuffleLoading = false;
           app.dataLoading = false;
         }
       });
     } else {
       app.shuffleLoading = false;
-      app.doToast(chrome.i18n.getMessage("invalidEntry"));
+      app.$.globals.makeToast(chrome.i18n.getMessage("invalidEntry"));
     }
   };
 
@@ -857,29 +606,12 @@
     app.$.volumeDialog.close();
   };
 
-//  app.volUp = function () {
-//    if (app.volume < 100) {
-//      app.volume = app.volume + 2;
-//    }
-//  };
-//
-//  app.volDown = function () {
-//    if (app.volume > 0) {
-//      app.volume = app.volume - 2;
-//    }
-//  };
-
   /**
    * toggle playlist looping
    */
   app.toggleRepeat = function () {
     app.$.player.toggleRepeat();
   };
-
-//  app.defaultPlayImage = function () {
-//    app.$.coverArt.style.backgroundImage =  "url('images/default-cover-art.png')";
-//    app.$.playNotify.icon = 'images/default-cover-art.png';
-//  };
 
   /**
    * hide loading screen
@@ -1008,11 +740,11 @@
    */
   function save2PlayQueueCallback (e) {
     if (e.target.response['subsonic-response'].status === 'ok') {
-      app.doToast(chrome.i18n.getMessage('playlistCreated'));
+      app.$.globals.makeToast(chrome.i18n.getMessage('playlistCreated'));
       app.$.createPlaylist.close();
       app.savingPlaylist = false;
     } else {
-      app.doToast(chrome.i18n.getMessage('playlistError'));
+      app.$.globals.makeToast(chrome.i18n.getMessage('playlistError'));
       app.savingPlaylist = false;
     }
   }
@@ -1021,13 +753,13 @@
    * save a playlist
    */
   app.savePlayQueue2Playlist = function () {
-    var url = app.buildUrl('createPlaylist', {name: app.defaultName}),
+    var url = app.$.globals.buildUrl('createPlaylist', {name: app.defaultName}),
       length = app.playlist.length;
     app.savingPlaylist = true;
     for (var i = 0; i < length; i++) {
       url = url + '&songId=' + app.playlist[i].id;
       if (i === length - 1) {
-        app.doXhr(url, 'json', save2PlayQueueCallback);
+        app.$.globals.doXhr(url, 'json').then(save2PlayQueueCallback);
       }
     }
   };
@@ -1102,7 +834,10 @@
       app.async(function () {
         app.$.globals.closeDrawer().then(function () {
           app.async(function () {
-            app.doXhr(app.buildUrl('search3', {query: encodeURIComponent(app.searchQuery)}), 'json', function (e) {
+            var url = app.$.globals.buildUrl('search3', {
+              query: encodeURIComponent(app.searchQuery)
+            });
+            app.$.globals.doXhr(url, 'json').then(function (e) {
               app.dataLoading = true;
               if (e.target.response['subsonic-response'].status === 'ok') {
                 app.searchQuery = '';
@@ -1122,12 +857,13 @@
                       app.$.wall.clearData(function () {
                         app.$.wall.response = response;
                         app.showing = app.listMode;
+                        app.pageLimit = true;
                       });
                     }
                   });
                 } else {
                   app.dataLoading = false;
-                  app.doToast(chrome.i18n.getMessage('noResults'));
+                  app.$.globals.makeToast(chrome.i18n.getMessage('noResults'));
                 }
               }
             });
@@ -1135,7 +871,7 @@
         });
       });
     } else {
-      app.doToast(chrome.i18n.getMessage("noSearch"));
+      app.$.globals.makeToast(chrome.i18n.getMessage("noSearch"));
     }
   };
 
@@ -1170,7 +906,7 @@
     app.$.globals.closeDrawer().then(function ()  {
       app.dataLoading = false;
       app.playlistsLoading = true;
-      app.doXhr(app.buildUrl('getPlaylists', ''), 'json', function (e) {
+      app.$.globals.doXhr(app.$.globals.buildUrl('getPlaylists', ''), 'json').then(function (e) {
         app.playlistsLoading = false;
         app.playlists = e.target.response['subsonic-response'].playlists.playlist;
         app.async(function () {
@@ -1204,18 +940,19 @@
    * send playlist delete command to server
    */
   app.deletePlaylist = function (event, detail, sender) {
-    app.doXhr(app.buildUrl('deletePlaylist', {id: sender.attributes.ident.value}), 'json', function (e) {
+    var url = app.$.globals.buildUrl('deletePlaylist', {
+      id: sender.attributes.ident.value
+    });
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         app.playlistsLoading = true;
-        app.doXhr(app.buildUrl('getPlaylists', ''), 'json', function (e) {
+        app.$.globals.doXhr(app.$.globals.buildUrl('getPlaylists', ''), 'json').then(function (e) {
           app.playlistsLoading = false;
           app.playlists = e.target.response['subsonic-response'].playlists.playlist;
-          app.async(function () {
-            app.$.playlistsDialog.open();
-          });
+          app.async(app.$.playlistsDialog.open);
         });
       } else {
-        app.doToast(chrome.i18n.getMessage('deleteError'));
+        app.$.globals.makeToast(chrome.i18n.getMessage('deleteError'));
       }
     });
   };
@@ -1439,12 +1176,12 @@
   app.refreshPodcast = function (event, detail, sender) {
     var animation = app.$.globals.attachAnimation(sender);
     animation.play();
-    var url = app.buildUrl('refreshPodcasts', '');
+    var url = app.$.globals.buildUrl('refreshPodcasts', '');
     app.$.globals.doXhr(url, 'json').then(function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         animation.cancel();
         app.$.wall.refreshContent();
-        app.doToast(chrome.i18n.getMessage("podcastCheck"));
+        app.$.globals.makeToast(chrome.i18n.getMessage("podcastCheck"));
       }
     });
   };
@@ -1455,20 +1192,20 @@
   app.addChannel = function () {
     app.tracker.sendEvent('Adding Podcast', new Date());
     if (!app.castURL) {
-      app.doToast(app.urlError);
+      app.$.globals.makeToast(app.urlError);
     }
     if (!app.invalidURL) {
       app.addingChannel = true;
-      var url = app.buildUrl('createPodcastChannel', {url: encodeURIComponent(app.castURL)});
+      var url = app.$.globals.buildUrl('createPodcastChannel', {url: encodeURIComponent(app.castURL)});
       app.$.globals.doXhr(url, 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           app.addingChannel = false;
           app.$.addPodcast.close();
           app.$.wall.refreshContent();
-          app.doToast(chrome.i18n.getMessage("channelAdded"));
+          app.$.globals.makeToast(chrome.i18n.getMessage("channelAdded"));
           app.castURL = '';
         } else {
-          app.doToast(chrome.i18n.getMessage("podcastError"));
+          app.$.globals.makeToast(chrome.i18n.getMessage("podcastError"));
         }
       });
     }
@@ -1492,7 +1229,8 @@
    * display user license info dialog
    */
   app.getLicense = function (callback) {
-    app.doXhr(app.buildUrl('getLicense', ''), 'json', function (e) {
+    var url = app.$.globals.buildUrl('getLicense', '');
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       var response = e.target.response['subsonic-response'];
       if (response.status === 'ok') {
         app.serverLicense = response.license;
@@ -1597,7 +1335,7 @@
 //   * @param {String} method
 //   * @param {Object} options
 //   */
-//  app.buildUrl = function(method, options) {
+//  app.$.globals.buildUrl = function(method, options) {
 //    if (options !== null && typeof options === 'object') {
 //      options = '&' + toQueryString(options);
 //    }

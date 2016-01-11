@@ -55,18 +55,18 @@
       submit: function () {
         'use strict';
         if (this.invalid1 && this.invalid2) {
-          this.app.doToast("URL & Username Required");
+          this.$.globals.makeToast("URL & Username Required");
         } else if (this.invalid1) {
-          this.app.doToast("URL Required");
+          this.$.globals.makeToast("URL Required");
         } else if (this.invalid2) {
-          this.app.doToast("Username Required");
+          this.$.globals.makeToast("Username Required");
         } else if (!this.invalid1 && !this.invalid2 && !this.invalid3) {
           /* trim off trailing forward slash */
           var lastChar = this.app.url.substr(-1); // Selects the last character
           if (lastChar === '/') {         // If the last character is a slash
             this.app.url = this.app.url.substring(0, this.app.url.length - 1);  // remove the slash from end of string
           }
-          this.$.ajax.url = this.app.buildUrl('ping', '');
+          this.$.ajax.url = this.$.globals.buildUrl('ping', '');
           this.$.ajax.go();
         }
       },
@@ -106,21 +106,20 @@
             });
             this.app.userDetails();
             this.app.version = this.response['subsonic-response'].version;
-            this.app.doToast("Loading Data");
+            this.$.globals.makeToast("Loading Data");
             this.app.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
             this.app.$.firstRun.close();
-            this.app.doXhr(this.app.buildUrl('getMusicFolders', ''), 'json', function (e) {
+            var url = this.$.globals.buildUrl('getMusicFolders', '');
+            this.$.globals.doXhr(url, 'json').then(function (e) {
               this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
               if (e.target.response['subsonic-response'].musicFolders.musicFolder && !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                 this.app.$.sortBox.style.display = 'none';
               }
             }.bind(this));
-            this.async(function () {
-              wall.doAjax();
-            }, null, 100);
+            this.async(wall.doAjax, null, 100);
           } else {
             console.log(this.response);
-            this.app.doToast(this.response['subsonic-response'].error.message);
+            this.$.globals.makeToast(this.response['subsonic-response'].error.message);
           }
         }
       },
@@ -137,7 +136,7 @@
         */
         if (this.error) {
           this.app.$.firstRun.open();
-          this.app.doToast(chrome.i18n.getMessage('connectionError'));
+          this.$.globals.makeToast(chrome.i18n.getMessage('connectionError'));
         }
       }
     });

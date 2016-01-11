@@ -61,6 +61,9 @@
       .black::shadow .circle {
         border-color: #000;
       }
+      paper-spinner {
+        margin: auto;
+      }
       core-tooltip::shadow .core-tooltip {
         opacity: 0;
         -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
@@ -81,7 +84,7 @@
     <!-- globals -->
     <app-globals id="globals"></app-globals>
     <core-ajax auto="false" id="ajax" method="GET" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
-    <core-scroll-threshold id="threshold" lowerThreshold="1000" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
+    <core-scroll-threshold id="threshold" lowerThreshold="100" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
     <div id="all">
       <core-animated-pages selected="{{showing}}" valueattr="view">
@@ -109,7 +112,10 @@
               </div>
             </template>
           </core-list>
-          <div style="min-height:160px;"></div>
+          <div class="center">
+            <paper-spinner class="black" hidden?="{{!isLoading}}" active></paper-spinner>
+          </div>
+          <div class="foot"></div>
         </div>
 
         <div view="list">
@@ -134,7 +140,10 @@
               </div>
             </template>
           </core-list>
-          <div style="min-height:160px;"></div>
+          <div class="center">
+            <paper-spinner class="black" hidden?="{{!isLoading}}" active></paper-spinner>
+          </div>
+          <div class="foot"></div>
         </div>
 
         <div view="podcast">
@@ -231,6 +240,9 @@
               <paper-button hidden?="{{!isLoading && !podcast[0]}}" on-tap="{{topOfPage}}">Back to Top</paper-button>
             </div>
           </template>
+          <div class="center">
+            <paper-spinner class="black" hidden?="{{!isLoading}}" active></paper-spinner>
+          </div>
           <div class="foot"></div>
         </div>
 
