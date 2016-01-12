@@ -113,7 +113,27 @@
     });
 
     // set main content scrolling callback
-    app.appScroller().onscroll = app.scrollCallback;
+    app.appScroller().onscroll = function () {
+      var fab = app.$.fab;
+      var wall = app.$.wall;
+      var scroller = app.appScroller();
+      var timer = 0;
+  
+      if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
+        fab.state = 'off';
+      } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
+        fab.state = 'bottom';
+      } else if (app.page === 3 && fab.state !== 'off' && scroller.scrollTop < app.position) {
+        fab.state = 'off';
+      } else if (app.page === 3 && fab.state !== 'bottom' && scroller.scrollTop > app.position) {
+        fab.state = 'bottom';
+      }
+      app.position = scroller.scrollTop;
+      app.scrolling = true;
+      app.job('scroll', function () {
+        app.scrolling = false;
+      }, 50);
+    };
 
     // app resize callback
     window.onresize = function () {
@@ -218,39 +238,6 @@
     return app.$.headerPanel.scroller;
   };
 
-  /**
-   * scrolling callback
-   */
-  app.scrollCallback = function () {
-    var fab = app.$.fab;
-    var wall = app.$.wall;
-    var scroller = app.appScroller();
-    var timer = 0;
-
-    if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
-      fab.state = 'off';
-    } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
-      fab.state = 'bottom';
-    } else if (app.page === 3 && fab.state !== 'off' && scroller.scrollTop < app.position) {
-      fab.state = 'off';
-    } else if (app.page === 3 && fab.state !== 'bottom' && scroller.scrollTop > app.position) {
-      fab.state = 'bottom';
-    }
-    app.position = scroller.scrollTop;
-    app.scrolling = true;
-    app.job('scroll', function () {
-      app.scrolling = false;
-    }, 50);
-  };
-
-  /**
-   * callback for shuffle playback
-   */
-  function endLoop() {
-    app.doShufflePlayback();
-    app.dataLoading = false;
-    app.closePlaylists();
-  }
 
   /**
    * shuffle the order of a given array
@@ -388,15 +375,6 @@
   };
 
   /**
-   * convert seconds to readable form
-   * @param {Number} sec
-   */
-  app.secondsToMins = function (sec) {
-    var mins = Math.floor(sec / 60);
-    return mins + ':' + ('0' + Math.floor(sec - (mins * 60))).slice(-2);
-  };
-
-  /**
    * close bookmarks dialog
    */
   app.closeBookmarks = function () {
@@ -437,20 +415,38 @@
     if (app.$.player.audio) {
       app.$.player.audio.pause();
     }
-    var url = app.$.globals.buildUrl('getPlaylist', {id: sender.attributes.ident.value});
+    var url = app.$.globals.buildUrl('getPlaylist', {
+      id: sender.attributes.ident.value
+    });
     app.$.globals.doXhr(url, 'json').then(function (e) {
       var tracks = e.target.response['subsonic-response'].playlist.entry;
-      var length = tracks.length;
-      for (var i = 0; i < length; i++) {
+      tracks.forEach(function (item) {
+        console.log(item);
         var obj = {
-          id: tracks[i].id,
-          artist: tracks[i].artist,
-          title: tracks[i].title,
-          duration: app.secondsToMins(tracks[i].duration),
-          cover: "al-" + tracks[i].albumId
+          id: item.id,
+          artist: item.artist,
+          title: item.title,
+          duration: app.$.globals.secondsToMins(item.duration)
         };
-        app.fixCoverArtForShuffle(obj, endLoop);
-      }
+        var artId = 'al-' + item.albumId;
+        app.$.globals.fetchImage(artId).then(function (imgURL) {
+          obj.cover = imgURL;
+          app.$.globals.getDbItem(artId + '-palette').then(function (e) {
+            obj.palette = e.target.result;
+            app.playlist.push(obj);
+            app.job('modeLike', function () {
+              app.dataLoading = false;
+              app.closePlaylists();
+              app.dataLoading = false;
+              if (app.playing === 0) {
+                app.$.player.playAudio(app.playlist[0]);
+              } else {
+                app.playing = 0;
+              }
+            }, 500);
+          });
+        });
+      });
     });
   };
 
@@ -472,18 +468,34 @@
       var url = app.$.globals.buildUrl('getRandomSongs', app.shuffleSettings);
       app.$.globals.doXhr(url, 'json').then(function (event) {
         var data = event.target.response['subsonic-response'].randomSongs.song;
-        if (data) {
-          var length = data.length;
-          for (var i = 0; i < length; i++) {
+        if (data.length) {
+          data.forEach(function (item) {
             var obj = {
-              id: data[i].id,
-              artist: data[i].artist,
-              title: data[i].title,
-              duration: app.secondsToMins(data[i].duration),
-              cover: "al-" + data[i].albumId
+              id: item.id,
+              artist: item.artist,
+              title: item.title,
+              duration: app.$.globals.secondsToMins(item.duration)
             };
-            app.fixCoverArtForShuffle(obj, endLoop);
-          }
+            var artId = 'al-' + item.id;
+            app.$.globals.fetchImage(artId).then(function (imgURL) {
+              obj.cover = imgURL;
+              app.$.globals.getDbItem(artId + '-palette').then(function (e) {
+                obj.palette = e.target.result;
+                app.playlist.push(obj);
+                app.job('modeLike', function () {
+                  app.dataLoading = false;
+                  //app.closePlaylists();
+                  app.$.shuffleOptions.close();
+                  app.dataLoading = false;
+                  if (app.playing === 0) {
+                    app.$.player.playAudio(app.playlist[0]);
+                  } else {
+                    app.playing = 0;
+                  }
+                }, 500);
+              });
+            });
+          });
         } else {
           app.$.globals.makeToast(chrome.i18n.getMessage("noMatch"));
           app.shuffleLoading = false;
@@ -496,32 +508,32 @@
     }
   };
 
-  /**
-   * start shuffle playback
-   */
-  app.doShufflePlayback = function () {
-    if (app.$.player.audio && app.$.player.audio.paused) {
-      if (app.playing === 0) {
-        app.$.player.playAudio(app.playlist[0]);
-      } else {
-        app.playing = 0;
-      }
-      app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
-        app.setFabColor(app.playlist[0]);
-        app.$.shuffleOptions.close();
-        app.shuffleLoading = false;
-      });
-    } else if (!app.$.player.audio) {
-      if (app.playing === 0) {
-        app.$.player.playAudio(app.playlist[0]);
-      } else {
-        app.playing = 0;
-      }
-      app.setFabColor(app.playlist[0]);
-      app.$.shuffleOptions.close();
-      app.shuffleLoading = false;
-    }
-  };
+  // /**
+  // * start shuffle playback
+  // */
+  // app.doShufflePlayback = function () {
+  //   if (app.$.player.audio && app.$.player.audio.paused) {
+  //     if (app.playing === 0) {
+  //       app.$.player.playAudio(app.playlist[0]);
+  //     } else {
+  //       app.playing = 0;
+  //     }
+  //     app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
+  //       app.setFabColor(app.playlist[0]);
+  //       app.$.shuffleOptions.close();
+  //       app.shuffleLoading = false;
+  //     });
+  //   } else if (!app.$.player.audio) {
+  //     if (app.playing === 0) {
+  //       app.$.player.playAudio(app.playlist[0]);
+  //     } else {
+  //       app.playing = 0;
+  //     }
+  //     app.setFabColor(app.playlist[0]);
+  //     app.$.shuffleOptions.close();
+  //     app.shuffleLoading = false;
+  //   }
+  // };
 
   /*
     clear playlist
@@ -628,34 +640,34 @@
     });
   };
 
-  /**
-   * attach image object url to a playlist item object
-   * @param {Object} obj
-   * @param {Function} callback
-   */
-  app.fixCoverArtForShuffle = function (obj, callback) {
-    var artId = obj.cover;
-    app.$.globals.getDbItem(artId).then(function (ev) {
-      if (ev.target.result) {
-        var imgURL = window.URL.createObjectURL(ev.target.result);
-        obj.cover = imgURL;
-        app.$.globals.getDbItem(artId + '-palette').then(function (ev) {
-          obj.palette = ev.target.result;
-          app.playlist.push(obj);
-          app.async(callback);
-        });
-      } else {
-        app.$.globals.fetchImage(artId).then(function (imgURL) {
-          obj.cover = imgURL;
-          app.$.globals.getDbItem(artId + '-palette').then(function (e) {
-            obj.palette = e.target.result;
-            app.playlist.push(obj);
-            app.async(callback);
-          });
-        });
-      }
-    });
-  };
+  // /**
+  // * attach image object url to a playlist item object
+  // * @param {Object} obj
+  // * @param {Function} callback
+  // */
+  // app.fixCoverArtForShuffle = function (obj, callback) {
+  //   var artId = obj.cover;
+  //   app.$.globals.getDbItem(artId).then(function (ev) {
+  //     if (ev.target.result) {
+  //       var imgURL = window.URL.createObjectURL(ev.target.result);
+  //       obj.cover = imgURL;
+  //       app.$.globals.getDbItem(artId + '-palette').then(function (ev) {
+  //         obj.palette = ev.target.result;
+  //         app.playlist.push(obj);
+  //         app.async(callback);
+  //       });
+  //     } else {
+  //       app.$.globals.fetchImage(artId).then(function (imgURL) {
+  //         obj.cover = imgURL;
+  //         app.$.globals.getDbItem(artId + '-palette').then(function (e) {
+  //           obj.palette = e.target.result;
+  //           app.playlist.push(obj);
+  //           app.async(callback);
+  //         });
+  //       });
+  //     }
+  //   });
+  // };
 
   /**
    * set color of accent colors in player
