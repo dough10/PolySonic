@@ -267,9 +267,7 @@
     app.$.globals.makeToast(app.$.globals.texts.randomized);
     if (app.playing !== 0) {
       app.alreadyPlaying = true; // tell player this track is already playing other wise will start play over again
-      app.async(function () {
-        app.playing = 0;
-      });
+      app.playing = 0;
     }
   };
 
@@ -409,6 +407,7 @@
    * @param {Object} sender
    */
   app.playPlaylist = function (event, detail, sender) {
+    var id = sender.attributes.ident.value;
     app.dataLoading = true;
     app.playlist = null;
     app.playlist = [];
@@ -416,12 +415,11 @@
       app.$.player.audio.pause();
     }
     var url = app.$.globals.buildUrl('getPlaylist', {
-      id: sender.attributes.ident.value
+      id: id
     });
     app.$.globals.doXhr(url, 'json').then(function (e) {
       var tracks = e.target.response['subsonic-response'].playlist.entry;
       tracks.forEach(function (item) {
-        console.log(item);
         var obj = {
           id: item.id,
           artist: item.artist,
@@ -476,7 +474,7 @@
               title: item.title,
               duration: app.$.globals.secondsToMins(item.duration)
             };
-            var artId = 'al-' + item.id;
+            var artId = 'al-' + item.albumId;
             app.$.globals.fetchImage(artId).then(function (imgURL) {
               obj.cover = imgURL;
               app.$.globals.getDbItem(artId + '-palette').then(function (e) {
@@ -484,7 +482,6 @@
                 app.playlist.push(obj);
                 app.job('modeLike', function () {
                   app.dataLoading = false;
-                  //app.closePlaylists();
                   app.$.shuffleOptions.close();
                   app.dataLoading = false;
                   if (app.playing === 0) {
@@ -507,33 +504,6 @@
       app.$.globals.makeToast(chrome.i18n.getMessage("invalidEntry"));
     }
   };
-
-  // /**
-  // * start shuffle playback
-  // */
-  // app.doShufflePlayback = function () {
-  //   if (app.$.player.audio && app.$.player.audio.paused) {
-  //     if (app.playing === 0) {
-  //       app.$.player.playAudio(app.playlist[0]);
-  //     } else {
-  //       app.playing = 0;
-  //     }
-  //     app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
-  //       app.setFabColor(app.playlist[0]);
-  //       app.$.shuffleOptions.close();
-  //       app.shuffleLoading = false;
-  //     });
-  //   } else if (!app.$.player.audio) {
-  //     if (app.playing === 0) {
-  //       app.$.player.playAudio(app.playlist[0]);
-  //     } else {
-  //       app.playing = 0;
-  //     }
-  //     app.setFabColor(app.playlist[0]);
-  //     app.$.shuffleOptions.close();
-  //     app.shuffleLoading = false;
-  //   }
-  // };
 
   /*
     clear playlist
@@ -575,9 +545,8 @@
    * hide loading screen
    */
   app.showApp = function () {
-    var loader = document.getElementById("loader"),
-      box = document.getElementById("box");
-
+    var loader = document.getElementById("loader");
+    var box = document.getElementById("box");
     if (!loader.classList.contains("hide")) {
       loader.classList.add('hide');
       box.classList.add('hide');
@@ -596,25 +565,24 @@
         function (config) {
           if (result.analistics === undefined) {
             app.$.analistics.open();
+            app.allowAnalistics = function () {
+              app.analisticsEnabled = true;
+              config.setTrackingPermitted(true);
+              simpleStorage.setSync({
+                'analistics': true
+              });
+            };
+            app.disAllowAnalistics = function () {
+              app.analisticsEnabled = false;
+              config.setTrackingPermitted(false);
+              simpleStorage.setSync({
+                'analistics': false
+              });
+            };
           } else {
             config.setTrackingPermitted(result.analistics);
             app.analisticsEnabled = result.analistics;
           }
-          app.allowAnalistics = function () {
-            app.analisticsEnabled = true;
-            config.setTrackingPermitted(true);
-            simpleStorage.setSync({
-              'analistics': true
-            });
-          };
-
-          app.disAllowAnalistics = function () {
-            app.analisticsEnabled = false;
-            config.setTrackingPermitted(false);
-            simpleStorage.setSync({
-              'analistics': false
-            });
-          };
         }
       );
     });
@@ -639,35 +607,6 @@
       'mediaFolder': app.folder
     });
   };
-
-  // /**
-  // * attach image object url to a playlist item object
-  // * @param {Object} obj
-  // * @param {Function} callback
-  // */
-  // app.fixCoverArtForShuffle = function (obj, callback) {
-  //   var artId = obj.cover;
-  //   app.$.globals.getDbItem(artId).then(function (ev) {
-  //     if (ev.target.result) {
-  //       var imgURL = window.URL.createObjectURL(ev.target.result);
-  //       obj.cover = imgURL;
-  //       app.$.globals.getDbItem(artId + '-palette').then(function (ev) {
-  //         obj.palette = ev.target.result;
-  //         app.playlist.push(obj);
-  //         app.async(callback);
-  //       });
-  //     } else {
-  //       app.$.globals.fetchImage(artId).then(function (imgURL) {
-  //         obj.cover = imgURL;
-  //         app.$.globals.getDbItem(artId + '-palette').then(function (e) {
-  //           obj.palette = e.target.result;
-  //           app.playlist.push(obj);
-  //           app.async(callback);
-  //         });
-  //       });
-  //     }
-  //   });
-  // };
 
   /**
    * set color of accent colors in player
@@ -714,10 +653,8 @@
     app.savingPlaylist = true;
     for (var i = 0; i < length; i++) {
       url = url + '&songId=' + app.playlist[i].id;
-      if (i === length - 1) {
-        app.$.globals.doXhr(url, 'json').then(save2PlayQueueCallback);
-      }
     }
+    app.$.globals.doXhr(url, 'json').then(save2PlayQueueCallback);
   };
 
   /**
@@ -777,45 +714,25 @@
    */
   app.doSearch = function () {
     if (app.searchQuery) {
-      app.async(function () {
-        app.$.globals.closeDrawer().then(function () {
-          app.async(function () {
-            var url = app.$.globals.buildUrl('search3', {
-              query: encodeURIComponent(app.searchQuery)
-            });
-            app.$.globals.doXhr(url, 'json').then(function (e) {
-              app.dataLoading = true;
-              if (e.target.response['subsonic-response'].status === 'ok') {
-                app.searchQuery = '';
-                var response = e.target.response;
-                if (response['subsonic-response'].searchResult3.album) {
-                  app.async(function () {
-                    if (!app.narrow && app.page !== 0) {
-                      app.page = 0;
-                      app.async(function () {
-                        app.$.wall.response = response;
-                        app.showing = 'wall';
-                        app.pageLimit = true;
-                      }, null, 550);
-                    } else if (app.narrow) {
-                      app.$.wall.response = response;
-                      app.showing = 'wall';
-                      app.pageLimit = true;
-                    } else {
-                      app.$.wall.clearData(function () {
-                        app.$.wall.response = response;
-                        app.showing = 'wall';
-                        app.pageLimit = true;
-                      });
-                    }
-                  });
-                } else {
-                  app.dataLoading = false;
-                  app.$.globals.makeToast(chrome.i18n.getMessage('noResults'));
-                }
-              }
-            });
-          });
+      app.$.globals.closeDrawer().then(function () {
+        var url = app.$.globals.buildUrl('search3', {
+          query: encodeURIComponent(app.searchQuery)
+        });
+        app.$.globals.doXhr(url, 'json').then(function (e) {
+          app.dataLoading = true;
+          if (e.target.response['subsonic-response'].status === 'ok') {
+            app.searchQuery = '';
+            var response = e.target.response;
+            if (response['subsonic-response'].searchResult3.album) {
+              app.page = 0;
+              app.$.wall.response = response;
+              app.showing = 'wall';
+              app.pageLimit = true;
+            } else {
+              app.dataLoading = false;
+              app.$.globals.makeToast(chrome.i18n.getMessage('noResults'));
+            }
+          }
         });
       });
     } else {
@@ -833,18 +750,14 @@
     } else {
       app.$.playlistDialog.transition = "core-transition-top";
     }
-    app.async(function () {
-      app.$.playlistDialog.toggle();
-    });
+    app.$.playlistDialog.toggle();
   };
 
   /**
    * close the playlist / play que dialog
    */
   app.closePlaylist = function () {
-    app.async(function () {
-      app.$.playlistDialog.close();
-    });
+    app.$.playlistDialog.close();
   };
 
   /**
@@ -857,9 +770,7 @@
       app.$.globals.doXhr(app.$.globals.buildUrl('getPlaylists', ''), 'json').then(function (e) {
         app.playlistsLoading = false;
         app.playlists = e.target.response['subsonic-response'].playlists.playlist;
-        app.async(function () {
-          app.$.playlistsDialog.open();
-        });
+        app.$.playlistsDialog.open();
       });
     });
   };
@@ -868,9 +779,7 @@
    * close sudsonic playlists dialog
    */
   app.closePlaylists = function () {
-    app.async(function () {
-      app.$.playlistsDialog.close();
-    });
+    app.$.playlistsDialog.close();
   };
 
   /**
@@ -878,10 +787,8 @@
    */
   app.reallyDelete = function (event, detail, sender) {
     app.delID =  sender.attributes.ident.value;
-    app.async(function () {
-      app.$.playlistsDialog.close();
-      app.$.playlistConfirm.open();
-    });
+    app.$.playlistsDialog.close();
+    app.$.playlistConfirm.open();
   };
 
   /**
@@ -897,7 +804,7 @@
         app.$.globals.doXhr(app.$.globals.buildUrl('getPlaylists', ''), 'json').then(function (e) {
           app.playlistsLoading = false;
           app.playlists = e.target.response['subsonic-response'].playlists.playlist;
-          app.async(app.$.playlistsDialog.open);
+          app.$.playlistsDialog.open();
         });
       } else {
         app.$.globals.makeToast(chrome.i18n.getMessage('deleteError'));
@@ -909,9 +816,7 @@
    * close shuffle options dialog
    */
   app.closeShuffleOptions = function () {
-    app.async(function () {
-      app.$.shuffleOptions.close();
-    });
+    app.$.shuffleOptions.close();
   };
 
   /**
@@ -928,9 +833,7 @@
           return 0;
         });
         app.dataLoading = false;
-        app.async(function () {
-          app.$.shuffleOptions.open();
-        });
+        app.$.shuffleOptions.open();
       });
     });
   };
@@ -939,9 +842,7 @@
    * close podcast add dialog
    */
   app.closePodcastDialog = function () {
-    app.async(function () {
-      app.$.addPodcast.close();
-    });
+    app.$.addPodcast.close();
   };
 
   app.toggleWall = function (e , detail, sender) {
@@ -974,18 +875,14 @@
    * navigate back to albumd list
    */
   app.back2List = function () {
-    app.async(function () {
-      app.page = 0;
-    });
+    app.page = 0;
   };
 
   /**
    * navigate to now playing page
    */
   app.nowPlaying = function () {
-    app.async(function () {
-      app.page = 1;
-    });
+    app.page = 1;
   };
 
   /**
@@ -1013,7 +910,7 @@
           wall.$.threshold.clearLower();
         }
         wall.sort = sender.attributes.i.value;
-      }, null, 550);
+      });
     } else if (!app.narrow) {
       if (wall.sort === sender.attributes.i.value) {
         app.pageLimit = false;
@@ -1052,18 +949,10 @@
    */
   app.getPodcast = function () {
     app.tracker.sendEvent('Showing Podcast', new Date());
-    if (!app.narrow && app.page !== 0) {
-      app.page = 0;
-      app.async(function () {
-        app.$.wall.getPodcast();
-      }, null, 550);
-    } else if (!app.narrow) {
+    app.page = 0;
+    app.$.globals.closeDrawer().then(function () {
       app.$.wall.getPodcast();
-    } else {
-      app.$.globals.closeDrawer().then(function () {
-        app.$.wall.getPodcast();
-      });
-    }
+    });
   };
 
   /**
@@ -1071,18 +960,10 @@
    */
   app.getStarred = function () {
     app.tracker.sendEvent('Showing Favorites', new Date());
-    if (!app.narrow && app.page !== 0) {
-      app.page = 0;
-      app.async(function () {
-        app.$.wall.getStarred();
-      }, null, 550);
-    } else if (!app.narrow) {
+    app.page = 0;
+    app.$.globals.closeDrawer().then(function () {
       app.$.wall.getStarred();
-    } else {
-      app.$.globals.closeDrawer().then(function () {
-        app.$.wall.getStarred();
-      });
-    }
+    });
   };
 
   /**
@@ -1090,18 +971,10 @@
    */
   app.getArtist = function () {
     app.tracker.sendEvent('Showing Artist List', new Date());
-    if (!app.narrow && app.page !== 0) {
-      app.page = 0;
-      app.async(function () {
-        app.$.wall.getArtist();
-      }, null, 550);
-    } else if (!app.narrow) {
+    app.page = 0;
+    app.$.globals.closeDrawer().then(function () {
       app.$.wall.getArtist();
-    } else {
-      app.$.globals.closeDrawer().then(function () {
-        app.$.wall.getArtist();
-      });
-    }
+    });
   };
 
   /**
@@ -1109,10 +982,8 @@
    */
   app.gotoSettings = function () {
     app.tracker.sendEvent('Settings Page', new Date());
-    app.async(function () {
-      app.$.panel.closeDrawer();
-      app.page = 2;
-    });
+    app.$.panel.closeDrawer();
+    app.page = 2;
   };
 
   /**
@@ -1219,18 +1090,16 @@
    * used to set flags for access restrictions
    */
   app.userDetails = function () {
-    app.async(function () {
-      var url = app.$.globals.buildUrl('getUser', {
-        username: app.user
-      });
-      app.$.globals.doXhr(url, 'json').then(function (e) {
-        var response = e.target.response['subsonic-response'];
-        if (response.status === 'ok') {
-          app.activeUser = response.user;
-        } else {
-          console.error('Error getting User details');
-        }
-      });
+    var url = app.$.globals.buildUrl('getUser', {
+      username: app.user
+    });
+    app.$.globals.doXhr(url, 'json').then(function (e) {
+      var response = e.target.response['subsonic-response'];
+      if (response.status === 'ok') {
+        app.activeUser = response.user;
+      } else {
+        console.error('Error getting User details');
+      }
     });
   };
 
