@@ -75,15 +75,13 @@
       this.shortPlaylist = this.playlist.splice(this.bookmarkIndex);
       this.app.dataLoading = false;
       this.app.$.albumDialog.opened = false;
-      this.app.$.player.getImageForPlayer(this.imgURL, function () {
-        this.app.playlist = this.shortPlaylist;
-        this.app.setFabColor(this.app.playlist[0]);
-        if (this.app.playing === 0) {
-          this.app.$.player.playAudio(this.app.playlist[0]);
-        } else {
-          this.app.playing = 0;
-        }
-      }.bind(this));
+      this.app.playlist = this.shortPlaylist;
+      this.app.setFabColor(this.app.playlist[0]);
+      if (this.app.playing === 0) {
+        this.app.$.player.playAudio(this.app.playlist[0]);
+      } else {
+        this.app.playing = 0;
+      }
     },
 
     playAlbum: function () {

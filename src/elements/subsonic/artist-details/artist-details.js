@@ -18,6 +18,7 @@ Polymer('artist-details', {
         this.$.globals.doXhr(artistBio.largeImageUrl, 'blob').then(function (xhrEvent) {
           var image = window.URL.createObjectURL(xhrEvent.target.response);
           this.$.bioImage.style.backgroundImage = "url('" + image + "')";
+          this.$.bg.style.backgroundImage = "url('" + image + "')";
           this.loadingBio = false;
         }.bind(this));
         var url = this.$.globals.buildUrl('getArtist', {

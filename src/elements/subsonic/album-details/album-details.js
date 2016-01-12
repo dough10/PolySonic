@@ -13,15 +13,13 @@
       this.$.globals.makeToast(this.$.globals.texts.added2Queue);
       this.app.dataLoading = false;
       if ('audio' in this.app.$.player && this.app.$.player.audio.paused) {
-        if (this.app.playing === 0) {
-          this.app.setFabColor(this.app.playlist[0]);
-          this.app.$.player.playAudio(this.app.playlist[0]);
-        } else {
-          this.app.playing = 0;
-        }
-      } else {
         this.app.setFabColor(this.app.playlist[0]);
         this.app.$.player.playAudio(this.app.playlist[0]);
+        this.app.playing = 0;
+      } else if (!this.app.$.player.audio) {
+        this.app.setFabColor(this.app.playlist[0]);
+        this.app.$.player.playAudio(this.app.playlist[0]);
+        this.app.playing = 0;
       }
     },
     
@@ -85,13 +83,14 @@
         disk: 0,
         track: 0
       });
-      if (this.app.$.player.audio.paused) {
+      if ('audio' in this.app.$.player && this.app.$.player.audio.paused) {
         this.app.setFabColor(this.app.playlist[0]);
-        if (this.app.playing === 0) {
-          this.app.$.player.playAudio(this.playlist[0]);
-        } else {
-          this.app.playing = 0;
-        }
+        this.app.$.player.playAudio(this.app.playlist[0]);
+        this.app.playing = 0;
+      } else if (!this.app.$.player.audio) {
+        this.app.setFabColor(this.app.playlist[0]);
+        this.app.$.player.playAudio(this.app.playlist[0]);
+        this.app.playing = 0;
       }
       this.$.globals.makeToast(this.$.globals.texts.added2Queue);
     },
@@ -127,6 +126,8 @@
     
     conBookDel: function (event, detail, sender) {
       this.delID = sender.attributes.ident.value;
+      this.opened = false;
+      this.app.$.fab.state = 'off';
       this.$.bookmarkConfirm.open();
     },
 
@@ -135,12 +136,13 @@
         id: this.delID
       });
       this.$.globals.doXhr(url, 'json').then(function (e) {
-        if (e.target.response['subsonic-response'].status === 'ok') {
-          this.doQuery();
-        } else {
+        if (e.target.response['subsonic-response'].status !== 'ok') {
           this.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
+        } else {
+          var item = this.app.$.wall.$.all.querySelector('#ac' + this.details.id);
+          item.doQuery();
         }
-      });
+      }.bind(this));
     },
 
     /**
@@ -150,6 +152,7 @@
       if (this.app.$.albumDialog.opened) {
         this.app.$.albumDialog.opened = false;
       }
+      this.app.$.fab.state = 'off';
       this.$.playbackConfirm.open();
       this.bookMark = {
         id: sender.attributes.ident.value,
@@ -248,6 +251,7 @@
       this.imgURL = this.details.cover;
       this.palette = this.details.palette;
       this.albumID = this.details.id;
+      this.isFavorite = this.details.isFavorite || false;
       this.$.topper.style.backgroundImage = "url('" + this.details.cover + "')";
     }
   });

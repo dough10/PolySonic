@@ -36,11 +36,17 @@
       app.gapless = result.gapless;
       app.shuffleSettings.size = '50';
       app.version = result.version || '1.11.0';
-      app.querySize = 50;
+      app.querySize = 60;
       app.listMode = result.listMode || 'cover';
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
+      app.$.wall.post = {
+        type: result.sortType || 'newest',
+        size: 60,
+        offset: 0
+      };
+      app.$.wall.request = result.request || 'getAlbumList2';
       app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
       app.repeatState = chrome.i18n.getMessage('disabled');
       app.$.repeatButton.style.color = '#db4437';
@@ -780,17 +786,7 @@
   app.doAction = function (event, detail, sender) {
     var scroller = app.appScroller(),
       wall = app.$.wall,
-      animation = new CoreAnimation();
-    animation.duration = 1000;
-    animation.iterations = 'Infinity';
-    animation.keyframes = [
-      {
-        opacity: 1
-      }, {
-        opacity: 0
-      }
-    ];
-    animation.target = sender;
+      animation = app.$.globals.attachAnimation(sender);
     if (app.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast' && app.$.fab.state === 'bottom') {
       scroller.scrollTop = 0;
     }

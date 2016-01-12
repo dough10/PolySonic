@@ -22,7 +22,7 @@
         width: 100%;
       }
       .foot {
-        min-height:400px;
+        min-height:300px;
       }
       .card {
         margin: auto;
@@ -84,7 +84,7 @@
     <!-- globals -->
     <app-globals id="globals"></app-globals>
     <core-ajax auto="false" id="ajax" method="GET" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
-    <core-scroll-threshold id="threshold" lowerThreshold="100" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
+    <core-scroll-threshold id="threshold" lowerThreshold="10" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
     <div id="all">
       <core-animated-pages selected="{{showing}}" valueattr="view">

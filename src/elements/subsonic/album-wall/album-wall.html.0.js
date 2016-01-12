@@ -3,30 +3,18 @@ Polymer('album-wall', {
   wall: [],
   podcast: [],
   artist: [],
-  created: function () {
-
-  },
 
   ready: function () {
     'use strict';
-    simpleStorage.getSync().then(function (res) {
-      console.log(res);
-      this.post = {
-        type: res.sortType || 'newest',
-        size: 20,
-        offset: 0
-      };
-      this.request = res.request || 'getAlbumList2';
-      this.showing = this.showing || 'wall';
-      this.queryMethod = this.queryMethod || 'ID3';
-      if (res.request === 'getPodcasts') {
-        this.showing = 'podcast';
-      } else if (res.request === 'getStarred2') {
-        this.showing = 'wall';
-      } else if (res.request === 'getArtists') {
-        this.showing = 'artists';
-      }
-    }.bind(this));
+    this.showing = this.showing || 'wall';
+    this.queryMethod = this.queryMethod || 'ID3';
+    if (this.request === 'getPodcasts') {
+      this.showing = 'podcast';
+    } else if (this.request === 'getStarred2') {
+      this.showing = 'wall';
+    } else if (this.request === 'getArtists') {
+      this.showing = 'artists';
+    }
   },
 
   domReady: function () {
@@ -193,9 +181,14 @@ Polymer('album-wall', {
     'use strict';
     this.async(function () {
       this.request = this.request || 'getAlbumList2';
+      this.post = this.post || {
+        type: 'newest',
+        size: 60,
+        offset: 0
+      };
       this.$.ajax.url = this.$.globals.buildUrl(this.request, this.post);
       this.$.ajax.go();
-    }, null, 100);
+    });
   },
 
   getPodcast: function () {

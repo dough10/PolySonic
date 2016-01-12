@@ -1,4 +1,4 @@
-<html><head><link href="../../bower_components/polymer/polymer.html" rel="import">
+<html><head><link href="../../../bower_components/polymer/polymer.html" rel="import">
 <link href="../../../bower_components/paper-shadow/paper-shadow.html" rel="import">
 <link href="../../../bower_components/paper-icon-button/paper-icon-button.html" rel="import">
 <link href="../../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
@@ -15,6 +15,7 @@
       .host {
         padding-right: 8px;
         padding-left: 8px;
+        position:relative;
       }
       #all {
         margin: auto;
@@ -38,6 +39,20 @@
         position:relative;
         max-width: 800px;
         padding: 8px;
+      }
+      #bg {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:cover;
+        opacity: 0.1;
+        position:fixed;
+        left:0;
+        right:0;
+        margin:0;
+        padding:0;
+        top:0;
+        bottom:0;
       }
       .tabs {
         max-width: 800px;
@@ -80,46 +95,59 @@
         align-items: center;
         pointer-events:none;
       }
+      .scroll {
+        position:fixed;
+        left:0;
+        right:0;
+        margin:0;
+        padding:0;
+        top:0;
+        bottom:0;
+        overflow: auto;
+      }
     </style>
     <app-globals id="globals"></app-globals>
-    <div class="host">
-      <paper-shadow class='card' z='1' on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
-        <div horizontal layout>
-          <div id="bioImage">
-            <template if="{{loadingBio}}">
-              <div class="spinWrapper">
-                <paper-spinner class="spinner" active></paper-spinner>
-              </div>
+    <div id="bg"></div>
+    <div class="scroll">
+      <div class="host">
+        <paper-shadow class='card' z='1' on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
+          <div horizontal layout>
+            <div id="bioImage">
+              <template if="{{loadingBio}}">
+                <div class="spinWrapper">
+                  <paper-spinner class="spinner" active></paper-spinner>
+                </div>
+              </template>
+            </div>
+            <div flex>
+              <h3>{{artist}}</h3>
+              <p id="bio">{{bio}}</p>
+            </div>
+          </div>
+          <paper-tabs nobar noslide scrollable>
+            <template repeat="{{artistBio.similarArtist}}">
+              <paper-tab on-tap="{{changeArtist}}" data-id="{{id}}" noink>{{name}}</paper-tab>
             </template>
-          </div>
-          <div flex>
-            <h3>{{artist}}</h3>
-            <p id="bio">{{bio}}</p>
-          </div>
-        </div>
-        <paper-tabs nobar noslide scrollable>
-          <template repeat="{{artistBio.similarArtist}}">
-            <paper-tab on-tap="{{changeArtist}}" data-id="{{id}}" noink>{{name}}</paper-tab>
-          </template>
+          </paper-tabs>
+        </paper-shadow>
+      </div>
+      <div id="all">
+      <template if="{{data.length > 1}}">
+        <paper-button style="margin:auto;" on-tap="{{playAllAlbums}}">
+          <core-icon icon="av:play-arrow"></core-icon>
+          Shuffle All Albums
+        </paper-button>
+        <paper-tabs class="tabs" selected="{{sortBy}}">
+          <paper-tab>by Name</paper-tab>
+          <paper-tab>by Year Ascending</paper-tab>
+          <paper-tab>by Year Decending</paper-tab>
         </paper-tabs>
-      </paper-shadow>
-    </div>
-    <div id="all">
-    <template if="{{data.length > 1}}">
-      <paper-button style="margin:auto;" on-tap="{{playAllAlbums}}">
-        <core-icon icon="av:play-arrow"></core-icon>
-        Shuffle All Albums
-      </paper-button>
-      <paper-tabs class="tabs" selected="{{sortBy}}">
-        <paper-tab>by Name</paper-tab>
-        <paper-tab>by Year Ascending</paper-tab>
-        <paper-tab>by Year Decending</paper-tab>
-      </paper-tabs>
-    </template>
-      <template repeat="{{data}}">
-        <album-art id='ac{{id}}' listMode="{{listMode}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" isFavorite="{{starred}}"></album-art>
       </template>
-      <div style="min-height:150px"></div>
+        <template repeat="{{data}}">
+          <album-art id='ac{{id}}' listMode="{{listMode}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" isFavorite="{{starred}}"></album-art>
+        </template>
+        <div style="min-height:150px"></div>
+      </div>
     </div>
   </template>
   <script src="artist-details.js"></script>

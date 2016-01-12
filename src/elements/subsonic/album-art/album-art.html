@@ -23,72 +23,17 @@
         <app-globals id="globals"></app-globals>
 
 
-        <!-- delete bookmark comfirmation dialog -->
-        <paper-action-dialog id='bookmarkConfirm'
-                             autoclosedisabled
-                             transition="core-transition-center"
-                             layered>
-          <link rel="stylesheet" href="styles.css">
-          <template if="{{$.bookmarkConfirm.opened}}">
-            <div class="minW280">
-              <h4>
-                {{$.globals.texts.deletebookMarkConfirm}}
-              </h4>
-            </div>
-            <paper-button affirmative>
-              {{$.globals.texts.decline}}
-            </paper-button>
-            <paper-button affirmative data-id="{{delID}}"
-                          on-tap="{{deleteBookmark}}">
-              {{$.globals.texts.accept}}
-            </paper-button>
-          </template>
-        </paper-action-dialog>
-
-
-        <!-- bookmark playback confirmation dialog -->
-        <paper-action-dialog id="playbackConfirm"
-                             transition="core-transition-center">
-          <link rel="stylesheet" href="styles.css">
-          <template if="{{$.playbackConfirm.opened}}">
-            <h4>{{$.globals.texts.hasBookmark}}</h4>
-            <!-- play from bookmark -->
-            <paper-button class="greenButton"
-                          affirmative
-                          on-tap="{{playSingle}}"
-                          duration="{{bookMark.duration}}"
-                          artist="{{bookMark.artist}}"
-                          bookmark="{{bookMark.bookmarkPosition}}"
-                          trackTitle="{{bookMark.title}}"
-                          ident="{{bookMark.id}}"
-                          cover="{{bookMark.cover}}">
-              {{$.globals.texts.playFrom}} {{bookmarkTime}}
-            </paper-button>
-            <!-- start over -->
-            <paper-button affirmative
-                          on-tap="{{playSingle}}"
-                          duration="{{bookMark.duration}}"
-                          trackTitle="{{bookMark.title}}"
-                          artist="{{bookmark.artist}}"
-                          ident="{{bookMark.id}}"
-                          cover="{{bookMark.cover}}">
-              {{$.globals.texts.fromStart}}
-            </paper-button>
-          </template>
-        </paper-action-dialog>
 
         <!-- album bookmark playback confirmation dialog -->
         <paper-action-dialog id="albumPlaybackConfirm" transition="core-transition-center">
           <link rel="stylesheet" href="styles.css">
-          <template if="{{$.albumPlaybackConfirm.opened}}">
-            <h4>{{$.globals.texts.hasBookmark}}</h4>
-            <paper-button class="greenButton"
-                          affirmative
-                          on-tap="{{playFromBookmark}}">
-              {{$.globals.texts.playFrom}} Track {{bookmarkIndex + 1}} @ {{bookmarkTime}}
-            </paper-button>
-            <paper-button affirmative on-tap="{{playAlbum}}">{{$.globals.texts.fromStart}}</paper-button>
-          </template>
+          <h4>{{$.globals.texts.hasBookmark}}</h4>
+          <paper-button class="greenButton"
+                        affirmative
+                        on-tap="{{playFromBookmark}}">
+            {{$.globals.texts.playFrom}} Track {{bookmarkIndex + 1}} @ {{bookmarkTime}}
+          </paper-button>
+          <paper-button affirmative on-tap="{{playAlbum}}">{{$.globals.texts.fromStart}}</paper-button>
         </paper-action-dialog>
 
 
