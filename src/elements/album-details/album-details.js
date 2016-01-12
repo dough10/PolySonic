@@ -25,7 +25,6 @@
     
     downloadAlbum: function (event, detail, sender) {
       var manager = new DownloadManager();
-      this.app.$.downloads.appendChild(manager);
       this.app.isDownloading = true;
       manager.downloadAlbum({
         id: this.albumID,
@@ -35,19 +34,27 @@
       }, function () {
         console.log('Download Finished: ' + this.artist + ' - ' + this.album);
       }.bind(this));
+      this.app.$.downloads.appendChild(manager);
     },
     
     downloadTrack: function (event, detail, sender) {
       var manager = new DownloadManager();
-      this.app.$.downloads.appendChild(manager);
       this.app.isDownloading = true;
-      manager.downloadTrack(sender.attributes.ident.value, function () {
-        console.log('Track Download Finished');
+      var id = sender.attributes.ident.value;
+      manager.downloadTrack(id, function () {
+        console.log('Track ' + id + ' Download Finished');
       }.bind(this));
+      this.app.$.downloads.appendChild(manager);
+    },
+    
+    close: function () {
+      this.app.tracker.sendAppView('Album Wall');
+      this.opened = false;
+      this.app.$.fab.state = 'off';
     },
     
     playSingle: function (event, detail, sender) {
-      this.app.$.albumDialog.opened = false;
+      this.close();
       this.app.playlist = [
         {
           id: sender.attributes.ident.value,
@@ -69,7 +76,6 @@
       } else {
         this.app.playing = 0;
       }
-      this.app.$.fab.state = 'off';
     },
     
     addSingle2Playlist: function (event, detail, sender) {
@@ -100,7 +106,6 @@
         albumId: sender.attributes.ident.value
       });
       var animation = this.$.globals.attachAnimation(sender);
-      animation.target = sender;
       animation.play();
       this.$.globals.doXhr(url, 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
@@ -126,8 +131,7 @@
     
     conBookDel: function (event, detail, sender) {
       this.delID = sender.attributes.ident.value;
-      this.opened = false;
-      this.app.$.fab.state = 'off';
+      this.close();
       this.$.bookmarkConfirm.open();
     },
 
@@ -149,10 +153,7 @@
      * choose to playback from bookmark or start of track
      */
     playChoice: function (event, detail, sender) {
-      if (this.app.$.albumDialog.opened) {
-        this.app.$.albumDialog.opened = false;
-      }
-      this.app.$.fab.state = 'off';
+      this.close();
       this.$.playbackConfirm.open();
       this.bookMark = {
         id: sender.attributes.ident.value,
@@ -164,82 +165,51 @@
       };
       this.bookmarkTime = this.$.globals.secondsToMins(sender.attributes.bookmark.value / 1000);
     },
-    
-    moreLikeCallback: function () {
-      if (this.app.$.player.audio.paused) {
-        this.app.$.player.getImageForPlayer(this.app.playlist[0].cover, function () {
-          this.app.playing = 0;
-          this.app.setFabColor(this.app.playlist[0]);
-          this.app.$.player.playAudio(this.app.playlist[0]);
-          this.app.dataLoading = false;
-        }.bind(this));
-      }
-    },
 
-    moreLike: function (event, detail, sender) {
-      var id = sender.attributes.ident.value;
-      this.app.$.albumDialog.opened = false;
-      this.app.$.fab.state = 'off';
+    moreLike: function () {
+      var id = this.details.artistId;
+      this.close();
       this.app.dataLoading = true;
-      var url = this.$.globals.buildUrl('getSimilarSongs', {
+      var url = this.$.globals.buildUrl('getSimilarSongs2', {
         count: 50,
         id: id
       });
       this.$.globals.doXhr(url, 'json').then(function (e) {
-        var response = e.target.response['subsonic-response'].similarSongs.song;
-        if (response) {
+        var response = e.target.response['subsonic-response'].similarSongs2.song;
+        if (response.length) {
           if ('audio' in this.app.$.player && !this.app.$.player.audio.pause) {
             this.app.$.player.audio.pause();
           }
-          this.app.playlist.length = 0;
-          var rlength = response.length;
-          for (var i = 0; i < rlength; i++) {
+          this.app.playlist = [];
+          response.forEach(function (item, index) {
             var obj = {
-              id: response[i].id,
-              artist: response[i].artist,
-              title: response[i].title,
-              duration: this.$.globals.secondsToMins(response[i].duration)
-            },
-            artId = 'al-' + response[i].albumId;
-            this.$.globals.getDbItem(artId, function (ev) {
-              this.moreCallback(ev,obj,artId);
+              id: item.id,
+              artist: item.artist,
+              title: item.title,
+              duration: this.$.globals.secondsToMins(item.duration)
+            };
+            var artId = 'al-' + item.albumId;
+            this.$.globals.fetchImage(artId).then(function (imgURL) {
+              obj.cover = imgURL;
+              this.$.globals.getDbItem(artId + '-palette').then(function (e) {
+                obj.palette = e.target.result;
+                this.app.playlist.push(obj);
+                this.job('modeLike', function () {
+                  this.app.dataLoading = false;
+                  if (this.app.playing === 0) {
+                    this.app.$.player.playAudio(this.app.playlist[0]);
+                  } else {
+                    this.app.playing = 0;
+                  }
+                }, 500);
+              }.bind(this));
             }.bind(this));
-          }
+          }.bind(this));
         } else {
           this.app.dataLoading = false;
           this.$.globals.makeToast(this.$.globals.texts.noResults);
         }
       }.bind(this));
-    },
-
-    moreCallback: function (artEvent, obj, artId) {
-      if (artEvent.target.result) {
-        obj.cover = window.URL.createObjectURL(artEvent.target.result);
-        this.$.globals.getDbItem(artId + '-palette', function (paletteEvent) {
-          obj.palette = paletteEvent.target.result;
-          this.app.playlist.push(obj);
-          this.moreLikeCallback();
-        }.bind(this));
-      } else {
-        this.$.globals.getImageFile(
-          this.$.globals.buildUrl('getCoverArt', {
-            size: 550,
-            id: artId
-          }), artId, function (xhrEvent) {
-          obj.cover = window.URL.createObjectURL(xhrEvent.target.result);
-          this.$.globals.stealColor(imgURL, artId, function (colorArray) {
-            obj.palette = colorArray;
-            this.app.playlist.push(obj);
-            this.moreLikeCallback();
-          }.bind(this));
-        }.bind(this));
-      }
-    },
-
-    closeDialog: function () {
-      this.app.tracker.sendAppView('Album Wall');
-      this.$.detailsDialog.close();
-      this.app.$.fab.state = 'off';
     },
     
     detailsChanged: function () {

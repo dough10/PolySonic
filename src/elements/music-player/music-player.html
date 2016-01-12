@@ -214,6 +214,7 @@
     </style>
     <!-- globals -->
     <app-globals id="globals"></app-globals>
+    <x-notification id="playNotify" timeout='5000' tag="tag"></x-notification>
     <core-media-query query="max-width:570px" queryMatches="{{small}}"></core-media-query>
     <core-animated-pages selected="{{page}}" transitions="cross-fade-all hero-transition">
       <section>
@@ -236,16 +237,16 @@
             <template if="{{app.playlist[0]}}">
               <paper-icon-button icon="av:skip-next" on-tap="{{nextTrack}}" id="nextTrack" class="big"></paper-icon-button>
             </template>
-            <core-tooltip  class="repeat" label="{{app.repeatText}}" position="right">
+            <core-tooltip  class="repeat" label="{{$.globals.texts.repeatText}}" position="right">
               <paper-icon-button id="rButton" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
             </core-tooltip>
-            <core-tooltip class="bookmark" label="{{app.createBookmarkText}}" position="right">
+            <core-tooltip class="bookmark" label="{{$.globals.texts.createBookmarkText}}" position="right">
               <paper-icon-button on-tap="{{createBookmark}}" icon="bookmark"></paper-icon-button>
             </core-tooltip>
-            <core-tooltip hidden?="{{!app.playlist[2]}}" class="shuffle" label="{{app.shuffleList}}" position="right">
+            <core-tooltip hidden?="{{!app.playlist[2]}}" class="shuffle" label="{{$.globals.texts.shuffleList}}" position="right">
               <paper-icon-button on-tap="{{shufflePlaylist}}" icon="av:shuffle"></paper-icon-button>
             </core-tooltip>
-            <core-tooltip label="{{app.adjustVolumeLabel}}" class="volume" position="left">
+            <core-tooltip label="{{$.globals.texts.adjustVolumeLabel}}" class="volume" position="left">
               <template if="{{app.volume > 66}}">
                 <paper-icon-button icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
               </template>
@@ -284,16 +285,16 @@
               <template if="{{app.playlist[0]}}">
                 <paper-icon-button icon="av:skip-next" style="margin-top:8px;" on-tap="{{nextTrack}}" id="nextTrack" class="big black"></paper-icon-button>
               </template>
-              <core-tooltip  class="repeat" label="{{app.repeatText}}" style="bottom: 8px;" position="right">
+              <core-tooltip  class="repeat" label="{{$.globals.texts.repeatText}}" style="bottom: 8px;" position="right">
                 <paper-icon-button id="rButton2" style="color:rgb(158, 158, 158);" on-tap="{{toggleRepeat}}" icon="av:repeat"></paper-icon-button>
               </core-tooltip>
-              <core-tooltip class="bookmark" label="{{app.createBookmarkText}}" style="bottom: 8px;" position="right">
+              <core-tooltip class="bookmark" label="{{$.globals.texts.createBookmarkText}}" style="bottom: 8px;" position="right">
                 <paper-icon-button on-tap="{{createBookmark}}" class="black" icon="bookmark"></paper-icon-button>
               </core-tooltip>
-              <core-tooltip hidden?="{{!app.playlist[2]}}" class="shuffle" label="{{app.shuffleList}}" style="bottom: 8px;" position="right">
+              <core-tooltip hidden?="{{!app.playlist[2]}}" class="shuffle" label="{{$.globals.texts.shuffleList}}" style="bottom: 8px;" position="right">
                 <paper-icon-button on-tap="{{shufflePlaylist}}" class="black" icon="av:shuffle"></paper-icon-button>
               </core-tooltip>
-              <core-tooltip label="{{app.adjustVolumeLabel}}" style="bottom: 8px;" class="volume" position="left">
+              <core-tooltip label="{{$.globals.texts.adjustVolumeLabel}}" style="bottom: 8px;" class="volume" position="left">
                 <template if="{{app.volume > 66}}">
                   <paper-icon-button class="black" icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
                 </template>

@@ -48,7 +48,8 @@
           id: this.item,
           isFavorite: this.isFavorite,
           size: this.albumSize,
-          tracks: this.playlist
+          tracks: this.playlist,
+          artistId: this.artistId
         };
         var dialog = this.app.$.albumDialog;
         dialog.details = details;
@@ -118,6 +119,7 @@
     processJSON: function (e) {
       return new Promise(function (resolve, reject) {
         this.playlist.length = 0;
+        this.artistId = e.target.response['subsonic-response'].album.artistId;
         this.albumID = e.target.response['subsonic-response'].album.song[0].parent;
         var tracks = e.target.response['subsonic-response'].album.song;
         /* sort tracks by diskNumber thanks Joe Shelby */

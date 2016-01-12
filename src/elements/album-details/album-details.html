@@ -55,7 +55,7 @@
 
       <!-- close button -->
       <paper-icon-button id="closeDialog" icon="arrow-back"
-                         on-tap="{{closeDialog}}"></paper-icon-button>
+                         on-tap="{{close}}"></paper-icon-button>
 
       <!-- artwork  -->
       <div id="topper"></div>
@@ -107,7 +107,6 @@
         <!-- more like this album option -->
         <core-tooltip label="{{$.globals.texts.moreLikeThis}}" position="top">
           <paper-icon-button on-tap="{{moreLike}}"
-                             ident="{{albumID}}"
                              icon="av:radio">
           </paper-icon-button>
         </core-tooltip>

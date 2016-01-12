@@ -130,66 +130,6 @@
     app.tracker = app.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
   });
 
-  /**
-   * internationalization
-   */
-  app.appName = chrome.i18n.getMessage("appName");
-  app.appDesc = chrome.i18n.getMessage("appDesc");
-  app.folderSelector = chrome.i18n.getMessage("folderSelector");
-  app.shuffleButton = chrome.i18n.getMessage("shuffleButton");
-  app.artistButton = chrome.i18n.getMessage("artistButton");
-  app.podcastButton = chrome.i18n.getMessage("podcastButton");
-  app.favoritesButton = chrome.i18n.getMessage("favoritesButton");
-  app.searchButton = chrome.i18n.getMessage("searchButton");
-  app.settingsButton = chrome.i18n.getMessage("settingsButton");
-  app.nowPlayingLabel = chrome.i18n.getMessage("nowPlayingLabel");
-  app.folderSelectorLabel = chrome.i18n.getMessage("folderSelectorLabel");
-  app.clearQueue = chrome.i18n.getMessage("clearQueue");
-  app.volumeLabel = chrome.i18n.getMessage("volumeLabel");
-  app.analistics = chrome.i18n.getMessage("analistics");
-  app.accept = chrome.i18n.getMessage("accept");
-  app.decline = chrome.i18n.getMessage("decline");
-  app.shuffleOptionsLabel = chrome.i18n.getMessage("shuffleOptionsLabel");
-  app.optional = chrome.i18n.getMessage("optional");
-  app.artistLabel = chrome.i18n.getMessage("artistLabel");
-  app.albumLabel = chrome.i18n.getMessage("albumLabel");
-  app.genreLabel = chrome.i18n.getMessage("genreLabel");
-  app.songReturn = chrome.i18n.getMessage("songReturn");
-  app.playButton = chrome.i18n.getMessage("playButton");
-  app.yearError = chrome.i18n.getMessage("yearError");
-  app.releasedAfter = chrome.i18n.getMessage("releasedAfter");
-  app.releasedBefore = chrome.i18n.getMessage("releasedBefore");
-  app.submitButton = chrome.i18n.getMessage("submitButton");
-  app.deleteConfirm = chrome.i18n.getMessage("deleteConfirm");
-  app.noResults = chrome.i18n.getMessage("noResults");
-  app.urlError = chrome.i18n.getMessage("urlError");
-  app.podcastSubmissionLabel = chrome.i18n.getMessage("podcastSubmissionLabel");
-  app.diskUsed = chrome.i18n.getMessage("diskused");
-  app.diskRemaining = chrome.i18n.getMessage("diskRemaining");
-  app.playlistsButton = chrome.i18n.getMessage("playlistsButton");
-  app.createPlaylistLabel = chrome.i18n.getMessage("createPlaylistLabel");
-  app.playlistLabel = chrome.i18n.getMessage("playlistLabel");
-  app.reloadAppLabel = chrome.i18n.getMessage("reloadApp");
-  app.settingsDeleted = chrome.i18n.getMessage("settingsDeleted");
-  app.recommendReload = chrome.i18n.getMessage("recommendReload");
-  app.jumpToLabel = chrome.i18n.getMessage("jumpToLabel");
-  app.closeLabel = chrome.i18n.getMessage("closeLabel");
-  app.moreOptionsLabel = chrome.i18n.getMessage("moreOptionsLabel");
-  app.refreshPodcastLabel = chrome.i18n.getMessage("refreshPodcast");
-  app.registeredEmail = chrome.i18n.getMessage("registeredEmail");
-  app.licenseKey = chrome.i18n.getMessage("licenseKey");
-  app.keyDate = chrome.i18n.getMessage("keyDate");
-  app.validLicense = chrome.i18n.getMessage("validLicense");
-  app.invalidLicense = chrome.i18n.getMessage("invalidLicense");
-  app.adjustVolumeLabel = chrome.i18n.getMessage("adjustVolumeLabel");
-  app.showDownloads = chrome.i18n.getMessage('showDownloads');
-  app.shuffleList = chrome.i18n.getMessage('shuffleList');
-  app.randomized = chrome.i18n.getMessage('randomized');
-  app.markCreated = chrome.i18n.getMessage('markCreated');
-  app.bookmarks = chrome.i18n.getMessage('bookmarks');
-  app.createBookmarkText = chrome.i18n.getMessage('createBookmark');
-  app.deletebookMarkConfirm = chrome.i18n.getMessage('deletebookMarkConfirm');
-
   // shuffle size options
   app.shuffleSizes = [
     20,
@@ -337,7 +277,7 @@
     app.playlist.splice(app.playing, 1);
     shuffleArray(app.playlist);
     app.playlist.unshift(temp);
-    app.$.globals.makeToast(app.randomized);
+    app.$.globals.makeToast(app.$.globals.texts.randomized);
     if (app.playing !== 0) {
       app.alreadyPlaying = true; // tell player this track is already playing other wise will start play over again
       app.async(function () {
@@ -577,11 +517,9 @@
       } else {
         app.playing = 0;
       }
-      app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
-        app.setFabColor(app.playlist[0]);
-        app.$.shuffleOptions.close();
-        app.shuffleLoading = false;
-      });
+      app.setFabColor(app.playlist[0]);
+      app.$.shuffleOptions.close();
+      app.shuffleLoading = false;
     }
   };
 
@@ -590,7 +528,9 @@
   */
   app.clearPlaylist = function () {
     app.tracker.sendEvent('Clear Playlist', new Date());
-    app.$.player.audio.pause();
+    if (app.$.player.audio) {
+      app.$.player.audio.pause();
+    }
     app.$.playlistDialog.close();
     app.page = 0;
     app.playlist = null;
@@ -705,12 +645,10 @@
           app.async(callback);
         });
       } else {
-        var url = app.$.globals.buildUrl('getCoverArt', {id: artId});
-        app.$.globals.getImageFile(url, artId).then(function (ev) {
-          var imgURL = window.URL.createObjectURL(ev.target.result);
+        app.$.globals.fetchImage(artId).then(function (imgURL) {
           obj.cover = imgURL;
-          app.$.globals.stealColor(imgURL, artId).then(function (colorArray) {
-            obj.palette = colorArray;
+          app.$.globals.getDbItem(artId + '-palette').then(function (e) {
+            obj.palette = e.target.result;
             app.playlist.push(obj);
             app.async(callback);
           });
