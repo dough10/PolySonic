@@ -17,139 +17,6 @@
   // if true lazy load trigger will not needlessly call xhr
   app.pageLimit = false;
 
-  /**
-   * elements stamped to template & ready to use
-   */
-  app.addEventListener('template-bound', function () {
-    app.$.player.resize();
-    // bitrate
-    simpleStorage.getLocal().then(function (result) {
-      app.bitRate = result.bitRate || 320;
-    });
-    // all synced settings
-    simpleStorage.getSync().then(function (result) {
-      app.url = result.url;
-      app.user = result.user;
-      app.pass = result.pass;
-      app.md5Auth = result.md5Auth;
-      app.autoBookmark = result.autoBookmark;
-      app.gapless = result.gapless;
-      app.shuffleSettings.size = '50';
-      app.version = result.version || '1.11.0';
-      app.querySize = 60;
-      app.listMode = result.listMode || 'cover';
-      app.volume = result.volume || 100;
-      app.queryMethod = result.queryMethod || 'ID3';
-      app.repeatPlaylist = false;
-      app.$.wall.post = {
-        type: result.sortType || 'newest',
-        size: 60,
-        offset: 0
-      };
-      app.$.wall.request = result.request || 'getAlbumList2';
-      app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
-      app.repeatState = chrome.i18n.getMessage('disabled');
-      app.$.repeatButton.style.color = '#db4437';
-      app.dataLoading = false;
-      app.params = {
-        u: app.user,
-        v: app.version,
-        c: 'PolySonic',
-        f: 'json'
-      };
-      var wallToggles = document.querySelectorAll('.wallToggle');
-      for (var i = 0; i < wallToggles.length; i++) {
-        if (app.listMode === 'cover') {
-          wallToggles[i].icon = 'view-stream';
-        } else {
-          wallToggles[i].icon = 'view-module';
-        }
-      }
-      if (app.md5Auth === undefined) {
-        app.md5Auth = true;
-      }
-      if (app.url && app.user && app.pass) {
-        var firstPing = app.$.globals.buildUrl('ping', '');
-        app.$.globals.doXhr(firstPing, 'json').then(function (e) {
-          if (e.target.status === 200) {
-
-            if (versionCompare(e.target.response['subsonic-response'].version, app.version) >= 0) {
-              app.version = e.target.response['subsonic-response'].version;
-              simpleStorage.setSync({
-                version: app.version
-              });
-            }
-
-            if (e.target.response['subsonic-response'].status === 'ok') {
-              app.userDetails();
-              console.log('Connected to Subconic loading data');
-              var folders = app.$.globals.buildUrl('getMusicFolders', '');
-              app.$.globals.doXhr(folders, 'json').then(function (e) {
-                app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-                /* setting mediaFolder causes a ajax call to get album wall data */
-                app.folder = result.mediaFolder || 0;
-                if (e.target.response['subsonic-response'].musicFolders.musicFolder === undefined
-                || !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
-                  app.$.sortBox.style.display = 'none';
-                }
-                app.tracker.sendAppView('Album Wall');
-              });
-            } else {
-              app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-              app.$.firstRun.open();
-              app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
-            }
-
-          } else {
-            app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-            app.$.firstRun.open();
-            app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
-          }
-        });
-
-      } else {
-        app.$.firstRun.open();
-      }
-    });
-
-    // set main content scrolling callback
-    app.appScroller().onscroll = function () {
-      var fab = app.$.fab;
-      var wall = app.$.wall;
-      var scroller = app.appScroller();
-      var timer = 0;
-  
-      if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
-        fab.state = 'off';
-      } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
-        fab.state = 'bottom';
-      } else if (app.page === 3 && fab.state !== 'off' && scroller.scrollTop < app.position) {
-        fab.state = 'off';
-      } else if (app.page === 3 && fab.state !== 'bottom' && scroller.scrollTop > app.position) {
-        fab.state = 'bottom';
-      }
-      app.position = scroller.scrollTop;
-      app.scrolling = true;
-      app.job('scroll', function () {
-        app.scrolling = false;
-      }, 50);
-    };
-
-    // app resize callback
-    window.onresize = function () {
-      app.$.fab.setPos();
-      app.$.player.resize();
-      app.$.fab.resize();
-      if (chrome.app.window.current().innerBounds.width < 571) {
-        chrome.app.window.current().innerBounds.height = 761;
-      }
-    };
-
-    // analistics
-    app.service = analytics.getService('PolySonic');
-    app.tracker = app.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
-  });
-
   // shuffle size options
   app.shuffleSizes = [
     20,
@@ -195,8 +62,8 @@
    * display currently used storage on settings menu
    */
   app.calculateStorageSize = function () {
-    navigator.webkitTemporaryStorage.queryUsageAndQuota(function (used, remaining) {
-      app.storageQuota = app.diskUsed + ": " + formatBytes(used) + ', ' + app.diskRemaining + ": " + formatBytes(remaining);
+    navigator.webkitPersistentStorage.queryUsageAndQuota(function (used, remaining) {
+      app.storageQuota = app.$.globals.texts.diskUsed + ": " + formatBytes(used) + ', ' + app.$.globals.texts.diskRemaining + ": " + formatBytes(remaining);
     }, function (e) {
       console.log('Error', e);
     });
@@ -289,18 +156,6 @@
     });
   };
 
-  // playback handler for bookmarks
-  function handlePlay(obj) {
-    app.dataLoading = false;
-    app.playlist = [obj];
-    if (app.playing === 0) {
-      app.$.player.playAudio(obj);
-    } else {
-      app.playing = 0;
-    }
-    app.setFabColor(obj);
-  }
-
   /**
    * que a bookmark
    * @param {Event} event
@@ -335,7 +190,9 @@
         obj.cover = imgURL;
         app.$.globals.getDbItem(artId + '-palette').then(function (palette) {
           obj.palette = palette.target.result;
-          handlePlay(obj);
+          app.dataLoading = false;
+          app.playlist = [obj];
+          app.$.globals.playListIndex(0);
         });
       });
     });
@@ -436,11 +293,7 @@
               app.dataLoading = false;
               app.closePlaylists();
               app.dataLoading = false;
-              if (app.playing === 0) {
-                app.$.player.playAudio(app.playlist[0]);
-              } else {
-                app.playing = 0;
-              }
+              app.$.globals.playListIndex(0);
             }, 500);
           });
         });
@@ -482,13 +335,9 @@
                 app.playlist.push(obj);
                 app.job('modeLike', function () {
                   app.dataLoading = false;
+                  app.shuffleLoading = false;
                   app.$.shuffleOptions.close();
-                  app.dataLoading = false;
-                  if (app.playing === 0) {
-                    app.$.player.playAudio(app.playlist[0]);
-                  } else {
-                    app.playing = 0;
-                  }
+                  app.$.globals.playListIndex(0);
                 }, 500);
               });
             });
@@ -510,7 +359,7 @@
   */
   app.clearPlaylist = function () {
     app.tracker.sendEvent('Clear Playlist', new Date());
-    if (app.$.player.audio) {
+    if (app.$.player.audio && !app.$.player.audio.paused) {
       app.$.player.audio.pause();
     }
     app.$.playlistDialog.close();
@@ -995,7 +844,7 @@
   app.refreshPodcast = function (event, detail, sender) {
     var animation = app.$.globals.attachAnimation(sender);
     animation.play();
-    var url = app.$.globals.buildUrl('refreshPodcasts', '');
+    var url = app.$.globals.buildUrl('refreshPodcasts');
     app.$.globals.doXhr(url, 'json').then(function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         animation.cancel();
@@ -1015,7 +864,9 @@
     }
     if (!app.invalidURL) {
       app.addingChannel = true;
-      var url = app.$.globals.buildUrl('createPodcastChannel', {url: encodeURIComponent(app.castURL)});
+      var url = app.$.globals.buildUrl('createPodcastChannel', {
+        url: encodeURIComponent(app.castURL)
+      });
       app.$.globals.doXhr(url, 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           app.addingChannel = false;
@@ -1048,7 +899,7 @@
    * display user license info dialog
    */
   app.getLicense = function (callback) {
-    var url = app.$.globals.buildUrl('getLicense', '');
+    var url = app.$.globals.buildUrl('getLicense');
     app.$.globals.doXhr(url, 'json').then(function (e) {
       var response = e.target.response['subsonic-response'];
       if (response.status === 'ok') {
@@ -1103,49 +954,49 @@
     });
   };
 
-  /**
-   * convert object a query string
-   * @param {Object} params
-   */
-  function toQueryString(params) {
-    var r = [];
-    for (var n in params) {
-      n = encodeURIComponent(n);
-      r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
-    }
-    return r.join('&');
-  }
-
-  /**
-   * hex encode a text string
-   */
-  String.prototype.hexEncode = function () {
-    var r = '';
-    var i = 0;
-    var h;
-    while (i<this.length) {
-      h = this.charCodeAt(i++).toString(16);
-      while (h.length<2) {
-        h = h;
-      }
-      r += h;
-    }
-    return 'enc:'+r;
-  };
-
-  /**
-   * create a random string of a given length
-   * @param {number} length
-   */
-  function makeSalt(length) {
-    var text = "";
-    var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for( var i=0; i < length; i++ )
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-  }
+//  /**
+//   * convert object a query string
+//   * @param {Object} params
+//   */
+//  function toQueryString(params) {
+//    var r = [];
+//    for (var n in params) {
+//      n = encodeURIComponent(n);
+//      r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
+//    }
+//    return r.join('&');
+//  }
+//
+//  /**
+//   * hex encode a text string
+//   */
+//  String.prototype.hexEncode = function () {
+//    var r = '';
+//    var i = 0;
+//    var h;
+//    while (i<this.length) {
+//      h = this.charCodeAt(i++).toString(16);
+//      while (h.length<2) {
+//        h = h;
+//      }
+//      r += h;
+//    }
+//    return 'enc:'+r;
+//  };
+//
+//  /**
+//   * create a random string of a given length
+//   * @param {number} length
+//   */
+//  function makeSalt(length) {
+//    var text = "";
+//    var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+//
+//    for( var i=0; i < length; i++ )
+//      text += possible.charAt(Math.floor(Math.random() * possible.length));
+//
+//    return text;
+//  }
 
 //  /**
 //   * generate a subsonic url string
@@ -1197,6 +1048,140 @@
     } else if (command === 'volumeDown' && app.volume !== 0) {
       app.volume = Math.abs(app.volume - 1);
     }
+  });
+
+  /**
+   * elements stamped to template & ready to use
+   */
+  app.addEventListener('template-bound', function () {
+    app.$.player.resize();
+    // bitrate
+    simpleStorage.getLocal().then(function (result) {
+      app.bitRate = result.bitRate || 320;
+    });
+    // all synced settings
+    simpleStorage.getSync().then(function (result) {
+      app.url = result.url;
+      app.user = result.user;
+      app.pass = result.pass;
+      app.md5Auth = result.md5Auth;
+      app.autoBookmark = result.autoBookmark;
+      app.gapless = result.gapless;
+      app.shuffleSettings.size = '50';
+      app.version = result.version || '1.11.0';
+      app.querySize = 60;
+      app.listMode = result.listMode || 'cover';
+      app.volume = result.volume || 100;
+      app.queryMethod = result.queryMethod || 'ID3';
+      app.repeatPlaylist = false;
+      app.$.wall.post = {
+        type: result.sortType || 'newest',
+        size: 60,
+        offset: 0
+      };
+      app.$.wall.request = result.request || 'getAlbumList2';
+      app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
+      app.repeatState = chrome.i18n.getMessage('disabled');
+      app.$.repeatButton.style.color = '#db4437';
+      app.dataLoading = false;
+      app.params = {
+        u: app.user,
+        v: app.version,
+        c: 'PolySonic',
+        f: 'json'
+      };
+      var wallToggles = document.querySelectorAll('.wallToggle');
+      for (var i = 0; i < wallToggles.length; i++) {
+        if (app.listMode === 'cover') {
+          wallToggles[i].icon = 'view-stream';
+        } else {
+          wallToggles[i].icon = 'view-module';
+        }
+      }
+      if (app.md5Auth === undefined) {
+        app.md5Auth = true;
+      }
+      if (app.url && app.user && app.pass) {
+        app.$.globals.initFS();
+        var firstPing = app.$.globals.buildUrl('ping', '');
+        app.$.globals.doXhr(firstPing, 'json').then(function (e) {
+          if (e.target.status === 200) {
+
+            if (versionCompare(e.target.response['subsonic-response'].version, app.version) >= 0) {
+              app.version = e.target.response['subsonic-response'].version;
+              simpleStorage.setSync({
+                version: app.version
+              });
+            }
+
+            if (e.target.response['subsonic-response'].status === 'ok') {
+              app.userDetails();
+              console.log('Connected to Subconic loading data');
+              var folders = app.$.globals.buildUrl('getMusicFolders', '');
+              app.$.globals.doXhr(folders, 'json').then(function (e) {
+                app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                /* setting mediaFolder causes a ajax call to get album wall data */
+                app.folder = result.mediaFolder || 0;
+                if (e.target.response['subsonic-response'].musicFolders.musicFolder === undefined
+                || !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+                  app.$.sortBox.style.display = 'none';
+                }
+                app.tracker.sendAppView('Album Wall');
+              });
+            } else {
+              app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
+              app.$.firstRun.open();
+              app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
+            }
+
+          } else {
+            app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
+            app.$.firstRun.open();
+            app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
+          }
+        });
+
+      } else {
+        app.$.firstRun.open();
+      }
+    });
+
+    // set main content scrolling callback
+    app.appScroller().onscroll = function () {
+      var fab = app.$.fab;
+      var wall = app.$.wall;
+      var scroller = app.appScroller();
+      var timer = 0;
+
+      if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
+        fab.state = 'off';
+      } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
+        fab.state = 'bottom';
+      } else if (app.page === 3 && fab.state !== 'off' && scroller.scrollTop < app.position) {
+        fab.state = 'off';
+      } else if (app.page === 3 && fab.state !== 'bottom' && scroller.scrollTop > app.position) {
+        fab.state = 'bottom';
+      }
+      app.position = scroller.scrollTop;
+      app.scrolling = true;
+      app.job('scroll', function () {
+        app.scrolling = false;
+      }, 50);
+    };
+
+    // app resize callback
+    window.onresize = function () {
+      app.$.fab.setPos();
+      app.$.player.resize();
+      app.$.fab.resize();
+      if (chrome.app.window.current().innerBounds.width < 571) {
+        chrome.app.window.current().innerBounds.height = 761;
+      }
+    };
+
+    // analistics
+    app.service = analytics.getService('PolySonic');
+    app.tracker = app.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
   });
 
 }());

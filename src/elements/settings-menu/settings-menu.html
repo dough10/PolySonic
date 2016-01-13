@@ -89,6 +89,7 @@
         max-height:600px;
       }
     </style>
+    <app-globals id="globals"></app-globals>
     <core-ajax id="ajax" auto="false" method="GET" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v=1.11.0&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
     </core-ajax>
     <div id="validate">
@@ -97,6 +98,7 @@
         <core-tooltip label="{{showLicenseLabel}}">
           <div id="serverLicense" on-tap="{{getLicense}}">{{licenseInfoLink}}</div>
         </core-tooltip>
+<!--
         <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
           <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
         </paper-input-decorator>
@@ -119,6 +121,7 @@
           </template>
           {{submitButton}}
         </paper-button>
+-->
         <br>
         <core-label>
           {{bitrateLabel}}:
@@ -133,35 +136,6 @@
           </paper-dropdown-menu>
         </core-label>
         <br>
-        <!--<core-label>
-          Results to Query:
-          <paper-dropdown-menu label="Select Query Size">
-            <paper-dropdown layered class="dropdown">
-              <core-menu class="menu" selected="{{post.querySize}}" valueattr="i" on-core-select="{{querySelect}}">
-                <template repeat="{{sizes}}">
-                  <paper-item i="{{}}">{{}}</paper-item>
-                </template>
-              </core-menu>
-            </paper-dropdown>
-          </paper-dropdown-menu>
-        </core-label>-->
-        
-<!--        <br>
-        <core-label>
-          Album Sort Method:
-          <paper-dropdown-menu label="Select Method">
-            <paper-dropdown layered class="dropdown">
-              <core-menu class="menu" selected="{{post.queryMethod}}" valueattr="i" on-core-select="{{methodSelect}}">
-                <paper-item i="ID3">ID3</paper-item>
-                <paper-item i="Subsonic">Subsonic</paper-item>
-              </core-menu>
-            </paper-dropdown>
-          </paper-dropdown-menu>
-        </core-label>
-        <br>
-        <br>
-        <br>-->
-
         <!-- switch for analistics -->
         <br>
         <div center horizontal layout class="switchBox">

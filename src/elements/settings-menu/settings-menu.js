@@ -143,6 +143,13 @@
       },
 
       clearCache: function (callback) {
+        this.app.fs.root.getDirectory(this.app.url, {}, function (dir) {
+          dir.removeRecursively(function (e) {
+            console.log('image cache cleared')
+          }, function (e) {
+            console.error(e)
+          });
+        });
         var req = indexedDB.deleteDatabase(this.app.dbname);
         req.onsuccess = function () {
           console.log("Deleted database successfully");

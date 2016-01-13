@@ -66,7 +66,7 @@
           if (lastChar === '/') {         // If the last character is a slash
             this.app.url = this.app.url.substring(0, this.app.url.length - 1);  // remove the slash from end of string
           }
-          this.$.ajax.url = this.$.globals.buildUrl('ping', '');
+          this.$.ajax.url = this.$.globals.buildUrl('ping');
           this.$.ajax.go();
         }
       },
@@ -95,9 +95,10 @@
       },
       responseChanged: function () {
         'use strict';
-        var wall = document.getElementById('wall');
         if (this.response) {
+          this.app.$.globals.initFS();
           if (this.response['subsonic-response'].status === 'ok') {
+            this.app.$.firstRun.close();
             simpleStorage.setSync({
               'url': this.app.url,
               'user': this.app.user,
@@ -108,15 +109,14 @@
             this.app.version = this.response['subsonic-response'].version;
             this.$.globals.makeToast("Loading Data");
             this.app.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
-            this.app.$.firstRun.close();
-            var url = this.$.globals.buildUrl('getMusicFolders', '');
+            var url = this.$.globals.buildUrl('getMusicFolders');
             this.$.globals.doXhr(url, 'json').then(function (e) {
               this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+              this.app.folder = 0;
               if (e.target.response['subsonic-response'].musicFolders.musicFolder && !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                 this.app.$.sortBox.style.display = 'none';
               }
             }.bind(this));
-            this.async(wall.doAjax, null, 100);
           } else {
             console.log(this.response);
             this.$.globals.makeToast(this.response['subsonic-response'].error.message);

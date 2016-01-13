@@ -353,5 +353,17 @@
   },
   "hasBookmark": {
     "message": "File has bookmark"
+  },
+  "toggleList": {
+    "message": "Toggle List Mode"
+  },
+  "comment": {
+    "message": "Comment"
+  },
+  "playlists": {
+    "message":"Playlists"
+  },
+  "downloads": {
+    "message": "Downloads"
   }
 }

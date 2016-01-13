@@ -91,12 +91,7 @@ Polymer('artist-details', {
             if ('audio' in this.app.$.player && !this.app.$.player.audio.paused) {
               this.app.$.player.audio.pause();
             }
-            if (this.app.playing === 0) {
-              this.app.setFabColor(this.app.playlist[0]);
-              this.app.$.player.playAudio(this.app.playlist[0]);
-            } else {
-              this.app.playing = 0;
-            }
+            this.$.globals.playListIndex(0);
             this.app.shufflePlaylist();
           }, 300);
         }.bind(this));

@@ -1,14 +1,14 @@
-<html><head><link href="../../../bower_components/polymer/polymer.html" rel="import">
-<link href="../../../bower_components/paper-shadow/paper-shadow.html" rel="import">
-<link href="../../../bower_components/paper-icon-button/paper-icon-button.html" rel="import">
-<link href="../../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
-<link href="../../../bower_components/core-icons/av-icons.html" rel="import">
-<link href="../../../bower_components/core-media-query/core-media-query.html" rel="import">
-<link href="../../../bower_components/paper-item/paper-item.html" rel="import">
-<link href="../../../bower_components/core-ajax/core-ajax.html" rel="import">
-<link href="../../../bower_components/core-item/core-item.html" rel="import">
-  <link href="../../../bower_components/core-list/core-list.html" rel="import">
-  <link href="../../../elements/app-globals/app-globals.html" rel="import">
+<html><head><link href="../../bower_components/polymer/polymer.html" rel="import">
+<link href="../../bower_components/paper-shadow/paper-shadow.html" rel="import">
+<link href="../../bower_components/paper-icon-button/paper-icon-button.html" rel="import">
+<link href="../../bower_components/core-animated-pages/core-animated-pages.html" rel="import">
+<link href="../../bower_components/core-icons/av-icons.html" rel="import">
+<link href="../../bower_components/core-media-query/core-media-query.html" rel="import">
+<link href="../../bower_components/paper-item/paper-item.html" rel="import">
+<link href="../../bower_components/core-ajax/core-ajax.html" rel="import">
+<link href="../../bower_components/core-item/core-item.html" rel="import">
+  <link href="../../bower_components/core-list/core-list.html" rel="import">
+  <link href="../app-globals/app-globals.html" rel="import">
 </head><body><polymer-element name="artist-details" attributes="artistId listMode">
   <template>
     <style>
@@ -105,6 +105,28 @@
         bottom:0;
         overflow: auto;
       }
+      paper-button.white {
+        color: #fff;
+      }
+      paper-button[raised].white {
+        background: #fff;
+        color: #333;
+      }
+      paper-tabs.transparent-red {
+        max-width: 800px;
+        margin: auto;
+        background-color: transparent;
+        color: #333;
+        box-shadow: none;
+      }
+
+      paper-tabs.transparent-red::shadow #selectionBar {
+        background-color: #DB4437;
+      }
+
+      paper-tabs.transparent-red paper-tab::shadow #ink {
+        color: #DB4437;
+      }
     </style>
     <app-globals id="globals"></app-globals>
     <div id="bg"></div>
@@ -133,11 +155,11 @@
       </div>
       <div id="all">
       <template if="{{data.length > 1}}">
-        <paper-button style="margin:auto;" on-tap="{{playAllAlbums}}">
+        <paper-button  class="white" raised style="margin:auto;" on-tap="{{playAllAlbums}}">
           <core-icon icon="av:play-arrow"></core-icon>
-          Shuffle All Albums
+          {{$.globals.texts.shuffleButton}}
         </paper-button>
-        <paper-tabs class="tabs" selected="{{sortBy}}">
+        <paper-tabs selected="{{sortBy}}" class="transparent-red">
           <paper-tab>by Name</paper-tab>
           <paper-tab>by Year Ascending</paper-tab>
           <paper-tab>by Year Decending</paper-tab>

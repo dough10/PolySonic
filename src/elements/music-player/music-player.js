@@ -74,7 +74,6 @@ Polymer('music-player',{
       this.$.cover2.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
       this.$.coverArt.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
       this.$.bg.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
-      this.app.setFabColor(this.app.playlist[newVal]);
       this.playAudio(this.app.playlist[newVal]);
     }
   },
@@ -84,20 +83,14 @@ Polymer('music-player',{
    * @param {Object} obj - the playlist object to playback
    */
   playAudio: function (obj) {
-    // set playing on mini player 
-    var minis = document.querySelectorAll('mini-player');
-    var length = minis.length;
-    for (var i = 0; i < length; i++) {
-      minis[i].setPlaying(obj);
-    }
+
     // clean up old players
-    if (this.audio) {
-      if (!this.audio.paused) {
-        this.audio.pause();
-      }
+    if (this.audio && !this.audio.paused) {
+      this.audio.pause();
       this.removeListeners(this.audio);
       delete this.audio;
     }
+
     // gapless playback if cached
     if (this.app.gapless && this.isCued) {
       this.audio = this.isCued;
@@ -126,8 +119,6 @@ Polymer('music-player',{
           });
         }
       }
-      this.applyAudioListeners(this.audio);
-      this.audio.play();
     }
     
     // set playback position if bookmarked file
@@ -137,13 +128,34 @@ Polymer('music-player',{
       this.audio.currentTime = 0;
     }
     
+    // set action fab color to match color of playing track art
+    this.app.setFabColor(obj);
+
+    // set cover art
     this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.coverArt.style.backgroundImage = "url('" + obj.cover + "')";
     this.$.bg.style.backgroundImage = "url('" + obj.cover + "')";
-    this.app.tracker.sendEvent('Playback Started', new Date());
+
+    // this track has not been scrobbled to last.fm
     this.scrobbled = false;
+
+    // set playing on mini player
+    var minis = document.querySelectorAll('mini-player');
+    var length = minis.length;
+    for (var i = 0; i < length; i++) {
+      minis[i].setPlaying(obj);
+    }
+
+    // start playback
+    this.applyAudioListeners(this.audio);
+    this.audio.play();
+
+    // notify user of new track
     this.note.icon = obj.cover;
-    //this.note.show();
+    this.note.show();
+
+    // send analitics
+    this.app.tracker.sendEvent('Playback Started', new Date());
   },
   
   /**
@@ -163,7 +175,11 @@ Polymer('music-player',{
    */
   playNext: function (next) {
     if (this.app.repeatPlaylist && !this.app.playlist[next]) {
-      this.app.playing = 0;
+      if (this.app.playing === 0) {
+        this.playAudio(this.app.playlist[0]);
+      } else {
+        this.app.playing = 0;
+      }
     } else if (this.app.playlist[next]) {
       this.app.playing = next;
     } else {
@@ -171,6 +187,8 @@ Polymer('music-player',{
       this.removeListeners(this.audio);
       delete this.audio;
       this.app.clearPlaylist();
+
+      // hide mini players
       var minis = document.querySelectorAll('mini-player');
       var length = minis.length;
       for (var i = 0; i < length; i++) {
@@ -195,6 +213,7 @@ Polymer('music-player',{
         }
       });
     }
+    //this.app.playing = this.app.playing || 0;
     this.playNext(this.app.playing + 1);
   },
   

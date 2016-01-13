@@ -13,13 +13,9 @@
       this.$.globals.makeToast(this.$.globals.texts.added2Queue);
       this.app.dataLoading = false;
       if ('audio' in this.app.$.player && this.app.$.player.audio.paused) {
-        this.app.setFabColor(this.app.playlist[0]);
-        this.app.$.player.playAudio(this.app.playlist[0]);
-        this.app.playing = 0;
+        this.$.globals.playListIndex(0);
       } else if (!this.app.$.player.audio) {
-        this.app.setFabColor(this.app.playlist[0]);
-        this.app.$.player.playAudio(this.app.playlist[0]);
-        this.app.playing = 0;
+        this.$.globals.playListIndex(0);
       }
     },
     
@@ -70,12 +66,7 @@
       if (sender.attributes.bookmark) {
         this.app.playlist[0].bookmarkPosition = sender.attributes.bookmark.value;
       }
-      this.app.setFabColor(this.app.playlist[0]);
-      if (this.app.playing === 0) {
-        this.app.$.player.playAudio(this.app.playlist[0]);
-      } else {
-        this.app.playing = 0;
-      }
+      this.$.globals.playListIndex(0);
     },
     
     addSingle2Playlist: function (event, detail, sender) {
@@ -90,13 +81,9 @@
         track: 0
       });
       if ('audio' in this.app.$.player && this.app.$.player.audio.paused) {
-        this.app.setFabColor(this.app.playlist[0]);
-        this.app.$.player.playAudio(this.app.playlist[0]);
-        this.app.playing = 0;
+        this.$.globals.playListIndex(0);
       } else if (!this.app.$.player.audio) {
-        this.app.setFabColor(this.app.playlist[0]);
-        this.app.$.player.playAudio(this.app.playlist[0]);
-        this.app.playing = 0;
+        this.$.globals.playListIndex(0);
       }
       this.$.globals.makeToast(this.$.globals.texts.added2Queue);
     },
@@ -196,11 +183,7 @@
                 this.app.playlist.push(obj);
                 this.job('modeLike', function () {
                   this.app.dataLoading = false;
-                  if (this.app.playing === 0) {
-                    this.app.$.player.playAudio(this.app.playlist[0]);
-                  } else {
-                    this.app.playing = 0;
-                  }
+                  this.$.globals.playListIndex(0);
                 }, 500);
               }.bind(this));
             }.bind(this));

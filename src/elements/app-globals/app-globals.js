@@ -45,11 +45,6 @@
     createObjectStore(event.target.result);
   };
 
-  function onInitFs(fs) {
-    app.fs = fs;
-    console.log('Opened file system: ' + fs.name);
-  }
-
   function fsErrorHandler(e) {
     var msg = '';
 
@@ -76,11 +71,16 @@
     console.log('Error: ' + msg);
   }
 
-  navigator.webkitPersistentStorage.requestQuota(1024*1024*512, function(grantedBytes) {
-    window.requestFileSystem(PERSISTENT, grantedBytes, onInitFs, fsErrorHandler);
-  }, function(e) {
-    console.log('Error', e);
-  });
+  function onInitFs(fs) {
+    app.filePath = app.url + '/' + app.user;
+    app.fs = fs;
+    fs.root.getDirectory(app.filePath, {create: true}, function(dirEntry) {
+      console.log(dirEntry);
+    }, function () {
+      createDir(fs.root, app.filePath.split('/'));
+    });
+    console.log('Opened file system: ' + fs.name);
+  }
 
   /**
    * return chrome localization string
@@ -175,7 +175,7 @@
       if (folders.length) {
         createDir(dirEntry, folders.slice(1));
       }
-    }, errorHandler);
+    }, fsErrorHandler);
   }
 
   /**
@@ -240,7 +240,7 @@
     deleteConfirm: getMessage("deleteConfirm"),
     urlError: getMessage("urlError"),
     podcastSubmissionLabel: getMessage("podcastSubmissionLabel"),
-    diskUsed: getMessage("diskused"),
+    diskUsed: getMessage("diskUsed"),
     diskRemaining: getMessage("diskRemaining"),
     playlistsButton: getMessage("playlistsButton"),
     createPlaylistLabel: getMessage("createPlaylistLabel"),
@@ -274,6 +274,14 @@
   Polymer('app-globals', {
     ready: function () {
       this.texts = texts;
+    },
+
+    initFS: function () {
+      navigator.webkitPersistentStorage.requestQuota(1024*1024*512, function(grantedBytes) {
+        window.requestFileSystem(PERSISTENT, grantedBytes, onInitFs, fsErrorHandler);
+      }, function(e) {
+        console.log('Error', e);
+      });
     },
 
     /**
@@ -390,11 +398,11 @@
       return new Promise(function (resolve, reject) {
         var fileName = id + '.jpg';
         this.doXhr(url, 'blob').then(function (e) {
-          app.fs.root.getFile(fileName, {create: true}, function(fileEntry) {
+          app.fs.root.getFile(app.filePath + '/' + fileName, {create: true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
 
               fileWriter.onwriteend = function(e) {
-                app.fs.root.getFile(fileName, {create: false}, function(fileEntry) {
+                app.fs.root.getFile(app.filePath + '/' + fileName, {create: false}, function(fileEntry) {
                   resolve(fileEntry.toURL());
                 });
               };
@@ -417,10 +425,11 @@
      */
     fetchImage: function (artId) {
       return new Promise(function (resolve, reject) {
-        app.fs.root.getFile(artId + '.jpg', {
+        app.fs.root.getFile(app.filePath + '/' + artId + '.jpg', {
           create: false,
           exclusive: true
         }, function(fileEntry) {
+          console.log(fileEntry.toURL());
           resolve(fileEntry.toURL());
         }.bind(this), function () {
           var url = this.buildUrl('getCoverArt', {
@@ -429,6 +438,7 @@
           });
           this.getImageFile(url, artId).then(function (imgURL) {
             this.stealColor(imgURL, artId);
+            console.log(imgURL);
             resolve(imgURL);
           }.bind(this));
         }.bind(this));
@@ -465,8 +475,16 @@
       }.bind(this));
     },
     
-    notify: function (string, icon) {
-      console.log(string, icon);
+    /**
+     * will play a playlist item with the given index
+     * @param {Number} index
+     */
+    playListIndex: function (index) {
+      if (app.playing === index) {
+        app.$.player.playAudio(app.playlist[index]);
+      } else {
+        app.playing = index;
+      }
     },
 
     /**

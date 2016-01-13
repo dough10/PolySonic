@@ -8,13 +8,6 @@ Polymer('album-wall', {
     'use strict';
     this.showing = this.showing || 'wall';
     this.queryMethod = this.queryMethod || 'ID3';
-    if (this.request === 'getPodcasts') {
-      this.showing = 'podcast';
-    } else if (this.request === 'getStarred2') {
-      this.showing = 'wall';
-    } else if (this.request === 'getArtists') {
-      this.showing = 'artists';
-    }
   },
 
   domReady: function () {
@@ -42,26 +35,22 @@ Polymer('album-wall', {
 
   clearData: function (callback) {
     'use strict';
-    console.time('data request');
-    this.wall.length = 0;
-    this.artist.length = 0;
-    this.podcast.length = 0;
+    this.wall = [];
+    this.artist = [];
+    this.podcast = [];
     this.isLoading = true;
     this.app.dataLoading = true;
     this.$.list.updateSize();
     this.$.podcast.updateSize();
     this.$.artists.updateSize();
-    this.async(callback);
+    this.async(callback, null, 100);
   },
 
   responseCallback: function () {
     'use strict';
-    this.async(function () {
-      this.app.dataLoading = false;
-      this.isLoading = false;
-    }, null, 1000);
+    this.app.dataLoading = false;
+    this.isLoading = false;
     this.app.showApp();
-    console.timeEnd('data request');
   },
 
   responseChanged: function () {
@@ -78,24 +67,28 @@ Polymer('album-wall', {
             for (var i = 0; i < this.wall.length; i++) {
               this.wall[i].listMode = this.listMode;
             }
+            this.showing = 'wall';
             this.async(this.responseCallback);
           } else if (response.albumList && response.albumList.album) {
             this.wall = this.wall.concat(response.albumList.album);
             for (var i = 0; i < this.wall.length; i++) {
               this.wall[i].listMode = this.listMode;
             }
+            this.showing = 'wall';
             this.async(this.responseCallback);
           } else if (response.starred2 && response.starred2.album) {
             this.wall = this.wall.concat(response.starred2.album);
             for (var i = 0; i < this.wall.length; i++) {
               this.wall[i].listMode = this.listMode;
             }
+            this.showing = 'wall';
             this.async(this.responseCallback);
           } else if (response.starred && response.starred.album) {
             this.wall = this.wall.concat(response.starred.album);
             for (var i = 0; i < this.wall.length; i++) {
               this.wall[i].listMode = this.listMode;
             }
+            this.showing = 'wall';
             this.async(this.responseCallback);
           } else if (response.podcasts && response.podcasts.channel) {
             /* inject podcastRole into response so it can be used inside the repeating template scope */
@@ -108,13 +101,13 @@ Polymer('album-wall', {
                   podcasts[i].episode[ii].podcastRole = this.app.activeUser.podcastRole;
                 }
               }
-              if (i === length - 1) {
-                this.podcast = podcasts;
-                this.async(this.responseCallback);
-              }
             }
+            this.podcast = podcasts;
+            this.async(this.responseCallback);
+            this.showing = 'podcast';
           } else if (response.artists && response.artists.index) {
             this.artist = response.artists.index;
+            this.showing = 'artists';
             this.async(this.responseCallback);
           } else if (response.searchResult3 && response.searchResult3.album) {
             /* filter out duplicate albums from response array */
@@ -130,6 +123,7 @@ Polymer('album-wall', {
             for (var i = 0; i < this.wall.length; i++) {
               this.wall[i].listMode = this.listMode;
             }
+            this.showing = 'wall';
             this.async(this.responseCallback);
           } else {
             this.app.dataLoading = false;
@@ -354,7 +348,6 @@ Polymer('album-wall', {
           this.app.$.player.getImageForPlayer(imgURL, function () {
             this.getPaletteFromDb(sender.attributes.cover.value, function (palette) {
               obj.palette = palette;
-              this.app.setFabColor(obj);
               this.doPlay(obj);
             }.bind(this));
           }.bind(this));
@@ -367,7 +360,6 @@ Polymer('album-wall', {
             this.app.$.player.getImageForPlayer(obj.cover, function () {
               this.app.colorThiefHandler(obj.cover, sender.attributes.cover.value, function (colorArray) {
                 obj.palette = colorArray;
-                this.app.setFabColor(obj);
                 this.doPlay(obj);
               }.bind(this));
             }.bind(this));
@@ -418,7 +410,6 @@ Polymer('album-wall', {
             obj.palette = palette;
             if (this.audio && this.audio.paused) {
               this.app.$.player.getImageForPlayer(imgURL, function () {
-                this.app.setFabColor(obj);
                 this.doPlay(obj);
                 this.app.dataLoading = false;
                 this.app.doToast(chrome.i18n.getMessage("added2Queue"));
@@ -442,7 +433,6 @@ Polymer('album-wall', {
             if (this.audio && this.audio.paused) {
               this.app.$.player.getImageForPlayer(imgURL, function () {
                 this.app.dataLoading = false;
-                this.app.setFabColor(obj);
                 this.doPlay(obj);
                 this.app.doToast(chrome.i18n.getMessage("added2Queue"));
               }.bind(this));

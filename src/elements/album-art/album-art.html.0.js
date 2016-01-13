@@ -77,12 +77,7 @@
       this.app.dataLoading = false;
       this.app.$.albumDialog.opened = false;
       this.app.playlist = this.shortPlaylist;
-      this.app.setFabColor(this.app.playlist[0]);
-      if (this.app.playing === 0) {
-        this.app.$.player.playAudio(this.app.playlist[0]);
-      } else {
-        this.app.playing = 0;
-      }
+      this.$.globals.playListIndex(0);
     },
 
     playAlbum: function () {
@@ -95,12 +90,7 @@
       this.app.dataLoading = false;
       this.app.$.albumDialog.opened = false;
       this.app.playlist = this.playlist;
-      this.app.setFabColor(this.playlist[0]);
-      if (this.app.playing === 0) {
-        this.app.$.player.playAudio(this.playlist[0]);
-      } else {
-        this.app.playing = 0;
-      }
+      this.$.globals.playListIndex(0);
     },
 
 
@@ -110,7 +100,6 @@
     },
 
     showDetails: function () {
-      this.showingDetails = true;
       this.app.dataLoading = true;
       this.doQuery().then(this.showDialog.bind(this));
     },
@@ -122,16 +111,6 @@
         this.artistId = e.target.response['subsonic-response'].album.artistId;
         this.albumID = e.target.response['subsonic-response'].album.song[0].parent;
         var tracks = e.target.response['subsonic-response'].album.song;
-        /* sort tracks by diskNumber thanks Joe Shelby */
-        tracks.sort(function sorting(a, b) {
-          var da = a.discNumber || 0, db = b.discNumber || 0,
-            ta = a.track || 0, tb = b.track || 0;
-          if (da === db) {
-            return ta - tb;
-          } else {
-            return da - db;
-          }
-        });
         var length = tracks.length;
         for (var i = 0; i < length; i++) {
           this.albumSize = this.albumSize + tracks[i].size;
@@ -150,6 +129,16 @@
             this.bookmarkIndex = i;
           }
         }
+        /* sort tracks by diskNumber thanks Joe Shelby */
+        this.playlist.sort(function sorting(a, b) {
+          var da = a.discNumber || 0, db = b.discNumber || 0,
+            ta = a.track || 0, tb = b.track || 0;
+          if (da === db) {
+            return ta - tb;
+          } else {
+            return da - db;
+          }
+        });
         this.async(resolve);
       }.bind(this));
     },
