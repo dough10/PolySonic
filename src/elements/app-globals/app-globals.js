@@ -274,18 +274,15 @@
     repeatText: getMessage('repeatText'),
     md5: getMessage('md5'),
     precache: getMessage('precache'),
-    urlError: getMessage("urlError"),
     urlLabel: getMessage("urlLabel"),
     usernameError: getMessage("usernameError"),
     usernameLabel: getMessage("usernameLabel"),
     passwordLabel: getMessage("passwordLabel"),
     showPass: getMessage("showPass"),
     hideThePass: getMessage("hidePass"),
-    submitButton: getMessage("submitButton"),
     bitrateLabel: getMessage('bitrateLabel'),
     anonStats: getMessage('anonStats'),
     autoBookmark: getMessage('autoBookmark'),
-    submitButton: getMessage("submitButton"),
     cacheDetails: getMessage("cacheDetails"),
     clearCacheLabel: getMessage("clearCacheLabel"),
     clearSettingsLabel: getMessage("clearSettingsLabel"),
@@ -307,6 +304,13 @@
       }, function(e) {
         console.log('Error', e);
       });
+    },
+    
+    formatBytes: function (bytes) {
+      if (bytes < 1024) return bytes + ' Bytes';
+      else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+      else if (bytes < 1073741824) return (bytes / 1048576).toFixed(2) + ' MB';
+      else return (bytes / 1073741824).toFixed(2) + ' GB';
     },
 
     /**
@@ -363,7 +367,6 @@
      * xhr
      * @param {String} url
      * @param {String} dataType
-     * @param {Function} callback
      */
     doXhr: function (url, dataType) {
       return new Promise(function (resolve, reject) {
@@ -383,7 +386,7 @@
      * @param {String} id
      * @param {Function} callback
      */
-    putInDb: function (data, id) {
+    _putInDb: function (data, id) {
       return new Promise(function (resolve, reject) {
         var transaction = db.transaction([dbName], "readwrite");
         if (id) {
@@ -414,12 +417,11 @@
 
 
     /**
-     * Fetch image from subsonic server and store it in indexeddb
+     * Fetch image from subsonic server and store it in HTML5 filesystem
      * @param {String} url
      * @param {String} id
-     * @param {Function} callback
      */
-    getImageFile: function (url, id) {
+    _getImageFile: function (url, id) {
       return new Promise(function (resolve, reject) {
         var fileName = id + '.jpg';
         this.doXhr(url, 'blob').then(function (e) {
@@ -460,8 +462,8 @@
             size: 550,
             id: artId
           });
-          this.getImageFile(url, artId).then(function (imgURL) {
-            this.stealColor(imgURL, artId);
+          this._getImageFile(url, artId).then(function (imgURL) {
+            this._stealColor(imgURL, artId);
             resolve(imgURL);
           }.bind(this));
         }.bind(this));
@@ -475,7 +477,7 @@
      * @param {String} artId
      * @param {Function} callback - returns an array of colors
      */
-    stealColor: function (imgURL, artId) {
+    _stealColor: function (imgURL, artId) {
       return new Promise(function (resolve, reject) {
         var imgElement = new Image();
         imgElement.src = imgURL;
@@ -493,7 +495,7 @@
           } else {
             colorArray[3] = '#c8c8c8';
           }
-          this.putInDb(colorArray, artId + '-palette').then(resolve);
+          this._putInDb(colorArray, artId + '-palette').then(resolve);
         }.bind(this);
       }.bind(this));
     },
