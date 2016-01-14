@@ -4,22 +4,6 @@
       post: {},
       /* app manifest object */
       manifest: chrome.runtime.getManifest(),
-       /* locale settings */
-      urlError: chrome.i18n.getMessage("urlError"),
-      urlLabel: chrome.i18n.getMessage("urlLabel"),
-      usernameError: chrome.i18n.getMessage("usernameError"),
-      usernameLabel: chrome.i18n.getMessage("usernameLabel"),
-      passwordLabel: chrome.i18n.getMessage("passwordLabel"),
-      showPass: chrome.i18n.getMessage("showPass"),
-      hideThePass: chrome.i18n.getMessage("hidePass"),
-      submitButton: chrome.i18n.getMessage("submitButton"),
-      bitrateLabel: chrome.i18n.getMessage("bitrateLabel"),
-      cacheDetails: chrome.i18n.getMessage("cacheDetails"),
-      clearCacheLabel: chrome.i18n.getMessage("clearCacheLabel"),
-      clearSettingsLabel: chrome.i18n.getMessage("clearSettingsLabel"),
-      appName: chrome.i18n.getMessage("appName"),
-      licenseInfoLink: chrome.i18n.getMessage("licenseInfoLink"),
-      showLicenseLabel: chrome.i18n.getMessage("showLicenseLabel"),
       /* avaliable bitrates */
       speeds: [
         96,
@@ -60,10 +44,6 @@
 
       validate: function (callback) {
         'use strict';
-
-        /*
-          here i use polymer built in selector to select all the inputs that are inside the div with the id of validate
-        */
         var $d = this.$.validate.querySelectorAll('paper-input-decorator');
         Array.prototype.forEach.call($d, function(d) {
           d.isInvalid = !d.querySelector('input').validity.valid;
@@ -143,7 +123,7 @@
       },
 
       clearCache: function (callback) {
-        this.app.fs.root.getDirectory(this.app.url, {}, function (dir) {
+        this.app.fs.root.getDirectory(encodeURIComponent(this.app.url), {}, function (dir) {
           dir.removeRecursively(function (e) {
             console.log('image cache cleared')
           }, function (e) {
@@ -310,14 +290,7 @@
       },
 
       getLicense: function (event, detail, sender) {
-        var animation = new CoreAnimation();
-        animation.duration = 1000;
-        animation.iterations = 'Infinity';
-        animation.keyframes = [
-          {opacity: 1},
-          {opacity: 0}
-        ];
-        animation.target = sender;
+        var animation = this.$.globals.attachAnimation(sender);
         animation.play();
         this.app.getLicense(function () {
           animation.cancel();

@@ -365,5 +365,17 @@
   },
   "downloads": {
     "message": "Downloads"
+  },
+  "md5": {
+    "message": "MD5 Authentication"
+  },
+  "precache": {
+    "message" : "Precache next track"
+  },
+  "autoBookmark": {
+    "message": "Autobookmark long files"
+  },
+  "anonStats": {
+    "message" : "Anonymous usage statistics"
   }
 }

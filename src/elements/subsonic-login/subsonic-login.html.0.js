@@ -4,14 +4,6 @@
       ready: function () {
         'use strict';
         this.app = document.getElementById("tmpl");
-        this.urlError = chrome.i18n.getMessage("urlError");
-        this.urlLabel = chrome.i18n.getMessage("urlLabel");
-        this.usernameError = chrome.i18n.getMessage("usernameError");
-        this.usernameLabel = chrome.i18n.getMessage("usernameLabel");
-        this.passwordLabel = chrome.i18n.getMessage("passwordLabel");
-        this.showPass = chrome.i18n.getMessage("showPass");
-        this.hideThePass = chrome.i18n.getMessage("hidePass");
-        this.submitButton = chrome.i18n.getMessage("submitButton");
         this.testingURL = false;
       },
       testURL: function (e) {

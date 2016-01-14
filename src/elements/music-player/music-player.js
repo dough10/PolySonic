@@ -323,7 +323,7 @@ Polymer('music-player',{
         var url = this.$.globals.buildUrl('createBookmark', {
           id: this.app.playlist[this.app.playing].id,
           position: Math.floor(audio.currentTime * 1000),
-          comment: this.app.playlist[this.app.playing].title + ' at ' + this.app.secondsToMins(audio.currentTime)
+          comment: this.app.playlist[this.app.playing].title + ' at ' + this.$.globals.secondsToMins(audio.currentTime)
         });
         this.$.globals.doXhr(url, 'json').then(function (e) {
           if (e.target.response['subsonic-response'].status === 'failed') {

@@ -94,37 +94,13 @@
     </core-ajax>
     <div id="validate">
       <core-label>
-        <h4>{{appName}} {{polysonicVersion}}</h4>
+        <h4>{{$.globals.texts.appName}} {{polysonicVersion}}</h4>
         <core-tooltip label="{{showLicenseLabel}}">
-          <div id="serverLicense" on-tap="{{getLicense}}">{{licenseInfoLink}}</div>
+          <div id="serverLicense" on-tap="{{getLicense}}">{{$.globals.texts.licenseInfoLink}}</div>
         </core-tooltip>
-<!--
-        <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
-          <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
-        </paper-input-decorator>
-        <br>
-        <paper-input-decorator id="input2"labelvisible="" floatinglabel="" error="{{usernameError}}" label="{{usernameLabel}}">
-          <input is="core-input" type="text" value="{{post.user}}" required="">
-        </paper-input-decorator>
-        <br>
-        <paper-input-decorator id="input3" labelvisible="" floatinglabel="" label="{{passwordLabel}}">
-          <input is="core-input" id="password" type="password" value="{{post.pass}}">
-        </paper-input-decorator>
-        <br>
-        <div id="showPass" on-tap="{{hidePass}}">{{showPass}}</div><br>
-        <br>
-        <paper-button on-tap="{{submit}}" raised>
-          <template if="{{isLoading}}">
-            <div id="load">
-              <paper-spinner active></paper-spinner>
-            </div>
-          </template>
-          {{submitButton}}
-        </paper-button>
--->
         <br>
         <core-label>
-          {{bitrateLabel}}:
+          {{$.globals.texts.bitrateLabel}}:
           <paper-dropdown-menu label="{{bitrateLabel}}">
             <paper-dropdown layered class="dropdown">
               <core-menu class="menu" selected="{{post.bitRate}}" valueattr="i" on-core-select="{{bitRateSelect}}">
@@ -140,7 +116,7 @@
         <br>
         <div center horizontal layout class="switchBox">
           <div flex class="switchLabel">
-            Anonymous usage statistics
+            {{$.globals.texts.anonStats}}
           </div>
           <paper-toggle-button class="redSwitch" checked="{{app.analisticsEnabled}}" on-change="{{analisticsToggle}}"></paper-toggle-button>
         </div>
@@ -149,7 +125,7 @@
         <br>
         <div center horizontal layout class="switchBox">
           <div flex class="switchLabel">
-            Autobookmark long files
+            {{$.globals.texts.autoBookmark}}
           </div>
           <paper-toggle-button class="redSwitch" checked="{{app.autoBookmark}}" on-change="{{toggleAutobookmark}}"></paper-toggle-button>
         </div>
@@ -158,7 +134,7 @@
         <br>
         <div center horizontal layout class="switchBox">
           <div flex class="switchLabel">
-            Precache next track
+            {{$.globals.texts.precache}}
           </div>
           <paper-toggle-button class="redSwitch" checked="{{app.gapless}}" on-change="{{toggleGapless}}"></paper-toggle-button>
         </div>
@@ -167,23 +143,23 @@
           <br>
           <br>
           <div horizontal layout class="switchBox">
-            <div class="switchLabel" style="text-align: left;" flex>MD5 Authentication</div>
+            <div class="switchLabel" style="text-align: left;" flex>{{$.globals.texts.md5}}</div>
             <paper-toggle-button class="redSwitch" on-change="{{authChanged}}" checked="{{app.md5Auth}}"></paper-toggle-button>
           </div>
         </div>
       </core-label>
       <br>
-      <paper-button on-tap="{{showQuota}}">{{cacheDetails}}</paper-button>
+      <paper-button on-tap="{{showQuota}}">{{$.globals.texts.cacheDetails}}</paper-button>
       <core-collapse id="quota">
         <br>
         {{storageQuota}}
         <br>
         <br>
-        <paper-button  class="red-button" on-tap="{{doClearCache}}">{{clearCacheLabel}}</paper-button>
+        <paper-button  class="red-button" on-tap="{{doClearCache}}">{{$.globals.texts.clearCacheLabel}}</paper-button>
       </core-collapse>
       <br>
       <br>
-      <paper-button class="red-button" on-tap="{{clearSettings}}">{{clearSettingsLabel}}</paper-button>
+      <paper-button class="red-button" on-tap="{{clearSettings}}">{{$.globals.texts.clearSettingsLabel}}</paper-button>
     </div>
   </template>
   <script src="settings-menu.js"></script>

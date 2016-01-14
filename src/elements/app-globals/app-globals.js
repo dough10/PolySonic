@@ -45,6 +45,25 @@
     createObjectStore(event.target.result);
   };
 
+  /**
+   * method to create folder structure
+   */
+  function createDir(rootDirEntry, folders) {
+    // Throw out './' or '/' and move on to prevent something like '/foo/.//bar'.
+    if (folders[0] === '.' || folders[0] === '') {
+      folders = folders.slice(1);
+    }
+    rootDirEntry.getDirectory(folders[0], {create: true}, function(dirEntry) {
+      // Recursively add the new subfolder (if we still have another to create).
+      if (folders.length) {
+        createDir(dirEntry, folders.slice(1));
+      }
+    }, fsErrorHandler);
+  }
+
+  /**
+   * fileSystem error callback
+   */
   function fsErrorHandler(e) {
     var msg = '';
 
@@ -71,15 +90,18 @@
     console.log('Error: ' + msg);
   }
 
+  /**
+   * initalize filesystem
+   */
   function onInitFs(fs) {
-    app.filePath = app.url + '/' + app.user;
+    app.filePath = encodeURIComponent(app.url) + '/' + encodeURIComponent(app.user);
     app.fs = fs;
     fs.root.getDirectory(app.filePath, {create: true}, function(dirEntry) {
-      console.log(dirEntry);
+      console.log('Opened file system: ' + fs.name + '/' + app.filePath);
     }, function () {
+      console.log('Creating file system: ' + fs.name + '/' + app.filePath);
       createDir(fs.root, app.filePath.split('/'));
     });
-    console.log('Opened file system: ' + fs.name);
   }
 
   /**
@@ -94,12 +116,12 @@
    * @param {Error} e
    */
   function xhrError(e) {
-    app.dataLoading = false;
-    app.doToast(getMessage("connectionError"));
-    console.error(e);
+    app.$.globals.makeToast(getMessage("connectionError"));
     if (!document.querySelector('#loader').classList.contains("hide")) {
       app.$.firstRun.open();
     }
+    app.dataLoading = false;
+    console.error(e);
   }
 
   /**
@@ -160,22 +182,6 @@
    */
   function rgbToHex(r, g, b) {
     return componentToHex(r) + componentToHex(g) + componentToHex(b);
-  }
-
-  /**
-   * method to create folder structure
-   */
-  function createDir(rootDirEntry, folders) {
-    // Throw out './' or '/' and move on to prevent something like '/foo/.//bar'.
-    if (folders[0] === '.' || folders[0] === '') {
-      folders = folders.slice(1);
-    }
-    rootDirEntry.getDirectory(folders[0], {create: true}, function(dirEntry) {
-      // Recursively add the new subfolder (if we still have another to create).
-      if (folders.length) {
-        createDir(dirEntry, folders.slice(1));
-      }
-    }, fsErrorHandler);
   }
 
   /**
@@ -266,6 +272,25 @@
     playlists: getMessage('playlists'),
     downloads: getMessage('downloads'),
     repeatText: getMessage('repeatText'),
+    md5: getMessage('md5'),
+    precache: getMessage('precache'),
+    urlError: getMessage("urlError"),
+    urlLabel: getMessage("urlLabel"),
+    usernameError: getMessage("usernameError"),
+    usernameLabel: getMessage("usernameLabel"),
+    passwordLabel: getMessage("passwordLabel"),
+    showPass: getMessage("showPass"),
+    hideThePass: getMessage("hidePass"),
+    submitButton: getMessage("submitButton"),
+    bitrateLabel: getMessage('bitrateLabel'),
+    anonStats: getMessage('anonStats'),
+    autoBookmark: getMessage('autoBookmark'),
+    submitButton: getMessage("submitButton"),
+    cacheDetails: getMessage("cacheDetails"),
+    clearCacheLabel: getMessage("clearCacheLabel"),
+    clearSettingsLabel: getMessage("clearSettingsLabel"),
+    licenseInfoLink: getMessage("licenseInfoLink"),
+    showLicenseLabel: getMessage("showLicenseLabel")
   };
 
   /**
@@ -429,7 +454,6 @@
           create: false,
           exclusive: true
         }, function(fileEntry) {
-          console.log(fileEntry.toURL());
           resolve(fileEntry.toURL());
         }.bind(this), function () {
           var url = this.buildUrl('getCoverArt', {
@@ -438,7 +462,6 @@
           });
           this.getImageFile(url, artId).then(function (imgURL) {
             this.stealColor(imgURL, artId);
-            console.log(imgURL);
             resolve(imgURL);
           }.bind(this));
         }.bind(this));

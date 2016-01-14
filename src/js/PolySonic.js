@@ -862,10 +862,11 @@
     if (!app.castURL) {
       app.$.globals.makeToast(app.urlError);
     }
+    //console.log(app.castURL);
     if (!app.invalidURL) {
       app.addingChannel = true;
       var url = app.$.globals.buildUrl('createPodcastChannel', {
-        url: encodeURIComponent(app.castURL)
+        url: app.castURL
       });
       app.$.globals.doXhr(url, 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
@@ -1139,6 +1140,8 @@
             app.$.firstRun.open();
             app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
           }
+        }).catch(function () {
+          app.$.firstRun.open();
         });
 
       } else {
