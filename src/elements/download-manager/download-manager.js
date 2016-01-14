@@ -32,10 +32,12 @@
     downloads: [],
   
     app: document.querySelector('#tmpl'),
+    
+    _isDownloading: false,
   
     hasSaved: false,
   
-    removeThis: function (event, detail, sender) {
+    removeThis: function () {
       this.parentNode.removeChild(this);
       this.async(function () {
         if (this.app.$.downloads.childElementCount === 0) {
@@ -49,7 +51,7 @@
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
         xhr.responseType = dataType;
-        xhr.onload = callback;
+        xhr.onload = resolve;
         xhr.onerror = errorHandler;
         xhr.onprogress = this._xhrProgress.bind(this);
         xhr.send();
@@ -58,7 +60,7 @@
     },
   
     _xhrProgress: function (e) {
-      this.progress = Math.floor((e.loaded / this.downloadSize) *  100);
+      this._progress = Math.floor((e.loaded / this.downloadSize) *  100);
       var time = new Date();
       var now = time.getTime();
       var bits = e.loaded * 8;
@@ -67,11 +69,11 @@
       var Kbps = (Bps / 1024).toFixed(2);
       var Mbps = (Kbps / 1024).toFixed(2);
       if (Mbps < 1) {
-        this.rate = Kbps + ' Kbps';
+        this._rate = Kbps + ' Kbps';
       } else {
-        this.rate = Mbps + ' Mbps';
+        this._rate = Mbps + ' Mbps';
       }
-      this.output = this.$.globals.formatBytes(e.loaded) + ' of ' + this.downloadSizeReadable + ' Downloaded';
+      this._output = this.$.globals.formatBytes(e.loaded) + ' of ' + this.downloadSizeReadable + ' Downloaded';
     },
   
     writeFileEntry: function (writableEntry, blob) {
@@ -92,32 +94,32 @@
   
   
     downloadTrack: function (id, callback) {
-      var url = this.$.globals.buildUrl('download', {id : id}),
-        url2 = this.$.globals.buildUrl('getSong', {id: id});
-      this._doXhr(url2, 'json').then(function (r) {
+      var downloadUrl = this.$.globals.buildUrl('download', {id : id});
+      var songUrl = this.$.globals.buildUrl('getSong', {id: id});
+      this._this._output(songUrl, 'json').then(function (r) {
         var details = r.target.response['subsonic-response'].song;
-        this.fileName = details.artist + ' - ' + details.title + '.' + details.suffix;
+        this._fileName = details.artist + ' - ' + details.title + '.' + details.suffix;
         this.downloadSize = details.size;
         this.downloadSizeReadable = this.$.globals.formatBytes(this.downloadSize);
         this.$.globals.makeToast(chrome.i18n.getMessage('downloadStarted'));
         callback();
-        this.isDownloading = true;
+        this._isDownloading = true;
         var time = new Date();
         this.start = time.getTime();
-        this._doXhr(url, 'blob').then(function (e) {
+        this._doXhr(downloadUrl, 'blob').then(function (e) {
           this.$.globals.makeToast(chrome.i18n.getMessage('downloadFinished'));
           this.blob = e.target.response;
           this.downloadSizeReadable = this.$.globals.formatBytes(this.blob.size);
-          this.output = 'File Downloaded ' + this.downloadSizeReadable;
-          this.isDownloading = false;
+          this._output = 'File Downloaded ' + this.downloadSizeReadable;
+          this._isDownloading = false;
         }.bind(this));
       }.bind(this));
     },
   
     downloadAlbum: function (details, callback) {
       var url = this.$.globals.buildUrl('download', {id: details.id});
-      this.fileName = details.artist + ' - ' + details.album + '.zip';
-      this.isDownloading = true;
+      this._fileName = details.artist + ' - ' + details.album + '.zip';
+      this._isDownloading = true;
       this.downloadSize = details.size;
       this.downloadSizeReadable = this.$.globals.formatBytes(this.downloadSize);
       var time = new Date();
@@ -127,9 +129,9 @@
         this.blob = e.target.response;
         this.$.globals.makeToast(chrome.i18n.getMessage('downloadFinished'));
         this.downloadSizeReadable = this.this.$.globals.formatBytes(this.blob.size);
-        this.output = 'File Downloaded ' + this.downloadSizeReadable;
-        this.isDownloading = false;
-        this.progress = 100;
+        this._output = 'File Downloaded ' + this.downloadSizeReadable;
+        this._isDownloading = false;
+        this._progress = 100;
         callback();
       }.bind(this));
     },
@@ -137,8 +139,8 @@
     downloadSinglePodcast: function (details, callback) {
       var url = this.$.globals.buildUrl('download', {id: details.id});
       this.$.globals.notify(this.$.globals.texts.downloadStarted);
-      this.fileName = details.title.replace(':', '') + '.' + details.suffix;
-      this.isDownloading = true;
+      this._fileName = details.title.replace(':', '') + '.' + details.suffix;
+      this._isDownloading = true;
       this.downloadSize = details.size;
       this.downloadSizeReadable = this.$.globals.formatBytes(this.downloadSize);
       var time = new Date();
@@ -147,20 +149,20 @@
         this.blob = e.target.response;
         this.$.globals.makeToast(chrome.i18n.getMessage('downloadFinished'));
         this.downloadSizeReadable = this.$.globals.formatBytes(this.blob.size);
-        this.output = 'File Downloaded ' + this.downloadSizeReadable;
-        this.isDownloading = false;
-        this.progress = 100;
+        this._output = 'File Downloaded ' + this.downloadSizeReadable;
+        this._isDownloading = false;
+        this._progress = 100;
         callback();
       }.bind(this));
     },
   
     doSave: function () {
-      this.output = 'Saving.. ' + this.downloadSizeReadable;
-      var config = {type: 'saveFile', suggestedName: this.fileName};
+      this._output = 'Saving.. ' + this.downloadSizeReadable;
+      var config = {type: 'saveFile', suggestedName: this._fileName};
       chrome.fileSystem.chooseEntry(config, function (writableEntry) {
         if (writableEntry) {
           this.writeFileEntry(writableEntry, this.blob).then(function () {
-            this.output = 'File Saved ' + this.downloadSizeReadable;
+            this._output = 'File Saved ' + this.downloadSizeReadable;
             this.hasSaved = true;
           }.bind(this));
         } else {
