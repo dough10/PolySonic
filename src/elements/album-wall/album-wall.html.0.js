@@ -346,10 +346,10 @@
     },
 
     deleteBookmark: function (event) {
-      this.app.doXhr(
-        this.app.buildUrl('deleteBookmark', {
+      this.$.globals.doXhr(
+        this.$.globals.buildUrl('deleteBookmark', {
           id: this.delID
-        }), 'json', function (e) {
+        }), 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           this.refreshContent();
         } else {
@@ -418,9 +418,9 @@
     },
 
     deleteChannel: function (id) {
-      this.app.doXhr(this.app.buildUrl('deletePodcastChannel', {
+      this.$.globals.doXhr(this.$.globals.buildUrl('deletePodcastChannel', {
         id: id
-      }), 'json', function (e) {
+      }), 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           this.clearData(this.doAjax);
         }
@@ -435,10 +435,10 @@
     },
 
     downloadEpisode: function (event, detail, sender) {
-      var url = this.app.buildUrl('downloadPodcastEpisode', {
+      var url = this.$.globals.buildUrl('downloadPodcastEpisode', {
         id: sender.attributes.ident.value
       });
-      this.app.doXhr(url, 'json', function (e) {
+      this.$.globals.doXhr(url, 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           this.clearData(function () {
             this.doAjax();
@@ -454,10 +454,10 @@
     },
 
     deleteEpisode: function (id) {
-      var url = this.app.buildUrl('deletePodcastEpisode', {
+      var url = this.$.globals.buildUrl('deletePodcastEpisode', {
         id: id
       });
-      this.app.doXhr(url, 'json', function (e) {
+      this.$.globals.doXhr(url, 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           this.clearData(this.doAjax);
         }
