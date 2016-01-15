@@ -184,6 +184,20 @@
     return componentToHex(r) + componentToHex(g) + componentToHex(b);
   }
 
+  String.prototype.hexEncode = function () {
+    var r = '';
+    var i = 0;
+    var h;
+    while (i<this.length) {
+      h = this.charCodeAt(i++).toString(16);
+      while (h.length<2) {
+        h = h;
+      }
+      r += h;
+    }
+    return 'enc:'+r;
+  };
+
   /**
    * localization texts
    */

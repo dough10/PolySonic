@@ -476,34 +476,34 @@
   app.savePlayQueue = function () {
     app.$.playlistDialog.close();
     app.$.createPlaylist.open();
-    app.defaultName = new Date().toLocalString();
+    app.defaultName = new Date().toString();
   };
 
   /**
    * callback for saving a playlist
    */
-  function save2PlayQueueCallback (e) {
-    if (e.target.response['subsonic-response'].status === 'ok') {
-      app.$.globals.makeToast(chrome.i18n.getMessage('playlistCreated'));
-      app.$.createPlaylist.close();
-      app.savingPlaylist = false;
-    } else {
-      app.$.globals.makeToast(chrome.i18n.getMessage('playlistError'));
-      app.savingPlaylist = false;
-    }
-  }
+
 
   /**
    * save a playlist
    */
   app.savePlayQueue2Playlist = function () {
-    var url = app.$.globals.buildUrl('createPlaylist', {name: app.defaultName}),
-      length = app.playlist.length;
+    var url = app.$.globals.buildUrl('createPlaylist', {name: app.defaultName});
+    var plength = app.playlist.length;
     app.savingPlaylist = true;
-    for (var i = 0; i < length; i++) {
+    for (var i = 0; i < plength; i++) {
       url = url + '&songId=' + app.playlist[i].id;
     }
-    app.$.globals.doXhr(url, 'json').then(save2PlayQueueCallback);
+    app.$.globals.doXhr(url, 'json').then(function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        app.$.globals.makeToast(chrome.i18n.getMessage('playlistCreated'));
+        app.$.createPlaylist.close();
+        app.savingPlaylist = false;
+      } else {
+        app.$.globals.makeToast(chrome.i18n.getMessage('playlistError'));
+        app.savingPlaylist = false;
+      }
+    });
   };
 
   /**

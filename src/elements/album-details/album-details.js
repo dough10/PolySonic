@@ -27,9 +27,7 @@
         artist: this.artist,
         album: this.album,
         size: this.albumSize
-      }, function () {
-        console.log('Download Finished: ' + this.artist + ' - ' + this.album);
-      }.bind(this));
+      });
       this.app.$.downloads.appendChild(manager);
     },
     
@@ -37,9 +35,7 @@
       var manager = new DownloadManager();
       this.app.isDownloading = true;
       var id = sender.attributes.ident.value;
-      manager.downloadTrack(id, function () {
-        console.log('Track ' + id + ' Download Finished');
-      }.bind(this));
+      manager.downloadTrack(id);
       this.app.$.downloads.appendChild(manager);
     },
     
