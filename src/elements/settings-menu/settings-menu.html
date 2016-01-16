@@ -95,8 +95,8 @@
     <div id="validate">
       <core-label>
         <h4>{{$.globals.texts.appName}} {{polysonicVersion}}</h4>
-        <core-tooltip label="{{_showLicenseLabel}}">
-          <div id="serverLicense" on-tap="{{getLicense}}">{{$.globals.texts.licenseInfoLink}}</div>
+        <core-tooltip label="{{$.globals.texts.showLicenseLabel}}">
+          <div id="serverLicense" on-tap="{{_getLicense}}">{{$.globals.texts.licenseInfoLink}}</div>
         </core-tooltip>
         <br>
         <core-label>
