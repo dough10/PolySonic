@@ -63,7 +63,7 @@
                 <paper-dropdown-menu label="{{$.globals.texts.folderSelectorLabel}}">
                   <paper-dropdown class="dropdown">
                     <core-menu class="menu" selected="{{folder}}" valueattr="i">
-                      <paper-item i="0" on-tap="{{setFolder}}">{{$.globals.texts.folderSelectorLabel}}</paper-item>
+                      <paper-item i="none" on-tap="{{setFolder}}">{{$.globals.texts.folderSelectorLabel}}</paper-item>
                       <template repeat="{{mediaFolders}}">
                         <paper-item i="{{id}}" on-tap="{{setFolder}}">{{name}}</paper-item>
                       </template>
@@ -593,8 +593,7 @@
           </template>
           <br><br>
           <b>{{$.globals.texts.registeredEmail}}:</b> {{serverLicense.email}}<br><br>
-          <b>{{$.globals.texts.licenseKey}}:</b> {{serverLicense.key}}<br><br>
-          <b>{{$.globals.texts.keyDate}}:</b> {{serverLicense.daysLeft}}<br><br>
+          <b>{{$.globals.texts.keyDate}}:</b> {{timeLeft}}<br><br>
         </div>
       </paper-action-dialog>
 
@@ -620,7 +619,8 @@
   <script src="js/md5.js"></script>
   <script src="js/color-thief.min.js"></script>
   <script src="js/version_compare.js"></script>
-  <script src="bower_components/x-notification/x-notification.js"></script>
+  <script src="js/x-notification.js"></script>
+  <script src="js/moment.js"></script>
   <script src="js/PolySonic.js"></script>
 </body>
 </html>

@@ -142,7 +142,10 @@
   
     _doSave: function () {
       this._output = 'Saving.. ' + this._downloadSizeReadable;
-      var config = {type: 'saveFile', suggestedName: this._fileName};
+      var config = {
+        type: 'saveFile',
+        suggestedName: this._fileName
+      };
       chrome.fileSystem.chooseEntry(config, function (writableEntry) {
         if (writableEntry) {
           this._writeFileEntry(writableEntry, this._blob).then(function () {

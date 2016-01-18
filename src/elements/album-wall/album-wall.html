@@ -108,14 +108,23 @@
           <core-list id="list" data="{{wall}}" scrollTarget="{{scrollTarget}}">
             <template>
               <div>
-                <album-art id='ac{{model.id}}' listMode="{{model.listMode}}" item="{{model.id}}" cover="{{model.coverArt}}" artist="{{model.artist}}" album="{{model.name || model.title}}" isFavorite="{{model.starred}}"></album-art>
+                <album-art id='ac{{model.id}}'
+                           listMode="{{model.listMode}}"
+                           item="{{model.id}}"
+                           cover="{{model.coverArt}}"
+                           artist="{{model.artist}}"
+                           album="{{model.name || model.title}}"
+                           isFavorite="{{model.starred}}">
+                </album-art>
               </div>
             </template>
           </core-list>
           <div class="center">
             <paper-spinner class="black" hidden?="{{!isLoading}}" active></paper-spinner>
           </div>
-          <div class="foot"></div>
+          <template if="{{app.pageLimit}}">
+            <div class="foot"></div>
+          </template>
         </div>
 
         <div view="podcast">
@@ -215,7 +224,9 @@
           <div class="center">
             <paper-spinner class="black" hidden?="{{!isLoading}}" active></paper-spinner>
           </div>
-          <div class="foot"></div>
+          <template if="{{app.pageLimit}}">
+            <div class="foot"></div>
+          </template>
         </div>
 
 
@@ -243,7 +254,9 @@
               </div>
             </template>
           </core-list>
-          <div class="foot"></div>
+          <template if="{{app.pageLimit}}">
+            <div class="foot"></div>
+          </template>
         </div>
 
 

@@ -14,19 +14,30 @@
       this.queryMethod = this.queryMethod || 'ID3';
     },
 
+    _attemptRefresh: function () {
+      this.async(this._attemptRefresh, null, 120000);
+      if (this.showing === 'podcast') {
+        var url = this.$.globals.buildUrl('getPodcasts');
+        this.$.globals.doXhr(url, 'json').then(function (e) {
+          this.response = e.target.response;
+        }.bind(this));
+      }
+    },
+
     domReady: function () {
       this.app = app;
       this.audio = this.app.$.player.audio;
       this.scrollTarget = this.app.appScroller();
+      this._attemptRefresh();
     },
 
     mediaFolderChanged: function (oldVal, newVal) {
       this.async(function () {
         this.$.globals.closeDrawer().then(function () {
-          if (Number(newVal) !== 0) {
-            this.post.musicFolderId = Number(newVal);
-          } else {
+          if (newVal === 'none') {
             delete this.post.musicFolderId;
+          } else {
+            this.post.musicFolderId = Number(newVal);
           }
           this.app.pageLimit = false;
           this.$.threshold.clearLower();
@@ -39,6 +50,7 @@
       this.wall = [];
       this.artist = [];
       this.podcast = [];
+      this.app.pageLimit = false;
       this.isLoading = true;
       this.app.dataLoading = true;
       this.$.list.updateSize();
@@ -184,7 +196,6 @@
     getPodcast: function () {
       this.showing = 'podcast';
       this.clearData(function podcastCallback() {
-        this.app.pageLimit = false;
         this.request = 'getPodcasts';
         if (this.post.type) {
           delete this.post.type;
@@ -202,7 +213,6 @@
     getStarred: function () {
       this.showing = 'wall';
       this.clearData(function starredCallback() {
-        this.app.pageLimit = false;
         if (this.queryMethod === 'ID3') {
           this.request = 'getStarred2';
         } else {
@@ -223,7 +233,6 @@
 
     getArtist: function () {
       this.clearData(function artistSearch() {
-        this.app.pageLimit = false;
         this.request = 'getArtists';
         if (this.post.type) {
           delete this.post.type;

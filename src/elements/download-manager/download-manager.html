@@ -40,7 +40,7 @@
             </core-tooltip>
             <core-tooltip label="{{$.globals.texts.removeDownloadLabel}}" disabled?="{{_isDownloading}}">
               <paper-icon-button icon="remove" id="removeButton"
-                                 on-tap="{{removeThis}}" class="mTop5" disabled?="{{_isDownloading}}">
+                                 on-tap="{{_removeThis}}" class="mTop5" disabled?="{{_isDownloading}}">
               </paper-icon-button>
             </core-tooltip>
           </div>

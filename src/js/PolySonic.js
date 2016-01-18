@@ -3,6 +3,7 @@
   'use strict';
 
   var app = document.querySelector('#tmpl');
+
   app.scrolling = false;
 
   // object for shuffle option
@@ -110,7 +111,7 @@
    * shuffle the order of a given array
    * @param {Array} array
    */
-  function shuffleArray(array) {
+  function _shuffleArray(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
     while (0 !== currentIndex) {
       randomIndex = Math.floor(Math.random() * currentIndex);
@@ -129,7 +130,7 @@
     app.tracker.sendEvent('Playlist Shuffled', new Date());
     var temp = app.playlist[app.playing];
     app.playlist.splice(app.playing, 1);
-    shuffleArray(app.playlist);
+    _shuffleArray(app.playlist);
     app.playlist.unshift(temp);
     app.$.globals.makeToast(app.$.globals.texts.randomized);
     if (app.playing !== 0) {
@@ -451,7 +452,7 @@
    * @param {Object} sender
    */
   app.setFolder = function (event, detail, sender) {
-    app.folder = parseInt(sender.attributes.i.value, 10);
+    app.folder = sender.attributes.i.value;
     simpleStorage.setSync({
       'mediaFolder': app.folder
     });
@@ -904,28 +905,18 @@
     app.$.globals.doXhr(url, 'json').then(function (e) {
       var response = e.target.response['subsonic-response'];
       if (response.status === 'ok') {
-        app.serverLicense = response.license;
-        var fromServer = new Date(app.serverLicense.date);
-        var nextYear = Math.abs(fromServer.getFullYear() + 1);
-        var expires;
-        if (app.serverLicense.trialExpires) {
-          expires = new Date(app.serverLicense.trialExpires);
+        if (versionCompare(app.version, '1.13.0') >= 0) {
+          app.serverLicense = response.license
+          app.timeLeft = moment(response.license.licenseExpires, 'YYYYMMDD').fromNow();
+          app.$.licenseDialog.open();
+          app.async(callback);
         } else {
-          expires = new Date(fromServer.setFullYear(nextYear));
+          app.serverLicense = response.license;
+          var nextYear = moment(response.license.date, 'YYYYMMDD').add(1, 'years').calendar();
+          app.timeLeft = moment(nextYear, 'YYYYMMDD').fromNow();
+          app.$.licenseDialog.open();
+          app.async(callback);
         }
-        var now = new Date();
-        var minute = 1000 * 60;
-        var hour = minute * 60;
-        var day = hour * 24;
-        var daysLeft = Math.ceil((expires.getTime() - now.getTime())/(day));
-        var hoursLeft = Math.ceil((expires.getTime() - now.getTime())/(hour));
-        if (daysLeft > 0) {
-          app.serverLicense.daysLeft = daysLeft + ' days';
-        } else {
-          app.serverLicense.daysLeft = hoursLeft + 'hours';
-        }
-        app.$.licenseDialog.open();
-        app.async(callback);
       }
     });
   };
@@ -954,82 +945,6 @@
       }
     });
   };
-
-//  /**
-//   * convert object a query string
-//   * @param {Object} params
-//   */
-//  function toQueryString(params) {
-//    var r = [];
-//    for (var n in params) {
-//      n = encodeURIComponent(n);
-//      r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
-//    }
-//    return r.join('&');
-//  }
-//
-//  /**
-//   * hex encode a text string
-//   */
-//  String.prototype.hexEncode = function () {
-//    var r = '';
-//    var i = 0;
-//    var h;
-//    while (i<this.length) {
-//      h = this.charCodeAt(i++).toString(16);
-//      while (h.length<2) {
-//        h = h;
-//      }
-//      r += h;
-//    }
-//    return 'enc:'+r;
-//  };
-//
-//  /**
-//   * create a random string of a given length
-//   * @param {number} length
-//   */
-//  function makeSalt(length) {
-//    var text = "";
-//    var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-//
-//    for( var i=0; i < length; i++ )
-//      text += possible.charAt(Math.floor(Math.random() * possible.length));
-//
-//    return text;
-//  }
-
-//  /**
-//   * generate a subsonic url string
-//   * @param {String} method
-//   * @param {Object} options
-//   */
-//  app.$.globals.buildUrl = function(method, options) {
-//    if (options !== null && typeof options === 'object') {
-//      options = '&' + toQueryString(options);
-//    }
-//    if (app.user !== app.params.u) {
-//      app.params.u = app.user;
-//    }
-//    if (app.version !== app.params.v) {
-//      app.params.v = app.version;
-//    }
-//    if (versionCompare(app.version, '1.13.0') >= 0 && app.md5Auth) {
-//      if (app.params.p) {
-//        delete app.params.p;
-//      }
-//      app.params.s = makeSalt(16);
-//      app.params.t = md5(app.pass + app.params.s);
-//      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
-//    } else {
-//      if (app.params.t) {
-//        delete app.params.t;
-//        delete app.params.s;
-//      }
-//      app.params.p = app.pass.hexEncode();
-//      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
-//    }
-//  };
 
   /**
    * key binding listener
@@ -1104,7 +1019,7 @@
       }
       if (app.url && app.user && app.pass) {
         app.$.globals.initFS();
-        var firstPing = app.$.globals.buildUrl('ping', '');
+        var firstPing = app.$.globals.buildUrl('ping');
         app.$.globals.doXhr(firstPing, 'json').then(function (e) {
           if (e.target.status === 200) {
 
@@ -1118,13 +1033,12 @@
             if (e.target.response['subsonic-response'].status === 'ok') {
               app.userDetails();
               console.log('Connected to Subconic loading data');
-              var folders = app.$.globals.buildUrl('getMusicFolders', '');
+              var folders = app.$.globals.buildUrl('getMusicFolders');
               app.$.globals.doXhr(folders, 'json').then(function (e) {
                 app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                 /* setting mediaFolder causes a ajax call to get album wall data */
-                app.folder = result.mediaFolder || 0;
-                if (e.target.response['subsonic-response'].musicFolders.musicFolder === undefined
-                || !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+                app.folder = result.mediaFolder || 'none';
+                if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
                   app.$.sortBox.style.display = 'none';
                 }
                 app.tracker.sendAppView('Album Wall');
