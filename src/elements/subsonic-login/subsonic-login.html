@@ -47,28 +47,30 @@
         background-color: #db4437;
       }
     </style>
+    <!-- globals -->
+    <app-globals id="globals"></app-globals>
     <core-ajax id="ajax" auto="false" method="GET" handleas="json" loading="{{isLoading}}" error="{{error}}" response="{{response}}">
     </core-ajax>
-      <h3>{{appName}}</h3>
-      {{appDesc}}
+      <h3>{{$.globals.texts.appName}}</h3>
+      {{$.globals.texts.appDesc}}
       <div id="validate">
-        <paper-input-decorator id="input1" disabled?="{{isLoading}}" autoValidate isInvalid="{{invalid1}}" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
+        <paper-input-decorator id="input1" disabled?="{{isLoading}}" autoValidate isInvalid="{{invalid1}}" labelvisible="" floatinglabel="" error="{{$.globals.texts.urlError}}" label="{{$.globals.texts.urlLabel}}">
           <input is="core-input" on-blur="{{testURL}}"  disabled?="{{isLoading}}" id="address" type="URL" value="{{app.url}}" required="">
         </paper-input-decorator>
         <paper-spinner hidden?="{{!testingURL}}" active></paper-spinner>
         <br>
-        <paper-input-decorator id="input2" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid2}}" labelvisible="" floatinglabel="" error="{{usernameError}}" label="{{usernameLabel}}">
+        <paper-input-decorator id="input2" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid2}}" labelvisible="" floatinglabel="" error="{{$.globals.texts.usernameError}}" label="{{$.globals.texts.usernameLabel}}">
           <input is="core-input"  disabled?="{{isLoading}}" type="text" value="{{app.user}}" required="">
         </paper-input-decorator>
         <br>
-        <paper-input-decorator id="input3" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid3}}" labelvisible="" floatinglabel="" label="{{passwordLabel}}">
+        <paper-input-decorator id="input3" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid3}}" labelvisible="" floatinglabel="" label="{{$.globals.texts.passwordLabel}}">
           <input is="core-input" on-keyup="{{checkKeyup}}" disabled?="{{isLoading}}" id="password" type="password" value="{{app.pass}}">
         </paper-input-decorator>
         <br>
-        <div id="showPass" on-tap="{{hidePass}}">{{showPass}}</div><br>
+        <div id="showPass" on-tap="{{hidePass}}">{{$.globals.texts.showPass}}</div><br>
         <br>
         <div id="auth" hidden horizontal layout>
-          <div style="text-align: left;" flex>MD5 Authentication</div>
+          <div style="text-align: left;" flex>{{$.globals.texts.md5}}</div>
           <paper-toggle-button class="redSwitch" on-change="{{authChanged}}" checked="{{app.md5Auth}}"></paper-toggle-button>
         </div>
         <br>
@@ -78,7 +80,7 @@
               <paper-spinner active=""></paper-spinner>
             </div>
           </template>
-          {{submitButton}}
+          {{$.globals.texts.submitButton}}
         </paper-button>
       </div>
     <core-label>

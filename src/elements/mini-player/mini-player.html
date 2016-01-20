@@ -86,31 +86,32 @@
         width:18px;
       }
     </style>
+    <app-globals id="globals"></app-globals>
     <core-animated-pages selected="{{page}}" transitions="hero-transition">
       <section>
         <div class="player offscreen" hero-id="bar" hero=""></div>
       </section>
       <section>
         <paper-shadow z="1" class='player onscreen' hero-id="bar" hero="">
-          <paper-slider on-change="{{progressClick}}" value="{{progress}}"></paper-slider>
+          <paper-slider on-change="{{_progressClick}}" value="{{progress}}"></paper-slider>
           <div horizontal layout>
             <div>
-              <core-tooltip label="{{label}}" position="top">
-                <img on-tap="{{toPlayer}}" src="{{img}}" height="71" widht="71">
+              <core-tooltip label="{{$.globals.texts.label}}" position="top">
+                <img on-tap="{{_toPlayer}}" src="{{_img}}" height="71" widht="71">
               </core-tooltip>
             </div>
             <div>
-              <paper-icon-button class="big" id="playButton" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
+              <paper-icon-button class="big" id="playButton" icon="av:pause" on-tap="{{_playPause}}"></paper-icon-button>
             </div>
             <div flex class="details">
-              <core-tooltip style="width:100%" label="{{label}}" position="top" on-tap="{{toPlayer}}">
-                <div flex class="track">{{track}}</div>
-                <div flex class="artist">{{artist}}</div>
+              <core-tooltip style="width:100%" label="{{$.globals.texts.label}}" position="top" on-tap="{{_toPlayer}}">
+                <div flex class="track">{{_track}}</div>
+                <div flex class="artist">{{_artist}}</div>
               </core-tooltip>
             </div>
             <div>
               <paper-spinner id="spinner" active></paper-spinner>
-              <paper-icon-button class="playlist" icon="av:queue-music" on-tap="{{openPlaylist}}"></paper-icon-button>
+              <paper-icon-button class="playlist" icon="av:queue-music" on-tap="{{_openPlaylist}}"></paper-icon-button>
             </div>
           </div>
         </paper-shadow>

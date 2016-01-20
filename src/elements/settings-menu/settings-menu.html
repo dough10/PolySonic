@@ -89,43 +89,22 @@
         max-height:600px;
       }
     </style>
-    <core-ajax id="ajax" auto="false" method="GET" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v=1.11.0&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{error}}" params="{{post}}" response="{{response}}">
+    <app-globals id="globals"></app-globals>
+    <core-ajax id="ajax" auto="false" method="GET" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v=1.11.0&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{_error}}" params="{{post}}" response="{{_response}}">
     </core-ajax>
     <div id="validate">
       <core-label>
-        <h4>{{appName}} {{polysonicVersion}}</h4>
-        <core-tooltip label="{{showLicenseLabel}}">
-          <div id="serverLicense" on-tap="{{getLicense}}">{{licenseInfoLink}}</div>
+        <h4>{{$.globals.texts.appName}} {{polysonicVersion}}</h4>
+        <core-tooltip label="{{$.globals.texts.showLicenseLabel}}">
+          <div id="serverLicense" on-tap="{{_getLicense}}">{{$.globals.texts.licenseInfoLink}}</div>
         </core-tooltip>
-        <paper-input-decorator id="input1" labelvisible="" floatinglabel="" error="{{urlError}}" label="{{urlLabel}}">
-          <input is="core-input" id="address" type="URL" value="{{post.url}}" required="">
-        </paper-input-decorator>
-        <br>
-        <paper-input-decorator id="input2"labelvisible="" floatinglabel="" error="{{usernameError}}" label="{{usernameLabel}}">
-          <input is="core-input" type="text" value="{{post.user}}" required="">
-        </paper-input-decorator>
-        <br>
-        <paper-input-decorator id="input3" labelvisible="" floatinglabel="" label="{{passwordLabel}}">
-          <input is="core-input" id="password" type="password" value="{{post.pass}}">
-        </paper-input-decorator>
-        <br>
-        <div id="showPass" on-tap="{{hidePass}}">{{showPass}}</div><br>
-        <br>
-        <paper-button on-tap="{{submit}}" raised>
-          <template if="{{isLoading}}">
-            <div id="load">
-              <paper-spinner active></paper-spinner>
-            </div>
-          </template>
-          {{submitButton}}
-        </paper-button>
         <br>
         <core-label>
-          {{bitrateLabel}}:
+          {{$.globals.texts.bitrateLabel}}:
           <paper-dropdown-menu label="{{bitrateLabel}}">
             <paper-dropdown layered class="dropdown">
-              <core-menu class="menu" selected="{{post.bitRate}}" valueattr="i" on-core-select="{{bitRateSelect}}">
-                <template repeat="{{speeds}}">
+              <core-menu class="menu" selected="{{post.bitRate}}" valueattr="i" on-core-select="{{_bitRateSelect}}">
+                <template repeat="{{_speeds}}">
                   <paper-item i="{{}}">{{}} kbps</paper-item>
                 </template>
               </core-menu>
@@ -133,83 +112,54 @@
           </paper-dropdown-menu>
         </core-label>
         <br>
-        <!--<core-label>
-          Results to Query:
-          <paper-dropdown-menu label="Select Query Size">
-            <paper-dropdown layered class="dropdown">
-              <core-menu class="menu" selected="{{post.querySize}}" valueattr="i" on-core-select="{{querySelect}}">
-                <template repeat="{{sizes}}">
-                  <paper-item i="{{}}">{{}}</paper-item>
-                </template>
-              </core-menu>
-            </paper-dropdown>
-          </paper-dropdown-menu>
-        </core-label>-->
-        
-<!--        <br>
-        <core-label>
-          Album Sort Method:
-          <paper-dropdown-menu label="Select Method">
-            <paper-dropdown layered class="dropdown">
-              <core-menu class="menu" selected="{{post.queryMethod}}" valueattr="i" on-core-select="{{methodSelect}}">
-                <paper-item i="ID3">ID3</paper-item>
-                <paper-item i="Subsonic">Subsonic</paper-item>
-              </core-menu>
-            </paper-dropdown>
-          </paper-dropdown-menu>
-        </core-label>
-        <br>
-        <br>
-        <br>-->
-
         <!-- switch for analistics -->
         <br>
         <div center horizontal layout class="switchBox">
           <div flex class="switchLabel">
-            Anonymous usage statistics
+            {{$.globals.texts.anonStats}}
           </div>
-          <paper-toggle-button class="redSwitch" checked="{{app.analisticsEnabled}}" on-change="{{analisticsToggle}}"></paper-toggle-button>
+          <paper-toggle-button class="redSwitch" checked="{{app.analisticsEnabled}}" on-change="{{_analisticsToggle}}"></paper-toggle-button>
         </div>
         <br>
         <br>
         <br>
         <div center horizontal layout class="switchBox">
           <div flex class="switchLabel">
-            Autobookmark long files
+            {{$.globals.texts.autoBookmark}}
           </div>
-          <paper-toggle-button class="redSwitch" checked="{{app.autoBookmark}}" on-change="{{toggleAutobookmark}}"></paper-toggle-button>
+          <paper-toggle-button class="redSwitch" checked="{{app.autoBookmark}}" on-change="{{_toggleAutobookmark}}"></paper-toggle-button>
         </div>
         <br>
         <br>
         <br>
         <div center horizontal layout class="switchBox">
           <div flex class="switchLabel">
-            Precache next track
+            {{$.globals.texts.precache}}
           </div>
-          <paper-toggle-button class="redSwitch" checked="{{app.gapless}}" on-change="{{toggleGapless}}"></paper-toggle-button>
+          <paper-toggle-button class="redSwitch" checked="{{app.gapless}}" on-change="{{_toggleGapless}}"></paper-toggle-button>
         </div>
         <div id="auth" hidden>
           <br>
           <br>
           <br>
           <div horizontal layout class="switchBox">
-            <div class="switchLabel" style="text-align: left;" flex>MD5 Authentication</div>
-            <paper-toggle-button class="redSwitch" on-change="{{authChanged}}" checked="{{app.md5Auth}}"></paper-toggle-button>
+            <div class="switchLabel" style="text-align: left;" flex>{{$.globals.texts.md5}}</div>
+            <paper-toggle-button class="redSwitch" on-change="{{_authChanged}}" checked="{{app.md5Auth}}"></paper-toggle-button>
           </div>
         </div>
       </core-label>
       <br>
-      <paper-button on-tap="{{showQuota}}">{{cacheDetails}}</paper-button>
+      <paper-button on-tap="{{_showQuota}}">{{$.globals.texts.cacheDetails}}</paper-button>
       <core-collapse id="quota">
         <br>
         {{storageQuota}}
         <br>
         <br>
-        <paper-button  class="red-button" on-tap="{{doClearCache}}">{{clearCacheLabel}}</paper-button>
+        <paper-button  class="red-button" on-tap="{{_clearCache}}">{{$.globals.texts.clearCacheLabel}}</paper-button>
       </core-collapse>
       <br>
       <br>
-      <paper-button class="red-button" on-tap="{{clearSettings}}">{{clearSettingsLabel}}</paper-button>
+      <paper-button class="red-button" on-tap="{{_clearSettings}}">{{$.globals.texts.clearSettingsLabel}}</paper-button>
     </div>
   </template>
   <script src="settings-menu.js"></script>

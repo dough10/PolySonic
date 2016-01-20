@@ -3,6 +3,7 @@
   'use strict';
 
   var app = document.querySelector('#tmpl');
+
   app.scrolling = false;
 
   // object for shuffle option
@@ -16,161 +17,6 @@
 
   // if true lazy load trigger will not needlessly call xhr
   app.pageLimit = false;
-
-  /**
-   * elements stamped to template & ready to use
-   */
-  app.addEventListener('template-bound', function () {
-    app.$.player.resize();
-    // bitrate
-    simpleStorage.getLocal().then(function (result) {
-      app.bitRate = result.bitRate || 320;
-    });
-    // all synced settings
-    simpleStorage.getSync().then(function (result) {
-      app.url = result.url;
-      app.user = result.user;
-      app.pass = result.pass;
-      app.md5Auth = result.md5Auth;
-      app.autoBookmark = result.autoBookmark;
-      app.gapless = result.gapless;
-      app.shuffleSettings.size = '50';
-      app.version = result.version || '1.11.0';
-      app.querySize = 50;
-      app.listMode = 'cover';
-      app.volume = result.volume || 100;
-      app.queryMethod = result.queryMethod || 'ID3';
-      app.repeatPlaylist = false;
-      app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
-      app.repeatState = chrome.i18n.getMessage('disabled');
-      app.$.repeatButton.style.color = '#db4437';
-      app.colorThiefEnabled = true;
-      app.dataLoading = false;
-      app.params = {
-        u: app.user,
-        v: app.version,
-        c: 'PolySonic',
-        f: 'json'
-      };
-      if (app.md5Auth === undefined) {
-        app.md5Auth = true;
-      }
-      if (app.url && app.user && app.pass) {
-        app.doXhr(app.buildUrl('ping', ''), 'json', function (e) {
-          if (e.target.status === 200) {
-
-            if (versionCompare(e.target.response['subsonic-response'].version, app.version) >= 0) {
-              app.version = e.target.response['subsonic-response'].version;
-              simpleStorage.setSync({
-                version: app.version
-              });
-            }
-
-            if (e.target.response['subsonic-response'].status === 'ok') {
-              app.userDetails();
-              console.log('Connected to Subconic loading data');
-              app.doXhr(app.buildUrl('getMusicFolders', ''), 'json', function (e) {
-                app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-                /* setting mediaFolder causes a ajax call to get album wall data */
-                app.folder = result.mediaFolder || 0;
-                if (e.target.response['subsonic-response'].musicFolders.musicFolder === undefined
-                || !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
-                  app.$.sortBox.style.display = 'none';
-                }
-                app.tracker.sendAppView('Album Wall');
-              });
-            } else {
-              app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-              app.$.firstRun.open();
-              app.doToast(e.target.response['subsonic-response'].error.meessage);
-            }
-
-          } else {
-            app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-            app.$.firstRun.open();
-            app.doToast(e.target.response['subsonic-response'].error.meessage);
-          }
-        });
-
-      } else {
-        app.$.firstRun.open();
-      }
-    });
-    // scrolling callback
-    app.appScroller().onscroll = app.scrollCallback;
-    // app resize callback
-    window.onresize = function () {
-      app.$.fab.setPos();
-      app.$.player.resize();
-      app.$.fab.resize();
-      if (chrome.app.window.current().innerBounds.width < 571) {
-        chrome.app.window.current().innerBounds.height = 761;
-      }
-    };
-    // analistics
-    app.service = analytics.getService('PolySonic');
-    app.tracker = app.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
-  });
-
-  /**
-   * internationalization
-   */
-  app.appName = chrome.i18n.getMessage("appName");
-  app.appDesc = chrome.i18n.getMessage("appDesc");
-  app.folderSelector = chrome.i18n.getMessage("folderSelector");
-  app.shuffleButton = chrome.i18n.getMessage("shuffleButton");
-  app.artistButton = chrome.i18n.getMessage("artistButton");
-  app.podcastButton = chrome.i18n.getMessage("podcastButton");
-  app.favoritesButton = chrome.i18n.getMessage("favoritesButton");
-  app.searchButton = chrome.i18n.getMessage("searchButton");
-  app.settingsButton = chrome.i18n.getMessage("settingsButton");
-  app.nowPlayingLabel = chrome.i18n.getMessage("nowPlayingLabel");
-  app.folderSelectorLabel = chrome.i18n.getMessage("folderSelectorLabel");
-  app.clearQueue = chrome.i18n.getMessage("clearQueue");
-  app.volumeLabel = chrome.i18n.getMessage("volumeLabel");
-  app.analistics = chrome.i18n.getMessage("analistics");
-  app.accept = chrome.i18n.getMessage("accept");
-  app.decline = chrome.i18n.getMessage("decline");
-  app.shuffleOptionsLabel = chrome.i18n.getMessage("shuffleOptionsLabel");
-  app.optional = chrome.i18n.getMessage("optional");
-  app.artistLabel = chrome.i18n.getMessage("artistLabel");
-  app.albumLabel = chrome.i18n.getMessage("albumLabel");
-  app.genreLabel = chrome.i18n.getMessage("genreLabel");
-  app.songReturn = chrome.i18n.getMessage("songReturn");
-  app.playButton = chrome.i18n.getMessage("playButton");
-  app.yearError = chrome.i18n.getMessage("yearError");
-  app.releasedAfter = chrome.i18n.getMessage("releasedAfter");
-  app.releasedBefore = chrome.i18n.getMessage("releasedBefore");
-  app.submitButton = chrome.i18n.getMessage("submitButton");
-  app.deleteConfirm = chrome.i18n.getMessage("deleteConfirm");
-  app.noResults = chrome.i18n.getMessage("noResults");
-  app.urlError = chrome.i18n.getMessage("urlError");
-  app.podcastSubmissionLabel = chrome.i18n.getMessage("podcastSubmissionLabel");
-  app.diskUsed = chrome.i18n.getMessage("diskused");
-  app.diskRemaining = chrome.i18n.getMessage("diskRemaining");
-  app.playlistsButton = chrome.i18n.getMessage("playlistsButton");
-  app.createPlaylistLabel = chrome.i18n.getMessage("createPlaylistLabel");
-  app.playlistLabel = chrome.i18n.getMessage("playlistLabel");
-  app.reloadAppLabel = chrome.i18n.getMessage("reloadApp");
-  app.settingsDeleted = chrome.i18n.getMessage("settingsDeleted");
-  app.recommendReload = chrome.i18n.getMessage("recommendReload");
-  app.jumpToLabel = chrome.i18n.getMessage("jumpToLabel");
-  app.closeLabel = chrome.i18n.getMessage("closeLabel");
-  app.moreOptionsLabel = chrome.i18n.getMessage("moreOptionsLabel");
-  app.refreshPodcastLabel = chrome.i18n.getMessage("refreshPodcast");
-  app.registeredEmail = chrome.i18n.getMessage("registeredEmail");
-  app.licenseKey = chrome.i18n.getMessage("licenseKey");
-  app.keyDate = chrome.i18n.getMessage("keyDate");
-  app.validLicense = chrome.i18n.getMessage("validLicense");
-  app.invalidLicense = chrome.i18n.getMessage("invalidLicense");
-  app.adjustVolumeLabel = chrome.i18n.getMessage("adjustVolumeLabel");
-  app.showDownloads = chrome.i18n.getMessage('showDownloads');
-  app.shuffleList = chrome.i18n.getMessage('shuffleList');
-  app.randomized = chrome.i18n.getMessage('randomized');
-  app.markCreated = chrome.i18n.getMessage('markCreated');
-  app.bookmarks = chrome.i18n.getMessage('bookmarks');
-  app.createBookmarkText = chrome.i18n.getMessage('createBookmark');
-  app.deletebookMarkConfirm = chrome.i18n.getMessage('deletebookMarkConfirm');
 
   // shuffle size options
   app.shuffleSizes = [
@@ -203,104 +49,6 @@
   ];
 
   /**
-   * indexDB setup
-   */
-  app.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
-  app.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction;
-  app.dbVersion = 1.0;
-  app.request = app.indexedDB.open("albumInfo", app.dbVersion);
-
-  /**
-   * indexdb error callback
-   */
-  app.request.onerror = function () {
-    console.log("Error creating/accessing IndexedDB database");
-  };
-
-  /**
-   * indexdb successful initiate callback
-   */
-  app.request.onsuccess = function () {
-    console.log("Success creating/accessing IndexedDB database");
-    app.db = app.request.result;
-
-    // Interim solution for Google Chrome to create an objectStore. Will be deprecated
-    if (app.db.setVersion) {
-      if (app.db.version !== app.dbVersion) {
-        var setVersion = app.db.setVersion(this.dbVersion);
-        setVersion.onsuccess = function () {
-          app.createObjectStore(this.db);
-        };
-      }
-    }
-  };
-
-//  app.maximize = function () {
-//    var button = document.querySelectorAll('.max');
-//    var length = button.length;
-//    if (chrome.app.window.current().isMaximized()) {
-//      chrome.app.window.current().restore();
-//      for (var i = 0; i < length; i++) {
-//        button[i].icon = 'check-box-outline-blank';
-//      }
-//    } else {
-//      chrome.app.window.current().maximize();
-//      for (var ii = 0; ii < length; ii++) {
-//        button[ii].icon = 'flip-to-back';
-//      }
-//    }
-//  };
-
-  /**
-   * indexdb upgraded
-   */
-  app.request.onupgradeneeded = function (event) {
-    app.createObjectStore(event.target.result);
-  };
-
-  /**
-   * create indexdb storage object
-   */
-  app.createObjectStore = function (dataBase) {
-    console.log("Creating objectStore");
-    dataBase.createObjectStore("albumInfo");
-  };
-
-  /**
-   * indexdb fetch error callback
-   * @param {Error} e
-   */
-  app.dbErrorHandler = function (e) {
-    console.error(e);
-  };
-
-  /**
-   * Fetch image from subsonic server and store it in indexeddb
-   * @param {String} url
-   * @param {String} id
-   * @param {Function} callback
-   */
-  app.getImageFile = function (url, id, callback) {
-    app.doXhr(url, 'blob', function (e) {
-      app.putInDb(new Blob([e.target.response], {type: 'image/jpeg'}), id, callback);
-    });
-  };
-
-  /**
-   * store object in indexeddb
-   * @param {Object} data
-   * @param {String} id
-   * @param {Function} callback
-   */
-  app.putInDb = function (data, id, callback) {
-    var transaction = app.db.transaction(["albumInfo"], "readwrite");
-    if (id) {
-      transaction.objectStore("albumInfo").put(data, id);
-      transaction.objectStore("albumInfo").get(id).onsuccess = callback;
-    }
-  };
-
-  /**
    * convert bytes to a readable form
    * @param {Number} bytes
    */
@@ -315,53 +63,11 @@
    * display currently used storage on settings menu
    */
   app.calculateStorageSize = function () {
-    navigator.webkitTemporaryStorage.queryUsageAndQuota(function (used, remaining) {
-      app.storageQuota = app.diskUsed + ": " + formatBytes(used) + ', ' + app.diskRemaining + ": " + formatBytes(remaining);
+    navigator.webkitPersistentStorage.queryUsageAndQuota(function (used, remaining) {
+      app.storageQuota = app.$.globals.texts.diskUsed + ": " + formatBytes(used) + ', ' + app.$.globals.texts.diskRemaining + ": " + formatBytes(remaining);
     }, function (e) {
       console.log('Error', e);
     });
-  };
-
-  /**
-   * fetch a item from indexeddb
-   * @param {String} id
-   * @param {Function} callback
-   */
-  app.getDbItem = function (id, callback) {
-    if (id) {
-      var transaction = app.db.transaction(["albumInfo"], "readwrite"),
-        request = transaction.objectStore("albumInfo").get(id);
-      request.onsuccess = callback;
-      request.onerror = app.dbErrorHandler;
-    }
-  };
-
-  /**
-   * default xhr error
-   * @param {Error} e
-   */
-  function xhrError(e) {
-    app.dataLoading = false;
-    app.doToast(chrome.i18n.getMessage("connectionError"));
-    console.error(e);
-    if (!document.querySelector('#loader').classList.contains("hide")) {
-      app.$.firstRun.open();
-    }
-  }
-
-  /**
-   * xhr
-   * @param {String} url
-   * @param {String} dataType
-   * @param {Function} callback
-   */
-  app.doXhr = function (url, dataType, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-    xhr.responseType = dataType;
-    xhr.onload = callback;
-    xhr.onerror = xhrError;
-    xhr.send();
   };
 
   /**
@@ -370,10 +76,6 @@
   app.reloadApp = function () {
     chrome.runtime.reload();
   };
-
-//  app.minimize = function () {
-//    chrome.app.window.current().minimize();
-//  };
 
   /**
    * open download dialog
@@ -389,17 +91,6 @@
     app.$.downloadDialog.close();
   };
 
-  /**
-   * close the app drawer if open
-   * @param {Function} callback
-   */
-  app.closeDrawer = function (callback) {
-    app.dataLoading = true;
-    app.$.panel.closeDrawer();
-    if (callback) {
-      app.async(callback, null, 500);
-    }
-  };
 
   /**
    * open the app drawer
@@ -415,159 +106,12 @@
     return app.$.headerPanel.scroller;
   };
 
-  /**
-   * display toast message to user
-   * @param {String} text
-   */
-  app.doToast = function (text) {
-    var toast = app.$.toast;
-    toast.text = text;
-    toast.show();
-  };
-
-  /**
-   * scrolling callback
-   */
-  app.scrollCallback = function () {
-    var fab = app.$.fab;
-    var wall = app.$.wall;
-    var scroller = app.appScroller();
-    var timer = 0;
-
-    if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
-      fab.state = 'off';
-    } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
-      fab.state = 'bottom';
-    } else if (app.page === 3 && fab.state !== 'off' && scroller.scrollTop < app.position) {
-      fab.state = 'off';
-    } else if (app.page === 3 && fab.state !== 'bottom' && scroller.scrollTop > app.position) {
-      fab.state = 'bottom';
-    }
-    app.position = scroller.scrollTop;
-    app.scrolling = true;
-    if (timer) {
-      clearTimeout(timer);
-      timer = 0;
-    } else {
-      timer = setTimeout(function () {
-        app.scrolling = false;
-      }.bind(this), 50);
-    }
-  };
-
-//  app.close = function () {
-//    app.checkUnsavedDownloads(function () {
-//      window.close();
-//    }, function () {
-//      this.$.unsavedDownloads.open();
-//    }.bind(this));
-//  };
-
-//  app.checkUnsavedDownloads = function (callback, haveUnsaved) {
-//    if (this.$.downloads.childElementCount !== 0) {
-//      var downloads = this.$.downloads.querySelectorAll('download-manager');
-//      var length = downloads.length;
-//      var count = 0;
-//      for (var i = 0; i < length; i++) {
-//        if (!downloads[i].hasSaved) {
-//          count = count + 1;
-//        }
-//        if (i === length - 1 && count ===0) {
-//          callback();
-//        } else {
-//          haveUnsaved();
-//        }
-//      }
-//    } else {
-//      callback();
-//    }
-//  };
-
-//  app.closeAnyway = function () {
-//    window.close();
-//  };
-
-  /**
-   * use colorthief to get palette from cover art
-   * @param {image element} image
-   */
-  app.getColor = function (image) {
-    var colorThief = new ColorThief();
-    return colorThief.getPalette(image, 4);
-  };
-
-  /**
-   * get contrasting color
-   * @param {String} hexcolor
-   */
-  app.getContrast50  = function (hexcolor) {
-    return (parseInt(hexcolor, 16) > 0xffffff / 2) ? 'black' : 'white';
-  };
-
-  /**
-   * convert component to hex value
-   */
-  app.componentToHex = function (c) {
-    var hex = c.toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
-  };
-
-  /**
-   * convert rgb values to hex color
-   * @param {Number} r
-   * @param {Number} g
-   * @param {Number} b
-   */
-  app.rgbToHex = function (r, g, b) {
-    return app.componentToHex(r) + app.componentToHex(g) + app.componentToHex(b);
-  };
-
-  /**
-   * capture color palette from image and store in indexeddb
-   * @param {String} imgURL
-   * @param {String} artId
-   * @param {Function} callback - returns an array of colors
-   */
-  app.colorThiefHandler = function (imgURL, artId, callback) {
-    var imgElement = new Image();
-    imgElement.src = imgURL;
-    imgElement.onload = function () {
-      var color = app.getColor(imgElement),
-        colorArray = [],
-        r = color[1][0],
-        g = color[1][1],
-        b = color[1][2],
-        hex = app.rgbToHex(r, g, b);
-      colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-      colorArray[1] = app.getContrast50(hex);
-      colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4);';
-      if (colorArray[1] !== 'white') {
-        colorArray[3] = '#444444';
-      } else {
-        colorArray[3] = '#c8c8c8';
-      }
-      app.putInDb(colorArray, artId + '-palette', function () {
-        if (callback) {
-          callback(colorArray);
-        }
-      });
-    };
-  };
-
-  /**
-   * callback for shuffle playback
-   */
-  function endLoop() {
-    app.doShufflePlayback();
-    app.dataLoading = false;
-    app.closePlaylists();
-  }
 
   /**
    * shuffle the order of a given array
    * @param {Array} array
    */
-  function shuffleArray(array) {
+  function _shuffleArray(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
     while (0 !== currentIndex) {
       randomIndex = Math.floor(Math.random() * currentIndex);
@@ -586,14 +130,12 @@
     app.tracker.sendEvent('Playlist Shuffled', new Date());
     var temp = app.playlist[app.playing];
     app.playlist.splice(app.playing, 1);
-    shuffleArray(app.playlist);
+    _shuffleArray(app.playlist);
     app.playlist.unshift(temp);
-    app.doToast(app.randomized);
+    app.$.globals.makeToast(app.$.globals.texts.randomized);
     if (app.playing !== 0) {
       app.alreadyPlaying = true; // tell player this track is already playing other wise will start play over again
-      app.async(function () {
-        app.playing = 0;
-      });
+      app.playing = 0;
     }
   };
 
@@ -601,31 +143,19 @@
    * open bookmarks dialog
    */
   app.openBookmarks = function () {
-    app.closeDrawer(function () {
-      app.doXhr(app.buildUrl('getBookmarks', ''), 'json', function (e) {
+    app.$.globals.closeDrawer().then(function () {
+      app.$.globals.doXhr(app.$.globals.buildUrl('getBookmarks', ''), 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           app.allBookmarks = e.target.response['subsonic-response'].bookmarks.bookmark;
           app.dataLoading = false;
           app.$.showBookmarks.open();
         } else {
           app.dataLoading = false;
-          app.doToast(e.target.response['subsonic-response'].error.message);
+          app.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
         }
       });
     });
   };
-
-  // playback handler for bookmarks
-  function handlePlay(obj) {
-    app.dataLoading = false;
-    app.playlist = [obj];
-    if (app.playing === 0) {
-      app.$.player.playAudio(obj);
-    } else {
-      app.playing = 0;
-    }
-    app.setFabColor(obj);
-  }
 
   /**
    * que a bookmark
@@ -634,15 +164,16 @@
   app.queBookmark = function (event) {
     var resumePos = event.path[0].dataset.pos;
     app.dataLoading = true;
-    app.doXhr(app.buildUrl('getSong', {
+    var url = app.$.globals.buildUrl('getSong', {
       id: event.path[0].dataset.id
-    }), 'json', function (e) {
+    });
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       app.$.showBookmarks.close();
-      var song = e.target.response['subsonic-response'].song,
-        obj = {},
-        artId;
+      var song = e.target.response['subsonic-response'].song;
+      var obj = {};
+      var artId;
       if (song.type === 'music') {
-        obj.duration = app.secondsToMins(song.duration);
+        obj.duration = app.$.globals.secondsToMins(song.duration);
         artId = 'al-' + song.albumId;
       } else {
         artId = song.coverArt;
@@ -656,27 +187,14 @@
         obj.artist = song.artist;
       }
       obj.bookmarkPosition = song.bookmarkPosition;
-      app.getDbItem(artId, function (cov) {
-        if (cov.target.result) {
-          var img = cov.target.result;
-          obj.cover = window.URL.createObjectURL(img);
-          app.getDbItem(artId + '-palette', function (palette) {
-            obj.palette = palette.target.result;
-            handlePlay(obj);
-          });
-        } else {
-          app.getImageFile(
-            app.buildUrl('getCoverArt', {
-              id: artId
-            }), 'json', function (xhrCov) {
-            var img = xhrCov.target.result;
-            obj.cover = window.URL.createObjectURL(img);
-            app.colorThiefHandler(obj.cover, artId, function (colorArray) {
-              obj.palette = colorArray;
-              handlePlay(obj);
-            });
-          });
-        }
+      app.$.globals.fetchImage(artId).then(function (imgURL) {
+        obj.cover = imgURL;
+        app.$.globals.getDbItem(artId + '-palette').then(function (palette) {
+          obj.palette = palette.target.result;
+          app.dataLoading = false;
+          app.playlist = [obj];
+          app.$.globals.playListIndex(0);
+        });
       });
     });
   };
@@ -695,30 +213,21 @@
    * @param {Event} event
    */
   app.deleteBookmark = function (event) {
-    app.doXhr(
-      app.buildUrl('deleteBookmark', {
+    app.$.globals.doXhr(
+      app.$.globals.buildUrl('deleteBookmark', {
         id: app.delID
       }), 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         app.dataLoading = true;
-        app.doXhr(app.buildUrl('getBookmarks', ''), 'json', function (ev) {
+        app.$.globals.doXhr(app.$.globals.buildUrl('getBookmarks', ''), 'json').then(function (ev) {
           app.allBookmarks = ev.target.response['subsonic-response'].bookmarks.bookmark;
           app.$.showBookmarks.open();
           app.dataLoading = false;
         });
       } else {
-        app.doToast(e.target.response['subsonic-response'].error.message);
+        app.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
       }
     });
-  };
-
-  /**
-   * convert seconds to readable form
-   * @param {Number} sec
-   */
-  app.secondsToMins = function (sec) {
-    var mins = Math.floor(sec / 60);
-    return mins + ':' + ('0' + Math.floor(sec - (mins * 60))).slice(-2);
   };
 
   /**
@@ -756,25 +265,40 @@
    * @param {Object} sender
    */
   app.playPlaylist = function (event, detail, sender) {
+    var id = sender.attributes.ident.value;
     app.dataLoading = true;
     app.playlist = null;
     app.playlist = [];
     if (app.$.player.audio) {
       app.$.player.audio.pause();
     }
-    app.doXhr(app.buildUrl('getPlaylist', {id: sender.attributes.ident.value}), 'json', function (e) {
+    var url = app.$.globals.buildUrl('getPlaylist', {
+      id: id
+    });
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       var tracks = e.target.response['subsonic-response'].playlist.entry;
-      var length = tracks.length;
-      for (var i = 0; i < length; i++) {
+      tracks.forEach(function (item) {
         var obj = {
-          id: tracks[i].id,
-          artist: tracks[i].artist,
-          title: tracks[i].title,
-          duration: app.secondsToMins(tracks[i].duration),
-          cover: "al-" + tracks[i].albumId
+          id: item.id,
+          artist: item.artist,
+          title: item.title,
+          duration: app.$.globals.secondsToMins(item.duration)
         };
-        app.fixCoverArtForShuffle(obj, endLoop);
-      }
+        var artId = 'al-' + item.albumId;
+        app.$.globals.fetchImage(artId).then(function (imgURL) {
+          obj.cover = imgURL;
+          app.$.globals.getDbItem(artId + '-palette').then(function (e) {
+            obj.palette = e.target.result;
+            app.playlist.push(obj);
+            app.job('moreLike', function () {
+              app.dataLoading = false;
+              app.closePlaylists();
+              app.dataLoading = false;
+              app.$.globals.playListIndex(0);
+            }, 500);
+          });
+        });
+      });
     });
   };
 
@@ -793,58 +317,41 @@
       if (app.shuffleSettings.genre === 0) {
         delete app.shuffleSettings.genre;
       }
-      app.doXhr(app.buildUrl('getRandomSongs', app.shuffleSettings), 'json', function (event) {
+      var url = app.$.globals.buildUrl('getRandomSongs', app.shuffleSettings);
+      app.$.globals.doXhr(url, 'json').then(function (event) {
         var data = event.target.response['subsonic-response'].randomSongs.song;
-        if (data) {
-          var length = data.length;
-          for (var i = 0; i < length; i++) {
+        if (data.length) {
+          data.forEach(function (item) {
             var obj = {
-              id: data[i].id,
-              artist: data[i].artist,
-              title: data[i].title,
-              duration: app.secondsToMins(data[i].duration),
-              cover: "al-" + data[i].albumId
+              id: item.id,
+              artist: item.artist,
+              title: item.title,
+              duration: app.$.globals.secondsToMins(item.duration)
             };
-            app.fixCoverArtForShuffle(obj, endLoop);
-          }
+            var artId = 'al-' + item.albumId;
+            app.$.globals.fetchImage(artId).then(function (imgURL) {
+              obj.cover = imgURL;
+              app.$.globals.getDbItem(artId + '-palette').then(function (e) {
+                obj.palette = e.target.result;
+                app.playlist.push(obj);
+                app.job('moreLike', function () {
+                  app.dataLoading = false;
+                  app.shuffleLoading = false;
+                  app.$.shuffleOptions.close();
+                  app.$.globals.playListIndex(0);
+                }, 1000);
+              });
+            });
+          });
         } else {
-          app.doToast(chrome.i18n.getMessage("noMatch"));
+          app.$.globals.makeToast(chrome.i18n.getMessage("noMatch"));
           app.shuffleLoading = false;
           app.dataLoading = false;
         }
       });
     } else {
       app.shuffleLoading = false;
-      app.doToast(chrome.i18n.getMessage("invalidEntry"));
-    }
-  };
-
-  /**
-   * start shuffle playback
-   */
-  app.doShufflePlayback = function () {
-    if (app.$.player.audio && app.$.player.audio.paused) {
-      if (app.playing === 0) {
-        app.$.player.playAudio(app.playlist[0]);
-      } else {
-        app.playing = 0;
-      }
-      app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
-        app.setFabColor(app.playlist[0]);
-        app.$.shuffleOptions.close();
-        app.shuffleLoading = false;
-      });
-    } else if (!app.$.player.audio) {
-      if (app.playing === 0) {
-        app.$.player.playAudio(app.playlist[0]);
-      } else {
-        app.playing = 0;
-      }
-      app.$.player.getImageForPlayer(app.playlist[0].cover, function () {
-        app.setFabColor(app.playlist[0]);
-        app.$.shuffleOptions.close();
-        app.shuffleLoading = false;
-      });
+      app.$.globals.makeToast(chrome.i18n.getMessage("invalidEntry"));
     }
   };
 
@@ -853,7 +360,9 @@
   */
   app.clearPlaylist = function () {
     app.tracker.sendEvent('Clear Playlist', new Date());
-    app.$.player.audio.pause();
+    if (app.$.player.audio && !app.$.player.audio.paused) {
+      app.$.player.audio.pause();
+    }
     app.$.playlistDialog.close();
     app.page = 0;
     app.playlist = null;
@@ -875,18 +384,6 @@
     app.$.volumeDialog.close();
   };
 
-//  app.volUp = function () {
-//    if (app.volume < 100) {
-//      app.volume = app.volume + 2;
-//    }
-//  };
-//
-//  app.volDown = function () {
-//    if (app.volume > 0) {
-//      app.volume = app.volume - 2;
-//    }
-//  };
-
   /**
    * toggle playlist looping
    */
@@ -894,18 +391,12 @@
     app.$.player.toggleRepeat();
   };
 
-//  app.defaultPlayImage = function () {
-//    app.$.coverArt.style.backgroundImage =  "url('images/default-cover-art.png')";
-//    app.$.playNotify.icon = 'images/default-cover-art.png';
-//  };
-
   /**
    * hide loading screen
    */
   app.showApp = function () {
-    var loader = document.getElementById("loader"),
-      box = document.getElementById("box");
-
+    var loader = document.getElementById("loader");
+    var box = document.getElementById("box");
     if (!loader.classList.contains("hide")) {
       loader.classList.add('hide');
       box.classList.add('hide');
@@ -924,25 +415,24 @@
         function (config) {
           if (result.analistics === undefined) {
             app.$.analistics.open();
+            app.allowAnalistics = function () {
+              app.analisticsEnabled = true;
+              config.setTrackingPermitted(true);
+              simpleStorage.setSync({
+                'analistics': true
+              });
+            };
+            app.disAllowAnalistics = function () {
+              app.analisticsEnabled = false;
+              config.setTrackingPermitted(false);
+              simpleStorage.setSync({
+                'analistics': false
+              });
+            };
           } else {
             config.setTrackingPermitted(result.analistics);
             app.analisticsEnabled = result.analistics;
           }
-          app.allowAnalistics = function () {
-            app.analisticsEnabled = true;
-            config.setTrackingPermitted(true);
-            simpleStorage.setSync({
-              'analistics': true
-            });
-          };
-
-          app.disAllowAnalistics = function () {
-            app.analisticsEnabled = false;
-            config.setTrackingPermitted(false);
-            simpleStorage.setSync({
-              'analistics': false
-            });
-          };
         }
       );
     });
@@ -962,39 +452,9 @@
    * @param {Object} sender
    */
   app.setFolder = function (event, detail, sender) {
-    app.folder = parseInt(sender.attributes.i.value, 10);
+    app.folder = sender.attributes.i.value;
     simpleStorage.setSync({
       'mediaFolder': app.folder
-    });
-  };
-
-  /**
-   * attach image object url to a playlist item object
-   * @param {Object} obj
-   * @param {Function} callback
-   */
-  app.fixCoverArtForShuffle = function (obj, callback) {
-    var artId = obj.cover;
-    app.getDbItem(artId, function (ev) {
-      if (ev.target.result) {
-        var imgURL = window.URL.createObjectURL(ev.target.result);
-        obj.cover = imgURL;
-        app.getDbItem(artId + '-palette', function (ev) {
-          obj.palette = ev.target.result;
-          app.playlist.push(obj);
-          app.async(callback);
-        });
-      } else {
-        app.getImageFile(app.buildUrl('getCoverArt', {id: artId}), artId, function (ev) {
-          var imgURL = window.URL.createObjectURL(ev.target.result);
-          obj.cover = imgURL;
-          app.colorThiefHandler(imgURL, artId, function (colorArray) {
-            obj.palette = colorArray;
-            app.playlist.push(obj);
-            app.async(callback);
-          });
-        });
-      }
     });
   };
 
@@ -1003,7 +463,7 @@
    * @param {Array} array
    */
   app.setFabColor = function (array) {
-    if (app.colorThiefEnabled && array.palette) {
+    if (array.palette) {
       app.colorThiefFab = array.palette[0];
       app.colorThiefFabOff = array.palette[1];
       app.colorThiefBuffered = array.palette[2];
@@ -1017,53 +477,53 @@
   app.savePlayQueue = function () {
     app.$.playlistDialog.close();
     app.$.createPlaylist.open();
-    app.defaultName = new Date().toLocalString();
+    app.defaultName = new Date().toString();
   };
 
   /**
    * callback for saving a playlist
    */
-  function save2PlayQueueCallback (e) {
-    if (e.target.response['subsonic-response'].status === 'ok') {
-      app.doToast(chrome.i18n.getMessage('playlistCreated'));
-      app.$.createPlaylist.close();
-      app.savingPlaylist = false;
-    } else {
-      app.doToast(chrome.i18n.getMessage('playlistError'));
-      app.savingPlaylist = false;
-    }
-  }
+
 
   /**
    * save a playlist
    */
   app.savePlayQueue2Playlist = function () {
-    var url = app.buildUrl('createPlaylist', {name: app.defaultName}),
-      length = app.playlist.length;
+    var url = app.$.globals.buildUrl('createPlaylist', {name: app.defaultName});
+    var plength = app.playlist.length;
     app.savingPlaylist = true;
-    for (var i = 0; i < length; i++) {
+    for (var i = 0; i < plength; i++) {
       url = url + '&songId=' + app.playlist[i].id;
-      if (i === length - 1) {
-        app.doXhr(url, 'json', save2PlayQueueCallback);
-      }
     }
+    app.$.globals.doXhr(url, 'json').then(function (e) {
+      if (e.target.response['subsonic-response'].status === 'ok') {
+        app.$.globals.makeToast(chrome.i18n.getMessage('playlistCreated'));
+        app.$.createPlaylist.close();
+        app.savingPlaylist = false;
+      } else {
+        app.$.globals.makeToast(chrome.i18n.getMessage('playlistError'));
+        app.savingPlaylist = false;
+      }
+    });
   };
 
+  /**
+   * close playlist creaton dialog
+   */
   app.closePlaylistSaver = function () {
     app.$.createPlaylist.close();
   };
 
+  /**
+   * FAB click handler
+   * @param {Event} event
+   * @param {Object} detail
+   * @param {Object} sender
+   */
   app.doAction = function (event, detail, sender) {
     var scroller = app.appScroller(),
       wall = app.$.wall,
-      animation = new CoreAnimation();
-    animation.duration = 1000;
-    animation.iterations = 'Infinity';
-    animation.keyframes = [
-      {opacity: 1},
-      {opacity: 0}
-    ];
-    animation.target = sender;
+      animation = app.$.globals.attachAnimation(sender);
     if (app.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast' && app.$.fab.state === 'bottom') {
       scroller.scrollTop = 0;
     }
@@ -1089,6 +549,9 @@
     }
   };
 
+  /**
+   * check key press to see if we should start searching
+   */
   app.searchCheck = function (e) {
     if (e.keyIdentifier === "Enter") {
       e.target.blur();
@@ -1096,120 +559,123 @@
     }
   };
 
+  /**
+   * run the search & display results
+   */
   app.doSearch = function () {
     if (app.searchQuery) {
-      app.async(function () {
-        app.closeDrawer(function () {
-          app.async(function () {
-            app.doXhr(app.buildUrl('search3', {query: encodeURIComponent(app.searchQuery)}), 'json', function (e) {
-              app.dataLoading = true;
-              if (e.target.response['subsonic-response'].status === 'ok') {
-                app.searchQuery = '';
-                var response = e.target.response;
-                if (response['subsonic-response'].searchResult3.album) {
-                  app.async(function () {
-                    if (!app.narrow && app.page !== 0) {
-                      app.page = 0;
-                      app.async(function () {
-                        app.$.wall.response = response;
-                        app.showing = app.listMode;
-                      }, null, 550);
-                    } else if (app.narrow) {
-                      app.$.wall.response = response;
-                      app.showing = app.listMode;
-                    } else {
-                      app.$.wall.clearData(function () {
-                        app.$.wall.response = response;
-                        app.showing = app.listMode;
-                      });
-                    }
-                  });
-                } else {
-                  app.dataLoading = false;
-                  app.doToast(chrome.i18n.getMessage('noResults'));
-                }
-              }
-            });
-          });
+      app.$.globals.closeDrawer().then(function () {
+        var url = app.$.globals.buildUrl('search3', {
+          query: encodeURIComponent(app.searchQuery)
+        });
+        app.$.globals.doXhr(url, 'json').then(function (e) {
+          app.dataLoading = true;
+          if (e.target.response['subsonic-response'].status === 'ok') {
+            app.searchQuery = '';
+            var response = e.target.response;
+            if (response['subsonic-response'].searchResult3.album) {
+              app.page = 0;
+              app.$.wall.response = response;
+              app.showing = 'wall';
+              app.pageLimit = true;
+            } else {
+              app.dataLoading = false;
+              app.$.globals.makeToast(chrome.i18n.getMessage('noResults'));
+            }
+          }
         });
       });
     } else {
-      app.doToast(chrome.i18n.getMessage("noSearch"));
+      app.$.globals.makeToast(chrome.i18n.getMessage("noSearch"));
     }
   };
 
+  /**
+   * open the playlist / play que dialog
+   * @param {String} p - just a small string I send with the click to set animation
+   */
   app.showPlaylist = function (p) {
-    /* p is just a small string i send with the click function */
     if (p) {
       app.$.playlistDialog.transition = "core-transition-bottom";
     } else {
       app.$.playlistDialog.transition = "core-transition-top";
     }
-    app.async(function () {
-      app.$.playlistDialog.toggle();
-    });
+    app.$.playlistDialog.toggle();
   };
 
+  /**
+   * close the playlist / play que dialog
+   */
   app.closePlaylist = function () {
-    app.async(function () {
-      app.$.playlistDialog.close();
-    });
+    app.$.playlistDialog.close();
   };
 
+  /**
+   * open subsonic playlists dialog
+   */
   app.openPlaylists = function () {
-    app.closeDrawer(function ()  {
+    app.$.globals.closeDrawer().then(function ()  {
       app.dataLoading = false;
       app.playlistsLoading = true;
-      app.doXhr(app.buildUrl('getPlaylists', ''), 'json', function (e) {
+      app.$.globals.doXhr(app.$.globals.buildUrl('getPlaylists', ''), 'json').then(function (e) {
         app.playlistsLoading = false;
         app.playlists = e.target.response['subsonic-response'].playlists.playlist;
-        app.async(function () {
-          app.$.playlistsDialog.open();
-        });
+        app.$.playlistsDialog.open();
       });
     });
   };
 
+  /**
+   * close sudsonic playlists dialog
+   */
   app.closePlaylists = function () {
-    app.async(function () {
-      app.$.playlistsDialog.close();
-    });
+    app.$.playlistsDialog.close();
   };
 
+  /**
+   * open playlist delete confirmation dialog
+   */
   app.reallyDelete = function (event, detail, sender) {
     app.delID =  sender.attributes.ident.value;
-    app.async(function () {
-      app.$.playlistsDialog.close();
-      app.$.playlistConfirm.open();
-    });
+    app.$.playlistsDialog.close();
+    app.$.playlistConfirm.open();
   };
 
+  /**
+   * send playlist delete command to server
+   */
   app.deletePlaylist = function (event, detail, sender) {
-    app.doXhr(app.buildUrl('deletePlaylist', {id: sender.attributes.ident.value}), 'json', function (e) {
+    var url = app.$.globals.buildUrl('deletePlaylist', {
+      id: sender.attributes.ident.value
+    });
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         app.playlistsLoading = true;
-        app.doXhr(app.buildUrl('getPlaylists', ''), 'json', function (e) {
+        app.$.globals.doXhr(app.$.globals.buildUrl('getPlaylists', ''), 'json').then(function (e) {
           app.playlistsLoading = false;
           app.playlists = e.target.response['subsonic-response'].playlists.playlist;
-          app.async(function () {
-            app.$.playlistsDialog.open();
-          });
+          app.$.playlistsDialog.open();
         });
       } else {
-        app.doToast(chrome.i18n.getMessage('deleteError'));
+        app.$.globals.makeToast(chrome.i18n.getMessage('deleteError'));
       }
     });
   };
 
+  /**
+   * close shuffle options dialog
+   */
   app.closeShuffleOptions = function () {
-    app.async(function () {
-      app.$.shuffleOptions.close();
-    });
+    app.$.shuffleOptions.close();
   };
 
+  /**
+   * open shuffle options dialog
+   */
   app.shuffleOptions = function () {
-    app.closeDrawer(function () {
-      app.doXhr(app.buildUrl('getGenres', ''), 'json', function (e) {
+    app.$.globals.closeDrawer().then(function () {
+      var url = app.$.globals.buildUrl('getGenres', '');
+      app.$.globals.doXhr(url, 'json').then(function (e) {
         app.genres = e.target.response['subsonic-response'].genres.genre;
         app.genres.sort(function(a, b){
           if(a.value < b.value) return -1;
@@ -1217,49 +683,64 @@
           return 0;
         });
         app.dataLoading = false;
-        app.async(function () {
-          app.$.shuffleOptions.open();
-        });
+        app.$.shuffleOptions.open();
       });
     });
   };
 
+  /**
+   * close podcast add dialog
+   */
   app.closePodcastDialog = function () {
-    app.async(function () {
-      app.$.addPodcast.close();
-    });
+    app.$.addPodcast.close();
   };
 
-  app.toggleWall = function () {
-    app.dataLoading = true;
-    var wall = app.$.wall;
-    if (wall.listMode === 'cover') {
-      wall.listMode = 'list';
+  app.toggleWall = function (e , detail, sender) {
+    if (app.listMode === 'cover') {
+      app.listMode = 'list';
       simpleStorage.setSync({
         'listMode': 'list'
       });
     } else {
-      wall.listMode = 'cover';
+      app.listMode = 'cover';
       simpleStorage.setSync({
         'listMode': 'cover'
       });
     }
-    app.tracker.sendEvent('ListMode Changed', wall.listMode);
+    app.tracker.sendEvent('ListMode Changed', app.listMode);
+    if (app.page === 3) {
+      app.$.aDetails.queryData();
+    }
+    var wallToggles = document.querySelectorAll('.wallToggle');
+    for (var i = 0; i < wallToggles.length; i++) {
+      if (app.listMode === 'cover') {
+        wallToggles[i].icon = 'view-stream';
+      } else {
+        wallToggles[i].icon = 'view-module';
+      }
+    }
   };
 
+  /**
+   * navigate back to albumd list
+   */
   app.back2List = function () {
-    app.async(function () {
-      app.page = 0;
-    });
+    app.page = 0;
   };
 
+  /**
+   * navigate to now playing page
+   */
   app.nowPlaying = function () {
-    app.async(function () {
-      app.page = 1;
-    });
+    app.page = 1;
   };
 
-  /*jslint unparam: true*/
+  /**
+   * app menu sort option click handler
+   * @param {Event} event
+   * @param {Object} detail
+   * @param {Object} sender
+   */
   app.selectAction = function (event, detail, sender) {
     var wall = app.$.wall;
     app.tracker.sendEvent('Sorting By ' + wall.sort, new Date());
@@ -1279,7 +760,7 @@
           wall.$.threshold.clearLower();
         }
         wall.sort = sender.attributes.i.value;
-      }, null, 550);
+      });
     } else if (!app.narrow) {
       if (wall.sort === sender.attributes.i.value) {
         app.pageLimit = false;
@@ -1295,7 +776,7 @@
       }
       wall.sort = sender.attributes.i.value;
     } else {
-      app.closeDrawer(function () {
+      app.$.globals.closeDrawer().then(function () {
         if (wall.sort === sender.attributes.i.value) {
           app.pageLimit = false;
           if (app.queryMethod === 'ID3') {
@@ -1312,219 +793,162 @@
       });
     }
   };
-  /*jslint unparam: false*/
 
+  /**
+   * fetch podcasts
+   */
   app.getPodcast = function () {
     app.tracker.sendEvent('Showing Podcast', new Date());
-    if (!app.narrow && app.page !== 0) {
-      app.page = 0;
-      app.async(function () {
-        app.$.wall.getPodcast();
-      }, null, 550);
-    } else if (!app.narrow) {
+    app.page = 0;
+    app.$.globals.closeDrawer().then(function () {
       app.$.wall.getPodcast();
-    } else {
-      app.closeDrawer(function () {
-        app.$.wall.getPodcast();
-      });
-    }
-  };
-
-  app.getStarred = function () {
-    app.tracker.sendEvent('Showing Favorites', new Date());
-    if (!app.narrow && app.page !== 0) {
-      app.page = 0;
-      app.async(function () {
-        app.$.wall.getStarred();
-      }, null, 550);
-    } else if (!app.narrow) {
-      app.$.wall.getStarred();
-    } else {
-      app.closeDrawer(function () {
-        app.$.wall.getStarred();
-      });
-    }
-  };
-
-  app.getArtist = function () {
-    app.tracker.sendEvent('Showing Artist List', new Date());
-    if (!app.narrow && app.page !== 0) {
-      app.page = 0;
-      app.async(function () {
-        app.$.wall.getArtist();
-      }, null, 550);
-    } else if (!app.narrow) {
-      app.$.wall.getArtist();
-    } else {
-      app.closeDrawer(function () {
-        app.$.wall.getArtist();
-      });
-    }
-  };
-
-  app.gotoSettings = function () {
-    app.tracker.sendEvent('Settings Page', new Date());
-    app.async(function () {
-      app.$.panel.closeDrawer();
-      app.page = 2;
     });
   };
 
+  /**
+   * fetch starred albums
+   */
+  app.getStarred = function () {
+    app.tracker.sendEvent('Showing Favorites', new Date());
+    app.page = 0;
+    app.$.globals.closeDrawer().then(function () {
+      app.$.wall.getStarred();
+    });
+  };
+
+  /**
+   * fetch artist list
+   */
+  app.getArtist = function () {
+    app.tracker.sendEvent('Showing Artist List', new Date());
+    app.page = 0;
+    app.$.globals.closeDrawer().then(function () {
+      app.$.wall.getArtist();
+    });
+  };
+
+  /**
+   * navigate to settings page
+   */
+  app.gotoSettings = function () {
+    app.tracker.sendEvent('Settings Page', new Date());
+    app.$.panel.closeDrawer();
+    app.page = 2;
+  };
+
+  /**
+   * refersh the podcast list
+   * @param {Event} event
+   * @param {Object} detail
+   * @param {Object} sender
+   */
   app.refreshPodcast = function (event, detail, sender) {
-    var animation = new CoreAnimation();
-    animation.duration = 1000;
-    animation.iterations = 'Infinity';
-    animation.keyframes = [
-      {opacity: 1},
-      {opacity: 0}
-    ];
-    animation.target = sender;
+    var animation = app.$.globals.attachAnimation(sender);
     animation.play();
-    app.doXhr(app.buildUrl('refreshPodcasts', ''), 'json', function (e) {
+    var url = app.$.globals.buildUrl('refreshPodcasts');
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         animation.cancel();
         app.$.wall.refreshContent();
-        app.doToast(chrome.i18n.getMessage("podcastCheck"));
+        app.$.globals.makeToast(chrome.i18n.getMessage("podcastCheck"));
       }
     });
   };
 
+  /**
+   * add a podcast channel
+   */
   app.addChannel = function () {
     app.tracker.sendEvent('Adding Podcast', new Date());
     if (!app.castURL) {
-      app.doToast(app.urlError);
+      app.$.globals.makeToast(app.urlError);
     }
+    //console.log(app.castURL);
     if (!app.invalidURL) {
       app.addingChannel = true;
-      app.doXhr(app.buildUrl('createPodcastChannel', {url: encodeURIComponent(app.castURL)}), 'json', function (e) {
+      var url = app.$.globals.buildUrl('createPodcastChannel', {
+        url: app.castURL
+      });
+      app.$.globals.doXhr(url, 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'ok') {
           app.addingChannel = false;
           app.$.addPodcast.close();
           app.$.wall.refreshContent();
-          app.doToast(chrome.i18n.getMessage("channelAdded"));
+          app.$.globals.makeToast(chrome.i18n.getMessage("channelAdded"));
           app.castURL = '';
         } else {
-          app.doToast(chrome.i18n.getMessage("podcastError"));
+          app.$.globals.makeToast(chrome.i18n.getMessage("podcastError"));
         }
       });
     }
   };
 
+  /**
+   * delete a podcast channel
+   */
   app.doDelete = function (event, detail, sender) {
     app.$.wall.deleteChannel(sender.attributes.ident.value);
   };
 
+  /**
+   * delete a podcast episode
+   */
   app.deleteEpisode = function (event, detail, sender) {
     app.$.wall.deleteEpisode(sender.attributes.ident.value);
   };
 
+  /**
+   * display user license info dialog
+   */
   app.getLicense = function (callback) {
-    app.doXhr(app.buildUrl('getLicense', ''), 'json', function (e) {
+    var url = app.$.globals.buildUrl('getLicense');
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       var response = e.target.response['subsonic-response'];
       if (response.status === 'ok') {
-        app.serverLicense = response.license;
-        var fromServer = new Date(app.serverLicense.date);
-        var nextYear = Math.abs(fromServer.getFullYear() + 1);
-        var expires;
-        if (app.serverLicense.trialExpires) {
-          expires = new Date(app.serverLicense.trialExpires);
+        if (versionCompare(app.version, '1.13.0') >= 0) {
+          app.serverLicense = response.license
+          app.timeLeft = moment(response.license.licenseExpires, 'YYYYMMDD').fromNow();
+          app.$.licenseDialog.open();
+          app.async(callback);
         } else {
-          expires = new Date(fromServer.setFullYear(nextYear));
+          app.serverLicense = response.license;
+          var nextYear = moment(response.license.date, 'YYYYMMDD').add(1, 'years').calendar();
+          app.timeLeft = moment(nextYear, 'YYYYMMDD').fromNow();
+          app.$.licenseDialog.open();
+          app.async(callback);
         }
-        var now = new Date();
-        var minute = 1000 * 60;
-        var hour = minute * 60;
-        var day = hour * 24;
-        var daysLeft = Math.ceil((expires.getTime() - now.getTime())/(day));
-        var hoursLeft = Math.ceil((expires.getTime() - now.getTime())/(hour));
-        if (daysLeft > 0) {
-          app.serverLicense.daysLeft = daysLeft + ' days';
-        } else {
-          app.serverLicense.daysLeft = hoursLeft + 'hours';
-        }
-        app.$.licenseDialog.open();
-        app.async(callback);
       }
     });
   };
 
+  /**
+   * close license dialog
+   */
   app.licenseDialogClose = function () {
     app.$.licenseDialog.close();
   };
 
+  /**
+   * fetch and set user account details
+   * used to set flags for access restrictions
+   */
   app.userDetails = function () {
-    app.async(function () {
-      app.doXhr(app.buildUrl('getUser', {username: app.user}), 'json', function (e) {
-        var response = e.target.response['subsonic-response'];
-        if (response.status === 'ok') {
-          app.activeUser = response.user;
-        } else {
-          console.error('Error getting User details');
-        }
-      });
+    var url = app.$.globals.buildUrl('getUser', {
+      username: app.user
+    });
+    app.$.globals.doXhr(url, 'json').then(function (e) {
+      var response = e.target.response['subsonic-response'];
+      if (response.status === 'ok') {
+        app.activeUser = response.user;
+      } else {
+        console.error('Error getting User details');
+      }
     });
   };
 
-  function toQueryString(params) {
-    var r = [];
-    for (var n in params) {
-      n = encodeURIComponent(n);
-      r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
-    }
-    return r.join('&');
-  }
-
-  String.prototype.hexEncode = function () {
-    var r = '';
-    var i = 0;
-    var h;
-    while (i<this.length) {
-      h = this.charCodeAt(i++).toString(16);
-      while (h.length<2) {
-        h = h;
-      }
-      r += h;
-    }
-    return 'enc:'+r;
-  };
-
-  function makeSalt(length) {
-    var text = "";
-    var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for( var i=0; i < length; i++ )
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-  }
-
-  app.buildUrl = function(method, options) {
-    if (options !== null && typeof options === 'object') {
-      options = '&' + toQueryString(options);
-    }
-    if (app.user !== app.params.u) {
-      app.params.u = app.user;
-    }
-    if (app.version !== app.params.v) {
-      app.params.v = app.version;
-    }
-    if (versionCompare(app.version, '1.13.0') >= 0 && app.md5Auth) {
-      if (app.params.p) {
-        delete app.params.p;
-      }
-      app.params.s = makeSalt(16);
-      app.params.t = md5(app.pass + app.params.s);
-      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
-    } else {
-      if (app.params.t) {
-        delete app.params.t;
-        delete app.params.s;
-      }
-      app.params.p = app.pass.hexEncode();
-      return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
-    }
-  };
-
+  /**
+   * key binding listener
+   */
   chrome.commands.onCommand.addListener(function(command) {
     var player = document.querySelector('music-player');
     if (command === 'mediaPlay') {
@@ -1540,6 +964,141 @@
     } else if (command === 'volumeDown' && app.volume !== 0) {
       app.volume = Math.abs(app.volume - 1);
     }
+  });
+
+  /**
+   * elements stamped to template & ready to use
+   */
+  app.addEventListener('template-bound', function () {
+    app.$.player.resize();
+    // bitrate
+    simpleStorage.getLocal().then(function (result) {
+      app.bitRate = result.bitRate || 320;
+    });
+    // all synced settings
+    simpleStorage.getSync().then(function (result) {
+      app.url = result.url;
+      app.user = result.user;
+      app.pass = result.pass;
+      app.md5Auth = result.md5Auth;
+      app.autoBookmark = result.autoBookmark;
+      app.gapless = result.gapless;
+      app.shuffleSettings.size = '50';
+      app.version = result.version || '1.11.0';
+      app.querySize = 60;
+      app.listMode = result.listMode || 'cover';
+      app.volume = result.volume || 100;
+      app.queryMethod = result.queryMethod || 'ID3';
+      app.repeatPlaylist = false;
+      app.$.wall.post = {
+        type: result.sortType || 'newest',
+        size: 60,
+        offset: 0
+      };
+      app.$.wall.request = result.request || 'getAlbumList2';
+      app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
+      app.repeatState = chrome.i18n.getMessage('disabled');
+      app.$.repeatButton.style.color = '#db4437';
+      app.dataLoading = false;
+      app.params = {
+        u: app.user,
+        v: app.version,
+        c: 'PolySonic',
+        f: 'json'
+      };
+      var wallToggles = document.querySelectorAll('.wallToggle');
+      for (var i = 0; i < wallToggles.length; i++) {
+        if (app.listMode === 'cover') {
+          wallToggles[i].icon = 'view-stream';
+        } else {
+          wallToggles[i].icon = 'view-module';
+        }
+      }
+      if (app.md5Auth === undefined) {
+        app.md5Auth = true;
+      }
+      if (app.url && app.user && app.pass) {
+        app.$.globals.initFS();
+        var firstPing = app.$.globals.buildUrl('ping');
+        app.$.globals.doXhr(firstPing, 'json').then(function (e) {
+          if (e.target.status === 200) {
+
+            if (versionCompare(e.target.response['subsonic-response'].version, app.version) >= 0) {
+              app.version = e.target.response['subsonic-response'].version;
+              simpleStorage.setSync({
+                version: app.version
+              });
+            }
+
+            if (e.target.response['subsonic-response'].status === 'ok') {
+              app.userDetails();
+              console.log('Connected to Subconic loading data');
+              var folders = app.$.globals.buildUrl('getMusicFolders');
+              app.$.globals.doXhr(folders, 'json').then(function (e) {
+                app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                /* setting mediaFolder causes a ajax call to get album wall data */
+                app.folder = result.mediaFolder || 'none';
+                if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+                  app.$.sortBox.style.display = 'none';
+                }
+                app.tracker.sendAppView('Album Wall');
+              });
+            } else {
+              app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
+              app.$.firstRun.open();
+              app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
+            }
+
+          } else {
+            app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
+            app.$.firstRun.open();
+            app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
+          }
+        }).catch(function () {
+          app.$.firstRun.open();
+        });
+
+      } else {
+        app.$.firstRun.open();
+      }
+    });
+
+    // set main content scrolling callback
+    app.appScroller().onscroll = function () {
+      var fab = app.$.fab;
+      var wall = app.$.wall;
+      var scroller = app.appScroller();
+      var timer = 0;
+
+      if (app.page === 0 && fab.state !== 'off' && scroller.scrollTop < app.position && wall.showing !== 'podcast') {
+        fab.state = 'off';
+      } else if (app.page === 0 && fab.state !== 'bottom' && scroller.scrollTop > app.position && wall.showing !== 'podcast') {
+        fab.state = 'bottom';
+      } else if (app.page === 3 && fab.state !== 'off' && scroller.scrollTop < app.position) {
+        fab.state = 'off';
+      } else if (app.page === 3 && fab.state !== 'bottom' && scroller.scrollTop > app.position) {
+        fab.state = 'bottom';
+      }
+      app.position = scroller.scrollTop;
+      app.scrolling = true;
+      app.job('scroll', function () {
+        app.scrolling = false;
+      }, 50);
+    };
+
+    // app resize callback
+    window.onresize = function () {
+      app.$.fab.setPos();
+      app.$.player.resize();
+      app.$.fab.resize();
+      if (chrome.app.window.current().innerBounds.width < 571) {
+        chrome.app.window.current().innerBounds.height = 761;
+      }
+    };
+
+    // analistics
+    app.service = analytics.getService('PolySonic');
+    app.tracker = app.service.getTracker('UA-50154238-6');  // Supply your GA Tracking ID.
   });
 
 }());

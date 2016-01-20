@@ -56,7 +56,12 @@ module.exports = function(grunt) {
     cssmin: {
       main: {
         files: [
-          {expand: true, cwd: 'src/', src: ['PolySonic.html'], dest: 'src/', ext: '.css'}
+          {
+            expand: true, cwd: 'src/',
+            src: ['PolySonic.html'],
+            dest: 'src/',
+            ext: '.css'
+          }
         ]
       }
     }

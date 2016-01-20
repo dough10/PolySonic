@@ -1,0 +1,55 @@
+<html>
+  <head>
+    <link href="../../bower_components/polymer/polymer.html" rel="import">
+  </head>
+  <body>
+    <polymer-element name="download-manager" constructor="DownloadManager" arrtibutes="hasSaved">
+      <template>
+        <style>
+          .fileName {
+            font-size:16px;
+            min-height:36px;
+          }
+          .w100 {
+            width: 100%;
+          }
+          .height8 {
+            height:8px;
+          }
+          .mTop5 {
+            margin-top:5px;
+          }
+        </style>
+        <!-- globals -->
+        <app-globals id="globals"></app-globals>
+        <div horizontal layout class="text">
+          <div flex vertical layout>
+            <div class="fileName">{{_fileName}}</div>
+            <div horizontal layout>
+              <div flex>{{_output}}</div><div>{{_rate}}</div>
+            </div>
+          </div>
+          <div>
+            <core-tooltip label="{{$.globals.texts.pauseDownload}}" disabled?="{{!_isDownloading}}">
+              <paper-icon-button icon="av:stop" on-tap="{{_abortDownload}}" disabled?="{{!_isDownloading}}"></paper-icon-button>
+            </core-tooltip>
+            <core-tooltip label="{{$.globals.texts.saveFileLabel}}" disabled?="{{hasSaved || _isDownloading}}">
+              <paper-icon-button icon="save" on-tap="{{_doSave}}" id="saveButton"
+                            class="mTop5" disabled?="{{hasSaved || _isDownloading}}">
+              </paper-icon-button>
+            </core-tooltip>
+            <core-tooltip label="{{$.globals.texts.removeDownloadLabel}}" disabled?="{{_isDownloading}}">
+              <paper-icon-button icon="remove" id="removeButton"
+                                 on-tap="{{_removeThis}}" class="mTop5" disabled?="{{_isDownloading}}">
+              </paper-icon-button>
+            </core-tooltip>
+          </div>
+        </div>
+        <core-tooltip class="w100" label="{{_progress}}%">
+          <paper-progress value="{{_progress}}" class="w100 height8"></paper-progress>
+        </core-tooltip>
+      </template>
+      <script src="download-manager.js"></script>
+    </polymer-element>
+  </body>
+</html>
