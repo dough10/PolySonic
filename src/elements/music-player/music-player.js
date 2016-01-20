@@ -443,7 +443,7 @@ Polymer('music-player',{
     this.$.globals.doXhr(url, 'json').then(function (e) {
       this.app.submittingBookmark = false;
       if (e.target.response['subsonic-response'].status === 'ok') {
-        this.$.globals.makeToast(this.app.markCreated);
+        this.$.globals.makeToast(this.$.globals.markCreated);
         this.app.$.bookmarkDialog.close();
       } else {
         this.$.globals.makeToast(e.target.response['subsonic-response'].error.message);

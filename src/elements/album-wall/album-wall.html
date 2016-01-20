@@ -205,7 +205,10 @@
                           {{title}}
                         </div>
                         <template if="{{podcastRole}}">
-                          <core-tooltip label="{{downloadButton}}" position="left">
+                          <template if="{{status === 'error'}}">
+                            <paper-icon-button icon="error" on-tap="{{_openSubsonic}}"></paper-icon-button>
+                          </template>
+                          <core-tooltip label="{{$.globals.downloadButton}}" position="left">
                             <paper-icon-button on-tap="{{downloadEpisode}}" icon="file-download" ident="{{id}}"></paper-icon-button>
                           </core-tooltip>
                         </template>

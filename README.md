@@ -36,6 +36,22 @@ Steps to install development environment
 After making changes run 'grunt' from the project root directory
 
 Changelog
+0.2.8
+
+- refactor code base / reduce line / more maintainable
+
+- faster load of cached images by using HTML5 filesystem in place of indexeddb. 512MB quota setup on launch
+
+- fixed a issue with media folder selecton
+
+0.2.7.5
+
+- add media key support
+
+0.2.7.4
+
+- fix for app not loading a second time if not using MD5 auth and api version higher then 1.13.0 
+
 0.2.7.3
 
 - add option to disable md5 authentication

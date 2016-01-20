@@ -177,10 +177,10 @@
 //      console.log('Query Size: ' + this.post.querySize);
 //    },
 
-    _clearCache: function (callback) {
+    _clearCache: function () {
       app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
         dir.removeRecursively(function (e) {
-          console.log('image cache cleared')
+          app.$.globals.makeToast('image cache cleared');
         }, function (e) {
           console.error(e)
         });
@@ -203,6 +203,27 @@
     },
 
     _clearSettings: function () {
+      app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
+        dir.removeRecursively(function (e) {
+          app.$.globals.makeToast('image cache cleared');
+        }, function (e) {
+          console.error(e)
+        });
+      });
+      var req = indexedDB.deleteDatabase(app.dbname);
+      req.onsuccess = function () {
+        console.log("Deleted database successfully");
+        app.createObjectStore();
+        app.calculateStorageSize();
+      }.bind(this);
+      req.onerror = function () {
+        console.log("Error deleting database");
+        app.calculateStorageSize();
+      }.bind(this);
+      req.onblocked = function () {
+        console.log("Couldn't delete database due to the operation being blocked");
+        app.calculateStorageSize();
+      }.bind(this);
       chrome.storage.sync.clear();
       app.url = '';
       app.user = '';
@@ -210,10 +231,7 @@
       app.version = '';
       app.bitRate = '';
       app.querySize = '';
-      this.post = [];
-      this.clearCache(function () {
-        app.$.reloadAppDialog.open();
-      }.bind(this));
+      app.$.reloadAppDialog.open();
     },
 
     _bitRateSelect: function () {

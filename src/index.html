@@ -235,7 +235,6 @@
 
       <!-- play cue dialog -->
       <paper-dialog id="playlistDialog" style="min-height:695px; min-width:471px;" transition="core-transition-top">
-        <link rel="stylesheet" href="styles/PolySonic.css" shim-shadowdom>
         <div horizontal layout>
           <div flex></div>
           <div>
@@ -373,7 +372,6 @@
 
       <!-- shuffle options dialog -->
       <paper-dialog id="shuffleOptions" style="height:400px; width:300px;" transition="core-transition-center">
-        <link rel="stylesheet" href="styles/PolySonic.css" shim-shadowdom>
         <core-tooltip style="position:absolute; right:8px; top:8px;"
                       position="left" label="{{$.globals.texts.closeLabel}}">
           <paper-icon-button icon="close" style="color:#db4437;"
@@ -433,7 +431,6 @@
 
       <!-- add podcast -->
       <paper-dialog id="addPodcast" transition="core-transition-bottom">
-        <link rel="stylesheet" href="styles/PolySonic.css" shim-shadowdom>
         <core-tooltip label="{{$.globals.texts.closeLabel}}" style="position:absolute; right:8px; top:8px;" position="left">
           <paper-icon-button icon="close" disabled?="{{addingChannel}}" style="color:#db4437;"
                              on-tap="{{closePodcastDialog}}"></paper-icon-button>
@@ -458,7 +455,6 @@
 
       <!-- subsonic playlists dialog -->
       <paper-dialog id="playlistsDialog" style="min-height:600px; min-width:471px;" transition="core-transition-center">
-        <link rel="stylesheet" href="styles/PolySonic.css" shim-shadowdom>
         <div horizontal layout>
           <div style="font-weight: bold; font-size: 16px;" flex>{{$.globals.texts.playlists}}</div>
           <div>
@@ -546,7 +542,7 @@
         <div style="min-width:280px"></div>
         <h4>{{$.globals.texts.deletebookMarkConfirm}}</h4>
         <paper-button affirmative on-tap="{{openBookmarks}}">{{$.globals.texts.decline}}</paper-button>
-        <paper-button affirmative data-id="{{delID}}" on-tap="{{$.globals.texts.deleteBookmark}}">{{accept}}</paper-button>
+        <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{$.globals.texts.accept}}</paper-button>
       </paper-action-dialog>
 
       <!-- reload app dialog -->

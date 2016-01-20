@@ -169,11 +169,11 @@
     });
     app.$.globals.doXhr(url, 'json').then(function (e) {
       app.$.showBookmarks.close();
-      var song = e.target.response['subsonic-response'].song,
-        obj = {},
-        artId;
+      var song = e.target.response['subsonic-response'].song;
+      var obj = {};
+      var artId;
       if (song.type === 'music') {
-        obj.duration = app.secondsToMins(song.duration);
+        obj.duration = app.$.globals.secondsToMins(song.duration);
         artId = 'al-' + song.albumId;
       } else {
         artId = song.coverArt;
@@ -290,7 +290,7 @@
           app.$.globals.getDbItem(artId + '-palette').then(function (e) {
             obj.palette = e.target.result;
             app.playlist.push(obj);
-            app.job('modeLike', function () {
+            app.job('moreLike', function () {
               app.dataLoading = false;
               app.closePlaylists();
               app.dataLoading = false;
@@ -334,12 +334,12 @@
               app.$.globals.getDbItem(artId + '-palette').then(function (e) {
                 obj.palette = e.target.result;
                 app.playlist.push(obj);
-                app.job('modeLike', function () {
+                app.job('moreLike', function () {
                   app.dataLoading = false;
                   app.shuffleLoading = false;
                   app.$.shuffleOptions.close();
                   app.$.globals.playListIndex(0);
-                }, 500);
+                }, 1000);
               });
             });
           });

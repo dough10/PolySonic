@@ -53,10 +53,12 @@
       this.app.pageLimit = false;
       this.isLoading = true;
       this.app.dataLoading = true;
-      this.$.list.updateSize();
-      this.$.podcast.updateSize();
-      this.$.artists.updateSize();
-      this.async(callback, null, 100);
+      this.async(function () {
+        this.$.list.updateSize();
+        this.$.podcast.updateSize();
+        this.$.artists.updateSize();
+      });
+      this.async(callback, null, 200);
     },
 
     responseCallback: function () {
@@ -347,6 +349,10 @@
         obj.cover = '../../../images/default-cover-art.png';
         this.doPlay(obj);
       }
+    },
+
+    _openSubsonic: function () {
+      window.open(this.app.url);
     },
 
     conBookDel: function (event) {
