@@ -4,9 +4,13 @@
   Polymer('album-art', {
 
     imgURL: '',
+
     defaultImgURL: '../../../images/default-cover-art.png',
+
     albumSize: 0,
+
     showingDetails: false,
+
     isLoading: false,
 
     mouseIn: function (event, detail, sender) {
@@ -55,6 +59,7 @@
         dialog.details = details;
         dialog.opened = true;
         this.app.$.fab.state = 'mid';
+        // pass the id of the album to the play button
         this.app.$.fab.ident = this.id;
       });
     },

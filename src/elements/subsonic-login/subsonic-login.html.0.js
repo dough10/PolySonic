@@ -104,7 +104,7 @@
             var url = this.$.globals.buildUrl('getMusicFolders');
             this.$.globals.doXhr(url, 'json').then(function (e) {
               this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-              this.app.folder = 0;
+              this.app.folder = 'none';
               if (e.target.response['subsonic-response'].musicFolders.musicFolder && !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
                 this.app.$.sortBox.style.display = 'none';
               }
