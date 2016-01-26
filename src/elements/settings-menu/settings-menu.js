@@ -236,7 +236,7 @@
 
     _bitRateSelect: function () {
       this.async(function () {
-        simpleStorage.setSync({
+        simpleStorage.setLocal({
           'bitRate': this.post.bitRate
         });
         app.bitRate = this.post.bitRate;

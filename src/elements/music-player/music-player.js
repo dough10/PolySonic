@@ -129,7 +129,12 @@ Polymer('music-player',{
     }
     
     // set action fab color to match color of playing track art
-    this.app.setFabColor(obj);
+    if (obj.palette) {
+      this.app.colorThiefFab = obj.palette[0];
+      this.app.colorThiefFabOff = obj.palette[1];
+      this.app.colorThiefBuffered = obj.palette[2];
+      this.app.colorThiefProgBg = obj.palette[3];
+    }
 
     // set cover art
     this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";

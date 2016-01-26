@@ -272,7 +272,7 @@
     </paper-action-dialog>
     <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
       <div style="min-width:280px"></div>
-      <h4>{{app.deletebookMarkConfirm}}</h4>
+      <h4>{{$.globals.texts.deletebookMarkConfirm}}</h4>
       <paper-button affirmative>{{$.globals.texts.decline}}</paper-button>
       <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{$.globals.texts.accept}}</paper-button>
     </paper-action-dialog>

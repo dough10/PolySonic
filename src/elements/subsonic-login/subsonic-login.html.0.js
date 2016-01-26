@@ -92,10 +92,18 @@
           if (this.response['subsonic-response'].status === 'ok') {
             this.app.$.firstRun.close();
             simpleStorage.setSync({
-              'url': this.app.url,
-              'user': this.app.user,
-              'pass': this.app.pass,
-              'version': this.app.version
+              configs: [
+                {
+                  name: 'default',
+                  url: this.app.url,
+                  user: this.app.user,
+                  pass: this.app.pass,
+                  version: this.app.version
+                }
+              ]
+            });
+            simpleStorage.setLocal({
+              currentConfig: 0
             });
             this.app.userDetails();
             this.app.version = this.response['subsonic-response'].version;

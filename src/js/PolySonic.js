@@ -189,12 +189,14 @@
       obj.bookmarkPosition = song.bookmarkPosition;
       app.$.globals.fetchImage(artId).then(function (imgURL) {
         obj.cover = imgURL;
-        app.$.globals.getDbItem(artId + '-palette').then(function (palette) {
-          obj.palette = palette.target.result;
-          app.dataLoading = false;
-          app.playlist = [obj];
-          app.$.globals.playListIndex(0);
-        });
+        app.async(function () {
+          app.$.globals.getDbItem(artId + '-palette').then(function (palette) {
+            obj.palette = palette.target.result;
+            app.dataLoading = false;
+            app.playlist = [obj];
+            app.$.globals.playListIndex(0);
+          });
+        }, null, 200);
       });
     });
   };
@@ -287,16 +289,18 @@
         var artId = 'al-' + item.albumId;
         app.$.globals.fetchImage(artId).then(function (imgURL) {
           obj.cover = imgURL;
-          app.$.globals.getDbItem(artId + '-palette').then(function (e) {
-            obj.palette = e.target.result;
-            app.playlist.push(obj);
-            app.job('moreLike', function () {
-              app.dataLoading = false;
-              app.closePlaylists();
-              app.dataLoading = false;
-              app.$.globals.playListIndex(0);
-            }, 500);
-          });
+          app.async(function () {
+            app.$.globals.getDbItem(artId + '-palette').then(function (e) {
+              obj.palette = e.target.result;
+              app.playlist.push(obj);
+              app.job('moreLike', function () {
+                app.dataLoading = false;
+                app.closePlaylists();
+                app.dataLoading = false;
+                app.$.globals.playListIndex(0);
+              }, 500);
+            });
+          }, null, 200);
         });
       });
     });
@@ -331,16 +335,19 @@
             var artId = 'al-' + item.albumId;
             app.$.globals.fetchImage(artId).then(function (imgURL) {
               obj.cover = imgURL;
-              app.$.globals.getDbItem(artId + '-palette').then(function (e) {
-                obj.palette = e.target.result;
-                app.playlist.push(obj);
-                app.job('moreLike', function () {
-                  app.dataLoading = false;
-                  app.shuffleLoading = false;
-                  app.$.shuffleOptions.close();
-                  app.$.globals.playListIndex(0);
-                }, 1000);
-              });
+              app.async(function () {
+                app.$.globals.getDbItem(artId + '-palette').then(function (e) {
+                  obj.palette = e.target.result;
+                  app.playlist.push(obj);
+                  // delay playback by 1 second to keed from starting and stoping multiple times
+                  app.job('moreLike', function () {
+                    app.dataLoading = false;
+                    app.shuffleLoading = false;
+                    app.$.shuffleOptions.close();
+                    app.$.globals.playListIndex(0);
+                  }, 1000);
+                });
+              }, null, 200);
             });
           });
         } else {
@@ -458,18 +465,6 @@
     });
   };
 
-  /**
-   * set color of accent colors in player
-   * @param {Array} array
-   */
-  app.setFabColor = function (array) {
-    if (array.palette) {
-      app.colorThiefFab = array.palette[0];
-      app.colorThiefFabOff = array.palette[1];
-      app.colorThiefBuffered = array.palette[2];
-      app.colorThiefProgBg = array.palette[3];
-    }
-  };
 
   /**
    * open playlist save dialog  set default name to curent time & date
@@ -971,20 +966,39 @@
    */
   app.addEventListener('template-bound', function () {
     app.$.player.resize();
-    // bitrate
-    simpleStorage.getLocal().then(function (result) {
-      app.bitRate = result.bitRate || 320;
-    });
+
     // all synced settings
     simpleStorage.getSync().then(function (result) {
-      app.url = result.url;
-      app.user = result.user;
-      app.pass = result.pass;
-      app.md5Auth = result.md5Auth;
+      app.dataLoading = false;
+      app.configs = result.configs || [];
+      if (result.md5Auth === undefined) {
+        result.md5Auth = true;
+      }
+      if (!app.configs.length && 'url' in result && 'user' in result && 'pass' in result) {
+        console.log('updating config storage');
+        app.configs.push({
+          name: 'default',
+          url: result.url,
+          user: result.user,
+          pass: result.pass,
+          md5Auth: result.md5Auth,
+          version: result.version
+        });
+        chrome.storage.sync.remove('url');
+        chrome.storage.sync.remove('user');
+        chrome.storage.sync.remove('pass');
+        chrome.storage.sync.remove('version');
+        chrome.storage.sync.remove('md5Auth');
+        simpleStorage.setSync({
+          configs: app.configs
+        });
+        simpleStorage.setLocal({
+          currentConfig: 0
+        });
+      }
       app.autoBookmark = result.autoBookmark;
       app.gapless = result.gapless;
       app.shuffleSettings.size = '50';
-      app.version = result.version || '1.11.0';
       app.querySize = 60;
       app.listMode = result.listMode || 'cover';
       app.volume = result.volume || 100;
@@ -999,69 +1013,90 @@
       app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
       app.repeatState = chrome.i18n.getMessage('disabled');
       app.$.repeatButton.style.color = '#db4437';
-      app.dataLoading = false;
-      app.params = {
-        u: app.user,
-        v: app.version,
-        c: 'PolySonic',
-        f: 'json'
-      };
-      var wallToggles = document.querySelectorAll('.wallToggle');
-      for (var i = 0; i < wallToggles.length; i++) {
-        if (app.listMode === 'cover') {
-          wallToggles[i].icon = 'view-stream';
+      // bitrate
+      simpleStorage.getLocal().then(function (resultLocal) {
+        app.bitRate = resultLocal.bitRate || 320;
+
+        app.currentConfig = resultLocal.currentConfig || 0;
+
+        if (app.configs[app.currentConfig]) {
+          app.url = app.configs[app.currentConfig].url;
+          app.user = app.configs[app.currentConfig].user;
+          app.pass = app.configs[app.currentConfig].pass;
+          app.md5Auth = app.configs[app.currentConfig].md5Auth;
+          app.version = app.configs[app.currentConfig].version;
         } else {
-          wallToggles[i].icon = 'view-module';
+          app.url;
+          app.user;
+          app.pass;
+          app.version = '1.11.0';
+          app.md5Auth = result.md5Auth;
         }
-      }
-      if (app.md5Auth === undefined) {
-        app.md5Auth = true;
-      }
-      if (app.url && app.user && app.pass) {
-        app.$.globals.initFS();
-        var firstPing = app.$.globals.buildUrl('ping');
-        app.$.globals.doXhr(firstPing, 'json').then(function (e) {
-          if (e.target.status === 200) {
 
-            if (versionCompare(e.target.response['subsonic-response'].version, app.version) >= 0) {
-              app.version = e.target.response['subsonic-response'].version;
-              simpleStorage.setSync({
-                version: app.version
-              });
-            }
 
-            if (e.target.response['subsonic-response'].status === 'ok') {
-              app.userDetails();
-              console.log('Connected to Subconic loading data');
-              var folders = app.$.globals.buildUrl('getMusicFolders');
-              app.$.globals.doXhr(folders, 'json').then(function (e) {
-                app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-                /* setting mediaFolder causes a ajax call to get album wall data */
-                app.folder = result.mediaFolder || 'none';
-                if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
-                  app.$.sortBox.style.display = 'none';
-                }
-                app.tracker.sendAppView('Album Wall');
-              });
+        app.params = {
+          u: app.user,
+          v: app.version,
+          c: 'PolySonic',
+          f: 'json'
+        };
+
+        var wallToggles = document.querySelectorAll('.wallToggle');
+        for (var i = 0; i < wallToggles.length; i++) {
+          if (app.listMode === 'cover') {
+            wallToggles[i].icon = 'view-stream';
+          } else {
+            wallToggles[i].icon = 'view-module';
+          }
+        }
+
+        if (app.url && app.user && app.pass) {
+          app.$.globals.initFS();
+          var firstPing = app.$.globals.buildUrl('ping');
+          app.$.globals.doXhr(firstPing, 'json').then(function (e) {
+            if (e.target.status === 200) {
+
+              if (versionCompare(e.target.response['subsonic-response'].version, app.version) >= 0) {
+                app.version = e.target.response['subsonic-response'].version;
+                simpleStorage.setSync({
+                  version: app.version
+                });
+              }
+
+              if (e.target.response['subsonic-response'].status === 'ok') {
+                app.userDetails();
+                console.log('Connected to Subconic loading data');
+                var folders = app.$.globals.buildUrl('getMusicFolders');
+                app.$.globals.doXhr(folders, 'json').then(function (e) {
+                  app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                  /* setting mediaFolder causes a ajax call to get album wall data */
+                  app.folder = result.mediaFolder || 'none';
+                  if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+                    app.$.sortBox.style.display = 'none';
+                  }
+                  app.tracker.sendAppView('Album Wall');
+                });
+              } else {
+                app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
+                app.$.firstRun.open();
+                app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
+              }
+
             } else {
               app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
               app.$.firstRun.open();
               app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
             }
-
-          } else {
-            app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
+          }).catch(function () {
             app.$.firstRun.open();
-            app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
-          }
-        }).catch(function () {
-          app.$.firstRun.open();
-        });
+          });
 
-      } else {
-        app.$.firstRun.open();
-      }
-    });
+        } else {
+          app.$.firstRun.open();
+        }
+      });
+
+      });
 
     // set main content scrolling callback
     app.appScroller().onscroll = function () {
