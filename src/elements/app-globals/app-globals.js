@@ -112,19 +112,6 @@
   }
 
   /**
-   * default xhr error
-   * @param {Error} e
-   */
-  function xhrError(e) {
-    app.$.globals.makeToast(getMessage("connectionError"));
-    if (!document.querySelector('#loader').classList.contains("hide")) {
-      app.$.firstRun.open();
-    }
-    app.dataLoading = false;
-    console.error(e);
-  }
-
-  /**
    * convert object a query string
    * @param {Object} params
    */
@@ -301,7 +288,8 @@
     clearCacheLabel: getMessage("clearCacheLabel"),
     clearSettingsLabel: getMessage("clearSettingsLabel"),
     licenseInfoLink: getMessage("licenseInfoLink"),
-    showLicenseLabel: getMessage("showLicenseLabel")
+    showLicenseLabel: getMessage("showLicenseLabel"),
+    configLabel: getMessage('configLabel')
   };
 
   /**
@@ -388,7 +376,15 @@
         xhr.open("GET", url, true);
         xhr.responseType = dataType;
         xhr.onload = resolve;
-        xhr.onerror = xhrError;
+        xhr.onerror = function xhrError(e) {
+          reject(e);
+          app.$.globals.makeToast(getMessage("connectionError"));
+          if (!document.querySelector('#loader').classList.contains("hide")) {
+            app.$.firstRun.open();
+          }
+          app.dataLoading = false;
+          console.error(e);
+        };
         xhr.send();
       });
     },
@@ -477,8 +473,9 @@
             id: artId
           });
           this._getImageFile(url, artId).then(function (imgURL) {
-            this._stealColor(imgURL, artId);
-            resolve(imgURL);
+            this._stealColor(imgURL, artId).then(function () {
+              resolve(imgURL);
+            });
           }.bind(this));
         }.bind(this));
       }.bind(this));
@@ -523,6 +520,49 @@
         app.$.player.playAudio(app.playlist[index]);
       } else {
         app.playing = index;
+      }
+    },
+
+
+    changeConfig: function (index) {
+      if (app.configs[index]) {
+        var url = app.configs[index].url;
+        var pass = app.configs[index].pass;
+        var md5Auth = app.configs[index].md5Auth;
+        var params = {
+          u: app.configs[index].user,
+          v: app.configs[index].version,
+          f: 'json',
+          c: 'PolySonic'
+        };
+
+
+        if (versionCompare(params.v, '1.13.0') >= 0 && md5Auth) {
+          params.s = makeSalt(16);
+          params.t = md5(pass + params.s);
+        } else {
+          params.p = pass.hexEncode();
+        }
+
+        var ping = url + '/rest/ping.view?' +  toQueryString(params);
+
+        this.doXhr(ping, 'json').then(function (json) {
+          json = json.target.response['subsonic-response'];
+          if (json.status === 'ok') {
+
+            app.url = app.configs[index].url;
+            app.user = app.configs[index].user;
+            app.pass = app.configs[index].pass;
+            app.md5Auth = app.configs[index].md5Auth;
+            app.version = json.version;
+            this.makeToast('Config Changed');
+
+          }
+        }.bind(this), function (e) {
+          this.makeToast('Error connecting this that config');
+        }.bind(this)).catch(function () {
+          this.makeToast('Error connecting this that config');
+        }.bind(this));
       }
     },
 

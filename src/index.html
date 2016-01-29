@@ -197,10 +197,7 @@
               </core-toolbar>
               <div style="padding: 8px;">
                 <paper-shadow z='1' style="max-width:800px; margin:auto;" class='card'>
-                  <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}"
-                                 version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}"
-                                 storageQuota="{{storageQuota}}" queryMethod="{{queryMethod}}"
-                                 colorThiefEnabled="{{colorThiefEnabled}}"></settings-menu>
+                  <settings-menu config="{{currentConfig}}" bitRate="{{bitRate}}"></settings-menu>
                 </paper-shadow>
               </div>
             </core-header-panel>

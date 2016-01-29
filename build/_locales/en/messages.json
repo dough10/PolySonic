@@ -377,5 +377,8 @@
   },
   "anonStats": {
     "message" : "Anonymous usage statistics"
+  },
+  "configLabel": {
+    "message": "Current Config"
   }
 }

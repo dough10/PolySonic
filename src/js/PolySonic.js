@@ -974,6 +974,8 @@
       if (result.md5Auth === undefined) {
         result.md5Auth = true;
       }
+
+      // update config storage method
       if (!app.configs.length && 'url' in result && 'user' in result && 'pass' in result) {
         console.log('updating config storage');
         app.configs.push({
@@ -996,6 +998,7 @@
           currentConfig: 0
         });
       }
+
       app.autoBookmark = result.autoBookmark;
       app.gapless = result.gapless;
       app.shuffleSettings.size = '50';
@@ -1015,6 +1018,7 @@
       app.$.repeatButton.style.color = '#db4437';
       // bitrate
       simpleStorage.getLocal().then(function (resultLocal) {
+
         app.bitRate = resultLocal.bitRate || 320;
 
         app.currentConfig = resultLocal.currentConfig || 0;
@@ -1033,7 +1037,7 @@
           app.md5Auth = result.md5Auth;
         }
 
-
+        // default params sent with every request
         app.params = {
           u: app.user,
           v: app.version,
@@ -1041,6 +1045,7 @@
           f: 'json'
         };
 
+        // set up the wall list method
         var wallToggles = document.querySelectorAll('.wallToggle');
         for (var i = 0; i < wallToggles.length; i++) {
           if (app.listMode === 'cover') {

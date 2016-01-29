@@ -44,19 +44,14 @@
       });
     },
 
-//    validate: function (callback) {
-//      'use strict';
-//      var $d = this.$.validate.querySelectorAll('paper-input-decorator');
-//      Array.prototype.forEach.call($d, function(d) {
-//        d.isInvalid = !d.querySelector('input').validity.valid;
-//      });
-//      callback();
-//    },
+    validateInputs: function () {
+      'use strict';
+      var $d = this.$.validate.querySelectorAll('paper-input-decorator');
+      Array.prototype.forEach.call($d, function(d) {
+        d.isInvalid = !d.querySelector('input').validity.valid;
+      });
+    },
 
-//    _isInvalid: function (id) {
-//      return this.$[id].classList.contains("invalid");
-//    },
-//
 //    submit: function () {
 //      'use strict';
 //      /*
@@ -88,29 +83,29 @@
 //      }.bind(this));
 //    },
 
-//    _hidePass: function (event, detail, sender) {
-//      'use strict';
-//      var type = this.$.password.type,
-//        button = this.$.showPass,
-//        timer = this._timer;
-//
-//      if (type === "text") {
-//        this.$.password.type = "password";
-//        button.innerHTML = this.showPass;
-//        if (timer) {
-//          clearTimeout(timer);
-//          timer = 0;
-//        }
-//      } else {
-//        this.$.password.type = "text";
-//        button.innerHTML = this.hideThePass;
-//        timer = setTimeout(function () {
-//          this.$.password.type = "password";
-//          button.innerHTML = this.showPass;
-//          timer = 0;
-//        }.bind(this), 15000);
-//      }
-//    },
+    _hidePass: function (event, detail, sender) {
+      'use strict';
+      var type = this.$.password.type,
+        button = this.$.showPass,
+        timer = this._timer;
+
+      if (type === "text") {
+        this.$.password.type = "password";
+        button.innerHTML = this.$.globals.texts.showPass;
+        if (timer) {
+          clearTimeout(timer);
+          timer = 0;
+        }
+      } else {
+        this.$.password.type = "text";
+        button.innerHTML = this.$.globals.texts.hideThePass;
+        timer = setTimeout(function () {
+          this.$.password.type = "password";
+          button.innerHTML = this.$.globals.texts.showPass;
+          timer = 0;
+        }.bind(this), 15000);
+      }
+    },
 
 //    _methodSelect: function () {
 //      this.async(function () {
@@ -250,24 +245,30 @@
       }
     },
 
-    urlChanged: function () {
-      this.post.url = this.url;
+    _updateConfig: function () {
+      var config = app.configs[this.config];
+      this.post = config;
+      this.post.config = this.config;
     },
 
-    userChanged: function () {
-      this.post.user = this.user;
+    postChanged: function () {
+      console.log(this.config, this.post);
     },
 
-    passChanged: function () {
-      this.post.pass = this.pass;
+    _newConfig: function () {
+      this.post = {};
+      this.post.config = app.configs.length;
+      this.post.bitRate = this.bitRate;
     },
 
-    versionChanged: function () {
-      this.post.version = this.version;
+    configChanged: function () {
+      this.async(this._updateConfig);
     },
 
     bitRateChanged: function () {
-      this.post.bitRate = this.bitRate;
+      this.async(function () {
+        this.post.bitRate = this.bitRate;
+      });
     },
 
     querySizeChanged: function () {
