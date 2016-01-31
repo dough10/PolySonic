@@ -111,31 +111,25 @@
               simpleStorage.setLocal({
                 currentConfig: this.app.currentConfig
               });
-
-
-              this.app.userDetails();
-              this.app.version = this.response['subsonic-response'].version;
-              this.$.globals.makeToast("Loading Data");
-              this.app.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
-              var url = this.$.globals.buildUrl('getMusicFolders');
-              this.$.globals.doXhr(url, 'json').then(function (e) {
-                this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-                this.app.folder = 'none';
-                if (e.target.response['subsonic-response'].musicFolders.musicFolder && !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
-                  this.app.$.sortBox.style.display = 'none';
-                }
-              }.bind(this));
             } else {
               this.$.globals.makeToast(this.response['subsonic-response'].error.message);
             }
           // this should be a user with connectivity issues
           } else {
-
-            console.log('reconecting?');
+            this.app.userDetails();
+            this.app.version = this.response['subsonic-response'].version;
+            this.$.globals.makeToast("Loading Data");
+            this.app.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
+            var url = this.$.globals.buildUrl('getMusicFolders');
+            this.$.globals.doXhr(url, 'json').then(function (e) {
+              this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+              this.app.folder = 'none';
+              if (e.target.response['subsonic-response'].musicFolders.musicFolder && !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
+                this.app.$.sortBox.style.display = 'none';
+              }
+            }.bind(this));
 
           }
-
-
         }
       },
 

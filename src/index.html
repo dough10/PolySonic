@@ -344,7 +344,6 @@
 
       <!-- volume dialog -->
       <paper-dialog id="volumeDialog" transition="core-transition-bottom">
-        <link rel="stylesheet" href="styles/PolySonic.css" shim-shadowdom>
         <core-tooltip style=" position:absolute; top:8px; right:8px;" position="left" label="{{$.globals.texts.closeLabel}}">
           <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeVolume}}"></paper-icon-button>
         </core-tooltip>
@@ -486,7 +485,6 @@
 
       <!-- create playlist dialog -->
       <paper-dialog id="createPlaylist" style="min-width:300px;" transition="core-transition-center">
-        <link rel="stylesheet" href="styles/PolySonic.css" shim-shadowdom>
         <core-tooltip position="left" label="{{$.globals.texts.closeLabel}}"
                       style="position:absolute; right:8px; top:8px;">
           <paper-icon-button icon="close" disabled?="{{savingPlaylist}}"

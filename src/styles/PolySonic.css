@@ -42,6 +42,7 @@ section {
 }
 [drawer] {
   background-color: #fff;
+  height:100%;
 }
 paper-icon-button {
   color:#ffffff;
