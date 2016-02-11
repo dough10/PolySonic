@@ -561,7 +561,8 @@
     if (app.searchQuery) {
       app.$.globals.closeDrawer().then(function () {
         var url = app.$.globals.buildUrl('search3', {
-          query: encodeURIComponent(app.searchQuery)
+          query: encodeURIComponent(app.searchQuery),
+          albumCount: 200
         });
         app.$.globals.doXhr(url, 'json').then(function (e) {
           app.dataLoading = true;

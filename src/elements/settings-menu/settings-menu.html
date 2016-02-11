@@ -20,7 +20,7 @@
         margin:auto;
         font-family: 'RobotoDraft', sans-serif;
       }
-      #load {
+      .load {
         position:absolute;
         top:0;
         bottom:0;
@@ -103,9 +103,9 @@
           {{$.globals.texts.configLabel}}:
           <paper-dropdown-menu label="{{$.globals.texts.config}}">
             <paper-dropdown layer class="dropdown">
-              <core-menu selected="{{post.config}}">
+              <core-menu id="configSelector" selected="{{post.config}}">
                 <template repeat="{{app.configs}}">
-                  <paper-item on-tap="{{_updateConfig}}">
+                  <paper-item on-tap="{{_selectAction}}">
                     {{name}}
                   </paper-item>
                 </template>
@@ -122,17 +122,19 @@
           <input is="core-input"
                  disabled?="{{isLoading}}"
                  value="{{post.name}}"
+                 on-keyup="{{_checkKeyup}}"
                  required>
         </paper-input-decorator>
-        <paper-input-decorator disabled?="{{isLoading}}"
+        <paper-input-decorator id="url" disabled?="{{isLoading}}"
                                isInvalid="{{invalidAddress}}"
                                labelvisible=""
                                floatinglabel=""
                                error="{{$.globals.texts.urlError}}"
                                label="{{$.globals.texts.urlLabel}}">
           <input is="core-input"
-                 on-blur="{{_validateInputs}}"
                  disabled?="{{isLoading}}"
+                 on-blur='{{_testUrl}}'
+                 on-keyup="{{_checkKeyup}}"
                  id="address"
                  type="URL"
                  value="{{post.url}}"
@@ -148,7 +150,7 @@
                                error="{{$.globals.texts.usernameError}}"
                                label="{{$.globals.texts.usernameLabel}}">
           <input is="core-input"
-                 on-blur="{{_validateInputs}}"
+                 on-keyup="{{_checkKeyup}}"
                  disabled?="{{isLoading}}"
                  type="text"
                  value="{{post.user}}"
@@ -161,31 +163,99 @@
                                floatinglabel
                                label="{{$.globals.texts.passwordLabel}}">
           <input is="core-input"
-                 on-blur="{{_validateInputs}}"
-                 on-keyup="{{checkKeyup}}"
+                 on-keyup="{{_checkKeyup}}"
                  disabled?="{{isLoading}}"
                  id="password"
                  type="password"
-                 value="{{post.pass}}">
+                 value="{{post.pass}}"
+                 required>
         </paper-input-decorator>
+        <div id="editorMD5" hidden center horizontal layout class="switchBox">
+          <br>
+          <br>
+          <div flex class="switchLabel">
+            {{$.globals.texts.md5}}
+          </div>
+          <paper-toggle-button id="md5" class="redSwitch" checked="{{post.md5Auth}}" disabled?="{{isLoading || testingURL}}"></paper-toggle-button>
+        </div>
         <br>
         <div id="showPass"
              on-tap="{{_hidePass}}">{{$.globals.texts.showPass}}</div>
         <br>
         <br>
-        <paper-button raised on-tap="{{_newConfig}}" disabled?="{{isLoading}}">
-          New
-        </paper-button>
-<!--
-        <paper-button id='submit' raised on-tap="{{submit}}" disabled?="{{isLoading}}">
-          <template if="{{isLoading}}">
-            <div id="load">
-              <paper-spinner active=""></paper-spinner>
-            </div>
+
+        <!-- entry button -->
+        <template if="{{newConfig}}">
+          <paper-button id='submit' raised on-tap="{{_submit}}" disabled?="{{isLoading}}">
+            <template if="{{isLoading}}">
+              <div class="load" hidden?="{{!isLoading}}">
+                <paper-spinner active=""></paper-spinner>
+              </div>
+            </template>
+            {{$.globals.texts.testButton}}
+          </paper-button>
+        </template>
+
+        <!-- user this config button -->
+        <template if="{{!newConfig}}">
+
+          <!-- not editing -->
+          <template if="{{!editing}}">
+            <paper-button raised on-tap="{{_editConfig}}" disabled?="{{isLoading || testingURL}}">
+              <div class="load" hidden?="{{!isLoading}}">
+                <paper-spinner active=""></paper-spinner>
+              </div>
+              edit
+            </paper-button>
+
+
+            <template if="{{app.currentConfig !== post.config}}">
+
+              <!-- delete -->
+              <paper-button class="red-button" on-tap="{{_deleteConfig}}" disabled?="{{isLoading || testingURL}}">
+                <div class="load" hidden?="{{!isLoading}}">
+                  <paper-spinner active=""></paper-spinner>
+                </div>
+                Delete
+              </paper-button>
+
+              <!-- use button -->
+              <paper-button class="red-button" on-tap="{{_useThis}}" disabled?="{{isLoading || testingURL}}">
+                <template if="{{isLoading}}">
+                  <div class="load" hidden?="{{!isLoading}}">
+                    <paper-spinner active=""></paper-spinner>
+                  </div>
+                </template>
+                {{$.globals.texts.useThis}}
+              </paper-button>
+
+            </template>
+
           </template>
-          {{$.globals.texts.submitButton}}
-        </paper-button>
--->
+
+          <!-- editing a config -->
+          <template if="{{editing}}">
+            <paper-button raised on-tap="{{_saveEdits}}" disabled?="{{isLoading || testingURL}}">
+              <template if="{{isLoading}}">
+                <div class="load" hidden?="{{!isLoading}}">
+                  <paper-spinner active=""></paper-spinner>
+                </div>
+              </template>
+              {{$.globals.texts.submitButton}}
+            </paper-button>
+            <paper-button class="red-button" on-tap="{{_cancelEdit}}" disabled?="{{isLoading || testingURL}}">
+              <div class="load" hidden?="{{!isLoading}}">
+                <paper-spinner active=""></paper-spinner>
+              </div>
+              cancel
+            </paper-button>
+          </template>
+
+
+          <!--  -->
+          <template if="{{}}"></template>
+
+        </template>
         <br>
         <core-label>
           {{$.globals.texts.bitrateLabel}}:
@@ -225,15 +295,6 @@
             {{$.globals.texts.precache}}
           </div>
           <paper-toggle-button class="redSwitch" checked="{{app.gapless}}" on-change="{{_toggleGapless}}"></paper-toggle-button>
-        </div>
-        <div id="auth" hidden>
-          <br>
-          <br>
-          <br>
-          <div horizontal layout class="switchBox">
-            <div class="switchLabel" style="text-align: left;" flex>{{$.globals.texts.md5}}</div>
-            <paper-toggle-button class="redSwitch" on-change="{{_authChanged}}" checked="{{app.md5Auth}}"></paper-toggle-button>
-          </div>
         </div>
       </core-label>
       <br>

@@ -25,11 +25,7 @@
       this.app = app;
       this._outputVersion(this._manifest);
       this.elementReady = true;
-      setTimeout(function () {
-        if (versionCompare(app.version, '1.13.0') >= 0) {
-          this.$.auth.hidden = false;
-        }
-      }.bind(this), 500);
+      this.$.editorMD5.hidden = false;
     },
 
     _outputVersion: function (manifest) {
@@ -44,6 +40,10 @@
       });
     },
 
+    _errorChanged: function () {
+      console.log(this._error);
+    },
+
     validateInputs: function () {
       'use strict';
       var $d = this.$.validate.querySelectorAll('paper-input-decorator');
@@ -52,36 +52,26 @@
       });
     },
 
-//    submit: function () {
-//      'use strict';
-//      /*
-//        preforms the validation
-//      */
-//      this.validate(function () {
-//        var invalid1 = this._isInvalid('input1');
-//        var invalid2 = this._isInvalid('input2');;
-//        var invalid3 = this._isInvalid('input3');;
-//        if (invalid1 && invalid2 && this.post.version === undefined) {
-//          this.$.globals.makeToast("URL, Username & Version Required");
-//        } else if (invalid1) {
-//          this.$.globals.makeToast("URL Required");
-//        } else if (invalid2) {
-//          this.$.globals.makeToast("Username Required");
-//        } else if (this.version === undefined) {
-//          this.$.globals.makeToast("Version Required");
-//        }
-//        if (!invalid1 && !invalid2 && !invalid3 && this.post.version !== undefined && this.post.bitRate !== undefined) {
-//          var lastChar = this.post.url.substr(-1); // Selects the last character
-//          if (lastChar === '/') {         // If the last character is a slash
-//            this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
-//          }
-//          this.$.ajax.go();
-//          wall.clearData(function () {
-//            wall.doAjax();
-//          }.bind(this));
-//        }
-//      }.bind(this));
-//    },
+    _submit: function () {
+      'use strict';
+      this.validateInputs();
+      if (this.invalidAddress && this.inValidName && this.invalidPassword) {
+        this.$.globals.makeToast("URL, Username & Password Required");
+      } else if (this.invalidAddress) {
+        this.$.globals.makeToast("URL Required");
+      } else if (this.inValidName) {
+        this.$.globals.makeToast("Username Required");
+      } else if (this.inValidPassword) {
+        this.$.globals.makeToast("Password Required");
+      }
+      if (!this.invalidAddress && !this.inValidName && !this.inValidPassword) {
+        var lastChar = this.post.url.substr(-1); // Selects the last character
+        if (lastChar === '/') {         // If the last character is a slash
+          this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
+        }
+        this.$.ajax.go();
+      }
+    },
 
     _hidePass: function (event, detail, sender) {
       'use strict';
@@ -107,72 +97,38 @@
       }
     },
 
-//    _methodSelect: function () {
-//      this.async(function () {
-//        simpleStorage.setSync({
-//          'queryMethod': this.post.queryMethod
-//        });
-//        app.queryMethod = this.post.queryMethod;
-//        console.log('Query Method: ' + this.post.queryMethod);
-//      });
-//    },
 
-//    _responseChanged: function () {
-//      'use strict';
-//      /*
-//        will display server response in a toast
-//      */
-//      if (this._response) {
-//        if (this._response['subsonic-response'].status === 'ok') {
-//          if (this.post.url !== app.url) {
-//            this._clearCache()
-//          }
-//
-//          simpleStorage.setSync({
-//            'url': this.post.url,
-//            'user': this.post.user,
-//            'pass': this.post.pass,
-//            'version': this._response['subsonic-response'].version,
-//            'querySize': this.post.querySize,
-//            'queryMethod': this.post.queryMethod
-//          });
-//          simpleStorage.setLocal({
-//            'bitRate': this.post.bitRate
-//          });
-//
-//          app.url = this.post.url;
-//
-//          app.user = this.post.user;
-//
-//          app.pass = this.post.pass;
-//
-//          app.version = this._response['subsonic-response'].version;
-//
-//          app.bitRate = this.post.bitRate;
-//
-//          app.querySize = this.post.querySize;
-//
-//          app.queryMethod = this.post.queryMethod;
-//
-//          this.$.globals.makeToast("Settings Saved");
-//        } else if (this._response['subsonic-response'].status === 'failed') {
-//          this.$.globals.makeToast(this._response['subsonic-response'].error.message);
-//        } else  {
-//          this.$.globals.makeToast("Error Connecting to Server. Check Settings");
-//        }
-//      }
-//    },
+    _responseChanged: function () {
+      'use strict';
+      console.log(this._response['subsonic-response']);
+      if (this._response) {
+        if (this._response['subsonic-response'].status === 'ok') {
+          simpleStorage.getSync('configs').then(function (configs) {
+            configs.push({
+              name: this.post.name,
+              url: this.post.url,
+              user: this.post.user,
+              pass: this.post.pass,
+              md5Auth: this.post.md5Auth,
+              version: this.post.version
+            });
+            simpleStorage.setSync({
+              configs:configs
+            });
+            this.app.configs = configs;
+            this.$.globals.makeToast("Config Saved");
+            this.newConfig = !Boolean(this.app.configs[this.post.config]);
+            this._setFormDisabledState(!this.newConfig);
+          }.bind(this));
+        } else if (this._response['subsonic-response'].status === 'failed') {
+          this.$.globals.makeToast(this._response['subsonic-response'].error.message);
+        } else  {
+          this.$.globals.makeToast("Error Connecting to Server. Check Settings");
+        }
+      }
+    },
 
-
-//    _querySelect: function () {
-//      simpleStorage.setSync({
-//        'querySize': this.post.querySize
-//      });
-//      app.querySize = this.post.querySize;
-//      console.log('Query Size: ' + this.post.querySize);
-//    },
-
-    _clearCache: function () {
+    _clearImages: function () {
       app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
         dir.removeRecursively(function (e) {
           app.$.globals.makeToast('image cache cleared');
@@ -194,31 +150,16 @@
         console.log("Couldn't delete database due to the operation being blocked");
         app.calculateStorageSize();
       }.bind(this);
+    },
+
+
+    _clearCache: function () {
+      this._clearImages();
       app.$.recommendReloadDialog.open();
     },
 
     _clearSettings: function () {
-      app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
-        dir.removeRecursively(function (e) {
-          app.$.globals.makeToast('image cache cleared');
-        }, function (e) {
-          console.error(e)
-        });
-      });
-      var req = indexedDB.deleteDatabase(app.dbname);
-      req.onsuccess = function () {
-        console.log("Deleted database successfully");
-        app.createObjectStore();
-        app.calculateStorageSize();
-      }.bind(this);
-      req.onerror = function () {
-        console.log("Error deleting database");
-        app.calculateStorageSize();
-      }.bind(this);
-      req.onblocked = function () {
-        console.log("Couldn't delete database due to the operation being blocked");
-        app.calculateStorageSize();
-      }.bind(this);
+      this._clearImages();
       chrome.storage.sync.clear();
       app.url = '';
       app.user = '';
@@ -245,29 +186,214 @@
       }
     },
 
-    _updateConfig: function () {
-      var config = app.configs[this.config];
-      this.post = config;
-      this.post.config = this.config;
+    _defaultConfigs: function () {
+      if ("config" in this) {
+        simpleStorage.getSync().then(function (storage) {
+          var index = 0;
+          if ('post' in this && 'config' in this.post) {
+            index = this.post.config;
+          } else {
+            index = this.config;
+          }
+          var config = storage.configs[index];
+          this.post = config;
+          this.post.config = index;
+          this.post.bitRate = this.bitRate;
+        }.bind(this));
+      }
+    },
+
+    _useThis: function () {
+      var last = this.app.currentConfig;
+      this.isLoading = true;
+      this.app.user = this.post.user;
+      this.app.url = this.post.url;
+      this.app.pass = this.post.pass;
+      this.app.version = this.post.version;
+      this.app.md5Auth = this.post.md5Auth;
+      this._clearImages();
+      this.app.currentConfig = this.post.config;
+      simpleStorage.setLocal({
+        currentConfig: this.app.currentConfig
+      });
+      this.async(function () {
+        this.app.$.globals.initFS();
+        var firstPing = this.app.$.globals.buildUrl('ping');
+        this.app.$.globals.doXhr(firstPing, 'json').then(function (e) {
+          if (e.target.response['subsonic-response'].status === 'ok') {
+            app.userDetails();
+          }
+        });
+      }, null, 300);
+      this.isLoading = false;
+    },
+
+    _53orGreater: function (version) {
+      if (versionCompare(version, '1.13.0') >= 0) {
+        return true;
+      } else {
+        return false;
+      }
     },
 
     postChanged: function () {
-      console.log(this.config, this.post);
+      if ('post' in this) {
+        this.async(this.validateInputs, null, 200);
+        if ('version' in this.post && this._53orGreater(this.post.version)) {
+          this.$.editorMD5.hidden = false;
+        }
+        if ('config' in this.post) {
+          this.newConfig = !Boolean(this.app.configs[this.post.config]);
+          this._setFormDisabledState(!this.newConfig);
+        }
+      }
+    },
+
+    _setFormDisabledState: function (state) {
+      this.validateInputs();
+      this.$.md5.disabled = state;
+      var inputs = this.$.validate.querySelectorAll('paper-input-decorator');
+      for (var i = 0; i < inputs.length; i++) {
+        inputs[i].disabled = state;
+        inputs[i].querySelector('input').disabled = state;
+      }
+    },
+
+    _editConfig: function () {
+      this.isLoading = true;
+      this._setFormDisabledState(false);
+      this.isLoading = false;
+      this.editing = true;
+    },
+
+    _saveEdits: function () {
+      this.isLoading = true;
+      this.validateInputs();
+      this.async(function () {
+        this._setFormDisabledState(true);
+      }, null, 200);
+      if  (this._isValidData()) {
+        simpleStorage.getSync().then(function (storage) {
+          var configUpdating = storage.configs[this.post.config]
+          for (var key in configUpdating) {
+            configUpdating[key] = this.post[key];
+          }
+          simpleStorage.setSync({
+            configs: storage.configs
+          });
+          this.app.configs = storage.configs;
+          this.isLoading = false;
+          this.editing = false;
+        }.bind(this));
+      } else {
+        this.$.globals.makeToast("Valid URL, Username & Password Required");
+      }
+    },
+
+    _isValidData: function () {
+      if (!this.inValidAddress && !this.inValidName && !this.inValidPassword) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    _cancelEdit: function () {
+      this.isLoading = true;
+      this._setFormDisabledState(true);
+      this.isLoading = false;
+      this.editing = false;
+      this.validateInputs();
+      this._defaultConfigs();
+    },
+
+    _checkKeyup: function (e) {
+      this.validateInputs();
+      if (e.keyIdentifier === "Enter") {
+        if (this.editing && !this.newConfig) {
+          this._saveEdits();
+        } else if (!this.editing && this.newConfig) {
+
+        }
+      }
+    },
+
+    _select: function () {
+      var clicked = this.post.config;
+      var config = this.app.configs[this.post.config];
+      if (config) {
+        this.post = config;
+        this.post.bitRate = this.bitRate;
+        this.post.config = clicked;
+      }
+    },
+
+    _selectAction: function () {
+      this.async(this._select);
+    },
+
+    _deleteConfig: function () {
+      simpleStorage.getSync('configs').then(function (configs) {
+        configs.splice(this.post.config, 1);
+        this.post.config = this.post.config - 1;
+        simpleStorage.setSync({
+          configs: configs
+        });
+        this.app.configs = configs;
+        this.async(this._select);
+      }.bind(this));
+    },
+
+    _testUrl: function (event) {
+      var input = event.target;
+      this.$.url.isInvalid = !this.$.url.querySelector('input').validity.valid;
+      if (!this.$.url.isInvalid) {
+        this.testingURL = true;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", input.value + '/rest/ping.view?f=json', true);
+        xhr.responseType = 'json';
+        xhr.onload = function (e) {
+          var json = e.target.response['subsonic-response'];
+          this.post.version = json.version;
+          if (this._53orGreater(json.version)) {
+            this.$.editorMD5.hidden = false;
+            this.post.md5Auth = true;
+          }
+          this.testingURL = false;
+          this.attempt = false;
+        }.bind(this);
+
+        xhr.onerror = function (e) {
+          this.testingURL = false;
+          this.attempt = false;
+        }.bind(this);
+        // cancel previous attempts
+        if (this.attempt) {
+          this.attempt.abort();
+        }
+        // send result and tag the attempt
+        xhr.send();
+        this.attempt = xhr;
+      }
     },
 
     _newConfig: function () {
       this.post = {};
       this.post.config = app.configs.length;
       this.post.bitRate = this.bitRate;
+      this.post.name = 'Config' + Math.abs(this.app.configs.length + 1);
+      this.$.editorMD5.hidden = true;
     },
 
     configChanged: function () {
-      this.async(this._updateConfig);
+      this.async(this._defaultConfigs);
     },
 
     bitRateChanged: function () {
       this.async(function () {
-        this.post.bitRate = this.bitRate;
+        if ("bitRate" in this) {
+          this.post.bitRate = this.bitRate;
+        }
       });
     },
 

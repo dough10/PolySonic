@@ -379,6 +379,12 @@
     "message" : "Anonymous usage statistics"
   },
   "configLabel": {
-    "message": "Current Config"
+    "message": "Config"
+  },
+  "useThis": {
+    "message": "Use"
+  },
+  "testButton": {
+    "message": "Test & Save"
   }
 }

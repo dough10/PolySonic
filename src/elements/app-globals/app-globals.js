@@ -289,7 +289,9 @@
     clearSettingsLabel: getMessage("clearSettingsLabel"),
     licenseInfoLink: getMessage("licenseInfoLink"),
     showLicenseLabel: getMessage("showLicenseLabel"),
-    configLabel: getMessage('configLabel')
+    configLabel: getMessage('configLabel'),
+    useThis: getMessage('useThis'),
+    testButton: getMessage('testButton')
   };
 
   /**

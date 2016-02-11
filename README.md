@@ -7,6 +7,33 @@ HTML5 Subsonic client
   <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png">
 </a>
 
+in current development
+0.2.9
+
+- change max # of albums returned by search to 200. up from 20
+
+- ability to use multiple configs
+
+
+done: 
+
+- gracefull upgrade from previous config settings
+
+- methods for adding selecting updating & deleting configs
+
+- image cache clean up on config change
+
+
+in work: 
+
+- on first login config info is not being set
+
+- when changing config any playing music will need to stop and play queue cleared
+
+- clean up any text that isn't already included in the message.json
+
+- make sure that when changes are made to the config currently in use those changes are updated and ready for use (md5Auth is item in question ATM)
+
 Required software for development environment
 
 - NPM
@@ -36,6 +63,14 @@ Steps to install development environment
 After making changes run 'grunt' from the project root directory
 
 Changelog
+0.2.8.2
+
+- fix for menu not showing for users on chrome dev channel
+
+0.2.8.1
+
+- fix for no albums displaying on first login or if settings cleared
+
 0.2.8
 
 - refactor code base / reduce line / more maintainable
