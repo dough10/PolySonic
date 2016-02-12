@@ -12,7 +12,11 @@ in current development
 
 - change max # of albums returned by search to 200. up from 20
 
-- ability to use multiple configs
+- ability to use multiple configs (new config UIs)
+
+- "mini player" now shown at bottom of settins page
+
+- updates to artists page styling
 
 
 done: 
@@ -26,13 +30,13 @@ done:
 
 in work: 
 
-- on first login config info is not being set
-
-- when changing config any playing music will need to stop and play queue cleared
-
 - clean up any text that isn't already included in the message.json
 
-- make sure that when changes are made to the config currently in use those changes are updated and ready for use (md5Auth is item in question ATM)
+- figure out how to deal with creating a config for a server that can not currently be connected to (maybe just a "save anyway" dialog)
+
+- when changing or editing configs need a quick method to test the connection before changing the 'app' variables
+
+- methods to create edit select and delete configs are needed for the "loging" page
 
 Required software for development environment
 

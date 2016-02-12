@@ -13,8 +13,6 @@
   <template>
     <style>
       .host {
-        padding-right: 8px;
-        padding-left: 8px;
         position:relative;
       }
       #all {
@@ -37,8 +35,7 @@
         text-align:center;
         font-size:10pt;
         position:relative;
-        max-width: 800px;
-        padding: 8px;
+        max-width: 808px;
       }
       #bg {
         background-repeat: no-repeat;
@@ -66,15 +63,13 @@
         cursor: pointer;
       }
       #bioImage {
-        height:250px;
-        width:250px;
+        height: 450px;
         background-image:url("../../../images/default-cover-art.png");
         background-repeat: no-repeat;
         background-position: center;
         background-origin: content-box;
-        background-size:250px;
+        background-size:cover;
         position: relative;
-        margin-right: 24px;
       }
       .spinWrapper {
         background:rgba(255,255,255,0.6);
@@ -105,6 +100,16 @@
         bottom:0;
         overflow: auto;
       }
+      #bio {
+        margin-left: 24px;
+        margin-right: 24px;
+        margin-top:8px;
+        margin-bottom: 16px;
+      }
+      .name {
+        font-size: 32px;
+        margin-top: 16px;
+      }
       paper-button.white {
         color: #fff;
       }
@@ -127,13 +132,20 @@
       paper-tabs.transparent-red paper-tab::shadow #ink {
         color: #DB4437;
       }
+      paper-fab {
+        background: #db4437;
+        color: #fff;
+        position: absolute;
+        right: -16px;
+        top: 418px;
+      }
     </style>
     <app-globals id="globals"></app-globals>
     <div id="bg"></div>
     <div class="scroll">
       <div class="host">
-        <paper-shadow class='card' z='1' on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
-          <div horizontal layout>
+        <paper-shadow class='card' id="artistCard" z='1' on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
+          <div vertical layout>
             <div id="bioImage">
               <template if="{{loadingBio}}">
                 <div class="spinWrapper">
@@ -141,8 +153,12 @@
                 </div>
               </template>
             </div>
+            <template if="{{data.length > 1}}">
+              <paper-fab on-tap="{{playAllAlbums}}"
+                         icon="av:play-arrow"></paper-fab>
+            </template>
             <div flex>
-              <h3>{{artist}}</h3>
+              <div class="name">{{artist}}</div>
               <p id="bio">{{bio}}</p>
             </div>
           </div>
@@ -154,17 +170,13 @@
         </paper-shadow>
       </div>
       <div id="all">
-      <template if="{{data.length > 1}}">
-        <paper-button  class="white" raised style="margin:auto;" on-tap="{{playAllAlbums}}">
-          <core-icon icon="av:play-arrow"></core-icon>
-          {{$.globals.texts.shuffleButton}}
-        </paper-button>
-        <paper-tabs selected="{{sortBy}}" class="transparent-red">
-          <paper-tab>by Name</paper-tab>
-          <paper-tab>by Year Ascending</paper-tab>
-          <paper-tab>by Year Decending</paper-tab>
-        </paper-tabs>
-      </template>
+        <template if="{{data.length > 1}}">
+          <paper-tabs selected="{{sortBy}}" class="transparent-red">
+            <paper-tab>by Name</paper-tab>
+            <paper-tab>by Year Ascending</paper-tab>
+            <paper-tab>by Year Decending</paper-tab>
+          </paper-tabs>
+        </template>
         <template repeat="{{data}}">
           <album-art id='ac{{id}}' listMode="{{listMode}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" isFavorite="{{starred}}"></album-art>
         </template>

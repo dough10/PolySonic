@@ -105,6 +105,9 @@
                 }
               ];
               this.app.currentConfig = 0;
+              var settings = document.querySelector('settings-menu');
+              settings.post = this.app.configs[this.app.currentConfig];
+              settings.post.config = 0;
               simpleStorage.setSync({
                 configs: this.app.configs
               });

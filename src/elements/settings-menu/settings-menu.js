@@ -40,10 +40,6 @@
       });
     },
 
-    _errorChanged: function () {
-      console.log(this._error);
-    },
-
     validateInputs: function () {
       'use strict';
       var $d = this.$.validate.querySelectorAll('paper-input-decorator');
@@ -181,7 +177,7 @@
     },
 
     _errorChanged: function () {
-      if (this.error.statusCode === 0) {
+      if (this._error.statusCode === 0) {
         this.$.globals.makeToast(chrome.i18n.getMessage('connectionError'));
       }
     },
@@ -212,6 +208,7 @@
       this.app.version = this.post.version;
       this.app.md5Auth = this.post.md5Auth;
       this._clearImages();
+      this.app.clearPlaylist();
       this.app.currentConfig = this.post.config;
       simpleStorage.setLocal({
         currentConfig: this.app.currentConfig
@@ -221,7 +218,18 @@
         var firstPing = this.app.$.globals.buildUrl('ping');
         this.app.$.globals.doXhr(firstPing, 'json').then(function (e) {
           if (e.target.response['subsonic-response'].status === 'ok') {
-            app.userDetails();
+            this.app.userDetails();
+            console.log('Connected with config ' + this.app.configs[this.app.currentConfig]);
+            var folders = this.app.$.globals.buildUrl('getMusicFolders');
+            this.app.$.globals.doXhr(folders, 'json').then(function (e) {
+              this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+              /* setting mediaFolder causes a ajax call to get album wall data */
+              this.app.folder = result.mediaFolder || 'none';
+              if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+                this.app.$.sortBox.style.display = 'none';
+              }
+              this.app.tracker.sendAppView('Album Wall');
+            }.bind(this));
           }
         });
       }, null, 300);
@@ -284,6 +292,29 @@
           this.app.configs = storage.configs;
           this.isLoading = false;
           this.editing = false;
+          if (this.post.config === this.app.currentConfig) {
+            var editedURL = this.app.user !== this.post.url;
+            if (editedURL) {
+              this._clearImages();
+            }
+            this.app.user = this.post.user;
+            this.app.url = this.post.url;
+            this.app.pass = this.post.pass;
+            this.app.version = this.post.version;
+            this.app.md5Auth = this.post.md5Auth;
+            if (editedURL) {
+              this.async(function () {
+                this.app.$.globals.initFS();
+                var firstPing = this.app.$.globals.buildUrl('ping');
+                this.app.$.globals.doXhr(firstPing, 'json').then(function (e) {
+                  if (e.target.response['subsonic-response'].status === 'ok') {
+                    //
+                    app.userDetails();
+                  }
+                });
+              });
+            }
+          }
         }.bind(this));
       } else {
         this.$.globals.makeToast("Valid URL, Username & Password Required");

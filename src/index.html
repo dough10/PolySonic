@@ -200,7 +200,10 @@
                   <settings-menu config="{{currentConfig}}" bitRate="{{bitRate}}"></settings-menu>
                 </paper-shadow>
               </div>
+              <div style="min-height:100px;"></div>
             </core-header-panel>
+            <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}"
+                         progress="{{progress}}" hero></mini-player>
           </section>
 
           <!-- artist details page -->
