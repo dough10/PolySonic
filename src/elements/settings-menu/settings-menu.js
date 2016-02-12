@@ -135,7 +135,6 @@
       var req = indexedDB.deleteDatabase(app.dbname);
       req.onsuccess = function () {
         console.log("Deleted database successfully");
-        app.createObjectStore();
         app.calculateStorageSize();
       }.bind(this);
       req.onerror = function () {
@@ -219,7 +218,6 @@
         currentConfig: this.app.currentConfig
       });
       this.async(function () {
-        this.app.createObjectStore(this.app.db);
         this.app.$.globals.initFS();
         var firstPing = this.app.$.globals.buildUrl('ping');
         this.app.$.globals.doXhr(firstPing, 'json').then(function (e) {
@@ -301,12 +299,12 @@
           this.isLoading = false;
           this.editing = false;
           if (this.post.config === this.app.currentConfig) {
-            var editedURL = this.app.user !== this.post.url;
+            var editedURL = this.app.url !== this.post.url;
             if (editedURL) {
               this._clearImages();
             }
-            this.app.user = this.post.user;
             this.app.url = this.post.url;
+            this.app.user = this.post.user;
             this.app.pass = this.post.pass;
             this.app.version = this.post.version;
             this.app.md5Auth = this.post.md5Auth;
@@ -316,8 +314,18 @@
                 var firstPing = this.app.$.globals.buildUrl('ping');
                 this.app.$.globals.doXhr(firstPing, 'json').then(function (e) {
                   if (e.target.response['subsonic-response'].status === 'ok') {
-                    //
-                    app.userDetails();
+                    this.app.userDetails();
+                    console.log('config ' + this.app.configs[this.app.currentConfig].name + ' Refreshed');
+                    var folders = this.app.$.globals.buildUrl('getMusicFolders');
+                    this.app.$.globals.doXhr(folders, 'json').then(function (e) {
+                      this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                      this.app.folder = 'none';
+                      if (this.app.mediaFolders === undefined || !this.app.mediaFolders[1]) {
+                        this.app.$.sortBox.style.display = 'none';
+                      }
+                      this.app.tracker.sendAppView('Album Wall');
+                      this.isLoading = false;
+                    }.bind(this));
                   }
                 });
               });
