@@ -14,7 +14,7 @@ in current development
 
 - ability to use multiple configs (new config UIs)
 
-- "mini player" now shown at bottom of settins page
+- "mini player" now shown at bottom of settings page
 
 - updates to artists page styling
 
@@ -23,20 +23,24 @@ done:
 
 - gracefull upgrade from previous config settings
 
-- methods for adding selecting updating & deleting configs
+- methods for adding selecting updating & deleting configs for settings page
 
 - image cache clean up on config change
+
+- stop audio clear play queue on config change
 
 
 in work: 
 
-- clean up any text that isn't already included in the message.json
+- add any text that isn't already included in the message.json file
 
 - figure out how to deal with creating a config for a server that can not currently be connected to (maybe just a "save anyway" dialog)
 
-- when changing or editing configs need a quick method to test the connection before changing the 'app' variables
+- when changing or editing configs need a quick method to test the connection before changing the 'app' variables (maybe a notification dialog if the connection test fails)
 
-- methods to create edit select and delete configs are needed for the "loging" page
+- methods to create edit select and delete configs are needed for the "loging" dialog
+
+- on artist page use color thief to get a color from the header image and change color of fab to match
 
 Required software for development environment
 
