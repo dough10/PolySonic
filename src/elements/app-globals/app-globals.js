@@ -29,6 +29,7 @@
   request.onsuccess = function () {
     console.log("Success creating/accessing IndexedDB database");
     db = this.result;
+    app.db = db;
 
     // Interim solution for Google Chrome to create an objectStore. Will be deprecated
     if (db.setVersion) {

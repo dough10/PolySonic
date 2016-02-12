@@ -23,6 +23,11 @@
           this.loadingBio = true;
           this.$.globals.doXhr(artistBio.largeImageUrl, 'blob').then(function (xhrEvent) {
             var image = window.URL.createObjectURL(xhrEvent.target.response);
+            this.$.globals._stealColor(image, 'artistImage-' + this.artistId)
+            .then(function (colors) {
+              this.fabBgColor = colors[0];
+              this.fabColor = colors[1];
+            }.bind(this));
             this.$.bioImage.style.backgroundImage = "url('" + image + "')";
             this.$.bg.style.backgroundImage = "url('" + image + "')";
             this.loadingBio = false;

@@ -29,8 +29,11 @@ done:
 
 - stop audio clear play queue on config change
 
+- on artist page use color thief to get a color from the header image and change color of fab to match
 
 in work: 
+
+- when changin configs content should refresh
 
 - add any text that isn't already included in the message.json file
 
@@ -40,7 +43,6 @@ in work:
 
 - methods to create edit select and delete configs are needed for the "loging" dialog
 
-- on artist page use color thief to get a color from the header image and change color of fab to match
 
 Required software for development environment
 

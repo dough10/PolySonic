@@ -208,32 +208,40 @@
       this.app.version = this.post.version;
       this.app.md5Auth = this.post.md5Auth;
       this._clearImages();
-      this.app.clearPlaylist();
+      this.app.tracker.sendEvent('Clear Playlist', new Date());
+      if (app.$.player.audio && !app.$.player.audio.paused) {
+        this.app.$.player.audio.pause();
+      }
+      this.app.$.playlistDialog.close();
+      this.app.playlist = [];
       this.app.currentConfig = this.post.config;
       simpleStorage.setLocal({
         currentConfig: this.app.currentConfig
       });
       this.async(function () {
+        this.app.createObjectStore(this.app.db);
         this.app.$.globals.initFS();
         var firstPing = this.app.$.globals.buildUrl('ping');
         this.app.$.globals.doXhr(firstPing, 'json').then(function (e) {
           if (e.target.response['subsonic-response'].status === 'ok') {
             this.app.userDetails();
-            console.log('Connected with config ' + this.app.configs[this.app.currentConfig]);
+            console.log('Connected with config ' + this.app.configs[this.app.currentConfig].name);
             var folders = this.app.$.globals.buildUrl('getMusicFolders');
             this.app.$.globals.doXhr(folders, 'json').then(function (e) {
               this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-              /* setting mediaFolder causes a ajax call to get album wall data */
-              this.app.folder = result.mediaFolder || 'none';
-              if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+              this.app.folder = 'none';
+              if (this.app.mediaFolders === undefined || !this.app.mediaFolders[1]) {
                 this.app.$.sortBox.style.display = 'none';
               }
               this.app.tracker.sendAppView('Album Wall');
+              this.isLoading = false;
             }.bind(this));
+          } else {
+            this.isLoading = false;
+            this.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
           }
-        });
-      }, null, 300);
-      this.isLoading = false;
+        }.bind(this));
+      }, null, 500);
     },
 
     _53orGreater: function (version) {

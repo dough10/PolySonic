@@ -133,11 +133,12 @@
         color: #DB4437;
       }
       paper-fab {
-        background: #db4437;
-        color: #fff;
+        background: {{fabBgColor}};
+        color: {{fabColor}};
         position: absolute;
         right: -16px;
         top: 418px;
+        transition: background 0.5s ease-out;
       }
     </style>
     <app-globals id="globals"></app-globals>
@@ -153,10 +154,8 @@
                 </div>
               </template>
             </div>
-            <template if="{{data.length > 1}}">
-              <paper-fab on-tap="{{playAllAlbums}}"
-                         icon="av:play-arrow"></paper-fab>
-            </template>
+            <paper-fab on-tap="{{playAllAlbums}}"
+                       icon="av:play-arrow"></paper-fab>
             <div flex>
               <div class="name">{{artist}}</div>
               <p id="bio">{{bio}}</p>
@@ -178,7 +177,13 @@
           </paper-tabs>
         </template>
         <template repeat="{{data}}">
-          <album-art id='ac{{id}}' listMode="{{listMode}}" item="{{id}}" cover="{{coverArt}}" artist="{{artist}}" album="{{name}}" isFavorite="{{starred}}"></album-art>
+          <album-art id='ac{{id}}'
+                     listMode="{{listMode}}"
+                     item="{{id}}"
+                     cover="{{coverArt}}"
+                     artist="{{artist}}"
+                     album="{{name}}"
+                     isFavorite="{{starred}}"></album-art>
         </template>
         <div style="min-height:150px"></div>
       </div>
