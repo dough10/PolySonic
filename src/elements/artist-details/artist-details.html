@@ -63,7 +63,6 @@
         cursor: pointer;
       }
       #bioImage {
-        height: 450px;
         background-image:url("../../../images/default-cover-art.png");
         background-repeat: no-repeat;
         background-position: center;
@@ -147,13 +146,13 @@
       <div class="host">
         <paper-shadow class='card' id="artistCard" z='1' on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
           <div vertical layout>
-            <div id="bioImage">
+            <canvas id="bioImage">
               <template if="{{loadingBio}}">
                 <div class="spinWrapper">
                   <paper-spinner class="spinner" active></paper-spinner>
                 </div>
               </template>
-            </div>
+            </canvas>
             <paper-fab id="fab" on-tap="{{playAllAlbums}}"
                        icon="av:play-arrow"></paper-fab>
             <div flex>

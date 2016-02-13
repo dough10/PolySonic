@@ -2,6 +2,7 @@
     "jscodehints.detectedExclusions": [
         "C:/Documents and Settings/Administrator/Desktop/PolySonic/src/elements/subsonic/volume-slider.html.0.js",
         "C:/Documents and Settings/Administrator/Desktop/polysonic/node_modules/grunt-uncss/node_modules/maxmin/index.js",
-        "C:/Documents and Settings/Administrator/Desktop/polysonic/src/elements/artist-details/artist-details.js"
+        "C:/Documents and Settings/Administrator/Desktop/polysonic/src/elements/artist-details/artist-details.js",
+        "C:/Documents and Settings/Administrator/Desktop/polysonic/node_modules/grunt/lib/grunt/option.js"
     ]
 }

@@ -30,6 +30,35 @@
       }.bind(this);
     },
 
+    _fetchImage: function (url) {
+      return new Promise(function (resolve, reject) {
+        this.app.fs.root.getFile(this.app.filePath + '/artistImage-' + this.artistId + '.jpg', {
+          create: false,
+          exclusive: true
+        }, function(fileEntry) {
+          this.$.globals.getDbItem('artistImage-' + this.artistId).then(function (colors) {
+            resolve({
+              url: fileEntry.toURL(),
+              fabBgColor: colors[0],
+              fabColor: colors[1]
+            });
+          }.bind(this));
+        }.bind(this), function () {
+          this.$.globals.doXhr(url, 'blob').then(function (xhrEvent) {
+            var image = window.URL.createObjectURL(xhrEvent.target.response);
+            this.$.globals._stealColor(image, 'artistImage-' + this.artistId)
+            .then(function (colors) {
+              resolve({
+                url: image,
+                fabBgColor: colors[0],
+                fabColor: colors[1]
+              });
+            }.bind(this));
+          }.bind(this));
+        }.bind(this));
+      }.bind(this));
+    },
+
 
     queryData: function () {
       this.async(function () {
@@ -41,15 +70,12 @@
           this.artistBio = artistBio;
           this.$.bio.innerHTML = artistBio.biography;
           this.loadingBio = true;
-          this.$.globals.doXhr(artistBio.largeImageUrl, 'blob').then(function (xhrEvent) {
-            var image = window.URL.createObjectURL(xhrEvent.target.response);
-            this.$.globals._stealColor(image, 'artistImage-' + this.artistId)
-            .then(function (colors) {
-              this.fabBgColor = colors[0];
-              this.fabColor = colors[1];
-            }.bind(this));
-            this.$.bioImage.style.backgroundImage = "url('" + image + "')";
-            this.$.bg.style.backgroundImage = "url('" + image + "')";
+          this._fetchImage(artistBio.largeImageUrl).then(function (image) {
+            this._cropImage(image.url);
+            this.fabBgColor = image.fabBgColor;
+            this.fabColor = image.fabColor;
+            //this.$.bioImage.style.backgroundImage = "url('" + image.url + "')";
+            this.$.bg.style.backgroundImage = "url('" + image.url + "')";
             this.loadingBio = false;
           }.bind(this));
           var url = this.$.globals.buildUrl('getArtist', {
