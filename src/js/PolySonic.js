@@ -942,6 +942,12 @@
     });
   };
 
+  app._animationEnd = function (e) {
+    if (app.page === 3) {
+      app.$.aDetails.resize();
+    }
+  };
+
   /**
    * key binding listener
    */
@@ -980,7 +986,7 @@
       if (!app.configs.length && 'url' in result && 'user' in result && 'pass' in result) {
         console.log('updating config storage');
         app.configs.push({
-          name: 'default',
+          name: 'Config1',
           url: result.url,
           user: result.user,
           pass: result.pass,
@@ -1129,6 +1135,7 @@
 
     // app resize callback
     window.onresize = function () {
+      app.$.aDetails.resize();
       app.$.fab.setPos();
       app.$.player.resize();
       app.$.fab.resize();

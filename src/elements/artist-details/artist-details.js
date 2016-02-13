@@ -11,6 +11,26 @@
     },
 
 
+    _cropImage: function (image) {
+      var containerWidth = this.$.artistCard.offsetWidth;
+      var oneThird = Math.abs(containerWidth / 21);
+      var height = Math.abs(oneThird * 9);
+      var imgEl = new Image();
+      imgEl.src = image;
+      imgEl.onload = function () {
+        SmartCrop.crop(imgEl, {
+          width: containerWidth,
+          height: height
+        }, function (crops) {
+          var canvas = this.$.bioImage;
+          var ctx = canvas.getContext('2d');
+          var crop = crops.topCrop;
+          ctx.drawImage(imgEl, crop.x, crop.y, crop.width, crop.height, 0, 0, containerWidth, height);
+        }.bind(this));
+      }.bind(this);
+    },
+
+
     queryData: function () {
       this.async(function () {
         var url = this.$.globals.buildUrl('getArtistInfo2', {
@@ -79,6 +99,14 @@
           }
         }
       });
+    },
+
+    resize: function () {
+      var containerWidth = this.$.artistCard.offsetWidth;
+      var oneThird = Math.abs(containerWidth / 21);
+      var height = Math.abs(oneThird * 9);
+      this.$.bioImage.style.height = height + 'px';
+      this.$.fab.style.top = Math.abs(height - 29) + 'px';
     },
 
 

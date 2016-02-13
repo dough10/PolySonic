@@ -42,7 +42,7 @@
                     isNowPlaying="{{!isNowPlaying}}" on-tap="{{doAction}}"
                     colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}"
                     colorThiefalbum="{{colorThiefAlbum}}" colorThiefAlbumOff="{{colorThiefAlbumOff}}"></animated-fab>
-      <core-drawer-panel id="panel" narrow="{{narrow}}" disableSwipe?="{{page !== 0}}" responsiveWidth="1000px">
+      <core-drawer-panel id="panel" narrow="{{narrow}}" disableSwipe?="{{page !== 0}}" responsiveWidth="1150px">
 
         <!-- menu -->
         <core-header-panel drawer flex mode="standard">
@@ -112,7 +112,8 @@
         </core-header-panel>
 
         <!-- main page animations -->
-        <core-animated-pages main  class="pages" selected="{{page}}" transitions="slide-from-right hero-transition">
+        <core-animated-pages main  class="pages" selected="{{page}}" transitions="slide-from-right hero-transition"
+                             on-core-animated-pages-transition-end="{{_animationEnd}}">
 
           <!-- album wall -->
           <section>

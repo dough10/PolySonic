@@ -136,7 +136,7 @@
         background: {{fabBgColor}};
         color: {{fabColor}};
         position: absolute;
-        right: -16px;
+        right: 8px;
         top: 418px;
         transition: background 0.5s ease-out;
       }
@@ -154,7 +154,7 @@
                 </div>
               </template>
             </div>
-            <paper-fab on-tap="{{playAllAlbums}}"
+            <paper-fab id="fab" on-tap="{{playAllAlbums}}"
                        icon="av:play-arrow"></paper-fab>
             <div flex>
               <div class="name">{{artist}}</div>
