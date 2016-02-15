@@ -16,10 +16,6 @@
       var containerWidth = this.$.bioImage.offsetWidth;
       var oneThird = Math.abs(containerWidth / 21);
       var height = Math.abs(oneThird * 9);
-      var exists = container.querySelector('canvas');
-      if (exists) {
-        container.removeChild(exists);
-      }
       var imgEl = new Image();
       imgEl.src = image;
       imgEl.onload = function () {
@@ -27,6 +23,10 @@
           width: containerWidth,
           height: height
         }, function (crops) {
+          var exists = container.querySelector('canvas');
+          if (exists) {
+            container.removeChild(exists);
+          }
           var canvas = document.createElement('canvas');
           canvas.width = containerWidth;
           canvas.height = height;
@@ -35,6 +35,7 @@
           canvas.id = 'artistImageCanvas';
           container.appendChild(canvas);
           ctx.drawImage(imgEl, crop.x, crop.y, crop.width, crop.height, 0, 0, containerWidth, height);
+          this.loadingBio = false;
         }.bind(this));
       }.bind(this);
     },
@@ -80,12 +81,13 @@
           this.$.bio.innerHTML = artistBio.biography;
           this.loadingBio = true;
           this._fetchImage(artistBio.largeImageUrl).then(function (image) {
+            this.imgURL = image.url;
             this._cropImage(image.url);
             this.fabBgColor = image.fabBgColor;
             this.fabColor = image.fabColor;
-            this.$.bioImage.style.backgroundImage = "url('" + image.url + "')";
+            //this.$.bioImage.style.backgroundImage = "url('" + image.url + "')";
             this.$.bg.style.backgroundImage = "url('" + image.url + "')";
-            this.loadingBio = false;
+            //this.loadingBio = false;
           }.bind(this));
           var url = this.$.globals.buildUrl('getArtist', {
             id: this.artistId
@@ -142,6 +144,9 @@
       var height = Math.abs(oneThird * 9);
       this.$.bioImage.style.height = height + 'px';
       this.$.fab.style.top = Math.abs(height - 29) + 'px';
+      this.job('crop', function () {
+        this._cropImage(this.imgURL);
+      }, 100);
     },
 
 
