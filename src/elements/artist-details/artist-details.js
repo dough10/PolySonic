@@ -12,9 +12,14 @@
 
 
     _cropImage: function (image) {
-      var containerWidth = this.$.artistCard.offsetWidth;
+      var container = this.$.bioImage;
+      var containerWidth = this.$.bioImage.offsetWidth;
       var oneThird = Math.abs(containerWidth / 21);
       var height = Math.abs(oneThird * 9);
+      var exists = container.querySelector('canvas');
+      if (exists) {
+        container.removeChild(exists);
+      }
       var imgEl = new Image();
       imgEl.src = image;
       imgEl.onload = function () {
@@ -22,9 +27,13 @@
           width: containerWidth,
           height: height
         }, function (crops) {
-          var canvas = this.$.bioImage;
+          var canvas = document.createElement('canvas');
+          canvas.width = containerWidth;
+          canvas.height = height;
           var ctx = canvas.getContext('2d');
           var crop = crops.topCrop;
+          canvas.id = 'artistImageCanvas';
+          container.appendChild(canvas);
           ctx.drawImage(imgEl, crop.x, crop.y, crop.width, crop.height, 0, 0, containerWidth, height);
         }.bind(this));
       }.bind(this);
@@ -74,7 +83,7 @@
             this._cropImage(image.url);
             this.fabBgColor = image.fabBgColor;
             this.fabColor = image.fabColor;
-            //this.$.bioImage.style.backgroundImage = "url('" + image.url + "')";
+            this.$.bioImage.style.backgroundImage = "url('" + image.url + "')";
             this.$.bg.style.backgroundImage = "url('" + image.url + "')";
             this.loadingBio = false;
           }.bind(this));

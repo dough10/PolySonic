@@ -146,13 +146,13 @@
       <div class="host">
         <paper-shadow class='card' id="artistCard" z='1' on-mouseover="{{mouseIn}}" on-mouseout="{{mouseOut}}">
           <div vertical layout>
-            <canvas id="bioImage">
+            <div id="bioImage">
               <template if="{{loadingBio}}">
                 <div class="spinWrapper">
                   <paper-spinner class="spinner" active></paper-spinner>
                 </div>
               </template>
-            </canvas>
+            </div>
             <paper-fab id="fab" on-tap="{{playAllAlbums}}"
                        icon="av:play-arrow"></paper-fab>
             <div flex>
