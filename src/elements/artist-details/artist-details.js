@@ -16,7 +16,7 @@
       this.loadingBio = false;
     },
 
-    _saveFile: function (blob) {
+    _saveFile: function (file) {
       return new Promise(function (resolve, reject) {
         var fileName = app.filePath + '/artist-' + this.artistId + '.jpg';
         app.fs.root.getFile(fileName, {
@@ -33,7 +33,7 @@
             fileWriter.onerror = function(e) {
               console.log('Write failed: ' + e.toString());
             };
-            var blob = new Blob([ blob ], { type: 'image/jpeg' });
+            var blob = new Blob([ file ], { type: 'image/jpeg' });
             fileWriter.write(blob);
           }.bind(this), eHandler);
         }.bind(this), eHandler);
@@ -76,7 +76,7 @@
      */
     _fetchImage: function (url) {
       return new Promise(function (resolve, reject) {
-        this.app.fs.root.getFile(this.app.filePath + '/artist-' + this.artistId + '.jpg', {
+        app.fs.root.getFile(app.filePath + '/artist-' + this.artistId + '.jpg', {
           create: false,
           exclusive: true
         }, function(fileEntry) {
@@ -92,9 +92,7 @@
           this.$.globals.doXhr(url, 'blob').then(function (xhrEvent) {
             var blob = xhrEvent.target.response;
             var image = window.URL.createObjectURL(blob);
-            this._saveFile(blob).then(function (location) {
-              console.log('file saved to ' + location);
-            });
+            this._saveFile(blob);
             this.$.globals._stealColor(image, 'artist-' + this.artistId).then(function (colors) {
               resolve({
                 url: image,
@@ -121,6 +119,7 @@
           this.$.bio.innerHTML = artistBio.biography;
           this.loadingBio = true;
           this._fetchImage(artistBio.largeImageUrl).then(function (image) {
+            console.log(image);
             this.imgURL = image.url;
             this.fabBgColor = image.fabBgColor;
             this.fabColor = image.fabColor;
