@@ -15,22 +15,24 @@
       this.loadingBio = false;
     },
 
-    _saveFile: function (response) {
+    _saveFile: function (blob) {
       return new Promise(function (resolve, reject) {
-        app.fs.root.getFile(app.filePath + '/artist-' + this.artistId + '.jpg', {create: true}, function(fileEntry) {
+        var fileName = app.filePath + '/artist-' + this.artistId + '.jpg';
+        app.fs.root.getFile(fileName, {
+          create: true
+        }, function(fileEntry) {
           fileEntry.createWriter(function(fileWriter) {
-
             fileWriter.onwriteend = function(e) {
-              app.fs.root.getFile(app.filePath + '/artist-' + this.artistId + '.jpg', {create: false}, function(retrived) {
+              app.fs.root.getFile(fileName, {
+                create: false
+              }, function(retrived) {
                 resolve(retrived.toURL());
               });
             };
-
             fileWriter.onerror = function(e) {
               console.log('Write failed: ' + e.toString());
             };
-            var blob = new Blob([ response ], { type: 'image/jpeg' });
-
+            var blob = new Blob([ blob ], { type: 'image/jpeg' });
             fileWriter.write(blob);
           }.bind(this), eHandler);
         }.bind(this), eHandler);
@@ -38,6 +40,10 @@
     },
 
 
+    /**
+     * use smartCrop to attempt to get a well centered header image
+     * @param {String} image - url to the image we are attempting to crop
+     */
     _cropImage: function (image) {
       return new Promise(function (resolve, reject) {
         var container = this.$.bioImage;
@@ -63,6 +69,10 @@
       }.bind(this));
     },
 
+    /**
+     * fetch header image. either from HTML filesystem or from internet
+     * @param {String} url - url to the image we want to use for the header
+     */
     _fetchImage: function (url) {
       return new Promise(function (resolve, reject) {
         this.app.fs.root.getFile(this.app.filePath + '/artist-' + this.artistId + '.jpg', {
@@ -78,10 +88,10 @@
             });
           }.bind(this));
         }.bind(this), function () {
-          console.log('download');
           this.$.globals.doXhr(url, 'blob').then(function (xhrEvent) {
-            var image = window.URL.createObjectURL(xhrEvent.target.response);
-            this._saveFile(xhrEvent.target.response).then(function (location) {
+            var blob = xhrEvent.target.response;
+            var image = window.URL.createObjectURL(blob);
+            this._saveFile(blob).then(function (location) {
               console.log('file saved to ' + location);
             });
             this.$.globals._stealColor(image, 'artist-' + this.artistId).then(function (colors) {
@@ -96,7 +106,9 @@
       }.bind(this));
     },
 
-
+    /**
+     * get the info about this artist from subsonic
+     */
     queryData: function () {
       this.async(function () {
         var url = this.$.globals.buildUrl('getArtistInfo2', {
@@ -138,7 +150,9 @@
       });
     },
 
-
+    /**
+     * sort the albums for this artist
+     */
     sortByChanged: function () {
       this.async(function () {
         if (this.data !== undefined) {
@@ -166,32 +180,39 @@
       });
     },
 
+    /**
+     * size the header image
+     */
     resize: function () {
       var containerWidth = this.$.artistCard.offsetWidth;
       var oneThird = Math.abs(containerWidth / 21);
       var height = Math.abs(oneThird * 9);
       this.$.bioImage.style.height = height + 'px';
       this.$.fab.style.top = Math.abs(height - 29) + 'px';
-      this.job('crop', function () {
-        this._cropImage(this.imgURL);
-      }, 100);
     },
 
-
+    /**
+     * play the album with the givin id
+     * @param {String} id
+     */
     playSomething: function (id, callback) {
       var element = this.$.all.querySelector('#' + id);
       element.doPlayback();
       this.async(callback);
     },
 
-
+    /**
+     * call a update of artist info
+     */
     changeArtist: function (event, detail, sender) {
       this.artistId = sender.dataset.id;
       app.dataLoading = true;
       this.async(this.queryData);
     },
 
-
+    /**
+     * create a play queue of all tracks by this artist
+     */
     playAllAlbums: function () {
       this.app.dataLoading = true;
       var albums = this.$.all.querySelectorAll('album-art');
