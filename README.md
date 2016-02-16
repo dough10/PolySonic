@@ -16,7 +16,7 @@ in current development
 
 - "mini player" now shown at bottom of settings page
 
-- updates to artists page styling
+- updates to artists page styling (larger artist image recentered using SmartCrop.js)
 
 
 done: 

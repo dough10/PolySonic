@@ -420,6 +420,7 @@
     getDbItem: function (id) {
       return new Promise(function (resolve, reject) {
         if (id) {
+          console.log(id);
           var transaction = db.transaction([dbName], "readwrite");
           var request = transaction.objectStore(dbName).get(id);
           request.onsuccess = resolve;
@@ -442,8 +443,8 @@
             fileEntry.createWriter(function(fileWriter) {
 
               fileWriter.onwriteend = function(e) {
-                app.fs.root.getFile(app.filePath + '/' + fileName, {create: false}, function(fileEntry) {
-                  resolve(fileEntry.toURL());
+                app.fs.root.getFile(app.filePath + '/' + fileName, {create: false}, function(retrived) {
+                  resolve(retrived.toURL());
                 });
               };
 
@@ -493,24 +494,26 @@
      */
     _stealColor: function (imgURL, artId) {
       return new Promise(function (resolve, reject) {
-        var imgElement = new Image();
-        imgElement.src = imgURL;
-        imgElement.onload = function () {
-          var color = getColor(imgElement);
-          var colorArray = [];
-          var r = color[1][0];
-          var g = color[1][1];
-          var b = color[1][2];
-          colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-          colorArray[1] = getContrast50(rgbToHex(r, g, b));
-          colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4);';
-          if (colorArray[1] !== 'white') {
-            colorArray[3] = '#444444';
-          } else {
-            colorArray[3] = '#c8c8c8';
-          }
-          this._putInDb(colorArray, artId + '-palette').then(resolve);
-        }.bind(this);
+        if (artId) {
+          var imgElement = new Image();
+          imgElement.src = imgURL;
+          imgElement.onload = function () {
+            var color = getColor(imgElement);
+            var colorArray = [];
+            var r = color[1][0];
+            var g = color[1][1];
+            var b = color[1][2];
+            colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
+            colorArray[1] = getContrast50(rgbToHex(r, g, b));
+            colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4);';
+            if (colorArray[1] !== 'white') {
+              colorArray[3] = '#444444';
+            } else {
+              colorArray[3] = '#c8c8c8';
+            }
+            this._putInDb(colorArray, artId + '-palette').then(resolve);
+          }.bind(this);
+        }
       }.bind(this));
     },
     

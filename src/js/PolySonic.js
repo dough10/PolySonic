@@ -132,7 +132,6 @@
     app.playlist.splice(app.playing, 1);
     _shuffleArray(app.playlist);
     app.playlist.unshift(temp);
-    app.$.globals.makeToast(app.$.globals.texts.randomized);
     if (app.playing !== 0) {
       app.alreadyPlaying = true; // tell player this track is already playing other wise will start play over again
       app.playing = 0;

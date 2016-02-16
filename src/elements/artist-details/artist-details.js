@@ -1,5 +1,10 @@
 (function () {
   var app = document.getElementById("tmpl");
+
+  function eHandler(e) {
+    throw new Error(e);
+  }
+
   Polymer('artist-details', {
 
 
@@ -10,43 +15,62 @@
       this.loadingBio = false;
     },
 
+    _saveFile: function (response) {
+      return new Promise(function (resolve, reject) {
+        app.fs.root.getFile(app.filePath + '/artist-' + this.artistId + '.jpg', {create: true}, function(fileEntry) {
+          fileEntry.createWriter(function(fileWriter) {
+
+            fileWriter.onwriteend = function(e) {
+              app.fs.root.getFile(app.filePath + '/artist-' + this.artistId + '.jpg', {create: false}, function(retrived) {
+                resolve(retrived.toURL());
+              });
+            };
+
+            fileWriter.onerror = function(e) {
+              console.log('Write failed: ' + e.toString());
+            };
+            var blob = new Blob([ response ], { type: 'image/jpeg' });
+
+            fileWriter.write(blob);
+          }.bind(this), eHandler);
+        }.bind(this), eHandler);
+      }.bind(this));
+    },
+
 
     _cropImage: function (image) {
-      var container = this.$.bioImage;
-      var containerWidth = this.$.bioImage.offsetWidth;
-      var oneThird = Math.abs(containerWidth / 21);
-      var height = Math.abs(oneThird * 9);
-      var imgEl = new Image();
-      imgEl.src = image;
-      imgEl.onload = function () {
-        SmartCrop.crop(imgEl, {
-          width: containerWidth,
-          height: height
-        }, function (crops) {
-          var exists = container.querySelector('canvas');
-          if (exists) {
-            container.removeChild(exists);
-          }
-          var canvas = document.createElement('canvas');
-          canvas.width = containerWidth;
-          canvas.height = height;
-          var ctx = canvas.getContext('2d');
-          var crop = crops.topCrop;
-          canvas.id = 'artistImageCanvas';
-          container.appendChild(canvas);
-          ctx.drawImage(imgEl, crop.x, crop.y, crop.width, crop.height, 0, 0, containerWidth, height);
-          this.loadingBio = false;
-        }.bind(this));
-      }.bind(this);
+      return new Promise(function (resolve, reject) {
+        var container = this.$.bioImage;
+        var containerWidth = 808;
+        var oneThird = Math.abs(containerWidth / 21);
+        var height = Math.abs(oneThird * 9);
+        var imgEl = new Image();
+        imgEl.src = image;
+        imgEl.onload = function imgLoaded() {
+          SmartCrop.crop(imgEl, {
+            width: containerWidth,
+            height: height
+          }, function imgCropped(crops) {
+            var canvas = document.createElement('canvas');
+            canvas.width = containerWidth;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            var crop = crops.crops[1];
+            ctx.drawImage(imgEl, crop.x, crop.y, crop.width, crop.height, 0, 0, containerWidth, height);
+            resolve(canvas.toDataURL('image/jpg'));
+          }.bind(this));
+        }.bind(this);
+      }.bind(this));
     },
 
     _fetchImage: function (url) {
       return new Promise(function (resolve, reject) {
-        this.app.fs.root.getFile(this.app.filePath + '/artistImage-' + this.artistId + '.jpg', {
+        this.app.fs.root.getFile(this.app.filePath + '/artist-' + this.artistId + '.jpg', {
           create: false,
           exclusive: true
         }, function(fileEntry) {
-          this.$.globals.getDbItem('artistImage-' + this.artistId).then(function (colors) {
+          this.$.globals.getDbItem('artist-' + this.artistId + '-palette').then(function (colors) {
+            colors = colors.target.result;
             resolve({
               url: fileEntry.toURL(),
               fabBgColor: colors[0],
@@ -54,10 +78,13 @@
             });
           }.bind(this));
         }.bind(this), function () {
+          console.log('download');
           this.$.globals.doXhr(url, 'blob').then(function (xhrEvent) {
             var image = window.URL.createObjectURL(xhrEvent.target.response);
-            this.$.globals._stealColor(image, 'artistImage-' + this.artistId)
-            .then(function (colors) {
+            this._saveFile(xhrEvent.target.response).then(function (location) {
+              console.log('file saved to ' + location);
+            });
+            this.$.globals._stealColor(image, 'artist-' + this.artistId).then(function (colors) {
               resolve({
                 url: image,
                 fabBgColor: colors[0],
@@ -82,12 +109,13 @@
           this.loadingBio = true;
           this._fetchImage(artistBio.largeImageUrl).then(function (image) {
             this.imgURL = image.url;
-            this._cropImage(image.url);
             this.fabBgColor = image.fabBgColor;
             this.fabColor = image.fabColor;
-            //this.$.bioImage.style.backgroundImage = "url('" + image.url + "')";
             this.$.bg.style.backgroundImage = "url('" + image.url + "')";
-            //this.loadingBio = false;
+            this._cropImage(image.url).then(function (croppedURL) {
+              this.$.bioImage.style.backgroundImage = "url('" + croppedURL + "')";
+              this.loadingBio = false;
+            }.bind(this));
           }.bind(this));
           var url = this.$.globals.buildUrl('getArtist', {
             id: this.artistId
@@ -165,6 +193,7 @@
 
 
     playAllAlbums: function () {
+      this.app.dataLoading = true;
       var albums = this.$.all.querySelectorAll('album-art');
       var albumsLength = albums.length;
       var playlist = [];
@@ -179,6 +208,7 @@
               }
               this.$.globals.playListIndex(0);
               app.shufflePlaylist();
+              this.app.dataLoading = false;
             }, 300);
           }.bind(this));
         }.bind(this))(i);
