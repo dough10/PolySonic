@@ -12,8 +12,6 @@
   var dbName = 'metaData';
   app.dbname = dbName;
 
-  var request = indexedDB.open(dbName, dbVersion);
-
   function createObjectStore(dataBase) {
     console.log("Creating objectStore");
     dataBase.createObjectStore(dbName);
@@ -22,29 +20,38 @@
 
   var db;
 
-  request.onerror = function () {
-    console.log("Error creating/accessing IndexedDB database");
-  };
+  function _openIndexedDB() {
+    return new Promise(function (resolve, reject) {
+      var request = indexedDB.open(dbName, dbVersion);
 
-  request.onsuccess = function () {
-    console.log("Success creating/accessing IndexedDB database");
-    db = this.result;
-    app.db = db;
+      request.onerror = function () {
+        reject();
+        console.log("Error creating/accessing IndexedDB database");
+      };
 
-    // Interim solution for Google Chrome to create an objectStore. Will be deprecated
-    if (db.setVersion) {
-      if (db.version !== dbVersion) {
-        var setVersion = db.setVersion(dbVersion);
-        setVersion.onsuccess = function () {
-          createObjectStore(db);
-        };
-      }
-    }
-  };
+      request.onsuccess = function () {
+        console.log("Success creating/accessing IndexedDB database");
+        db = this.result;
+        app.db = db;
 
-  request.onupgradeneeded = function (event) {
-    createObjectStore(event.target.result);
-  };
+        // Interim solution for Google Chrome to create an objectStore. Will be deprecated
+        if (db.setVersion) {
+          if (db.version !== dbVersion) {
+            var setVersion = db.setVersion(dbVersion);
+            setVersion.onsuccess = function () {
+              resolve();
+              createObjectStore(db);
+            };
+          }
+        }
+      };
+
+      request.onupgradeneeded = function (event) {
+        resolve();
+        createObjectStore(event.target.result);
+      };
+    });
+  }
 
   /**
    * method to create folder structure
@@ -302,6 +309,8 @@
     ready: function () {
       this.texts = texts;
     },
+
+    openIndexedDB: _openIndexedDB,
 
     initFS: function () {
       navigator.webkitPersistentStorage.requestQuota(1024*1024*512, function(grantedBytes) {

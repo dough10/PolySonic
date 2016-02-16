@@ -2,7 +2,8 @@
   var app = document.getElementById("tmpl");
 
   function eHandler(e) {
-    throw new Error(e);
+    console.log(e);
+    throw new Error('FS error');
   }
 
   Polymer('artist-details', {

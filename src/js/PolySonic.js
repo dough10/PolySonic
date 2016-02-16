@@ -972,8 +972,7 @@
    */
   app.addEventListener('template-bound', function () {
     app.$.player.resize();
-
-    // all synced settings
+    app.$.globals.openIndexedDB();
     simpleStorage.getSync().then(function (result) {
       app.dataLoading = false;
       app.configs = result.configs || [];
@@ -1106,8 +1105,7 @@
           app.$.firstRun.open();
         }
       });
-
-      });
+    });
 
     // set main content scrolling callback
     app.appScroller().onscroll = function () {

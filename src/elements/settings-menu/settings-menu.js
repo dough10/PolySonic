@@ -5,7 +5,9 @@
 
   Polymer('settings-menu',{
 
-    post: {},
+    post: {
+      bitRate: this.bitRate || 320
+    },
 
     _manifest: chrome.runtime.getManifest(),
 
@@ -125,44 +127,46 @@
     },
 
     _clearImages: function () {
-      app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
-        dir.removeRecursively(function (e) {
-          app.$.globals.makeToast('image cache cleared');
-        }, function (e) {
-          console.error(e)
+      return new Promise(function (resolve, reject) {
+        app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
+          dir.removeRecursively(function (e) {
+            app.$.globals.makeToast('image cache cleared');
+            app.db.close();
+            var req = indexedDB.deleteDatabase(app.dbname);
+            req.onsuccess = resolve;
+            req.onerror = reject;
+            req.onblocked = reject;
+          }, function (e) {
+            reject(e)
+          });
         });
       });
-      var req = indexedDB.deleteDatabase(app.dbname);
-      req.onsuccess = function () {
-        console.log("Deleted database successfully");
-        app.calculateStorageSize();
-      }.bind(this);
-      req.onerror = function () {
-        console.log("Error deleting database");
-        app.calculateStorageSize();
-      }.bind(this);
-      req.onblocked = function () {
-        console.log("Couldn't delete database due to the operation being blocked");
-        app.calculateStorageSize();
-      }.bind(this);
     },
 
 
     _clearCache: function () {
-      this._clearImages();
-      app.$.recommendReloadDialog.open();
+      app.dataLoading = true;
+      this._clearImages().then(app.$.globals.openIndexedDB).then(function () {
+        app.$.globals.initFS();
+        app.calculateStorageSize();
+        this.$.globals.makeToast('Cache cleared');
+        app.dataLoading = false;
+      }.bind(this));
     },
 
     _clearSettings: function () {
-      this._clearImages();
-      chrome.storage.sync.clear();
-      app.url = '';
-      app.user = '';
-      app.pass = '';
-      app.version = '';
-      app.bitRate = '';
-      app.querySize = '';
-      app.$.reloadAppDialog.open();
+      this._clearImages().then(function () {
+        chrome.storage.sync.clear();
+        app.url = '';
+        app.user = '';
+        app.pass = '';
+        app.version = '';
+        app.bitRate = '';
+        app.querySize = '';
+        app.$.reloadAppDialog.open();
+      }, function () {
+        this.$.globals.makeToast('Error deleteing Database');
+      }.bind(this));
     },
 
     _bitRateSelect: function () {
@@ -199,47 +203,49 @@
     },
 
     _useThis: function () {
-      var last = this.app.currentConfig;
+      var last = app.currentConfig;
       this.isLoading = true;
-      this.app.user = this.post.user;
-      this.app.url = this.post.url;
-      this.app.pass = this.post.pass;
-      this.app.version = this.post.version;
-      this.app.md5Auth = this.post.md5Auth;
-      this._clearImages();
-      this.app.tracker.sendEvent('Clear Playlist', new Date());
+      app.dataLoading = true;
+      app.user = this.post.user;
+      app.url = this.post.url;
+      app.pass = this.post.pass;
+      app.version = this.post.version;
+      app.md5Auth = this.post.md5Auth;
       if (app.$.player.audio && !app.$.player.audio.paused) {
-        this.app.$.player.audio.pause();
+        app.$.player.audio.pause();
       }
-      this.app.$.playlistDialog.close();
-      this.app.playlist = [];
-      this.app.currentConfig = this.post.config;
+      app.playlist = [];
+      app.currentConfig = this.post.config;
       simpleStorage.setLocal({
-        currentConfig: this.app.currentConfig
+        currentConfig: app.currentConfig
       });
-      this.async(function () {
-        this.app.$.globals.initFS();
-        var firstPing = this.app.$.globals.buildUrl('ping');
-        this.app.$.globals.doXhr(firstPing, 'json').then(function (e) {
-          if (e.target.response['subsonic-response'].status === 'ok') {
-            this.app.userDetails();
-            console.log('Connected with config ' + this.app.configs[this.app.currentConfig].name);
-            var folders = this.app.$.globals.buildUrl('getMusicFolders');
-            this.app.$.globals.doXhr(folders, 'json').then(function (e) {
-              this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-              this.app.folder = 'none';
-              if (this.app.mediaFolders === undefined || !this.app.mediaFolders[1]) {
-                this.app.$.sortBox.style.display = 'none';
-              }
-              this.app.tracker.sendAppView('Album Wall');
+      //
+      this._clearImages().then(function () {
+        console.log('caches cleared');
+        app.$.globals.openIndexedDB().then(function () {
+          app.$.globals.initFS();
+          var firstPing = app.$.globals.buildUrl('ping');
+          app.$.globals.doXhr(firstPing, 'json').then(function (e) {
+            if (e.target.response['subsonic-response'].status === 'ok') {
+              app.userDetails();
+              console.log('Connected with config ' + app.configs[app.currentConfig].name);
+              var folders = app.$.globals.buildUrl('getMusicFolders');
+              app.$.globals.doXhr(folders, 'json').then(function (e) {
+                app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                app.folder = 'none';
+                if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+                  app.$.sortBox.style.display = 'none';
+                }
+                this.isLoading = false;
+                app.$.wall.refreshContent();
+              }.bind(this));
+            } else {
               this.isLoading = false;
-            }.bind(this));
-          } else {
-            this.isLoading = false;
-            this.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
-          }
+              this.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
+            }
+          }.bind(this));
         }.bind(this));
-      }, null, 500);
+      }.bind(this));
     },
 
     _53orGreater: function (version) {
