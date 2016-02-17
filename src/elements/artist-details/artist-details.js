@@ -119,7 +119,6 @@
           this.$.bio.innerHTML = artistBio.biography;
           this.loadingBio = true;
           this._fetchImage(artistBio.largeImageUrl).then(function (image) {
-            console.log(image);
             this.imgURL = image.url;
             this.fabBgColor = image.fabBgColor;
             this.fabColor = image.fabColor;

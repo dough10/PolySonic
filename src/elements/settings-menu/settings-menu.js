@@ -219,11 +219,10 @@
       simpleStorage.setLocal({
         currentConfig: app.currentConfig
       });
-      //
       this._clearImages().then(function () {
-        console.log('caches cleared');
         app.$.globals.openIndexedDB().then(function () {
           app.$.globals.initFS();
+          app.folder = 'none';
           var firstPing = app.$.globals.buildUrl('ping');
           app.$.globals.doXhr(firstPing, 'json').then(function (e) {
             if (e.target.response['subsonic-response'].status === 'ok') {
@@ -232,12 +231,14 @@
               var folders = app.$.globals.buildUrl('getMusicFolders');
               app.$.globals.doXhr(folders, 'json').then(function (e) {
                 app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-                app.folder = 'none';
                 if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
                   app.$.sortBox.style.display = 'none';
                 }
-                this.isLoading = false;
                 app.$.wall.refreshContent();
+                this.async(function () {
+                  this._setFormDisabledState(true);
+                }, null, 500);
+                this.isLoading = false;
               }.bind(this));
             } else {
               this.isLoading = false;
@@ -270,6 +271,7 @@
     },
 
     _setFormDisabledState: function (state) {
+      console.log('form disabled: ' + state);
       this.validateInputs();
       this.$.md5.disabled = state;
       var inputs = this.$.validate.querySelectorAll('paper-input-decorator');
@@ -315,25 +317,25 @@
             this.app.version = this.post.version;
             this.app.md5Auth = this.post.md5Auth;
             if (editedURL) {
-              this.async(function () {
-                this.app.$.globals.initFS();
-                var firstPing = this.app.$.globals.buildUrl('ping');
-                this.app.$.globals.doXhr(firstPing, 'json').then(function (e) {
+              app.$.globals.openIndexedDB().then(function () {
+                app.$.globals.initFS();
+                var firstPing = app.$.globals.buildUrl('ping');
+                app.$.globals.doXhr(firstPing, 'json').then(function (e) {
                   if (e.target.response['subsonic-response'].status === 'ok') {
                     this.app.userDetails();
                     console.log('config ' + this.app.configs[this.app.currentConfig].name + ' Refreshed');
-                    var folders = this.app.$.globals.buildUrl('getMusicFolders');
-                    this.app.$.globals.doXhr(folders, 'json').then(function (e) {
-                      this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-                      this.app.folder = 'none';
-                      if (this.app.mediaFolders === undefined || !this.app.mediaFolders[1]) {
-                        this.app.$.sortBox.style.display = 'none';
+                    var folders = app.$.globals.buildUrl('getMusicFolders');
+                    app.$.globals.doXhr(folders, 'json').then(function (e) {
+                      app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                      app.folder = 'none';
+                      if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+                        app.$.sortBox.style.display = 'none';
                       }
-                      this.app.tracker.sendAppView('Album Wall');
+                      app.tracker.sendAppView('Album Wall');
                       this.isLoading = false;
                     }.bind(this));
                   }
-                });
+                }.bind(this));
               });
             }
           }

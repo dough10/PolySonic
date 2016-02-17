@@ -429,7 +429,6 @@
     getDbItem: function (id) {
       return new Promise(function (resolve, reject) {
         if (id) {
-          console.log(id);
           var transaction = db.transaction([dbName], "readwrite");
           var request = transaction.objectStore(dbName).get(id);
           request.onsuccess = resolve;
