@@ -112,10 +112,18 @@
 
     processJSON: function (e) {
       return new Promise(function (resolve, reject) {
+        var res = e.target.response['subsonic-response'];
         this.playlist.length = 0;
-        this.artistId = e.target.response['subsonic-response'].album.artistId;
-        this.albumID = e.target.response['subsonic-response'].album.song[0].parent;
-        var tracks = e.target.response['subsonic-response'].album.song;
+        var tracks = [];
+        if (this.app.queryMethod === 'ID3') {
+          this.artistId = res.album.artistId;
+          this.albumID = res.album.song[0].parent;
+          tracks = res.album.song;
+        } else {
+          this.artistId = res.directory.id;
+          this.albumId = res.directory.child[0].id;
+          tracks = res.directory.child;
+        }
         var length = tracks.length;
         for (var i = 0; i < length; i++) {
           this.albumSize = this.albumSize + tracks[i].size;
@@ -150,11 +158,21 @@
 
     doQuery: function () {
       return new Promise(function (resolve, reject) {
-        this.$.globals.getDbItem("al-" + this.item + '-palette').then(function (e) {
-          this.palette = e.target.result;
-          var url = this.$.globals.buildUrl('getAlbum', {
+        var artId;
+        var url;
+        if (this.app.queryMethod === 'ID3') {
+          artId = "al-" + this.item;
+          url = this.$.globals.buildUrl('getAlbum', {
             id: this.item
           });
+        } else {
+          artId = this.item;
+          url = this.$.globals.buildUrl('getMusicDirectory', {
+            id: this.item
+          });
+        }
+        this.$.globals.getDbItem(artId + '-palette').then(function (e) {
+          this.palette = e.target.result;
           this.$.globals.doXhr(url, 'json').then(this.processJSON.bind(this)).then(resolve);
         }.bind(this));
       }.bind(this));
@@ -166,7 +184,13 @@
         this.playlist = [];
         this.albumSize = 0;
         this.isLoading = true;
-        this.$.globals.fetchImage("al-" + this.item).then(this.setImage.bind(this));
+        var artId;
+        if (this.app.queryMethod === 'ID3') {
+          artId = "al-" + this.item;
+        } else {
+          artId = this.item;
+        }
+        this.$.globals.fetchImage(artId).then(this.setImage.bind(this));
       } else {
         this.async(this.itemChanged, null, 50);
       }

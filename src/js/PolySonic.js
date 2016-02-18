@@ -1006,7 +1006,7 @@
       app.querySize = 60;
       app.listMode = result.listMode || 'cover';
       app.volume = result.volume || 100;
-      app.queryMethod = result.queryMethod || 'ID3';
+      app.queryMethod = result.queryMethod || 'folder';
       app.repeatPlaylist = false;
       app.$.wall.post = {
         type: result.sortType || 'newest',

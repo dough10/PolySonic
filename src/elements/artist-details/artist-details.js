@@ -17,11 +17,24 @@
     queryData: function (artistId) {
       app.page = 3;
       this.async(function () {
-        var url = this.$.globals.buildUrl('getArtistInfo2', {
-          id: artistId
-        });
+        var url;
+        if (app.queryMethod === 'ID3') {
+          url= this.$.globals.buildUrl('getArtistInfo2', {
+            id: artistId
+          });
+        } else {
+          url= this.$.globals.buildUrl('getArtistInfo', {
+            id: artistId
+          });
+        }
         this.$.globals.doXhr(url, 'json').then(function (e) {
-          var artistBio = e.target.response['subsonic-response'].artistInfo2;
+          var res = e.target.response['subsonic-response'];
+          var artistBio;
+          if (app.queryMethod === 'ID3') {
+            artistBio = res.artistInfo2;
+          } else {
+            artistBio = res.artistInfo;
+          }
           this.artistBio = artistBio;
           this.$.bio.innerHTML = artistBio.biography;
           this.loadingBio = true;
@@ -37,11 +50,23 @@
             this.fabColor = image.fabColor;
             this.$.bg.style.backgroundImage = "url('" + image.url + "')";
           }.bind(this));
-          var url = this.$.globals.buildUrl('getArtist', {
-            id: artistId
-          });
+          var url;
+          if (app.queryMethod === 'ID3') {
+            url = this.$.globals.buildUrl('getArtist', {
+              id: artistId
+            });
+          } else {
+            url = this.$.globals.buildUrl('getMusicDirectory', {
+              id: artistId
+            });
+          }
           this.$.globals.doXhr(url, 'json').then(function (event) {
-            this.data = event.target.response['subsonic-response'].artist.album;
+            var res = event.target.response['subsonic-response'];
+            if (app.queryMethod === 'ID3') {
+              this.data = res.artist.album;
+            } else {
+              this.data = res.directory.child;
+            }
             this.artistName = this.data[0].artist;
             for (var i = 0; i < this.data.length; i++) {
               this.data[i].listMode = this.listMode;
