@@ -1,11 +1,6 @@
 (function () {
   var app = document.getElementById("tmpl");
 
-  function eHandler(e) {
-    console.log(e);
-    throw new Error('FS error');
-  }
-
   Polymer('artist-details', {
 
 
@@ -16,132 +11,43 @@
       this.loadingBio = false;
     },
 
-    _saveFile: function (file) {
-      return new Promise(function (resolve, reject) {
-        var fileName = app.filePath + '/artist-' + this.artistId + '.jpg';
-        app.fs.root.getFile(fileName, {
-          create: true
-        }, function(fileEntry) {
-          fileEntry.createWriter(function(fileWriter) {
-            fileWriter.onwriteend = function(e) {
-              app.fs.root.getFile(fileName, {
-                create: false
-              }, function(retrived) {
-                resolve(retrived.toURL());
-              });
-            };
-            fileWriter.onerror = function(e) {
-              console.log('Write failed: ' + e.toString());
-            };
-            var blob = new Blob([ file ], { type: 'image/jpeg' });
-            fileWriter.write(blob);
-          }.bind(this), eHandler);
-        }.bind(this), eHandler);
-      }.bind(this));
-    },
-
-
-    /**
-     * use smartCrop to attempt to get a well centered header image
-     * @param {String} image - url to the image we are attempting to crop
-     */
-    _cropImage: function (image) {
-      return new Promise(function (resolve, reject) {
-        var container = this.$.bioImage;
-        var containerWidth = 808;
-        var oneThird = Math.abs(containerWidth / 21);
-        var height = Math.abs(oneThird * 9);
-        var imgEl = new Image();
-        imgEl.src = image;
-        imgEl.onload = function imgLoaded() {
-          SmartCrop.crop(imgEl, {
-            width: containerWidth,
-            height: height
-          }, function imgCropped(crops) {
-            var canvas = document.createElement('canvas');
-            canvas.width = containerWidth;
-            canvas.height = height;
-            var ctx = canvas.getContext('2d');
-            var crop = crops.crops[1];
-            ctx.drawImage(imgEl, crop.x, crop.y, crop.width, crop.height, 0, 0, containerWidth, height);
-            resolve(canvas.toDataURL('image/jpg'));
-          }.bind(this));
-        }.bind(this);
-      }.bind(this));
-    },
-
-    /**
-     * fetch header image. either from HTML filesystem or from internet
-     * @param {String} url - url to the image we want to use for the header
-     */
-    _fetchImage: function (url) {
-      return new Promise(function (resolve, reject) {
-        app.fs.root.getFile(app.filePath + '/artist-' + this.artistId + '.jpg', {
-          create: false,
-          exclusive: true
-        }, function(fileEntry) {
-          this.$.globals.getDbItem('artist-' + this.artistId + '-palette').then(function (colors) {
-            colors = colors.target.result;
-            resolve({
-              url: fileEntry.toURL(),
-              fabBgColor: colors[0],
-              fabColor: colors[1]
-            });
-          }.bind(this));
-        }.bind(this), function () {
-          this.$.globals.doXhr(url, 'blob').then(function (xhrEvent) {
-            var blob = xhrEvent.target.response;
-            var image = window.URL.createObjectURL(blob);
-            this._saveFile(blob);
-            this.$.globals._stealColor(image, 'artist-' + this.artistId).then(function (colors) {
-              resolve({
-                url: image,
-                fabBgColor: colors[0],
-                fabColor: colors[1]
-              });
-            }.bind(this));
-          }.bind(this));
-        }.bind(this));
-      }.bind(this));
-    },
-
     /**
      * get the info about this artist from subsonic
      */
-    queryData: function () {
+    queryData: function (artistId) {
+      app.page = 3;
       this.async(function () {
         var url = this.$.globals.buildUrl('getArtistInfo2', {
-          id: this.artistId
+          id: artistId
         });
         this.$.globals.doXhr(url, 'json').then(function (e) {
           var artistBio = e.target.response['subsonic-response'].artistInfo2;
           this.artistBio = artistBio;
           this.$.bio.innerHTML = artistBio.biography;
           this.loadingBio = true;
-          this._fetchImage(artistBio.largeImageUrl).then(function (image) {
-            this.imgURL = image.url;
-            this.fabBgColor = image.fabBgColor;
-            this.fabColor = image.fabColor;
-            this.$.bg.style.backgroundImage = "url('" + image.url + "')";
-            this._cropImage(image.url).then(function (croppedURL) {
+          this.$.globals._fetchArtistHeaderImage(
+            artistBio.largeImageUrl,
+            artistId
+          ).then(function (image) {
+            this.$.globals._cropImage(image.url).then(function (croppedURL) {
               this.$.bioImage.style.backgroundImage = "url('" + croppedURL + "')";
               this.loadingBio = false;
             }.bind(this));
+            this.fabBgColor = image.fabBgColor;
+            this.fabColor = image.fabColor;
+            this.$.bg.style.backgroundImage = "url('" + image.url + "')";
           }.bind(this));
           var url = this.$.globals.buildUrl('getArtist', {
-            id: this.artistId
+            id: artistId
           });
           this.$.globals.doXhr(url, 'json').then(function (event) {
             this.data = event.target.response['subsonic-response'].artist.album;
-            this.artist = this.data[0].artist;
+            this.artistName = this.data[0].artist;
             for (var i = 0; i < this.data.length; i++) {
               this.data[i].listMode = this.listMode;
             }
-            app.dataLoading = false;
             this.async(function () {
-              if (app.page !== 3) {
-                app.page = 3;
-              }
+              app.dataLoading = false;
               this.sortByChanged();
             });
           }.bind(this));
@@ -204,9 +110,8 @@
      * call a update of artist info
      */
     changeArtist: function (event, detail, sender) {
-      this.artistId = sender.dataset.id;
       app.dataLoading = true;
-      this.async(this.queryData);
+      this.queryData(sender.dataset.id);
     },
 
     /**
@@ -244,6 +149,7 @@
     mouseOut: function (event, detail, sender) {
       sender.setZ(1);
     }
+
   });
 
 })();

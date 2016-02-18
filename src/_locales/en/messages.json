@@ -386,5 +386,8 @@
   },
   "testButton": {
     "message": "Test & Save"
+  },
+  "moreByArtist": {
+    "message": "More by this Artist"
   }
 }

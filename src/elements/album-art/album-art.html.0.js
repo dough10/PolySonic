@@ -38,13 +38,14 @@
 
     showDialog: function () {
       this.async(function () {
-        this.app.dataLoading = false;
+        this.app.dataLoading = true;
         this.app.tracker.sendAppView('Album Details');
         if (this.playlist[0].palette) {
           this.app.colorThiefAlbum = this.playlist[0].palette[0];
           this.app.colorThiefAlbumOff = this.playlist[0].palette[1];
         }
-        var details = {
+        var dialog = this.app.$.albumDialog;
+        dialog.details = {
           album: this.album,
           artist: this.artist,
           cover: this.imgURL,
@@ -55,19 +56,18 @@
           tracks: this.playlist,
           artistId: this.artistId
         };
-        var dialog = this.app.$.albumDialog;
-        dialog.details = details;
         dialog.opened = true;
-        this.app.$.fab.state = 'mid';
-        // pass the id of the album to the play button
         this.app.$.fab.ident = this.id;
+        this.app.dataLoading = false;
       });
     },
 
     chooseOption: function () {
       if (this.bookmarkIndex !== undefined) {
         this.app.dataLoading = false;
-        this.bookmarkTime = this.$.globals.secondsToMins(this.playlist[this.bookmarkIndex].bookmarkPosition / 1000);
+        this.bookmarkTime = this.$.globals.secondsToMins(
+          this.playlist[this.bookmarkIndex].bookmarkPosition / 1000
+        );
         this.$.albumPlaybackConfirm.open();
         if (this.app.$.albumDialog.opened) {
           this.app.$.albumDialog.opened = false;

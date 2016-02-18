@@ -8,8 +8,7 @@
     
     add2Playlist: function () {
       this.app.playlist = this.app.playlist.concat(this.playlist);
-      this.$.detailsDialog.close();
-      this.app.$.fab.state = 'off';
+      this.close();
       this.$.globals.makeToast(this.$.globals.texts.added2Queue);
       this.app.dataLoading = false;
       if ('audio' in this.app.$.player && this.app.$.player.audio.paused) {
@@ -118,6 +117,13 @@
       this.$.bookmarkConfirm.open();
     },
 
+    _artist: function () {
+      var artist = document.getElementById("aDetails");
+      this.app.dataLoading = true;
+      artist.queryData(this.details.artistId);
+      this.close();
+    },
+
     deleteBookmark: function (event) {
       var url = this.$.globals.buildUrl('deleteBookmark', {
         id: this.delID
@@ -147,6 +153,10 @@
         cover: sender.attributes.cover.value
       };
       this.bookmarkTime = this.$.globals.secondsToMins(sender.attributes.bookmark.value / 1000);
+    },
+
+    _dialogOpened: function () {
+      this.app.$.fab.state = 'mid';
     },
 
     moreLike: function () {

@@ -474,10 +474,6 @@
     app.defaultName = new Date().toString();
   };
 
-  /**
-   * callback for saving a playlist
-   */
-
 
   /**
    * save a playlist
@@ -529,16 +525,16 @@
     }
     if (app.page === 0 && app.$.fab.state === 'mid') {
       animation.play();
-      app.$.wall.playSomething(sender.ident, function () {
+      app.$.fab.state = 'bottom';
+      wall.playSomething(sender.ident, function () {
         animation.cancel();
-        app.$.fab.state = 'bottom';
       });
     }
     if (app.page === 3) {
       animation.play();
+      app.$.fab.state = 'bottom';
       app.$.aDetails.playSomething(sender.ident, function () {
         animation.cancel();
-        app.$.fab.state = 'bottom';
       });
     }
   };

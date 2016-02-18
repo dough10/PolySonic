@@ -20,39 +20,6 @@
 
   var db;
 
-  function _openIndexedDB() {
-    return new Promise(function (resolve, reject) {
-      var request = indexedDB.open(dbName, dbVersion);
-
-      request.onerror = function () {
-        reject();
-        console.log("Error creating/accessing IndexedDB database");
-      };
-
-      request.onsuccess = function () {
-        console.log("Success creating/accessing IndexedDB database");
-        db = this.result;
-        app.db = db;
-
-        // Interim solution for Google Chrome to create an objectStore. Will be deprecated
-        if (db.setVersion) {
-          if (db.version !== dbVersion) {
-            var setVersion = db.setVersion(dbVersion);
-            setVersion.onsuccess = function () {
-              resolve();
-              createObjectStore(db);
-            };
-          }
-        }
-      };
-
-      request.onupgradeneeded = function (event) {
-        resolve();
-        createObjectStore(event.target.result);
-      };
-    });
-  }
-
   /**
    * method to create folder structure
    */
@@ -194,123 +161,151 @@
   };
 
   /**
-   * localization texts
-   */
-  var texts = {
-    fromStart: getMessage('fromStart'),
-    playFrom: getMessage('playFrom'),
-    hasBookmark: getMessage('hasBookmark'),
-    moreLikeThis: getMessage("moreLikeThis"),
-    backButton: getMessage("backButton"),
-    playTrackLabel: getMessage("playTrack"),
-    moreOptionsLabel: getMessage("moreOptionsLabel"),
-    closeLabel: getMessage("closeLabel"),
-    add2PlayQueue: getMessage("add2PlayQueue"),
-    favoriteAlbum: getMessage("favoriteAlbum"),
-    downloadButton: getMessage("downloadButton"),
-    albumTracklist: getMessage("albumTracklist"),
-    deletebookMarkConfirm: getMessage('deletebookMarkConfirm'),
-    accept: getMessage("accept"),
-    decline: getMessage("decline"),
-    added2Queue: getMessage("added2Queue"),
-    noResults: getMessage("noResults"),
-    noFavoriteHeader: getMessage("noFavoriteHeader"),
-    noFavoriteMessage: getMessage("noFavoriteMessage"),
-    addContent: getMessage("addContent"),
-    addPodcasts: getMessage("addPodcasts"),
-    addAlbums: getMessage("addAlbums"),
-    addPodcast: getMessage("addPodcast"),
-    foundHere: getMessage("foundHere"),
-    deleteLabel: getMessage("deleteLabel"),
-    playPodcastLabel: getMessage("playPodcast"),
-    removeDownloadLabel: getMessage('removeDownloadLabel'),
-    saveFileLabel: getMessage('saveFileLabel'),
-    pauseDownload: getMessage('abortDownload'),
-    label: getMessage('nowPlayingTitle'),
-    appName: getMessage("appName"),
-    appDesc: getMessage("appDesc"),
-    folderSelector: getMessage("folderSelector"),
-    shuffleButton: getMessage("shuffleButton"),
-    artistButton: getMessage("artistButton"),
-    podcastButton: getMessage("podcastButton"),
-    favoritesButton: getMessage("favoritesButton"),
-    searchButton: getMessage("searchButton"),
-    settingsButton: getMessage("settingsButton"),
-    nowPlayingLabel: getMessage("nowPlayingLabel"),
-    folderSelectorLabel: getMessage("folderSelectorLabel"),
-    clearQueue: getMessage("clearQueue"),
-    volumeLabel: getMessage("volumeLabel"),
-    analistics: getMessage("analistics"),
-    shuffleOptionsLabel: getMessage("shuffleOptionsLabel"),
-    optional: getMessage("optional"),
-    artistLabel: getMessage("artistLabel"),
-    albumLabel: getMessage("albumLabel"),
-    genreLabel: getMessage("genreLabel"),
-    songReturn: getMessage("songReturn"),
-    playButton: getMessage("playButton"),
-    yearError: getMessage("yearError"),
-    releasedAfter: getMessage("releasedAfter"),
-    releasedBefore: getMessage("releasedBefore"),
-    submitButton: getMessage("submitButton"),
-    deleteConfirm: getMessage("deleteConfirm"),
-    urlError: getMessage("urlError"),
-    podcastSubmissionLabel: getMessage("podcastSubmissionLabel"),
-    diskUsed: getMessage("diskUsed"),
-    diskRemaining: getMessage("diskRemaining"),
-    playlistsButton: getMessage("playlistsButton"),
-    createPlaylistLabel: getMessage("createPlaylistLabel"),
-    playlistLabel: getMessage("playlistLabel"),
-    reloadAppLabel: getMessage("reloadApp"),
-    settingsDeleted: getMessage("settingsDeleted"),
-    recommendReload: getMessage("recommendReload"),
-    jumpToLabel: getMessage("jumpToLabel"),
-    refreshPodcastLabel: getMessage("refreshPodcast"),
-    registeredEmail: getMessage("registeredEmail"),
-    licenseKey: getMessage("licenseKey"),
-    keyDate: getMessage("keyDate"),
-    validLicense: getMessage("validLicense"),
-    invalidLicense: getMessage("invalidLicense"),
-    adjustVolumeLabel: getMessage("adjustVolumeLabel"),
-    showDownloads: getMessage('showDownloads'),
-    shuffleList: getMessage('shuffleList'),
-    randomized: getMessage('randomized'),
-    markCreated: getMessage('markCreated'),
-    bookmarks: getMessage('bookmarks'),
-    createBookmarkText: getMessage('createBookmark'),
-    toggleList: getMessage('toggleList'),
-    playlists: getMessage('playlists'),
-    downloads: getMessage('downloads'),
-    repeatText: getMessage('repeatText'),
-    md5: getMessage('md5'),
-    precache: getMessage('precache'),
-    urlLabel: getMessage("urlLabel"),
-    usernameError: getMessage("usernameError"),
-    usernameLabel: getMessage("usernameLabel"),
-    passwordLabel: getMessage("passwordLabel"),
-    showPass: getMessage("showPass"),
-    hideThePass: getMessage("hidePass"),
-    bitrateLabel: getMessage('bitrateLabel'),
-    anonStats: getMessage('anonStats'),
-    autoBookmark: getMessage('autoBookmark'),
-    cacheDetails: getMessage("cacheDetails"),
-    clearCacheLabel: getMessage("clearCacheLabel"),
-    clearSettingsLabel: getMessage("clearSettingsLabel"),
-    licenseInfoLink: getMessage("licenseInfoLink"),
-    showLicenseLabel: getMessage("showLicenseLabel"),
-    configLabel: getMessage('configLabel'),
-    useThis: getMessage('useThis'),
-    testButton: getMessage('testButton')
-  };
-
-  /**
    *  polymer things
    */
   Polymer('app-globals', {
-    ready: function () {
-      this.texts = texts;
+    /**
+     * localization texts
+     */
+    texts: {
+      fromStart: getMessage('fromStart'),
+      playFrom: getMessage('playFrom'),
+      hasBookmark: getMessage('hasBookmark'),
+      moreLikeThis: getMessage("moreLikeThis"),
+      backButton: getMessage("backButton"),
+      playTrackLabel: getMessage("playTrack"),
+      moreOptionsLabel: getMessage("moreOptionsLabel"),
+      closeLabel: getMessage("closeLabel"),
+      add2PlayQueue: getMessage("add2PlayQueue"),
+      favoriteAlbum: getMessage("favoriteAlbum"),
+      downloadButton: getMessage("downloadButton"),
+      albumTracklist: getMessage("albumTracklist"),
+      deletebookMarkConfirm: getMessage('deletebookMarkConfirm'),
+      accept: getMessage("accept"),
+      decline: getMessage("decline"),
+      added2Queue: getMessage("added2Queue"),
+      noResults: getMessage("noResults"),
+      noFavoriteHeader: getMessage("noFavoriteHeader"),
+      noFavoriteMessage: getMessage("noFavoriteMessage"),
+      addContent: getMessage("addContent"),
+      addPodcasts: getMessage("addPodcasts"),
+      addAlbums: getMessage("addAlbums"),
+      addPodcast: getMessage("addPodcast"),
+      foundHere: getMessage("foundHere"),
+      deleteLabel: getMessage("deleteLabel"),
+      playPodcastLabel: getMessage("playPodcast"),
+      removeDownloadLabel: getMessage('removeDownloadLabel'),
+      saveFileLabel: getMessage('saveFileLabel'),
+      pauseDownload: getMessage('abortDownload'),
+      label: getMessage('nowPlayingTitle'),
+      appName: getMessage("appName"),
+      appDesc: getMessage("appDesc"),
+      folderSelector: getMessage("folderSelector"),
+      shuffleButton: getMessage("shuffleButton"),
+      artistButton: getMessage("artistButton"),
+      podcastButton: getMessage("podcastButton"),
+      favoritesButton: getMessage("favoritesButton"),
+      searchButton: getMessage("searchButton"),
+      settingsButton: getMessage("settingsButton"),
+      nowPlayingLabel: getMessage("nowPlayingLabel"),
+      folderSelectorLabel: getMessage("folderSelectorLabel"),
+      clearQueue: getMessage("clearQueue"),
+      volumeLabel: getMessage("volumeLabel"),
+      analistics: getMessage("analistics"),
+      shuffleOptionsLabel: getMessage("shuffleOptionsLabel"),
+      optional: getMessage("optional"),
+      artistLabel: getMessage("artistLabel"),
+      albumLabel: getMessage("albumLabel"),
+      genreLabel: getMessage("genreLabel"),
+      songReturn: getMessage("songReturn"),
+      playButton: getMessage("playButton"),
+      yearError: getMessage("yearError"),
+      releasedAfter: getMessage("releasedAfter"),
+      releasedBefore: getMessage("releasedBefore"),
+      submitButton: getMessage("submitButton"),
+      deleteConfirm: getMessage("deleteConfirm"),
+      urlError: getMessage("urlError"),
+      podcastSubmissionLabel: getMessage("podcastSubmissionLabel"),
+      diskUsed: getMessage("diskUsed"),
+      diskRemaining: getMessage("diskRemaining"),
+      playlistsButton: getMessage("playlistsButton"),
+      createPlaylistLabel: getMessage("createPlaylistLabel"),
+      playlistLabel: getMessage("playlistLabel"),
+      reloadAppLabel: getMessage("reloadApp"),
+      settingsDeleted: getMessage("settingsDeleted"),
+      recommendReload: getMessage("recommendReload"),
+      jumpToLabel: getMessage("jumpToLabel"),
+      refreshPodcastLabel: getMessage("refreshPodcast"),
+      registeredEmail: getMessage("registeredEmail"),
+      licenseKey: getMessage("licenseKey"),
+      keyDate: getMessage("keyDate"),
+      validLicense: getMessage("validLicense"),
+      invalidLicense: getMessage("invalidLicense"),
+      adjustVolumeLabel: getMessage("adjustVolumeLabel"),
+      showDownloads: getMessage('showDownloads'),
+      shuffleList: getMessage('shuffleList'),
+      randomized: getMessage('randomized'),
+      markCreated: getMessage('markCreated'),
+      bookmarks: getMessage('bookmarks'),
+      createBookmarkText: getMessage('createBookmark'),
+      toggleList: getMessage('toggleList'),
+      playlists: getMessage('playlists'),
+      downloads: getMessage('downloads'),
+      repeatText: getMessage('repeatText'),
+      md5: getMessage('md5'),
+      precache: getMessage('precache'),
+      urlLabel: getMessage("urlLabel"),
+      usernameError: getMessage("usernameError"),
+      usernameLabel: getMessage("usernameLabel"),
+      passwordLabel: getMessage("passwordLabel"),
+      showPass: getMessage("showPass"),
+      hideThePass: getMessage("hidePass"),
+      bitrateLabel: getMessage('bitrateLabel'),
+      anonStats: getMessage('anonStats'),
+      autoBookmark: getMessage('autoBookmark'),
+      cacheDetails: getMessage("cacheDetails"),
+      clearCacheLabel: getMessage("clearCacheLabel"),
+      clearSettingsLabel: getMessage("clearSettingsLabel"),
+      licenseInfoLink: getMessage("licenseInfoLink"),
+      showLicenseLabel: getMessage("showLicenseLabel"),
+      configLabel: getMessage('configLabel'),
+      useThis: getMessage('useThis'),
+      testButton: getMessage('testButton'),
+      moreByArtist: getMessage('moreByArtist')
     },
 
-    openIndexedDB: _openIndexedDB,
+    openIndexedDB: function () {
+      return new Promise(function (resolve, reject) {
+        var request = indexedDB.open(dbName, dbVersion);
+
+        request.onerror = function () {
+          reject();
+          console.log("Error creating/accessing IndexedDB database");
+        };
+
+        request.onsuccess = function () {
+          console.log("Success creating/accessing IndexedDB database");
+          db = this.result;
+          app.db = db;
+
+          // Interim solution for Google Chrome to create an objectStore. Will be deprecated
+          if (db.setVersion) {
+            if (db.version !== dbVersion) {
+              var setVersion = db.setVersion(dbVersion);
+              setVersion.onsuccess = function () {
+                resolve();
+                createObjectStore(db);
+              };
+            }
+          }
+        };
+
+        request.onupgradeneeded = function (event) {
+          resolve();
+          createObjectStore(event.target.result);
+        };
+      });
+    },
 
     initFS: function () {
       navigator.webkitPersistentStorage.requestQuota(1024*1024*512, function(grantedBytes) {
@@ -429,9 +424,13 @@
     getDbItem: function (id) {
       return new Promise(function (resolve, reject) {
         if (id) {
+          console.time('get ' + id);
           var transaction = db.transaction([dbName], "readwrite");
           var request = transaction.objectStore(dbName).get(id);
-          request.onsuccess = resolve;
+          request.onsuccess = function (e) {
+            console.timeEnd('get ' + id);
+            resolve(e);
+          };
           request.onerror = reject;
         }
       });
@@ -466,6 +465,98 @@
           }.bind(this), fsErrorHandler);
         }.bind(this));
       }.bind(this));
+    },
+
+    /**
+     * fetch header image. either from HTML filesystem or from internet
+     * @param {String} url - url to the image we want to use for the header
+     * @param {Number} artistId - artist id from subsonic server
+     */
+    _fetchArtistHeaderImage: function (url, artistId) {
+      return new Promise(function (resolve, reject) {
+        app.fs.root.getFile(app.filePath + '/artist-' + artistId + '.jpg', {
+          create: false,
+          exclusive: true
+        }, function (fileEntry) {
+          this.getDbItem('artist-' + artistId + '-palette').then(function (e) {
+            var colors = e.target.result;
+            resolve({
+              url: fileEntry.toURL(),
+              fabBgColor: colors[0],
+              fabColor: colors[1]
+            });
+          }.bind(this));
+        }.bind(this), function () {
+          this.doXhr(url, 'blob').then(function (xhrEvent) {
+            var blob = xhrEvent.target.response;
+            var image = window.URL.createObjectURL(blob);
+            this._saveArtistImage(blob, artistId);
+            this._stealColor(image, 'artist-' + artistId).then(function (colors) {
+              resolve({
+                url: image,
+                fabBgColor: colors[0],
+                fabColor: colors[1]
+              });
+            });
+          }.bind(this));
+        }.bind(this));
+      }.bind(this));
+    },
+
+    /**
+     * use smartCrop to attempt to get a well centered header image
+     * @param {String} image - url to the image we are attempting to crop
+     */
+    _cropImage: function (image) {
+      return new Promise(function (resolve, reject) {
+        var containerWidth = 808;
+        var parts = Math.abs(containerWidth / 21);
+        var height = Math.abs(parts * 9);
+        var imgEl = new Image();
+        imgEl.src = image;
+        imgEl.onload = function imgLoaded() {
+          SmartCrop.crop(imgEl, {
+            width: containerWidth,
+            height: height
+          }, function imgCropped(crops) {
+            var canvas = document.createElement('canvas');
+            canvas.width = containerWidth;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            var crop = crops.crops[1];
+            ctx.drawImage(imgEl, crop.x, crop.y, crop.width, crop.height, 0, 0, containerWidth, height);
+            resolve(canvas.toDataURL('image/jpg'));
+          });
+        };
+      });
+    },
+
+
+    /**
+     *
+     */
+    _saveArtistImage: function (file, artistId) {
+      return new Promise(function (resolve, reject) {
+        var fileName = app.filePath + '/artist-' + artistId + '.jpg';
+        app.fs.root.getFile(fileName, {
+          create: true
+        }, function(fileEntry) {
+          fileEntry.createWriter(function(fileWriter) {
+            fileWriter.onwriteend = function(e) {
+              app.fs.root.getFile(fileName, {
+                create: false
+              }, function(retrived) {
+                resolve(retrived.toURL());
+              });
+            };
+            fileWriter.onerror = function(e) {
+              console.log('Write failed: ' + e.toString());
+            };
+            var blob = new Blob([ file ], { type: 'image/jpeg' });
+            fileWriter.write(blob);
+          }, fsErrorHandler);
+        }, fsErrorHandler);
+      });
     },
 
     /**

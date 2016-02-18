@@ -128,6 +128,11 @@
                 this.showing = 'artists';
                 this.async(this.responseCallback);
                 break;
+              case ('indexes' in response && 'index' in response.indexes):
+                this.artist = response.indexes.index;
+                this.showing = 'artists';
+                this.async(this.responseCallback);
+                break;
               case ('searchResult3' in response && 'album' in response.searchResult3):
                 /* filter out duplicate albums from response array */
                 var data = response.searchResult3.album;
@@ -160,8 +165,7 @@
     artistDetails: function (event, detail, sender) {
       var artist = document.getElementById("aDetails");
       this.app.dataLoading = true;
-      artist.artistId = sender.attributes.ident.value;
-      artist.queryData();
+      artist.queryData(sender.attributes.ident.value);
     },
 
     listModeChanged: function () {
@@ -243,7 +247,11 @@
 
     getArtist: function () {
       this.clearData(function artistSearch() {
-        this.request = 'getArtists';
+        if (this.queryMethod === 'ID3') {
+          this.request = 'getArtists';
+        } else {
+          this.request = 'getIndexes';
+        }
         if (this.post.type) {
           delete this.post.type;
         }
