@@ -91,6 +91,10 @@
       #editorMD5 {
         margin-top: 24px;
       }
+      #uploadFab {
+        position: absolute;
+        margin-left: 90px;
+      }
     </style>
     <app-globals id="globals"></app-globals>
     <core-ajax id="ajax" auto="false" method="GET" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v=1.11.0&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{_error}}" params="{{post}}" response="{{_response}}">
@@ -119,7 +123,7 @@
         </core-label>
         <template if="{{newConfig}}">
           <br>
-          <paper-fab raised icon="upload" on-tap="{{_selectConfigFile}}">
+          <paper-fab raised id="uploadFab" icon="file-upload" on-tap="{{_selectConfigFile}}">
             <div class="load" hidden?="{{!isLoading}}">
               <paper-spinner active=""></paper-spinner>
             </div>

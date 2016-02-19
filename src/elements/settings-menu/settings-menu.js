@@ -324,7 +324,7 @@
         var toSave = configs[this.post.config];
         var saveConfig = {
           type: 'saveFile',
-          suggestedName: toSave.name + '-config.json'
+          suggestedName: toSave.name + ' config.json'
         };
         if ('config' in toSave) {
           delete toSave.config;
@@ -358,23 +358,37 @@
     },
 
     _selectConfigFile: function () {
+      this.isLoading = true;
       chrome.fileSystem.chooseEntry({
         type: 'openFile',
         accepts: [
           {
-            mimeTypes: ['text/js'],
-            extensions: ['json']
+            mimeTypes: [
+              'text/js'
+            ],
+            extensions: [
+              'json'
+            ]
           }
         ]
       }, function(theEntry) {
         this.$.globals.loadFileEntry(theEntry).then(function (imported) {
-          imported = JSON.stringify(imported);
-          this.post.user = imported.user;
-          this.post.url = imported.url;
-          this.post.pass = imported.pass;
-          this.post.name = imported.name;
-          this.post.md5Auth = imported.md5Auth;
-          this.post.version = imported.version;
+          imported = JSON.parse(imported);
+          if  (imported.user && imported.url && imported.pass
+               && imported.name && imported.md5Auth && imported.version) {
+            this.post.user = imported.user;
+            this.post.url = imported.url;
+            this.post.pass = imported.pass;
+            this.post.name = imported.name;
+            this.post.md5Auth = imported.md5Auth;
+            this.post.version = imported.version;
+            this.async(function () {
+              this.validateInputs();
+            });
+          } else {
+            this.$.globals.makeToast('Error Importing Config');
+          }
+          this.isLoading = false;
         }.bind(this));
       }.bind(this));
     },
