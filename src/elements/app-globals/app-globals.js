@@ -65,6 +65,11 @@
     console.log('Error: ' + msg);
   }
 
+
+  function _errorHandler(e) {
+    console.error(e);
+  }
+
   /**
    * initalize filesystem
    */
@@ -630,6 +635,45 @@
       }
     },
 
+    _waitForIO: function (writer) {
+      return new Promise(function (resolve, reject) {
+        // set a watchdog to avoid eventual locking:
+        var start = Date.now();
+        // wait for a few seconds
+        var reentrant = function() {
+          if (writer.readyState===writer.WRITING && Date.now()-start<4000) {
+            setTimeout(reentrant, 100);
+            return;
+          }
+          if (writer.readyState===writer.WRITING) {
+            console.error("Write operation taking too long, aborting!"+
+              " (current writer readyState is "+writer.readyState+")");
+            writer.abort();
+          }
+          else {
+            resolve();
+          }
+        };
+        setTimeout(reentrant, 100);
+      });
+    },
+
+
+    _writeFileEntry: function (writableEntry, blob) {
+      return new Promise(function (resolve, reject) {
+        writableEntry.createWriter(function(writer) {
+
+          writer.onerror = reject;
+          writer.onwriteend = resolve;
+
+          writer.truncate(blob.size);
+          this.$.globals._waitForIO(writer).then(function() {
+            writer.seek(0);
+            writer.write(blob);
+          });
+        }.bind(this), _errorHandler);
+      }.bind(this));
+    },
 
     changeConfig: function (index) {
       if (app.configs[index]) {

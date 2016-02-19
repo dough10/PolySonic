@@ -135,7 +135,6 @@
       return new Promise(function (resolve, reject) {
         app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
           dir.removeRecursively(function (e) {
-            app.$.globals.makeToast('image cache cleared');
             app.db.close();
             var req = indexedDB.deleteDatabase(app.dbname);
             req.onsuccess = resolve;
@@ -317,6 +316,34 @@
       this._setFormDisabledState(false);
       this.isLoading = false;
       this.editing = true;
+    },
+
+    _saveConfigs: function () {
+      this.isLoading = true;
+      simpleStorage.getSync('configs').then(function (configs) {
+        var config = {
+          type: 'saveFile',
+          suggestedName: 'PolySonic_configs.json'
+        };
+        var blob = new Blob([
+          JSON.stringify(configs, null, 2)
+        ], {
+          type: 'text/js'
+        });
+        chrome.fileSystem.chooseEntry(config, function (writableEntry) {
+          if (writableEntry) {
+            this.$.globals._writeFileEntry(
+              writableEntry,
+              blob
+            ).then(function () {
+              this.isLoading = false;
+              this.$.globals.makeToast("Configs Saved");
+            }.bind(this));
+          } else {
+            console.error('Error Saving Config', e);
+          }
+        }.bind(this));
+      }.bind(this));
     },
 
     _saveEdits: function () {
