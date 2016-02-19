@@ -675,6 +675,30 @@
       }.bind(this));
     },
 
+    readAsText: function (fileEntry) {
+      return new Promise(function (resolve, reject) {
+        fileEntry.file(function(file) {
+          var reader = new FileReader();
+
+          reader.onerror = _errorHandler;
+          reader.onload = function(e) {
+            resolve(e.target.result);
+          };
+          reader.readAsText(file);
+        });
+      });
+    },
+
+    loadFileEntry: function (chosenEntry) {
+      return new Promise(function (resolve, reject) {
+        chosenEntry.file(function(file) {
+          this.readAsText(chosenEntry).then(function(result) {
+            resolve(result);
+          });
+        }.bind(this));
+      }.bind(this));
+    },
+
     changeConfig: function (index) {
       if (app.configs[index]) {
         var url = app.configs[index].url;

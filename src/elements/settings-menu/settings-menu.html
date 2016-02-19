@@ -117,6 +117,14 @@
             </paper-dropdown>
           </paper-dropdown-menu>
         </core-label>
+        <template if="{{newConfig}}">
+          <br>
+          <paper-fab raised icon="upload" on-tap="{{_selectConfigFile}}">
+            <div class="load" hidden?="{{!isLoading}}">
+              <paper-spinner active=""></paper-spinner>
+            </div>
+          </paper-fab>
+        </template>
 
         <br>
         <paper-input-decorator disabled?="{{isLoading}}"
@@ -210,7 +218,7 @@
               edit
             </paper-button>
             <paper-button raised
-                          on-tap="{{_saveConfigs}}">
+                          on-tap="{{_exportConfig}}" disabled?="{{isLoading || testingURL}}">
               <div class="load" hidden?="{{!isLoading}}">
                 <paper-spinner active=""></paper-spinner>
               </div>
@@ -228,7 +236,7 @@
               </paper-button>
 
               <!-- use button -->
-              <paper-button class="red-button" on-tap="{{_useThis}}" disabled?="{{isLoading || testingURL}}">
+              <paper-button raised on-tap="{{_useThis}}" disabled?="{{isLoading || testingURL}}">
                 <template if="{{isLoading}}">
                   <div class="load" hidden?="{{!isLoading}}">
                     <paper-spinner active=""></paper-spinner>

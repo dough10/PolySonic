@@ -318,18 +318,16 @@
       this.editing = true;
     },
 
-    _saveConfigs: function () {
+    _exportConfig: function () {
       this.isLoading = true;
       simpleStorage.getSync('configs').then(function (configs) {
         var toSave = configs[this.post.config];
         var saveConfig = {
           type: 'saveFile',
-          suggestedName: toSave.name + '.json'
+          suggestedName: toSave.name + '-config.json'
         };
-        for (var key in toSave) {
-          if (key === 'config') {
-            delete toSave[key];
-          }
+        if ('config' in toSave) {
+          delete toSave.config;
         }
         console.log
         var blob = new Blob([
@@ -344,11 +342,39 @@
               blob
             ).then(function () {
               this.isLoading = false;
-              this.$.globals.makeToast("Config Saved");
+              this.$.globals.makeToast("Export Complete");
+              this.async(function () {
+                this._setFormDisabledState(true);
+              }, null, 500);
             }.bind(this));
           } else {
+            this.async(function () {
+              this._setFormDisabledState(true);
+            }, null, 500);
             console.error('Error Saving Config', e);
           }
+        }.bind(this));
+      }.bind(this));
+    },
+
+    _selectConfigFile: function () {
+      chrome.fileSystem.chooseEntry({
+        type: 'openFile',
+        accepts: [
+          {
+            mimeTypes: ['text/js'],
+            extensions: ['json']
+          }
+        ]
+      }, function(theEntry) {
+        this.$.globals.loadFileEntry(theEntry).then(function (imported) {
+          imported = JSON.stringify(imported);
+          this.post.user = imported.user;
+          this.post.url = imported.url;
+          this.post.pass = imported.pass;
+          this.post.name = imported.name;
+          this.post.md5Auth = imported.md5Auth;
+          this.post.version = imported.version;
         }.bind(this));
       }.bind(this));
     },
