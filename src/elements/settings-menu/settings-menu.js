@@ -321,23 +321,30 @@
     _saveConfigs: function () {
       this.isLoading = true;
       simpleStorage.getSync('configs').then(function (configs) {
-        var config = {
+        var toSave = configs[this.post.config];
+        var saveConfig = {
           type: 'saveFile',
-          suggestedName: 'PolySonic_configs.json'
+          suggestedName: toSave.name + '.json'
         };
+        for (var key in toSave) {
+          if (key === 'config') {
+            delete toSave[key];
+          }
+        }
+        console.log
         var blob = new Blob([
-          JSON.stringify(configs, null, 2)
+          JSON.stringify(toSave, null, 2)
         ], {
           type: 'text/js'
         });
-        chrome.fileSystem.chooseEntry(config, function (writableEntry) {
+        chrome.fileSystem.chooseEntry(saveConfig, function (writableEntry) {
           if (writableEntry) {
             this.$.globals._writeFileEntry(
               writableEntry,
               blob
             ).then(function () {
               this.isLoading = false;
-              this.$.globals.makeToast("Configs Saved");
+              this.$.globals.makeToast("Config Saved");
             }.bind(this));
           } else {
             console.error('Error Saving Config', e);

@@ -117,13 +117,7 @@
             </paper-dropdown>
           </paper-dropdown-menu>
         </core-label>
-        <paper-button raised
-                      on-tap="{{_saveConfigs}}">
-          <div class="load" hidden?="{{!isLoading}}">
-            <paper-spinner active=""></paper-spinner>
-          </div>
-          Export Configs
-        </paper-button>
+
         <br>
         <paper-input-decorator disabled?="{{isLoading}}"
                                labelvisible=""
@@ -215,7 +209,13 @@
               </div>
               edit
             </paper-button>
-
+            <paper-button raised
+                          on-tap="{{_saveConfigs}}">
+              <div class="load" hidden?="{{!isLoading}}">
+                <paper-spinner active=""></paper-spinner>
+              </div>
+              Export
+            </paper-button>
 
             <template if="{{app.currentConfig !== post.config}}">
 

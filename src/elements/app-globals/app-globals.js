@@ -667,7 +667,7 @@
           writer.onwriteend = resolve;
 
           writer.truncate(blob.size);
-          this.$.globals._waitForIO(writer).then(function() {
+          this._waitForIO(writer).then(function() {
             writer.seek(0);
             writer.write(blob);
           });
