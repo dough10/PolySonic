@@ -8,7 +8,6 @@
     
     add2Playlist: function () {
       this.app.playlist = this.app.playlist.concat(this.playlist);
-      this.close();
       this.$.globals.makeToast(this.$.globals.texts.added2Queue);
       this.app.dataLoading = false;
       if ('audio' in this.app.$.player && this.app.$.player.audio.paused) {
@@ -45,7 +44,6 @@
     },
     
     playSingle: function (event, detail, sender) {
-      this.close();
       this.app.playlist = [
         {
           id: sender.attributes.ident.value,
@@ -84,9 +82,16 @@
     },
     
     addFavorite: function (event, detail, sender) {
-      var url = this.$.globals.buildUrl('star', {
-        albumId: sender.attributes.ident.value
-      });
+      var url;
+      if (this.app.queryMethod === 'ID3') {
+        url = this.$.globals.buildUrl('star', {
+          albumId: this.albumID
+        });
+      } else {
+        url = this.$.globals.buildUrl('star', {
+          id: this.albumID
+        });
+      }
       var animation = this.$.globals.attachAnimation(sender);
       animation.play();
       this.$.globals.doXhr(url, 'json').then(function (e) {
@@ -98,9 +103,15 @@
     },
     
     removeFavorite: function (event, detail, sender) {
-      var url = this.$.globals.buildUrl('unstar', {
-        albumId: sender.attributes.ident.value
-      });
+      if (this.app.queryMethod === 'ID3') {
+        var url = this.$.globals.buildUrl('unstar', {
+          albumId: this.albumID
+        });
+      } else {
+        var url = this.$.globals.buildUrl('unstar', {
+          id: this.albumID
+        });
+      }
       var animation = this.$.globals.attachAnimation(sender);
       animation.play();
       this.$.globals.doXhr(url, 'json').then(function (e) {

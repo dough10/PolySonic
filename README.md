@@ -18,6 +18,7 @@ in current development
 
 - updates to artists page styling (larger artist image recentered using SmartCrop.js)
 
+- option to browse subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page)
 
 done: 
 
@@ -31,9 +32,9 @@ done:
 
 - on artist page use color thief to get a color from the header image and change color of fab to match
 
-in work: 
-
 - when changin configs content should refresh
+
+in work: 
 
 - add any text that isn't already included in the message.json file
 

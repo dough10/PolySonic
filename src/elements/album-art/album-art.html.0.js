@@ -117,11 +117,9 @@
         var tracks = [];
         if (this.app.queryMethod === 'ID3') {
           this.artistId = res.album.artistId;
-          this.albumID = res.album.song[0].parent;
           tracks = res.album.song;
         } else {
-          this.artistId = res.directory.id;
-          this.albumId = res.directory.child[0].id;
+          this.artistId = res.directory.parent;
           tracks = res.directory.child;
         }
         var length = tracks.length;

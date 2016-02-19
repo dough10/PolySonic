@@ -271,6 +271,21 @@
           </paper-dropdown-menu>
         </core-label>
         <br>
+        <!-- app query method -->
+        <core-label>
+          {{$.globals.texts.queryMethodLabel}}:
+          <paper-dropdown-menu label="{{$.globals.texts.queryMethodLabel}}">
+            <paper-dropdown layered class="dropdown">
+              <core-menu class="menu" selected="{{app.queryMethod}}" valueattr="i">
+                <template repeat="{{_queryMethods}}">
+                  <paper-item i="{{}}" on-tap="{{_queryMethodSelect}}">{{}}</paper-item>
+                </template>
+              </core-menu>
+            </paper-dropdown>
+          </paper-dropdown-menu>
+        </core-label>
+
+        <br>
         <!-- switch for analistics -->
         <br>
         <div center horizontal layout class="switchBox">

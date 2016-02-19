@@ -82,7 +82,12 @@
             </paper-item>
             <paper-item on-tap="{{getArtist}}">
               <core-icon icon="av:recent-actors"></core-icon>
-              {{$.globals.texts.artistButton}}
+              <template if="{{queryMethod === 'ID3'}}">
+                {{$.globals.texts.artistButton}}
+              </template>
+              <template if="{{queryMethod === 'Folder'}}">
+                {{$.globals.texts.indexesLabel}}
+              </template>
             </paper-item>
             <template repeat="{{sortTypes}}">
               <paper-item on-tap="{{selectAction}}" i="{{sort}}">
@@ -113,7 +118,7 @@
 
         <!-- main page animations -->
         <core-animated-pages main  class="pages" selected="{{page}}" transitions="slide-from-right hero-transition"
-                             on-core-animated-pages-transition-end="{{_animationEnd}}">
+                             on-core-animated-pages-transition-prepare="{{_animationPrepare}}" on-core-animated-pages-transition-end="{{_animationEnd}}">
 
           <!-- album wall -->
           <section>

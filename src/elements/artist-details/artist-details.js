@@ -15,7 +15,6 @@
      * get the info about this artist from subsonic
      */
     queryData: function (artistId) {
-      app.page = 3;
       this.async(function () {
         var url;
         if (app.queryMethod === 'ID3') {
@@ -36,19 +35,17 @@
             artistBio = res.artistInfo;
           }
           this.artistBio = artistBio;
-          this.$.bio.innerHTML = artistBio.biography;
+          this.$.bio.innerHTML = this.artistBio.biography;
           this.loadingBio = true;
           this.$.globals._fetchArtistHeaderImage(
-            artistBio.largeImageUrl,
+            this.artistBio.largeImageUrl,
             artistId
           ).then(function (image) {
-            this.$.globals._cropImage(image.url).then(function (croppedURL) {
-              this.$.bioImage.style.backgroundImage = "url('" + croppedURL + "')";
-              this.loadingBio = false;
-            }.bind(this));
             this.fabBgColor = image.fabBgColor;
             this.fabColor = image.fabColor;
             this.$.bg.style.backgroundImage = "url('" + image.url + "')";
+            this.imgURL = image.url;
+            if (!app._animating) this._cropIt();
           }.bind(this));
           var url;
           if (app.queryMethod === 'ID3') {
@@ -64,20 +61,37 @@
             var res = event.target.response['subsonic-response'];
             if (app.queryMethod === 'ID3') {
               this.data = res.artist.album;
+              this.artistName = this.data[0].artist;
             } else {
               this.data = res.directory.child;
+              this.artistName = res.directory.name
             }
-            this.artistName = this.data[0].artist;
             for (var i = 0; i < this.data.length; i++) {
               this.data[i].listMode = this.listMode;
             }
             this.async(function () {
               app.dataLoading = false;
               this.sortByChanged();
+              app.page = 3;
             });
           }.bind(this));
         }.bind(this));
       });
+    },
+
+    _cropIt: function () {
+      if (this.imgURL) {
+        this.$.globals._cropImage(this.imgURL).then(function (croppedURL) {
+          this.$.bioImage.style.backgroundImage = "url('" + croppedURL + "')";
+          this.loadingBio = false;
+        }.bind(this));
+      } else {
+        this.loadingBio = false;
+      }
+    },
+
+    _animationEnd: function () {
+      this._cropIt();
     },
 
     /**
@@ -114,11 +128,14 @@
      * size the header image
      */
     resize: function () {
-      var containerWidth = this.$.artistCard.offsetWidth;
-      var oneThird = Math.abs(containerWidth / 21);
-      var height = Math.abs(oneThird * 9);
-      this.$.bioImage.style.height = height + 'px';
-      this.$.fab.style.top = Math.abs(height - 29) + 'px';
+      return new Promise(function (resolve, reject) {
+        var containerWidth = this.$.artistCard.offsetWidth;
+        var parts = Math.abs(containerWidth / 21);
+        var height = Math.abs(parts * 9);
+        this.$.bioImage.style.height = height + 'px';
+        this.$.fab.style.top = Math.abs(height - 29) + 'px';
+        resolve();
+      }.bind(this));
     },
 
     /**

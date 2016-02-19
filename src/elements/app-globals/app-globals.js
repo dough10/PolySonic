@@ -271,7 +271,9 @@
       configLabel: getMessage('configLabel'),
       useThis: getMessage('useThis'),
       testButton: getMessage('testButton'),
-      moreByArtist: getMessage('moreByArtist')
+      moreByArtist: getMessage('moreByArtist'),
+      queryMethodLabel: getMessage('queryMethodLabel'),
+      indexesLabel: getMessage('indexesLabel')
     },
 
     openIndexedDB: function () {

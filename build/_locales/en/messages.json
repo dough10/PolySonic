@@ -389,5 +389,11 @@
   },
   "moreByArtist": {
     "message": "More by this Artist"
+  },
+  "queryMethodLabel": {
+    "message":"Subsonic Query Method"
+  },
+  "indexesLabel": {
+    "message":"Indexes"
   }
 }

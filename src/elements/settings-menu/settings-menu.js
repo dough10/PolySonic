@@ -19,6 +19,11 @@
       320
     ],
 
+    _queryMethods: [
+      'ID3',
+      'Folder'
+    ],
+
     _timer: 0,
 
     elementReady: false,
@@ -176,6 +181,32 @@
         });
         app.bitRate = this.post.bitRate;
         console.log('Bitrate: ' + this.post.bitRate);
+      });
+    },
+
+    _queryMethodSelect: function () {
+      app.dataLoading = true;
+      this.async(function () {
+        this._clearImages().then(function () {
+          app.$.globals.openIndexedDB().then(function () {
+            app.$.globals.initFS();
+            app.dataLoading = false;
+            console.log(app.$.wall.request);
+            // swap methods
+            var request = app.$.wall.request;
+            switch (request) {
+              case ('getIndexes'):
+                app.$.wall.getArtist();
+                break;
+              case ('getArtists'):
+                app.$.wall.getArtist();
+                break;
+            }
+            simpleStorage.setSync({
+              queryMethod: app.queryMethod
+            });
+          });
+        });
       });
     },
 
