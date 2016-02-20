@@ -12,13 +12,15 @@ in current development
 
 - change max # of albums returned by search to 200. up from 20
 
-- ability to use multiple configs (new config UIs)
-
 - "mini player" now shown at bottom of settings page
 
 - updates to artists page styling (larger artist image recentered using SmartCrop.js)
 
-- option to browse subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page)
+- option to browse Subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page) 
+
+- ability to use multiple configs (new config UIs)
+
+- option to import / export configs as JSON files
 
 done: 
 
@@ -34,13 +36,19 @@ done:
 
 - when changin configs content should refresh
 
+- upload / export config files
+
 in work: 
+
+- when changing artist header and BG image should reset as soon as change happens 
+
+- create a function to build a one time ping url from setting page post object for testing conectivity with the currently selected information
+
+- when changing or editing configs need a quick method to test the connection before changing the 'app' variables (maybe a notification dialog if the connection test fails)
 
 - add any text that isn't already included in the message.json file
 
-- figure out how to deal with creating a config for a server that can not currently be connected to (maybe just a "save anyway" dialog)
-
-- when changing or editing configs need a quick method to test the connection before changing the 'app' variables (maybe a notification dialog if the connection test fails)
+- figure out how to deal with creating a config for a server that can not currently be connected to (maybe just a "error connecting save anyway" dialog)
 
 - methods to create edit select and delete configs are needed for the "loging" dialog
 

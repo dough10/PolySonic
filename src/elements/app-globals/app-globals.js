@@ -691,11 +691,15 @@
 
     loadFileEntry: function (chosenEntry) {
       return new Promise(function (resolve, reject) {
-        chosenEntry.file(function(file) {
-          this.readAsText(chosenEntry).then(function(result) {
-            resolve(result);
-          });
-        }.bind(this));
+        if (chosenEntry) {
+          chosenEntry.file(function(file) {
+            this.readAsText(chosenEntry).then(function(result) {
+              resolve(result);
+            });
+          }.bind(this));
+        } else {
+          reject();
+        }
       }.bind(this));
     },
 

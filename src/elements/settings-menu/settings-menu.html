@@ -108,7 +108,7 @@
         <br>
         <core-label>
           {{$.globals.texts.configLabel}}:
-          <paper-dropdown-menu label="{{$.globals.texts.config}}">
+          <paper-dropdown-menu id="selector" label="{{$.globals.texts.config}}">
             <paper-dropdown layer class="dropdown">
               <core-menu id="configSelector" selected="{{post.config}}">
                 <template repeat="{{app.configs}}">
@@ -232,7 +232,7 @@
             <template if="{{app.currentConfig !== post.config}}">
 
               <!-- delete -->
-              <paper-button class="red-button" on-tap="{{_deleteConfig}}" disabled?="{{isLoading || testingURL}}">
+              <paper-button class="red-button" on-tap="{{_confirmDelete}}" disabled?="{{isLoading || testingURL}}">
                 <div class="load" hidden?="{{!isLoading}}">
                   <paper-spinner active=""></paper-spinner>
                 </div>
@@ -345,6 +345,18 @@
       <br>
       <paper-button class="red-button" on-tap="{{_clearSettings}}">{{$.globals.texts.clearSettingsLabel}}</paper-button>
     </div>
+
+    <paper-dialog id="connectionError" autoclosedisabled backdrop transition="core-transition-center">
+
+    </paper-dialog>
+
+    <paper-action-dialog id="confirmDelete" autoclosedisabled backdrop transition="core-transition-center">
+      <div style="min-width:280px"></div>
+      <h4>{{$.globals.texts.deleteConfirm}}</h4>
+      <paper-button affirmative>{{$.globals.texts.decline}}</paper-button>
+      <paper-button affirmative on-tap="{{_deleteConfig}}">{{$.globals.texts.accept}}</paper-button>
+    </paper-action-dialog>
+
   </template>
   <script src="settings-menu.js"></script>
 </polymer-element></body></html>

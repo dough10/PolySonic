@@ -103,7 +103,7 @@
 
     _responseChanged: function () {
       'use strict';
-      console.log(this._response['subsonic-response']);
+      //console.log(this._response['subsonic-response']);
       if (this._response) {
         if (this._response['subsonic-response'].status === 'ok') {
           simpleStorage.getSync('configs').then(function (configs) {
@@ -145,6 +145,10 @@
           });
         });
       });
+    },
+
+    _confirmDelete: function () {
+      this.$.confirmDelete.open();
     },
 
 
@@ -232,15 +236,20 @@
       }
     },
 
-    _useThis: function () {
-      var last = app.currentConfig;
-      this.isLoading = true;
-      app.dataLoading = true;
+    _setConfig: function () {
       app.user = this.post.user;
       app.url = this.post.url;
       app.pass = this.post.pass;
       app.version = this.post.version;
       app.md5Auth = this.post.md5Auth;
+    },
+
+    _useThis: function () {
+      var last = app.currentConfig;
+      this.isLoading = true;
+      app.dataLoading = true;
+      this._setConfig()
+      app.folder = 'none';
       if (app.$.player.audio && !app.$.player.audio.paused) {
         app.$.player.audio.pause();
       }
@@ -290,7 +299,7 @@
     postChanged: function () {
       if ('post' in this) {
         this.async(this.validateInputs, null, 200);
-        if ('version' in this.post && this._53orGreater(this.post.version)) {
+        if ('post' in this && 'version' in this.post && this._53orGreater(this.post.version)) {
           this.$.editorMD5.hidden = false;
         }
         if ('config' in this.post) {
@@ -301,7 +310,6 @@
     },
 
     _setFormDisabledState: function (state) {
-      console.log('form disabled: ' + state);
       this.validateInputs();
       this.$.md5.disabled = state;
       var inputs = this.$.validate.querySelectorAll('paper-input-decorator');
@@ -372,24 +380,30 @@
           }
         ]
       }, function(theEntry) {
-        this.$.globals.loadFileEntry(theEntry).then(function (imported) {
-          imported = JSON.parse(imported);
-          if  (imported.user && imported.url && imported.pass
-               && imported.name && imported.md5Auth && imported.version) {
-            this.post.user = imported.user;
-            this.post.url = imported.url;
-            this.post.pass = imported.pass;
-            this.post.name = imported.name;
-            this.post.md5Auth = imported.md5Auth;
-            this.post.version = imported.version;
-            this.async(function () {
-              this.validateInputs();
-            });
-          } else {
-            this.$.globals.makeToast('Error Importing Config');
-          }
+        if (theEntry) {
+          this.$.globals.loadFileEntry(theEntry).then(function (importedText) {
+            var imported = JSON.parse(importedText);
+            if  (imported.user && imported.url && imported.pass
+                 && imported.name && imported.md5Auth && imported.version) {
+              this.post.user = imported.user;
+              this.post.url = imported.url;
+              this.post.pass = imported.pass;
+              this.post.name = imported.name;
+              this.post.md5Auth = imported.md5Auth;
+              this.post.version = imported.version;
+              this.async(function () {
+                this.validateInputs();
+              });
+            } else {
+              this.$.globals.makeToast('Error Importing Config');
+            }
+            this.isLoading = false;
+          }.bind(this), function () {
+            this.isLoading = false;
+          });
+        } else {
           this.isLoading = false;
-        }.bind(this));
+        }
       }.bind(this));
     },
 
@@ -416,11 +430,7 @@
             if (editedURL) {
               this._clearImages();
             }
-            this.app.url = this.post.url;
-            this.app.user = this.post.user;
-            this.app.pass = this.post.pass;
-            this.app.version = this.post.version;
-            this.app.md5Auth = this.post.md5Auth;
+            this._setConfig();
             if (editedURL) {
               app.$.globals.openIndexedDB().then(function () {
                 app.$.globals.initFS();
@@ -494,10 +504,21 @@
 
     _deleteConfig: function () {
       simpleStorage.getSync('configs').then(function (configs) {
+        var beforeChange = configs[this.app.currentConfig].name;
         configs.splice(this.post.config, 1);
-        this.post.config = this.post.config - 1;
+        // find the config currently being used
+        for (var i = 0; i < configs.length; i++) {
+          if (configs[i].name === beforeChange) {
+            this.app.currentConfig = i;
+            this.post.config = i;
+          }
+        }
+        // save changes
         simpleStorage.setSync({
           configs: configs
+        });
+        simpleStorage.setLocal({
+          currentConfig: this.app.currentConfig
         });
         this.app.configs = configs;
         this.async(this._select);
