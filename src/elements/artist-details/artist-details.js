@@ -26,6 +26,8 @@
             id: artistId
           });
         }
+        this.$.bg.style.backgroundImage = 'none';
+        this.$.bioImage.style.backgroundImage = 'none';
         this.$.globals.doXhr(url, 'json').then(function (e) {
           var res = e.target.response['subsonic-response'];
           var artistBio;

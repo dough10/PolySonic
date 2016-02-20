@@ -92,31 +92,6 @@
   }
 
   /**
-   * convert object a query string
-   * @param {Object} params
-   */
-  function toQueryString(params) {
-    var r = [];
-    for (var n in params) {
-      n = encodeURIComponent(n);
-      r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
-    }
-    return r.join('&');
-  }
-
-  /**
-   * create a random string of a given length
-   * @param {number} length
-   */
-  function makeSalt(length) {
-    var text = "";
-    var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for( var i=0; i < length; i++ )
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    return text;
-  }
-
-  /**
    * use colorthief to get palette from cover art
    * @param {image element} image
    */
@@ -746,13 +721,38 @@
     },
 
     /**
+     * create a random string of a given length
+     * @param {number} length
+     */
+    makeSalt: function (length) {
+      var text = "";
+      var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      for( var i=0; i < length; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+      return text;
+    },
+
+    /**
+     * convert object a query string
+     * @param {Object} params
+     */
+    toQueryString: function (params) {
+      var r = [];
+      for (var n in params) {
+        n = encodeURIComponent(n);
+        r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
+      }
+      return r.join('&');
+    },
+
+    /**
      * generate a subsonic url string
      * @param {String} method
      * @param {Object} options
      */
     buildUrl: function(method, options) {
       if (options !== null && typeof options === 'object') {
-        options = '&' + toQueryString(options);
+        options = '&' + this.toQueryString(options);
       }
       if (app.user !== app.params.u) {
         app.params.u = app.user;
@@ -767,16 +767,16 @@
         if (app.params.p) {
           delete app.params.p;
         }
-        app.params.s = makeSalt(16);
+        app.params.s = this.makeSalt(16);
         app.params.t = md5(app.pass + app.params.s);
-        return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
+        return app.url + '/rest/' + method + '.view?' + this.toQueryString(app.params) + options;
       } else {
         if (app.params.t) {
           delete app.params.t;
           delete app.params.s;
         }
         app.params.p = app.pass.hexEncode();
-        return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
+        return app.url + '/rest/' + method + '.view?' + this.toQueryString(app.params) + options;
       }
     }
   });

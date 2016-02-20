@@ -555,16 +555,29 @@
   app.doSearch = function () {
     if (app.searchQuery) {
       app.$.globals.closeDrawer().then(function () {
-        var url = app.$.globals.buildUrl('search3', {
-          query: encodeURIComponent(app.searchQuery),
-          albumCount: 200
-        });
+        if (app.queryMethod === 'ID3') {
+          var url = app.$.globals.buildUrl('search3', {
+            query: encodeURIComponent(app.searchQuery),
+            albumCount: 200
+          });
+        } else {
+          var url = app.$.globals.buildUrl('search2', {
+            query: encodeURIComponent(app.searchQuery),
+            albumCount: 200
+          });
+        }
         app.$.globals.doXhr(url, 'json').then(function (e) {
           app.dataLoading = true;
           if (e.target.response['subsonic-response'].status === 'ok') {
             app.searchQuery = '';
             var response = e.target.response;
-            if (response['subsonic-response'].searchResult3.album) {
+            var resTrimmed = response['subsonic-response'];
+            if (resTrimmed.hasOwnProperty('searchResult3') && resTrimmed.searchResult3.album) {
+              app.page = 0;
+              app.$.wall.response = response;
+              app.showing = 'wall';
+              app.pageLimit = true;
+            } else if (resTrimmed.hasOwnProperty('searchResult2') && resTrimmed.searchResult2.album) {
               app.page = 0;
               app.$.wall.response = response;
               app.showing = 'wall';

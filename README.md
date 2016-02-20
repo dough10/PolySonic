@@ -18,11 +18,11 @@ in current development
 
 - flushing image cache no longer requires app restart
 
-- option to browse Subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page, image cache cleard and content refreshed on change) 
+- option to browse Subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page, image cache cleard and content refreshed on change) ** currently assumes the folowing folder structure imported folder/artist/album **
 
 - ability to use multiple configs (new config UIs, image cache will be cleared on change)
 
-- option to import / export configs as base64 encoded string saved as .cfg files
+- option to import / export config files as base64 encoded string saved as .cfg file
 
 
 
@@ -30,15 +30,11 @@ in progress:
 
 - finish request methods swap function for when app queryMethod is changed 
 
-- when changing artist header and BG image should reset as soon as change happens 
-
-- create a function to build a one time ping url from setting page post object for testing conectivity with the currently selected information
-
-- when changing or editing configs need a quick method to test the connection before changing the 'app' variables (maybe a notification dialog if the connection test fails)
+- use new post connection test function to check if new config info is usable
 
 - add any text that isn't already included in the message.json file
 
-- figure out how to deal with creating a config for a server that can not currently be connected to (maybe just a "error connecting save anyway" dialog)
+- create dialog with option to cancal or save config  if connection attempt fails
 
 - methods to create edit select and delete configs are needed for the "loging" dialog
 

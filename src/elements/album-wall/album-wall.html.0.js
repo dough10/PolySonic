@@ -150,6 +150,23 @@
                 this.showing = 'wall';
                 this.async(this.responseCallback);
                 break;
+              case ('searchResult2' in response && 'album' in response.searchResult2):
+                /* filter out duplicate albums from response array */
+                var data = response.searchResult2.album;
+                var length2 = data.length;
+                var tmpArray = [];
+                for  (var i = 0; i < length2; i++) {
+                  if (!this.containsObject(data[i], tmpArray)) {
+                    tmpArray.push(data[i]);
+                  }
+                }
+                this.wall = tmpArray;
+                for (var i = 0; i < this.wall.length; i++) {
+                  this.wall[i].listMode = this.listMode;
+                }
+                this.showing = 'wall';
+                this.async(this.responseCallback);
+                break;
               default:
                 this.app.dataLoading = false;
                 this.isLoading = false;

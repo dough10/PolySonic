@@ -244,27 +244,45 @@
       app.md5Auth = this.post.md5Auth;
     },
 
+    _testPostSettings: function () {
+      return new Promise(function (resolve, reject) {
+        var params = {
+          u: this.post.user,
+          v: this.post.version || '1.11.0',
+          f: 'json',
+          c: 'PolySonic'
+        };
+        if (versionCompare(this.post.version, '1.13.0') >= 0 && this.post.md5Auth) {
+          params.s = this.$.globals.makeSalt(16);
+          params.t = md5(this.post.pass + params.s);
+        } else {
+          params.p = this.post.pass.hexEncode();
+        }
+        var url = this.post.url + '/rest/ping.view?' + this.$.globals.toQueryString(params);
+        app.$.globals.doXhr(url, 'json').then(function (e) {
+          resolve(e.target.response['subsonic-response']);
+        }, reject);
+      }.bind(this));
+    },
+
     _useThis: function () {
-      var last = app.currentConfig;
       this.isLoading = true;
       app.dataLoading = true;
-      this._setConfig()
       app.folder = 'none';
-      if (app.$.player.audio && !app.$.player.audio.paused) {
-        app.$.player.audio.pause();
-      }
-      app.playlist = [];
-      app.currentConfig = this.post.config;
-      simpleStorage.setLocal({
-        currentConfig: app.currentConfig
-      });
-      this._clearImages().then(function () {
-        app.$.globals.openIndexedDB().then(function () {
-          app.$.globals.initFS();
-          app.folder = 'none';
-          var firstPing = app.$.globals.buildUrl('ping');
-          app.$.globals.doXhr(firstPing, 'json').then(function (e) {
-            if (e.target.response['subsonic-response'].status === 'ok') {
+      this._testPostSettings().then(function (response) {
+        if (response.status === 'ok') {
+          if (app.$.player.audio && !app.$.player.audio.paused) {
+            app.$.player.audio.pause();
+          }
+          app.playlist = [];
+          this._setConfig();
+          app.currentConfig = this.post.config;
+          simpleStorage.setLocal({
+            currentConfig: app.currentConfig
+          });
+          this._clearImages().then(function () {
+            app.$.globals.openIndexedDB().then(function () {
+              app.$.globals.initFS();
               app.userDetails();
               console.log('Connected with config ' + app.configs[app.currentConfig].name);
               var folders = app.$.globals.buildUrl('getMusicFolders');
@@ -279,12 +297,16 @@
                 }, null, 500);
                 this.isLoading = false;
               }.bind(this));
-            } else {
-              this.isLoading = false;
-              this.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
-            }
+            }.bind(this));
           }.bind(this));
-        }.bind(this));
+        } else {
+          this.isLoading = false;
+          console.log(response);
+          this.$.globals.makeToast('Error connecting with ' + app.configs[app.currentConfig].name);
+        }
+      }.bind(this), function () {
+        this.isLoading = false;
+        this.$.globals.makeToast('Error connecting with ' + app.configs[app.currentConfig].name);
       }.bind(this));
     },
 
