@@ -16,11 +16,13 @@ in current development
 
 - updates to artists page styling (larger artist image recentered using SmartCrop.js)
 
-- option to browse Subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page) 
+- flushing image cache no longer requires app restart
 
-- ability to use multiple configs (new config UIs)
+- option to browse Subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page, image cache cleard and content refreshed on change) 
 
-- option to import / export configs as JSON files
+- ability to use multiple configs (new config UIs, image cache will be cleared on change)
+
+- option to import / export configs as base64 encoded string saved as .cfg files
 
 done: 
 
@@ -39,6 +41,8 @@ done:
 - upload / export config files
 
 in work: 
+
+- finish request methods swap function for when app queryMethod is changed 
 
 - when changing artist header and BG image should reset as soon as change happens 
 

@@ -332,14 +332,16 @@
         var toSave = configs[this.post.config];
         var saveConfig = {
           type: 'saveFile',
-          suggestedName: toSave.name + ' config.json'
+          suggestedName: toSave.name + ' config.cfg'
         };
         if ('config' in toSave) {
           delete toSave.config;
         }
         console.log
         var blob = new Blob([
-          JSON.stringify(toSave, null, 2)
+          Base64.encode(
+            JSON.stringify(toSave, null, 2)
+          )
         ], {
           type: 'text/js'
         });
@@ -375,14 +377,15 @@
               'text/js'
             ],
             extensions: [
-              'json'
+              'cfg'
             ]
           }
         ]
       }, function(theEntry) {
         if (theEntry) {
-          this.$.globals.loadFileEntry(theEntry).then(function (importedText) {
-            var imported = JSON.parse(importedText);
+          this.$.globals.loadFileEntry(theEntry).then(function (encodedText) {
+            var decodedText = Base64.decode(encodedText);
+            var imported = JSON.parse(decodedText);
             if  (imported.user && imported.url && imported.pass
                  && imported.name && imported.md5Auth && imported.version) {
               this.post.user = imported.user;
