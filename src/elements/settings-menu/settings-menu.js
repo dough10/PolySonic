@@ -339,7 +339,7 @@
         }
         console.log
         var blob = new Blob([
-          Base64.encode(
+          btoa(
             JSON.stringify(toSave, null, 2)
           )
         ], {
@@ -384,7 +384,7 @@
       }, function(theEntry) {
         if (theEntry) {
           this.$.globals.loadFileEntry(theEntry).then(function (encodedText) {
-            var decodedText = Base64.decode(encodedText);
+            var decodedText = atob(encodedText);
             var imported = JSON.parse(decodedText);
             if  (imported.user && imported.url && imported.pass
                  && imported.name && imported.md5Auth && imported.version) {

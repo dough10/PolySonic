@@ -24,23 +24,9 @@ in current development
 
 - option to import / export configs as base64 encoded string saved as .cfg files
 
-done: 
 
-- gracefull upgrade from previous config settings
 
-- methods for adding selecting updating & deleting configs for settings page
-
-- image cache clean up on config change
-
-- stop audio clear play queue on config change
-
-- on artist page use color thief to get a color from the header image and change color of fab to match
-
-- when changin configs content should refresh
-
-- upload / export config files
-
-in work: 
+in progress: 
 
 - finish request methods swap function for when app queryMethod is changed 
 
