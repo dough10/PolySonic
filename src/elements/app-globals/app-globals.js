@@ -253,7 +253,10 @@
       testButton: getMessage('testButton'),
       moreByArtist: getMessage('moreByArtist'),
       queryMethodLabel: getMessage('queryMethodLabel'),
-      indexesLabel: getMessage('indexesLabel')
+      indexesLabel: getMessage('indexesLabel'),
+      apiVersion: getMessage('apiVersion'),
+      connect: getMessage('connect'),
+      connectSave: getMessage('connectSave')
     },
 
     openIndexedDB: function () {

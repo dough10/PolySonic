@@ -24,19 +24,17 @@ in current development
 
 - option to import / export config files as base64 encoded string saved as .cfg file
 
+- methods to create of select config on first run dialog
+
 
 
 in progress: 
 
 - finish request methods swap function for when app queryMethod is changed 
 
-- use new post connection test function to check if new config info is usable
-
 - add any text that isn't already included in the message.json file
 
 - create dialog with option to cancal or save config  if connection attempt fails
-
-- methods to create edit select and delete configs are needed for the "loging" dialog
 
 
 Required software for development environment

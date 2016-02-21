@@ -362,10 +362,9 @@
       </paper-dialog>
 
       <!-- first run dialog -->
-      <paper-action-dialog id="firstRun" style="min-height: 425px; width:280px; text-align:center;"
+      <paper-action-dialog id="firstRun" style="min-height: 430px; width:330px; text-align:center;"
                            autoclosedisabled transition="core-transition-center">
-        <subsonic-login url="{{url}}" user="{{user}}" pass="{{pass}}"
-                        version="{{version}}" appName="{{$.globals.texts.appName}}" appDesc="{{$.globals.texts.appDesc}}"></subsonic-login>
+        <subsonic-login config="{{currentConfig}}"></subsonic-login>
       </paper-action-dialog>
 
       <!-- request analistics dialog -->

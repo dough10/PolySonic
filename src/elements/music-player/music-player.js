@@ -100,6 +100,7 @@ Polymer('music-player',{
     // when not using gapless playback
     } else {
       this.audio = new Audio();
+      this.audio.preload = 'auto';
       if (obj.artist === '') {
         this.app.currentPlaying = obj.title;
         this.note.title = obj.title;
@@ -272,6 +273,7 @@ Polymer('music-player',{
     if (this.app.gapless && audio.currentTime >= Math.abs(audio.duration - 60) 
     && !this.isCued && this.app.playlist[this.app.playing + 1]) {
       this.isCued = new Audio();
+      this.isCued.preload = 'auto';
       if (this.app.playlist[this.app.playing + 1].artist === '') {
         this.isCued.src = this.$.globals.buildUrl('stream', {
           format: 'raw',

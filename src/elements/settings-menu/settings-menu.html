@@ -97,8 +97,6 @@
       }
     </style>
     <app-globals id="globals"></app-globals>
-    <core-ajax id="ajax" auto="false" method="GET" url="{{post.url}}/rest/ping.view?u={{post.user}}&amp;p={{post.pass}}&amp;v=1.11.0&amp;c=PolySonic&amp;f=json" handleas="json" loading="{{isLoading}}" error="{{_error}}" params="{{post}}" response="{{_response}}">
-    </core-ajax>
     <div id="validate">
       <core-label>
         <h4>{{$.globals.texts.appName}} {{polysonicVersion}}</h4>
@@ -184,6 +182,7 @@
                  value="{{post.pass}}"
                  required>
         </paper-input-decorator>
+        <div class="center">{{$.globals.texts.apiVersion}}: {{post.version}}</div>
         <div id="editorMD5" hidden center horizontal layout class="switchBox">
           <br>
           <br>
@@ -271,19 +270,17 @@
             </paper-button>
           </template>
 
-
-          <!--  -->
-          <template if="{{}}"></template>
-
         </template>
+
+
         <br>
         <core-label>
           {{$.globals.texts.bitrateLabel}}:
           <paper-dropdown-menu label="{{$.globals.texts.bitrateLabel}}">
             <paper-dropdown layered class="dropdown">
-              <core-menu class="menu" selected="{{post.bitRate}}" valueattr="i" on-core-select="{{_bitRateSelect}}">
+              <core-menu class="menu" selected="{{app.bitRate}}" valueattr="i">
                 <template repeat="{{_speeds}}">
-                  <paper-item i="{{}}">{{}} kbps</paper-item>
+                  <paper-item i="{{}}" on-tap="{{_bitRateSelect}}">{{}} kbps</paper-item>
                 </template>
               </core-menu>
             </paper-dropdown>
@@ -346,6 +343,7 @@
       <paper-button class="red-button" on-tap="{{_clearSettings}}">{{$.globals.texts.clearSettingsLabel}}</paper-button>
     </div>
 
+    <!--  save anyway dialog  -->
     <paper-dialog id="connectionError" autoclosedisabled backdrop transition="core-transition-center">
 
     </paper-dialog>

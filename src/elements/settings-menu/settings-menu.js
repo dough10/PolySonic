@@ -72,7 +72,38 @@
         if (lastChar === '/') {         // If the last character is a slash
           this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
         }
-        this.$.ajax.go();
+        this.isLoading = true;
+        this._testPostSettings().then(function (response) {
+          if (response.status === 'ok') {
+            simpleStorage.getSync('configs').then(function (configs) {
+              configs.push({
+                name: this.post.name,
+                url: this.post.url,
+                user: this.post.user,
+                pass: this.post.pass,
+                md5Auth: this.post.md5Auth,
+                version: this.post.version
+              });
+              simpleStorage.setSync({
+                configs:configs
+              });
+              this.app.configs = configs;
+              this.$.globals.makeToast("Config Saved");
+              this.newConfig = !Boolean(this.app.configs[this.post.config]);
+              this._setFormDisabledState(!this.newConfig);
+              this.isLoading = false;
+            }.bind(this));
+          } else if (response.status === 'failed') {
+            this.$.globals.makeToast(this._response['subsonic-response'].error.message);
+            this.isLoading = false;
+          } else  {
+            this.$.globals.makeToast("Error Connecting to Server. Check Settings");
+            this.isLoading = false;
+          }
+        }.bind(this), function () {
+          this.$.globals.makeToast("Error Connecting to Server. Check Settings");
+          this.isLoading = false;
+        }.bind(this));
       }
     },
 
@@ -97,37 +128,6 @@
           button.innerHTML = this.$.globals.texts.showPass;
           timer = 0;
         }.bind(this), 15000);
-      }
-    },
-
-
-    _responseChanged: function () {
-      'use strict';
-      //console.log(this._response['subsonic-response']);
-      if (this._response) {
-        if (this._response['subsonic-response'].status === 'ok') {
-          simpleStorage.getSync('configs').then(function (configs) {
-            configs.push({
-              name: this.post.name,
-              url: this.post.url,
-              user: this.post.user,
-              pass: this.post.pass,
-              md5Auth: this.post.md5Auth,
-              version: this.post.version
-            });
-            simpleStorage.setSync({
-              configs:configs
-            });
-            this.app.configs = configs;
-            this.$.globals.makeToast("Config Saved");
-            this.newConfig = !Boolean(this.app.configs[this.post.config]);
-            this._setFormDisabledState(!this.newConfig);
-          }.bind(this));
-        } else if (this._response['subsonic-response'].status === 'failed') {
-          this.$.globals.makeToast(this._response['subsonic-response'].error.message);
-        } else  {
-          this.$.globals.makeToast("Error Connecting to Server. Check Settings");
-        }
       }
     },
 
@@ -180,10 +180,9 @@
     _bitRateSelect: function () {
       this.async(function () {
         simpleStorage.setLocal({
-          'bitRate': this.post.bitRate
+          'bitRate': this.app.bitRate
         });
-        app.bitRate = this.post.bitRate;
-        console.log('Bitrate: ' + this.post.bitRate);
+        console.log('Bitrate: ' + this.app.bitRate);
       });
     },
 
@@ -221,17 +220,21 @@
 
     _defaultConfigs: function () {
       if ("config" in this) {
-        simpleStorage.getSync().then(function (storage) {
-          var index = 0;
-          if ('post' in this && 'config' in this.post) {
-            index = this.post.config;
+        simpleStorage.getSync('configs').then(function (configs) {
+          if (configs) {
+            var index = 0;
+            if ('post' in this && 'config' in this.post) {
+              index = this.post.config;
+            } else {
+              index = this.config;
+            }
+            var config = configs[index];
+            this.post = config;
+            this.post.config = index;
           } else {
-            index = this.config;
+            this.post = {};
+            this.post.config = 0;
           }
-          var config = storage.configs[index];
-          this.post = config;
-          this.post.config = index;
-          this.post.bitRate = this.bitRate;
         }.bind(this));
       }
     },
@@ -518,7 +521,6 @@
       var config = this.app.configs[this.post.config];
       if (config) {
         this.post = config;
-        this.post.bitRate = this.bitRate;
         this.post.config = clicked;
       }
     },
@@ -585,22 +587,15 @@
 
     _newConfig: function () {
       this.post = {};
-      this.post.config = app.configs.length;
-      this.post.bitRate = this.bitRate;
-      this.post.name = 'Config' + Math.abs(this.app.configs.length + 1);
+      var configLength = app.configs.length
+      this.post.config = configLength;
+      this.post.version = '1.11.0';
+      this.post.name = 'Config' + Math.abs(configLength + 1);
       this.$.editorMD5.hidden = true;
     },
 
     configChanged: function () {
       this.async(this._defaultConfigs);
-    },
-
-    bitRateChanged: function () {
-      this.async(function () {
-        if ("bitRate" in this) {
-          this.post.bitRate = this.bitRate;
-        }
-      });
     },
 
     querySizeChanged: function () {

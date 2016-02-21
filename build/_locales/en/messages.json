@@ -395,5 +395,16 @@
   },
   "indexesLabel": {
     "message":"Indexes"
+  },
+
+  "apiVersion": {
+    "message":"API Version"
+  },
+  "connectSave": {
+    "message":"Connect & Save"
+  },
+  "connect": {
+    "message":"Connect & Save"
   }
+
 }

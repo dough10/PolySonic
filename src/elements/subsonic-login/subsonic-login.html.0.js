@@ -1,186 +1,325 @@
+(function () {
+  'use-strict';
+  var app = document.getElementById("tmpl");
+  Polymer('subsonic-login',{
+    timer: 0,
 
-    Polymer('subsonic-login',{
-      timer: 0,
+    ready: function () {
+      'use strict';
+      this.app = app;
+      this.testingURL = false;
+      this.post = {
+        version: '1.11.0',
+        name: 'Config1',
+        md5Auth: true
+      };
+    },
 
+    _updateConfig: function () {
+      this.newConfig = !Boolean(app.configs[app.currentConfig]);
+      if (!this.newConfig) {
+        this.post = app.configs[app.currentConfig];
+        this.post.config = app.currentConfig;
+      } else {
+        this.post.config = 0;
+      }
+    },
 
+    configChanged: function () {
+      this.async(this._updateConfig);
+    },
 
-      ready: function () {
-        'use strict';
-        this.app = document.getElementById("tmpl");
-        this.testingURL = false;
-      },
+    _newConfig: function () {
+      this.post = {};
+      var configLength = app.configs.length
+      this.post.config = configLength;
+      this.post.version = '1.11.0';
+      this.post.name = 'Config' + Math.abs(configLength + 1);
+      this.$.auth.hidden = true;
+      this.async(this.validateInputs);
+    },
 
-
-
-      testURL: function (e) {
-        var input = e.target;
-        if (!this.invalid1) {
-          this.testingURL = true;
-          this.$.submit.disabled = true;
-          var xhr = new XMLHttpRequest();
-          xhr.open("GET", input.value + '/rest/ping.view?f=json', true);
-          xhr.responseType = 'json';
-          xhr.onload = function (e) {
-            var json = e.target.response['subsonic-response'];
-            this.app.version = json.version;
-            // greater then 1.13.0 api verion give option to disable md5Auth
-            if (versionCompare(this.app.version, '1.13.0') >= 0) {
-              this.$.auth.hidden = false;
-              //document.querySelector('settings-menu').$.auth.hidden = false;
-            }
-
-            console.log('API Version: ' + json.version);
-            this.testingURL = false;
-            this.$.submit.disabled = false;
-            this.attempt = false;
-          }.bind(this);
-
-          xhr.onerror = function (e) {
-            this.testingURL = false;
-            this.$.submit.disabled = false;
-            this.attempt = false;
-          }.bind(this);
-          // cancel previous attempts
-          if (this.attempt) {
-            this.attempt.abort();
+    _selectConfigFile: function () {
+      this.isLoading = true;
+      chrome.fileSystem.chooseEntry({
+        type: 'openFile',
+        accepts: [
+          {
+            mimeTypes: [
+              'text/js'
+            ],
+            extensions: [
+              'cfg'
+            ]
           }
-          // send result and tag the attempt
-          xhr.send();
-          this.attempt = xhr;
-        }
-      },
-
-
-
-
-      checkKeyup: function (e) {
-        if (e.keyIdentifier === "Enter" && !this.$.submit.disabled) {
-          e.target.blur();
-          this.submit();
-        }
-      },
-
-
-
-
-      submit: function () {
-        'use strict';
-        if (this.invalid1 && this.invalid2) {
-          this.$.globals.makeToast("URL & Username Required");
-        } else if (this.invalid1) {
-          this.$.globals.makeToast("URL Required");
-        } else if (this.invalid2) {
-          this.$.globals.makeToast("Username Required");
-        } else if (!this.invalid1 && !this.invalid2 && !this.invalid3) {
-          /* trim off trailing forward slash */
-          var lastChar = this.app.url.substr(-1); // Selects the last character
-          if (lastChar === '/') {         // If the last character is a slash
-            this.app.url = this.app.url.substring(0, this.app.url.length - 1);  // remove the slash from end of string
-          }
-          this.$.ajax.url = this.$.globals.buildUrl('ping');
-          this.$.ajax.go();
-        }
-      },
-
-
-
-
-      responseChanged: function () {
-        'use strict';
-        if (this.response) {
-
-          if (this.response['subsonic-response'].status === 'ok') {
-            // this is a first time login
-            if (this.app.configs[this.app.currentConfig] === undefined) {
-              this.app.$.globals.initFS();
-              this.app.$.firstRun.close();
-              this.app.configs = [
-                {
-                  name: 'Config1',
-                  url: this.app.url,
-                  user: this.app.user,
-                  pass: this.app.pass,
-                  version: this.app.version,
-                  md5Auth: this.app.md5Auth
-                }
-              ];
-              this.app.currentConfig = 0;
-              var settings = document.querySelector('settings-menu');
-              settings.post = this.app.configs[this.app.currentConfig];
-              settings.post.config = 0;
-              simpleStorage.setSync({
-                configs: this.app.configs
-              });
-              simpleStorage.setLocal({
-                currentConfig: this.app.currentConfig
+        ]
+      }, function(theEntry) {
+        if (theEntry) {
+          this.$.globals.loadFileEntry(theEntry).then(function (encodedText) {
+            var decodedText = atob(encodedText);
+            var imported = JSON.parse(decodedText);
+            if  (imported.user && imported.url && imported.pass
+                 && imported.name && imported.md5Auth && imported.version) {
+              this.post.user = imported.user;
+              this.post.url = imported.url;
+              this.post.pass = imported.pass;
+              this.post.name = imported.name;
+              this.post.md5Auth = imported.md5Auth;
+              this.post.version = imported.version;
+              if (versionCompare(imported.version, '1.13.0') >= 0) {
+                this.$.auth.hidden = false;
+              }
+              this.async(function () {
+                this.validateInputs();
               });
             } else {
-
-              // not a first time connection
+              this.$.globals.makeToast('Error Importing Config');
             }
-            this.app.userDetails();
-            this.app.version = this.response['subsonic-response'].version;
-            this.$.globals.makeToast("Loading Data");
-            this.app.tracker.sendEvent('API Version', this.response['subsonic-response'].version);
-            var url = this.$.globals.buildUrl('getMusicFolders');
-            this.$.globals.doXhr(url, 'json').then(function (e) {
-              this.app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-              this.app.folder = 'none';
-              if (e.target.response['subsonic-response'].musicFolders.musicFolder && !e.target.response['subsonic-response'].musicFolders.musicFolder[1]) {
-                this.app.$.sortBox.style.display = 'none';
-              }
+            this.isLoading = false;
+          }.bind(this), function () {
+            this.isLoading = false;
+          });
+        } else {
+          this.isLoading = false;
+        }
+      }.bind(this));
+    },
+
+
+    _testPostSettings: function () {
+      return new Promise(function (resolve, reject) {
+        var params = {
+          u: this.post.user,
+          v: this.post.version || '1.11.0',
+          f: 'json',
+          c: 'PolySonic'
+        };
+        if (versionCompare(this.post.version, '1.13.0') >= 0 && this.post.md5Auth) {
+          params.s = this.$.globals.makeSalt(16);
+          params.t = md5(this.post.pass + params.s);
+        } else {
+          params.p = this.post.pass.hexEncode();
+        }
+        var url = this.post.url + '/rest/ping.view?' + this.$.globals.toQueryString(params);
+        app.$.globals.doXhr(url, 'json').then(function (e) {
+          resolve(e.target.response['subsonic-response']);
+        }, reject);
+      }.bind(this));
+    },
+
+    testURL: function (e) {
+      var input = e.target;
+      if (!this.invalid1) {
+        this.testingURL = true;
+        this.isLoading = true;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", input.value + '/rest/ping.view?f=json', true);
+        xhr.responseType = 'json';
+        xhr.onload = function (e) {
+          var json = e.target.response['subsonic-response'];
+          this.post.version = json.version;
+          // greater then 1.13.0 api verion give option to disable md5Auth
+          if (versionCompare(json.version, '1.13.0') >= 0) {
+            this.$.auth.hidden = false;
+          }
+
+          console.log('API Version: ' + json.version);
+          this.testingURL = false;
+          this.isLoading = false;
+          this.attempt = false;
+        }.bind(this);
+
+        xhr.onerror = function (e) {
+          this.testingURL = false;
+          this.isLoading = false;
+          this.attempt = false;
+        }.bind(this);
+        // cancel previous attempts
+        if (this.attempt) {
+          this.attempt.abort();
+        }
+        // send result and tag the attempt
+        xhr.send();
+        this.attempt = xhr;
+      }
+    },
+
+    _completeConnection: function () {
+      app.userDetails();
+      var settings = document.querySelector('settings-menu');
+      settings.post = app.configs[app.currentConfig];
+      settings.post.config = app.currentConfig;
+      simpleStorage.setSync({
+        configs: app.configs
+      });
+      simpleStorage.setLocal({
+        currentConfig: app.currentConfig
+      });
+      this.$.globals.makeToast("Loading Data");
+      var url = this.$.globals.buildUrl('getMusicFolders');
+      this.$.globals.doXhr(url, 'json').then(function (e) {
+        var res = e.target.response['subsonic-response'];
+        app.mediaFolders = res.musicFolders.musicFolder;
+        app.folder = 'none';
+        if (res.musicFolders.musicFolder && !res.musicFolders.musicFolder[1]) {
+          app.$.sortBox.style.display = 'none';
+        }
+      }.bind(this));
+    },
+
+
+    submit: function () {
+      if (this.invalid1 && this.invalid2) {
+        this.$.globals.makeToast("URL & Username Required");
+      } else if (this.invalid1) {
+        this.$.globals.makeToast("URL Required");
+      } else if (this.invalid2) {
+        this.$.globals.makeToast("Username Required");
+      } else if (!this.invalid1 && !this.invalid2 && !this.invalid3) {
+        /* trim off trailing forward slash */
+        var lastChar = this.post.url.substr(-1); // Selects the last character
+        if (lastChar === '/') {         // If the last character is a slash
+          this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
+        }
+        this.isLoading = true;
+        this._testPostSettings().then(function (json) {
+          this.isLoading = false;
+          if (json.status === 'ok') {
+            app.currentConfig = this.post.config;
+
+            app.$.globals.initFS();
+            if ('config' in this.post) {
+              delete this.post.config;
+            }
+            for (var key in this.post) {
+              app[key] = this.post[key];
+            }
+
+            app.$.firstRun.close();
+            app.version = json.version;
+            this._clearImages().then(function () {
+              app.$.globals.openIndexedDB().then(function () {
+                app.$.globals.initFS();
+                // creating a new config when no prevoius configs are stored
+                if (app.configs[app.currentConfig] === undefined && !app.configs.length) {
+                  app.configs = [
+                    this.post
+                  ];
+                  this._completeConnection();
+                // add a new config to a existing config list
+                } else if (app.configs[app.currentConfig] === undefined && app.configs.length) {
+                  app.configs.push(this.post);
+                  this._completeConnection();
+                // picked another config
+                } else {
+                  this._completeConnection();
+                }
+              }.bind(this));
             }.bind(this));
           } else {
             this.$.globals.makeToast(this.response['subsonic-response'].error.message);
           }
-        }
-      },
+        }.bind(this), function () {
+          this.isLoading = false;
+          this.$.globals.makeToast('Error Connecting');
+        }.bind(this));
+      }
+    },
 
 
-      authChanged: function (e) {
-        var element = e.target;
-        simpleStorage.setSync({
-          md5Auth: element.checked
-        });
-      },
+    validateInputs: function () {
+      var $d = this.$.validate.querySelectorAll('paper-input-decorator');
+      Array.prototype.forEach.call($d, function(d) {
+        d.isInvalid = !d.querySelector('input').validity.valid;
+      });
+    },
 
-
-      hidePass: function (event, detail, sender) {
-        'use strict';
-        var type = this.$.password.type,
-          button = this.$.showPass,
-          timer = this.timer;
-
-        if (type === "text") {
-          this.$.password.type = "password";
-          button.innerHTML = this.showPass;
-          if (timer) {
-            clearTimeout(timer);
-            timer = 0;
-          }
-        } else {
-          this.$.password.type = "text";
-          button.innerHTML = this.hideThePass;
-          timer = setTimeout(function () {
-            this.$.password.type = "password";
-            button.innerHTML = this.showPass;
-            timer = 0;
-          }.bind(this), 15000);
-        }
-      },
-
-
-      errorChanged: function () {
-        'use strict';
-        /*
-          will display any ajax error in a toast
-        */
-        if (this.error) {
-          this.app.$.firstRun.open();
-          this.$.globals.makeToast(chrome.i18n.getMessage('connectionError'));
+    _checkKeyup: function (e) {
+      this.validateInputs();
+      if (e.keyIdentifier === "Enter") {
+        if (this.editing && !this.newConfig) {
+          //this._saveEdits();
+        } else if (!this.editing && this.newConfig && !this.isLoading) {
+          e.target.blur();
+          this.submit();
         }
       }
+    },
 
 
+    hidePass: function (event, detail, sender) {
+      var type = this.$.password.type,
+        button = this.$.showPass,
+        timer = this.timer;
 
-    });
+      if (type === "text") {
+        this.$.password.type = "password";
+        button.innerHTML = this.$.globals.texts.showPass;
+        if (timer) {
+          clearTimeout(timer);
+          timer = 0;
+        }
+      } else {
+        this.$.password.type = "text";
+        button.innerHTML = this.$.globals.texts.hideThePass;
+        timer = setTimeout(function () {
+          this.$.password.type = "password";
+          button.innerHTML = this.$.globals.texts.showPass;
+          timer = 0;
+        }.bind(this), 15000);
+      }
+    },
+
+
+    _select: function () {
+      var clicked = this.post.config;
+      var config = app.configs[this.post.config];
+      if (config) {
+        this.post = config;
+        this.post.config = clicked;
+      }
+    },
+
+    _selectAction: function () {
+      this.async(this._select);
+    },
+
+
+    postChanged: function () {
+      if ('post' in this) {
+        this.async(this.validateInputs, null, 200);
+        if ('post' in this && 'version' in this.post && this._53orGreater(this.post.version)) {
+          this.$.auth.hidden = false;
+        }
+        if ('config' in this.post) {
+          this.newConfig = !Boolean(app.configs[this.post.config]);
+        }
+      }
+    },
+
+
+    _53orGreater: function (version) {
+      if (versionCompare(version, '1.13.0') >= 0) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    _clearImages: function () {
+      return new Promise(function (resolve, reject) {
+        app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
+          dir.removeRecursively(function (e) {
+            app.db.close();
+            var req = indexedDB.deleteDatabase(app.dbname);
+            req.onsuccess = resolve;
+            req.onerror = reject;
+            req.onblocked = reject;
+          }, function (e) {
+            reject(e)
+          });
+        });
+      });
+    },
+  });
+})();
