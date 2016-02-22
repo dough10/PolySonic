@@ -169,20 +169,24 @@
       this.app.dataLoading = true;
       var albums = this.$.all.querySelectorAll('album-art');
       var albumsLength = albums.length;
-      var playlist = [];
+      var playing = false;
+      app.playlist = [];
+      if ('audio' in app.$.player && !app.$.player.audio.paused) {
+        app.$.player.audio.pause();
+      }
       for (var i = 0; i < albums.length; i++) {
         (function (i) {
           albums[i].doQuery().then(function () {
-            playlist = playlist.concat(albums[i].playlist);
-            this.job('return', function () {
-              app.playlist = playlist;
-              if ('audio' in app.$.player && !app.$.player.audio.paused) {
-                app.$.player.audio.pause();
+            app.playlist = app.playlist.concat(albums[i].playlist);
+            app.shufflePlaylist();
+            if (!playing) {
+              playing = true;
+              if (app.playlist[0] === undefined) {
+                app.playlist.splice(0, 1);
               }
               this.$.globals.playListIndex(0);
-              app.shufflePlaylist();
               this.app.dataLoading = false;
-            }, 300);
+            }
           }.bind(this));
         }.bind(this))(i);
       }

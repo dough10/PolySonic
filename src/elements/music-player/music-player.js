@@ -83,7 +83,6 @@ Polymer('music-player',{
    * @param {Object} obj - the playlist object to playback
    */
   playAudio: function (obj) {
-
     // clean up old players
     if (this.audio && !this.audio.paused) {
       this.audio.pause();
@@ -99,6 +98,9 @@ Polymer('music-player',{
       delete this.isCued;
     // when not using gapless playback
     } else {
+      if (this.isCued) {
+        delete this.isCued;
+      }
       this.audio = new Audio();
       this.audio.preload = 'auto';
       if (obj.artist === '') {

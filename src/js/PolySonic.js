@@ -270,6 +270,7 @@
     app.dataLoading = true;
     app.playlist = null;
     app.playlist = [];
+    var playing = false;
     if (app.$.player.audio) {
       app.$.player.audio.pause();
     }
@@ -292,12 +293,13 @@
             app.$.globals.getDbItem(artId + '-palette').then(function (e) {
               obj.palette = e.target.result;
               app.playlist.push(obj);
-              app.job('moreLike', function () {
+              if (!playing) {
+                playing = true;
                 app.dataLoading = false;
                 app.closePlaylists();
                 app.dataLoading = false;
                 app.$.globals.playListIndex(0);
-              }, 500);
+              }
             });
           }, null, 200);
         });
@@ -313,6 +315,7 @@
     app.dataLoading = true;
     app.shuffleLoading = true;
     app.playlist.length = 0;
+    var playing = false;
     if (!app.startYearInvalid && !app.endYearInvalid) {
       if (app.$.player.audio && !app.$.player.audio.paused) {
         app.$.player.audio.pause();
@@ -322,7 +325,7 @@
       }
       var url = app.$.globals.buildUrl('getRandomSongs', app.shuffleSettings);
       app.$.globals.doXhr(url, 'json').then(function (event) {
-        var data = event.target.response['subsonic-response'].randomSongs.song;
+        var data = event.target.response['subsonic-response'].randomSongs.song || [];
         if (data.length) {
           data.forEach(function (item) {
             var obj = {
@@ -334,19 +337,18 @@
             var artId = 'al-' + item.albumId;
             app.$.globals.fetchImage(artId).then(function (imgURL) {
               obj.cover = imgURL;
-              app.async(function () {
-                app.$.globals.getDbItem(artId + '-palette').then(function (e) {
-                  obj.palette = e.target.result;
-                  app.playlist.push(obj);
-                  // delay playback by 1 second to keed from starting and stoping multiple times
-                  app.job('moreLike', function () {
-                    app.dataLoading = false;
-                    app.shuffleLoading = false;
-                    app.$.shuffleOptions.close();
-                    app.$.globals.playListIndex(0);
-                  }, 1000);
-                });
-              }, null, 200);
+              app.$.globals.getDbItem(artId + '-palette').then(function (e) {
+                obj.palette = e.target.result;
+                app.playlist.push(obj);
+                if (!playing) {
+                  playing = true;
+                  console.count('shuffle play');
+                  app.dataLoading = false;
+                  app.shuffleLoading = false;
+                  app.$.shuffleOptions.close();
+                  app.$.globals.playListIndex(0);
+                }
+              });
             });
           });
         } else {

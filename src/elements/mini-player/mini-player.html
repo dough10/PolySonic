@@ -37,6 +37,9 @@
       .big {
         margin-top:5px;
       }
+      .volume {
+        top:25px;
+      }
       paper-icon-button.big::shadow #icon {
         width: 65px;
         height: 65px;
@@ -111,6 +114,20 @@
             </div>
             <div>
               <paper-spinner id="spinner" active></paper-spinner>
+              <core-tooltip label="{{$.globals.texts.adjustVolumeLabel}}" class="volume" position="left">
+                <template if="{{app.volume > 66}}">
+                  <paper-icon-button icon="av:volume-up" on-tap="{{toggleVolume}}"></paper-icon-button>
+                </template>
+                <template if="{{app.volume >= 33 && app.volume <= 66}}">
+                  <paper-icon-button icon="av:volume-down" on-tap="{{toggleVolume}}"></paper-icon-button>
+                </template>
+                <template if="{{app.volume > 0 && app.volume < 33}}">
+                  <paper-icon-button icon="av:volume-mute" on-tap="{{toggleVolume}}"></paper-icon-button>
+                </template>
+                <template if="{{app.volume === 0}}">
+                  <paper-icon-button icon="av:volume-off" on-tap="{{toggleVolume}}"></paper-icon-button>
+                </template>
+              </core-tooltip>
               <paper-icon-button class="playlist" icon="av:queue-music" on-tap="{{_openPlaylist}}"></paper-icon-button>
             </div>
           </div>
