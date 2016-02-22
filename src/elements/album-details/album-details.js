@@ -223,6 +223,12 @@
       this.albumID = this.details.id;
       this.isFavorite = this.details.isFavorite || false;
       this.$.topper.style.backgroundImage = "url('" + this.details.cover + "')";
+    },
+
+    _resized: function (e) {
+      if (this.$.detailsDialog.opened) {
+        this.$.detailsDialog.resizeHandler();
+      }
     }
   });
 })();

@@ -396,7 +396,6 @@
   "indexesLabel": {
     "message":"Indexes"
   },
-
   "apiVersion": {
     "message":"API Version"
   },
@@ -404,7 +403,22 @@
     "message":"Connect & Save"
   },
   "connect": {
-    "message":"Connect & Save"
+    "message":"Connect"
+  },
+  "attemptError":{
+    "message":"Error connecting to Subsonic. Save Anyway?"
+  },
+  "saveButton":{
+    "message":"save"
+  },
+  "cancelButton": {
+    "message":"cancel"
+  },
+  "editButton":{
+    "message":"edit"
+  },
+  "exportButton":{
+    "message":"export"
   }
 
 }

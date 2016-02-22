@@ -188,6 +188,9 @@
                         <template if="{{status === 'downloading'}}">
                           <paper-spinner class="black" active style="margin-right: 6px;"></paper-spinner>
                         </template>
+                        <template if="{{status === 'error'}}">
+                          <core-icon icon="error" style="margin-right: 8px;"></core-icon>
+                        </template>
                       </core-item>
                       <core-collapse id="collapse{{id}}">
                         <div flex>
@@ -263,17 +266,46 @@
 
       </core-animated-pages>
     </div>
+
+
     <paper-action-dialog id="playbackConfirm" transition="core-transition-center">
       <h4>{{$.globals.texts.hasBookmark}}</h4>
-      <paper-button style="background: green; color: white;" affirmative on-tap="{{playPodcast}}" bookmark="{{bookMark.bookmarkPosition}}" trackTitle="{{bookMark.title}}" streamId="{{bookMark.id}}" cover="{{bookMark.cover}}">{{$.globals.texts.playFrom}} {{bookmarkTime}}</paper-button>
-      <paper-button affirmative on-tap="{{playPodcast}}" trackTitle="{{bookMark.title}}" streamId="{{bookMark.id}}" cover="{{bookMark.cover}}">{{$.globals.texts.fromStart}}</paper-button>
+      <paper-button style="background: green; color: white;"
+                    affirmative
+                    on-tap="{{playPodcast}}"
+                    bookmark="{{bookMark.bookmarkPosition}}"
+                    trackTitle="{{bookMark.title}}"
+                    streamId="{{bookMark.id}}"
+                    cover="{{bookMark.cover}}">
+        {{$.globals.texts.playFrom}} {{bookmarkTime}}
+      </paper-button>
+      <paper-button affirmative
+                    on-tap="{{playPodcast}}"
+                    trackTitle="{{bookMark.title}}"
+                    streamId="{{bookMark.id}}"
+                    cover="{{bookMark.cover}}">
+        {{$.globals.texts.fromStart}}
+      </paper-button>
     </paper-action-dialog>
+
+
     <paper-action-dialog id='bookmarkConfirm' autoclosedisabled transition="core-transition-center" layered>
-      <div style="min-width:280px"></div>
-      <h4>{{$.globals.texts.deletebookMarkConfirm}}</h4>
-      <paper-button affirmative>{{$.globals.texts.decline}}</paper-button>
-      <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{$.globals.texts.accept}}</paper-button>
+      <div style="min-width:280px">
+      </div>
+      <h4>
+        {{$.globals.texts.deletebookMarkConfirm}}
+      </h4>
+      <paper-button affirmative>
+        {{$.globals.texts.decline}}
+      </paper-button>
+      <paper-button affirmative
+                    data-id="{{delID}}"
+                    on-tap="{{deleteBookmark}}">
+        {{$.globals.texts.accept}}
+      </paper-button>
     </paper-action-dialog>
+
+
   </template>
   <script src="album-wall.html.0.js"></script>
 </polymer-element>

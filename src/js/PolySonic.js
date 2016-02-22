@@ -1152,6 +1152,7 @@
       app.$.fab.setPos();
       app.$.player.resize();
       app.$.fab.resize();
+      app.$.albumDialog._resized();
       if (chrome.app.window.current().innerBounds.width < 571) {
         chrome.app.window.current().innerBounds.height = 761;
       }

@@ -39,16 +39,20 @@
           this.artistBio = artistBio;
           this.$.bio.innerHTML = this.artistBio.biography;
           this.loadingBio = true;
-          this.$.globals._fetchArtistHeaderImage(
-            this.artistBio.largeImageUrl,
-            artistId
-          ).then(function (image) {
-            this.fabBgColor = image.fabBgColor;
-            this.fabColor = image.fabColor;
-            this.$.bg.style.backgroundImage = "url('" + image.url + "')";
-            this.imgURL = image.url;
-            if (!app._animating) this._cropIt();
-          }.bind(this));
+          if (this.artistBio.largeImageUrl) {
+            this.$.globals._fetchArtistHeaderImage(
+              this.artistBio.largeImageUrl,
+              artistId
+            ).then(function (image) {
+              this.fabBgColor = image.fabBgColor;
+              this.fabColor = image.fabColor;
+              this.$.bg.style.backgroundImage = "url('" + image.url + "')";
+              this.imgURL = image.url;
+              if (!app._animating) this._cropIt();
+            }.bind(this));
+          } else {
+            this.loadingBio = false;
+          }
           var url;
           if (app.queryMethod === 'ID3') {
             url = this.$.globals.buildUrl('getArtist', {

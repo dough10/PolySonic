@@ -12,29 +12,26 @@ in current development
 
 - change max # of albums returned by search to 200. up from 20
 
-- "mini player" now shown at bottom of settings page
+- "mini player" now shown at bottom of settings page if there is playing content
 
-- updates to artists page styling (larger artist image recentered using SmartCrop.js)
+- album details dialog now has the link "more by this artist"
+
+- updates to artists page styling (larger artist image recentered using SmartCrop.js, not perfect but better then allowing to crop the center)
 
 - flushing image cache no longer requires app restart
 
-- option to browse Subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page, image cache cleard and content refreshed on change) ** currently assumes the folowing folder structure imported folder/artist/album **
+- option to browse Subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page, image cache cleard and content refreshed on change) ** currently assumes the folowing folder structure imported-folder/artist/album ** I see this needing more work in the near future as it will not work for all
 
 - ability to use multiple configs (new config UIs, image cache will be cleared on change)
 
 - option to import / export config files as base64 encoded string saved as .cfg file
 
-- methods to create of select config on first run dialog
-
-
 
 in progress: 
 
-- finish request methods swap function for when app queryMethod is changed 
+- find bugs
 
-- add any text that isn't already included in the message.json file
-
-- create dialog with option to cancal or save config  if connection attempt fails
+- kill bugs
 
 
 Required software for development environment

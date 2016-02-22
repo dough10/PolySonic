@@ -40,7 +40,6 @@
     },
 
     _selectConfigFile: function () {
-      this.isLoading = true;
       chrome.fileSystem.chooseEntry({
         type: 'openFile',
         accepts: [
@@ -75,12 +74,7 @@
             } else {
               this.$.globals.makeToast('Error Importing Config');
             }
-            this.isLoading = false;
-          }.bind(this), function () {
-            this.isLoading = false;
-          });
-        } else {
-          this.isLoading = false;
+          }.bind(this));
         }
       }.bind(this));
     },
@@ -105,6 +99,12 @@
           resolve(e.target.response['subsonic-response']);
         }, reject);
       }.bind(this));
+    },
+
+    _cancelAttempt: function () {
+      this.isLoading = false;
+      app.dataLoading = false;
+      app.lastRequest.abort();
     },
 
     testURL: function (e) {
@@ -183,11 +183,10 @@
         }
         this.isLoading = true;
         this._testPostSettings().then(function (json) {
+          console.log(json);
           this.isLoading = false;
           if (json.status === 'ok') {
             app.currentConfig = this.post.config;
-
-            app.$.globals.initFS();
             if ('config' in this.post) {
               delete this.post.config;
             }
@@ -198,8 +197,8 @@
             app.$.firstRun.close();
             app.version = json.version;
             this._clearImages().then(function () {
-              app.$.globals.openIndexedDB().then(function () {
-                app.$.globals.initFS();
+              this.$.globals.openIndexedDB().then(function () {
+                this.$.globals.initFS();
                 // creating a new config when no prevoius configs are stored
                 if (app.configs[app.currentConfig] === undefined && !app.configs.length) {
                   app.configs = [
@@ -228,6 +227,7 @@
 
 
     validateInputs: function () {
+      this.parentNode.notifyResize();
       var $d = this.$.validate.querySelectorAll('paper-input-decorator');
       Array.prototype.forEach.call($d, function(d) {
         d.isInvalid = !d.querySelector('input').validity.valid;
@@ -308,17 +308,21 @@
 
     _clearImages: function () {
       return new Promise(function (resolve, reject) {
-        app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
-          dir.removeRecursively(function (e) {
-            app.db.close();
-            var req = indexedDB.deleteDatabase(app.dbname);
-            req.onsuccess = resolve;
-            req.onerror = reject;
-            req.onblocked = reject;
-          }, function (e) {
-            reject(e)
+        if (app.fs) {
+          app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
+            dir.removeRecursively(function (e) {
+              app.db.close();
+              var req = indexedDB.deleteDatabase(app.dbname);
+              req.onsuccess = resolve;
+              req.onerror = reject;
+              req.onblocked = reject;
+            }, function (e) {
+              reject(e)
+            });
           });
-        });
+        } else {
+          resolve();
+        }
       });
     },
   });

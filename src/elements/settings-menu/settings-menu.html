@@ -12,7 +12,7 @@
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/paper-toggle-button/paper-toggle-button.html" rel="import">
 <link href="../../bower_components/core-icon/core-icon.html" rel="import">
-</head><body><polymer-element name="settings-menu" attributes="config bitRate">
+</head><body><polymer-element name="settings-menu" attributes="config bitRate isLoading">
   <template>
     <style>
       :host {
@@ -66,6 +66,9 @@
       paper-toggle-button.redSwitch::shadow [checked] .toggle {
         background-color: #db4437;
       }
+      paper-button [disabled] {
+        background-color: #cccccc;
+      }
       .collapseWrapper {
         padding:8px;
       }
@@ -106,7 +109,7 @@
         <br>
         <core-label>
           {{$.globals.texts.configLabel}}:
-          <paper-dropdown-menu id="selector" label="{{$.globals.texts.config}}">
+          <paper-dropdown-menu id="selector" label="{{$.globals.texts.config}}" disabled?="{{isLoading}}">
             <paper-dropdown layer class="dropdown">
               <core-menu id="configSelector" selected="{{post.config}}">
                 <template repeat="{{app.configs}}">
@@ -218,14 +221,14 @@
               <div class="load" hidden?="{{!isLoading}}">
                 <paper-spinner active=""></paper-spinner>
               </div>
-              edit
+              {{$.globals.texts.editButton}}
             </paper-button>
             <paper-button raised
                           on-tap="{{_exportConfig}}" disabled?="{{isLoading || testingURL}}">
               <div class="load" hidden?="{{!isLoading}}">
                 <paper-spinner active=""></paper-spinner>
               </div>
-              Export
+              {{$.globals.texts.exportButton}}
             </paper-button>
 
             <template if="{{app.currentConfig !== post.config}}">
@@ -235,7 +238,7 @@
                 <div class="load" hidden?="{{!isLoading}}">
                   <paper-spinner active=""></paper-spinner>
                 </div>
-                Delete
+                {{$.globals.texts.deleteLabel}}
               </paper-button>
 
               <!-- use button -->
@@ -266,17 +269,22 @@
               <div class="load" hidden?="{{!isLoading}}">
                 <paper-spinner active=""></paper-spinner>
               </div>
-              cancel
+              {{$.globals.texts.cancelButton}}
             </paper-button>
           </template>
 
         </template>
 
+        <template if="{{isLoading}}">
+          <paper-button class="red-button" on-tap="{{_cancelAttempt}}">{{$.globals.texts.cancelButton}}</paper-button>
+        </template>
+
 
         <br>
+        <!-- app bitrate -->
         <core-label>
           {{$.globals.texts.bitrateLabel}}:
-          <paper-dropdown-menu label="{{$.globals.texts.bitrateLabel}}">
+          <paper-dropdown-menu label="{{$.globals.texts.bitrateLabel}}" disabled?="{{isLoading}}">
             <paper-dropdown layered class="dropdown">
               <core-menu class="menu" selected="{{app.bitRate}}" valueattr="i">
                 <template repeat="{{_speeds}}">
@@ -290,7 +298,7 @@
         <!-- app query method -->
         <core-label>
           {{$.globals.texts.queryMethodLabel}}:
-          <paper-dropdown-menu label="{{$.globals.texts.queryMethodLabel}}">
+          <paper-dropdown-menu label="{{$.globals.texts.queryMethodLabel}}" disabled?="{{isLoading}}">
             <paper-dropdown layered class="dropdown">
               <core-menu class="menu" selected="{{app.queryMethod}}" valueattr="i">
                 <template repeat="{{_queryMethods}}">
@@ -302,31 +310,33 @@
         </core-label>
 
         <br>
-        <!-- switch for analistics -->
         <br>
+        <!-- switch for analistics -->
         <div center horizontal layout class="switchBox">
           <div flex class="switchLabel">
             {{$.globals.texts.anonStats}}
           </div>
-          <paper-toggle-button class="redSwitch" checked="{{app.analisticsEnabled}}" on-change="{{_analisticsToggle}}"></paper-toggle-button>
+          <paper-toggle-button class="redSwitch" checked="{{app.analisticsEnabled}}" on-change="{{_analisticsToggle}}" disabled?="{{isLoading}}"></paper-toggle-button>
         </div>
         <br>
         <br>
         <br>
+        <!-- auto bookmark -->
         <div center horizontal layout class="switchBox">
           <div flex class="switchLabel">
             {{$.globals.texts.autoBookmark}}
           </div>
-          <paper-toggle-button class="redSwitch" checked="{{app.autoBookmark}}" on-change="{{_toggleAutobookmark}}"></paper-toggle-button>
+          <paper-toggle-button class="redSwitch" checked="{{app.autoBookmark}}" on-change="{{_toggleAutobookmark}}" disabled?="{{isLoading}}"></paper-toggle-button>
         </div>
         <br>
         <br>
         <br>
+        <!-- precache -->
         <div center horizontal layout class="switchBox">
           <div flex class="switchLabel">
             {{$.globals.texts.precache}}
           </div>
-          <paper-toggle-button class="redSwitch" checked="{{app.gapless}}" on-change="{{_toggleGapless}}"></paper-toggle-button>
+          <paper-toggle-button class="redSwitch" checked="{{app.gapless}}" on-change="{{_toggleGapless}}" disabled?="{{isLoading}}"></paper-toggle-button>
         </div>
       </core-label>
       <br>
@@ -336,17 +346,20 @@
         {{app.storageQuota}}
         <br>
         <br>
-        <paper-button  class="red-button" on-tap="{{_clearCache}}">{{$.globals.texts.clearCacheLabel}}</paper-button>
+        <paper-button  class="red-button" on-tap="{{_clearCache}}" disabled?="{{isLoading}}">{{$.globals.texts.clearCacheLabel}}</paper-button>
       </core-collapse>
       <br>
       <br>
-      <paper-button class="red-button" on-tap="{{_clearSettings}}">{{$.globals.texts.clearSettingsLabel}}</paper-button>
+      <paper-button class="red-button" on-tap="{{_clearSettings}}" disabled?="{{isLoading}}">{{$.globals.texts.clearSettingsLabel}}</paper-button>
     </div>
 
     <!--  save anyway dialog  -->
-    <paper-dialog id="connectionError" autoclosedisabled backdrop transition="core-transition-center">
-
-    </paper-dialog>
+    <paper-action-dialog id="connectionError" transition="core-transition-center">
+      <div style="min-width: 280px;"></div>
+      <h4>{{$.globals.texts.attemptError}}</h4>
+      <paper-button affirmative>{{$.globals.texts.decline}}</paper-button>
+      <paper-button affirmative on-tap="{{_saveAnyway}}">{{$.globals.texts.saveButton}}</paper-button>
+    </paper-action-dialog>
 
     <paper-action-dialog id="confirmDelete" autoclosedisabled backdrop transition="core-transition-center">
       <div style="min-width:280px"></div>

@@ -197,13 +197,13 @@
             <core-header-panel class="pages" mode="standard">
               <core-toolbar>
                 <paper-icon-button class="bottom" icon="arrow-back"
-                                   disabled?="{{dataLoading || shuffleLoading}}"
+                                   disabled?="{{dataLoading || shuffleLoading || attemptingConnection}}"
                                    on-tap="{{back2List}}"></paper-icon-button>
                 <div class="bottom" flex></div>
               </core-toolbar>
               <div style="padding: 8px;">
                 <paper-shadow z='1' style="max-width:800px; margin:auto;" class='card'>
-                  <settings-menu config="{{currentConfig}}" bitRate="{{bitRate}}"></settings-menu>
+                  <settings-menu config="{{currentConfig}}" bitRate="{{bitRate}}" isLoading="{{attemptingConnection}}"></settings-menu>
                 </paper-shadow>
               </div>
               <div style="min-height:100px;"></div>

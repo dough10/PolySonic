@@ -97,14 +97,39 @@
             this.$.globals.makeToast(this._response['subsonic-response'].error.message);
             this.isLoading = false;
           } else  {
+            this.$.connectionError.open();
             this.$.globals.makeToast("Error Connecting to Server. Check Settings");
             this.isLoading = false;
           }
         }.bind(this), function () {
+          this.$.connectionError.open();
           this.$.globals.makeToast("Error Connecting to Server. Check Settings");
           this.isLoading = false;
         }.bind(this));
       }
+    },
+
+    _saveAnyway: function () {
+      this.$.connectionError.close();
+      this.isLoading = true;
+      simpleStorage.getSync('configs').then(function (configs) {
+        configs.push({
+          name: this.post.name,
+          url: this.post.url,
+          user: this.post.user,
+          pass: this.post.pass,
+          md5Auth: this.post.md5Auth,
+          version: this.post.version
+        });
+        simpleStorage.setSync({
+          configs:configs
+        });
+        this.app.configs = configs;
+        this.$.globals.makeToast("Config Saved");
+        this.newConfig = !Boolean(this.app.configs[this.post.config]);
+        this._setFormDisabledState(!this.newConfig);
+        this.isLoading = false;
+      }.bind(this));
     },
 
     _hidePass: function (event, detail, sender) {
@@ -203,6 +228,18 @@
               case ('getArtists'):
                 app.$.wall.getArtist();
                 break;
+              case ('getAlbumList'):
+                app.$.wall.sortChanged();
+                break;
+              case ('getAlbumList2'):
+                app.$.wall.sortChanged();
+                break;
+              case ('getStarred'):
+                app.$.wall.getStarred();
+                break;
+              case ('getStarred2'):
+                app.$.wall.getStarred();
+                break;
             }
             simpleStorage.setSync({
               queryMethod: app.queryMethod
@@ -247,6 +284,15 @@
       app.md5Auth = this.post.md5Auth;
     },
 
+    _cancelAttempt: function () {
+      this.isLoading = false;
+      app.dataLoading = false;
+      app.lastRequest.abort();
+      this.async(function () {
+        this._setFormDisabledState(true);
+      }, null, 500);
+    },
+
     _testPostSettings: function () {
       return new Promise(function (resolve, reject) {
         var params = {
@@ -270,7 +316,6 @@
 
     _useThis: function () {
       this.isLoading = true;
-      app.dataLoading = true;
       app.folder = 'none';
       this._testPostSettings().then(function (response) {
         if (response.status === 'ok') {
@@ -283,6 +328,8 @@
           simpleStorage.setLocal({
             currentConfig: app.currentConfig
           });
+          this.isLoading = false;
+          app.dataLoading = true;
           this._clearImages().then(function () {
             app.$.globals.openIndexedDB().then(function () {
               app.$.globals.initFS();
@@ -298,18 +345,18 @@
                 this.async(function () {
                   this._setFormDisabledState(true);
                 }, null, 500);
-                this.isLoading = false;
+                app.dataLoading = false;
               }.bind(this));
             }.bind(this));
           }.bind(this));
         } else {
           this.isLoading = false;
           console.log(response);
-          this.$.globals.makeToast('Error connecting with ' + app.configs[app.currentConfig].name);
+          this.$.globals.makeToast('Error connecting with config ' + app.configs[this.post.config].name);
         }
       }.bind(this), function () {
         this.isLoading = false;
-        this.$.globals.makeToast('Error connecting with ' + app.configs[app.currentConfig].name);
+        this.$.globals.makeToast('Error connecting with config ' + app.configs[this.post.config].name);
       }.bind(this));
     },
 
@@ -352,7 +399,6 @@
     },
 
     _exportConfig: function () {
-      this.isLoading = true;
       simpleStorage.getSync('configs').then(function (configs) {
         var toSave = configs[this.post.config];
         var saveConfig = {
@@ -376,7 +422,6 @@
               writableEntry,
               blob
             ).then(function () {
-              this.isLoading = false;
               this.$.globals.makeToast("Export Complete");
               this.async(function () {
                 this._setFormDisabledState(true);
@@ -393,7 +438,6 @@
     },
 
     _selectConfigFile: function () {
-      this.isLoading = true;
       chrome.fileSystem.chooseEntry({
         type: 'openFile',
         accepts: [
@@ -425,12 +469,7 @@
             } else {
               this.$.globals.makeToast('Error Importing Config');
             }
-            this.isLoading = false;
-          }.bind(this), function () {
-            this.isLoading = false;
-          });
-        } else {
-          this.isLoading = false;
+          }.bind(this));
         }
       }.bind(this));
     },

@@ -256,7 +256,12 @@
       indexesLabel: getMessage('indexesLabel'),
       apiVersion: getMessage('apiVersion'),
       connect: getMessage('connect'),
-      connectSave: getMessage('connectSave')
+      connectSave: getMessage('connectSave'),
+      attemptError: getMessage('attemptError'),
+      saveButton: getMessage('saveButton'),
+      cancelButton: getMessage('cancelButton'),
+      editButton: getMessage('editButton'),
+      exportButton: getMessage('exportButton')
     },
 
     openIndexedDB: function () {
@@ -270,6 +275,7 @@
 
         request.onsuccess = function () {
           console.log("Success creating/accessing IndexedDB database");
+          resolve();
           db = this.result;
           app.db = db;
 
@@ -278,7 +284,6 @@
             if (db.version !== dbVersion) {
               var setVersion = db.setVersion(dbVersion);
               setVersion.onsuccess = function () {
-                resolve();
                 createObjectStore(db);
               };
             }
@@ -378,6 +383,7 @@
           console.error(e);
         };
         xhr.send();
+        app.lastRequest = xhr;
       });
     },
 

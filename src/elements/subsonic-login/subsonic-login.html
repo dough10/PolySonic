@@ -39,6 +39,10 @@
         cursor:pointer;
         display:inline-block;
       }
+      .red-button {
+        background:#db4437;
+        color:#ffffff;
+      }
       paper-toggle-button.redSwitch::shadow [checked] .toggle-ink {
         color: #db4437;
       }
@@ -182,6 +186,9 @@
           </div>
           {{$.globals.texts.connect}}
         </paper-button>
+      </template>
+      <template if="{{isLoading}}">
+        <paper-button class="red-button" on-tap="{{_cancelAttempt}}">{{$.globals.texts.cancelButton}}</paper-button>
       </template>
     </div>
   </template>
