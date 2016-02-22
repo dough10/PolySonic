@@ -14,18 +14,21 @@ in current development
 
 - "mini player" now shown at bottom of settings page if there is playing content
 
+- "mini player" now has link to volume dialog 
+
 - album details dialog now has the link "more by this artist"
 
 - updates to artists page styling (larger artist image recentered using SmartCrop.js, not perfect but better then allowing to crop the center)
 
 - flushing image cache no longer requires app restart
 
-- option to browse Subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page, image cache cleard and content refreshed on change) ** currently assumes the folowing folder structure imported-folder/artist/album ** I see this needing more work in the near future as it will not work for all
+- option to browse Subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page, image cache cleard and content refreshed on change) ** currently assumes the folowing folder structure imported-folder/artist/album ** I see this needing more work in the near future as it will not work for everyone
 
 - ability to use multiple configs (new config UIs, image cache will be cleared on change)
 
 - option to import / export config files as base64 encoded string saved as .cfg file
 
+- fix for playback starting more then once when shuffeling, starting a saved playlist or other long running playlist building task
 
 in progress: 
 
