@@ -48,7 +48,6 @@
     },
 
     validateInputs: function () {
-      'use strict';
       var $d = this.$.validate.querySelectorAll('paper-input-decorator');
       Array.prototype.forEach.call($d, function(d) {
         d.isInvalid = !d.querySelector('input').validity.valid;
@@ -56,7 +55,6 @@
     },
 
     _submit: function () {
-      'use strict';
       this.validateInputs();
       if (this.invalidAddress && this.inValidName && this.invalidPassword) {
         this.$.globals.makeToast("URL, Username & Password Required");
@@ -133,7 +131,6 @@
     },
 
     _hidePass: function (event, detail, sender) {
-      'use strict';
       var type = this.$.password.type,
         button = this.$.showPass,
         timer = this._timer;
@@ -550,7 +547,7 @@
         if (this.editing && !this.newConfig) {
           this._saveEdits();
         } else if (!this.editing && this.newConfig) {
-
+          this._submit();
         }
       }
     },

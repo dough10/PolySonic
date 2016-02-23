@@ -304,7 +304,7 @@
         console.log('Error', e);
       });
     },
-    
+
     formatBytes: function (bytes) {
       if (bytes < 1024) return bytes + ' Bytes';
       else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
@@ -415,11 +415,9 @@
     getDbItem: function (id) {
       return new Promise(function (resolve, reject) {
         if (id) {
-          console.time('get ' + id);
           var transaction = db.transaction([dbName], "readwrite");
           var request = transaction.objectStore(dbName).get(id);
           request.onsuccess = function (e) {
-            console.timeEnd('get ' + id);
             resolve(e);
           };
           request.onerror = reject;
@@ -606,7 +604,7 @@
         }
       }.bind(this));
     },
-    
+
     /**
      * will play a playlist item with the given index
      * @param {Number} index
@@ -712,14 +710,12 @@
         this.doXhr(ping, 'json').then(function (json) {
           json = json.target.response['subsonic-response'];
           if (json.status === 'ok') {
-
             app.url = app.configs[index].url;
             app.user = app.configs[index].user;
             app.pass = app.configs[index].pass;
             app.md5Auth = app.configs[index].md5Auth;
             app.version = json.version;
             this.makeToast('Config Changed');
-
           }
         }.bind(this), function (e) {
           this.makeToast('Error connecting this that config');

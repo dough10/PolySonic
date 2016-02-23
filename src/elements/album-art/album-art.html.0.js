@@ -190,7 +190,7 @@
         }
         this.$.globals.fetchImage(artId).then(this.setImage.bind(this));
       } else {
-        this.async(this.itemChanged, null, 50);
+        this.async(this._updateItem, null, 100);
       }
     },
 
