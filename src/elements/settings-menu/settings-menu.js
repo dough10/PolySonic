@@ -19,6 +19,23 @@
       320
     ],
 
+    _querySizes: [
+      20,
+      30,
+      40,
+      50,
+      60,
+      120
+    ],
+
+    _setQuerySize: function () {
+      this.async(function () {
+        simpleStorage.setSync({
+          querySize: app.querySize
+        });
+      });
+    },
+
     _queryMethods: [
       'ID3',
       'Folder'

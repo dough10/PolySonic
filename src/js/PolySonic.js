@@ -991,15 +991,17 @@
   app.addEventListener('template-bound', function () {
     app.$.player.resize();
     app.$.globals.openIndexedDB();
+    // get account synced settings
     simpleStorage.getSync().then(function (result) {
       app.dataLoading = false;
       app.configs = result.configs || [];
-      if (result.md5Auth === undefined) {
-        result.md5Auth = true;
-      }
 
       // update config storage method
       if (!app.configs.length && 'url' in result && 'user' in result && 'pass' in result) {
+        // default md5 auth true
+        if (result.md5Auth === undefined) {
+          result.md5Auth = true;
+        }
         console.log('updating config storage');
         app.configs.push({
           name: 'Config1',
@@ -1025,39 +1027,37 @@
       app.autoBookmark = result.autoBookmark;
       app.gapless = result.gapless;
       app.shuffleSettings.size = '50';
-      app.querySize = 60;
-      app.listMode = result.listMode || 'cover';
+      app.querySize = result.querySeize || 60;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
+      // configure album all first request
       app.$.wall.post = {
         type: result.sortType || 'newest',
         size: 60,
         offset: 0
       };
       app.$.wall.request = result.request || 'getAlbumList2';
+
+      // set up some default texts / styles for repeat buttons
       app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
       app.repeatState = chrome.i18n.getMessage('disabled');
       app.$.repeatButton.style.color = '#db4437';
-      // bitrate
+
+      // get install specific settings
       simpleStorage.getLocal().then(function (resultLocal) {
-
         app.bitRate = resultLocal.bitRate || 320;
-
         app.currentConfig = resultLocal.currentConfig || 0;
-
         if (app.configs[app.currentConfig]) {
-          app.url = app.configs[app.currentConfig].url;
-          app.user = app.configs[app.currentConfig].user;
-          app.pass = app.configs[app.currentConfig].pass;
-          app.md5Auth = app.configs[app.currentConfig].md5Auth;
-          app.version = app.configs[app.currentConfig].version;
+          for (var key in app.configs[app.currentConfig]) {
+            app[key] = app.configs[app.currentConfig][key];
+          }
         } else {
           app.url;
           app.user;
           app.pass;
           app.version = '1.11.0';
-          app.md5Auth = result.md5Auth;
+          app.md5Auth = result.md5Auth || true;
         }
 
         // default params sent with every request
@@ -1069,6 +1069,7 @@
         };
 
         // set up the wall list method
+        app.listMode = result.listMode || 'cover';
         var wallToggles = document.querySelectorAll('.wallToggle');
         for (var i = 0; i < wallToggles.length; i++) {
           if (app.listMode === 'cover') {
@@ -1082,38 +1083,49 @@
           app.$.globals.initFS();
           var firstPing = app.$.globals.buildUrl('ping');
           app.$.globals.doXhr(firstPing, 'json').then(function (e) {
+            var json = e.target.response['subsonic-response'];
             if (e.target.status === 200) {
 
-              if (versionCompare(e.target.response['subsonic-response'].version, app.version) >= 0) {
-                app.version = e.target.response['subsonic-response'].version;
-                simpleStorage.setSync({
-                  version: app.version
+              // update api version if it has changed
+              if (versionCompare(json.version, app.version) >= 0) {
+                app.version = json.version;
+                simpleStorage.getSync('configs').then(function (configs) {
+                  configs[app.currentConfig].version = app.version;
+                  simpleStorage.setSync({
+                    configs: configs
+                  });
                 });
               }
-
-              if (e.target.response['subsonic-response'].status === 'ok') {
-                app.userDetails();
+              // begin fetching Subsonic data
+              if (json.status === 'ok') {
                 console.log('Connected to Subconic loading data');
-                var folders = app.$.globals.buildUrl('getMusicFolders');
-                app.$.globals.doXhr(folders, 'json').then(function (e) {
+                app.userDetails();
+                var foldersURL = app.$.globals.buildUrl('getMusicFolders');
+
+                // get list of folders from Subsonic
+                app.$.globals.doXhr(foldersURL, 'json').then(function (e) {
                   app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+
                   /* setting mediaFolder causes a ajax call to get album wall data */
+
+                  // set the currently used folder
                   app.folder = result.mediaFolder || 'none';
                   if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
                     app.$.sortBox.style.display = 'none';
                   }
+
+                  // analistics
                   app.tracker.sendAppView('Album Wall');
                 });
               } else {
-                app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
+                // open first run dialog & alert user of the reason for the connection error
                 app.$.firstRun.open();
                 app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
               }
 
             } else {
-              app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
               app.$.firstRun.open();
-              app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
+              app.$.globals.makeToast('Error connection to Subsonic');
             }
           }).catch(function () {
             app.$.firstRun.open();
