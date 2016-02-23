@@ -261,7 +261,8 @@
       saveButton: getMessage('saveButton'),
       cancelButton: getMessage('cancelButton'),
       editButton: getMessage('editButton'),
-      exportButton: getMessage('exportButton')
+      exportButton: getMessage('exportButton'),
+      querySizeLabel: getMessage('querySizeLabel')
     },
 
     openIndexedDB: function () {

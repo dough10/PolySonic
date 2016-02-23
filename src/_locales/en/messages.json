@@ -419,6 +419,9 @@
   },
   "exportButton":{
     "message":"export"
+  },
+  "querySizeLabel":{
+    "message":"Number of Albums per request"
   }
 
 }
