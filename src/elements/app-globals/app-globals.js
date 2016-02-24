@@ -432,8 +432,12 @@
      * @param {String} url
      * @param {String} id
      */
-    _getImageFile: function (url, id) {
+    _getImageFile: function (id) {
       return new Promise(function (resolve, reject) {
+        var url = this.buildUrl('getCoverArt', {
+          size: 550,
+          id: id
+        });
         var fileName = id + '.jpg';
         this.doXhr(url, 'blob').then(function (e) {
           app.fs.root.getFile(app.filePath + '/' + fileName, {create: true}, function(fileEntry) {
@@ -561,14 +565,9 @@
         }, function(fileEntry) {
           resolve(fileEntry.toURL());
         }.bind(this), function () {
-          var url = this.buildUrl('getCoverArt', {
-            size: 550,
-            id: artId
-          });
-          this._getImageFile(url, artId).then(function (imgURL) {
-            this._stealColor(imgURL, artId).then(function () {
-              resolve(imgURL);
-            });
+          this._getImageFile(artId).then(function (imgURL) {
+            resolve(imgURL);
+            this._stealColor(imgURL, artId);
           }.bind(this));
         }.bind(this));
       }.bind(this));

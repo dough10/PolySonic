@@ -105,18 +105,16 @@
               {{$.globals.texts.addAlbums}}
             </paper-shadow>
           </template>
-          <core-list id="list" data="{{wall}}" scrollTarget="{{scrollTarget}}">
+          <core-list id="list" data="{{wall}}" scrollTarget="{{scrollTarget}}" runwayFactor='1.5'>
             <template>
-              <div>
-                <album-art id='ac{{model.id}}'
-                           listMode="{{model.listMode}}"
-                           item="{{model.id}}"
-                           cover="{{model.coverArt}}"
-                           artist="{{model.artist}}"
-                           album="{{model.name || model.title}}"
-                           isFavorite="{{model.starred}}">
-                </album-art>
-              </div>
+              <album-art id='ac{{model.id}}'
+                         listMode="{{model.listMode}}"
+                         item="{{model.id}}"
+                         cover="{{model.coverArt}}"
+                         artist="{{model.artist}}"
+                         album="{{model.name || model.title}}"
+                         isFavorite="{{model.starred}}">
+              </album-art>
             </template>
           </core-list>
           <div class="center">

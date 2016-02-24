@@ -1157,7 +1157,7 @@
       app.scrolling = true;
       app.job('scroll', function () {
         app.scrolling = false;
-      }, 50);
+      }, 100);
     };
 
     // app resize callback
