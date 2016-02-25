@@ -377,5 +377,51 @@
   },
   "anonStats": {
     "message" : "Anonymous usage statistics"
+  },
+  "configLabel": {
+    "message": "Config"
+  },
+  "useThis": {
+    "message": "Use"
+  },
+  "testButton": {
+    "message": "Test & Save"
+  },
+  "moreByArtist": {
+    "message": "More by this Artist"
+  },
+  "queryMethodLabel": {
+    "message":"Subsonic Query Method"
+  },
+  "indexesLabel": {
+    "message":"Indexes"
+  },
+  "apiVersion": {
+    "message":"API Version"
+  },
+  "connectSave": {
+    "message":"Connect & Save"
+  },
+  "connect": {
+    "message":"Connect"
+  },
+  "attemptError":{
+    "message":"Error connecting to Subsonic. Save Anyway?"
+  },
+  "saveButton":{
+    "message":"save"
+  },
+  "cancelButton": {
+    "message":"cancel"
+  },
+  "editButton":{
+    "message":"edit"
+  },
+  "exportButton":{
+    "message":"export"
+  },
+  "querySizeLabel":{
+    "message":"Number of Albums per request"
   }
+
 }

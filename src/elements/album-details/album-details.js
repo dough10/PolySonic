@@ -8,8 +8,6 @@
     
     add2Playlist: function () {
       this.app.playlist = this.app.playlist.concat(this.playlist);
-      this.$.detailsDialog.close();
-      this.app.$.fab.state = 'off';
       this.$.globals.makeToast(this.$.globals.texts.added2Queue);
       this.app.dataLoading = false;
       if ('audio' in this.app.$.player && this.app.$.player.audio.paused) {
@@ -46,7 +44,6 @@
     },
     
     playSingle: function (event, detail, sender) {
-      this.close();
       this.app.playlist = [
         {
           id: sender.attributes.ident.value,
@@ -85,9 +82,16 @@
     },
     
     addFavorite: function (event, detail, sender) {
-      var url = this.$.globals.buildUrl('star', {
-        albumId: sender.attributes.ident.value
-      });
+      var url;
+      if (this.app.queryMethod === 'ID3') {
+        url = this.$.globals.buildUrl('star', {
+          albumId: this.albumID
+        });
+      } else {
+        url = this.$.globals.buildUrl('star', {
+          id: this.albumID
+        });
+      }
       var animation = this.$.globals.attachAnimation(sender);
       animation.play();
       this.$.globals.doXhr(url, 'json').then(function (e) {
@@ -99,9 +103,15 @@
     },
     
     removeFavorite: function (event, detail, sender) {
-      var url = this.$.globals.buildUrl('unstar', {
-        albumId: sender.attributes.ident.value
-      });
+      if (this.app.queryMethod === 'ID3') {
+        var url = this.$.globals.buildUrl('unstar', {
+          albumId: this.albumID
+        });
+      } else {
+        var url = this.$.globals.buildUrl('unstar', {
+          id: this.albumID
+        });
+      }
       var animation = this.$.globals.attachAnimation(sender);
       animation.play();
       this.$.globals.doXhr(url, 'json').then(function (e) {
@@ -116,6 +126,13 @@
       this.delID = sender.attributes.ident.value;
       this.close();
       this.$.bookmarkConfirm.open();
+    },
+
+    _artist: function () {
+      var artist = document.getElementById("aDetails");
+      this.app.dataLoading = true;
+      artist.queryData(this.details.artistId);
+      this.close();
     },
 
     deleteBookmark: function (event) {
@@ -147,6 +164,10 @@
         cover: sender.attributes.cover.value
       };
       this.bookmarkTime = this.$.globals.secondsToMins(sender.attributes.bookmark.value / 1000);
+    },
+
+    _dialogOpened: function () {
+      this.app.$.fab.state = 'mid';
     },
 
     moreLike: function () {
@@ -202,6 +223,12 @@
       this.albumID = this.details.id;
       this.isFavorite = this.details.isFavorite || false;
       this.$.topper.style.backgroundImage = "url('" + this.details.cover + "')";
+    },
+
+    _resized: function (e) {
+      if (this.$.detailsDialog.opened) {
+        this.$.detailsDialog.resizeHandler();
+      }
     }
   });
 })();

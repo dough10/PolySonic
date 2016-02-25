@@ -84,7 +84,7 @@
         background-repeat: no-repeat;
         background-position: center;
         background-origin: content-box;
-        background-size:100%;
+        background-size:cover;
       }
       paper-icon-button {
         color: white;
@@ -95,15 +95,15 @@
       }
       paper-progress::shadow #progressContainer {
         background-color:{{app.colorThiefProgBg}};
-        transition: background 500ms linear;
+        transition: background-color 500ms linear;
       }
       paper-progress::shadow #activeProgress {
         background-color:{{app.colorThiefFab}};
-        transition: background 500ms linear;
+        transition: background-color 500ms linear;
       }
       paper-progress::shadow #secondaryProgress {
         background-color:{{app.colorThiefBuffered}};
-        transition: background 500ms linear;
+        transition: background-color 500ms linear;
       }
       paper-icon-button.big::shadow #icon {
         width: 50px;

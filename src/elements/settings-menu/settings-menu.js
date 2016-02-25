@@ -5,7 +5,9 @@
 
   Polymer('settings-menu',{
 
-    post: {},
+    post: {
+      bitRate: this.bitRate || 320
+    },
 
     _manifest: chrome.runtime.getManifest(),
 
@@ -17,6 +19,28 @@
       320
     ],
 
+    _querySizes: [
+      20,
+      30,
+      40,
+      50,
+      60,
+      120
+    ],
+
+    _setQuerySize: function () {
+      this.async(function () {
+        simpleStorage.setSync({
+          querySize: app.querySize
+        });
+      });
+    },
+
+    _queryMethods: [
+      'ID3',
+      'Folder'
+    ],
+
     _timer: 0,
 
     elementReady: false,
@@ -25,11 +49,7 @@
       this.app = app;
       this._outputVersion(this._manifest);
       this.elementReady = true;
-      setTimeout(function () {
-        if (versionCompare(app.version, '1.13.0') >= 0) {
-          this.$.auth.hidden = false;
-        }
-      }.bind(this), 500);
+      this.$.editorMD5.hidden = false;
     },
 
     _outputVersion: function (manifest) {
@@ -44,230 +64,591 @@
       });
     },
 
-//    validate: function (callback) {
-//      'use strict';
-//      var $d = this.$.validate.querySelectorAll('paper-input-decorator');
-//      Array.prototype.forEach.call($d, function(d) {
-//        d.isInvalid = !d.querySelector('input').validity.valid;
-//      });
-//      callback();
-//    },
+    validateInputs: function () {
+      var $d = this.$.validate.querySelectorAll('paper-input-decorator');
+      Array.prototype.forEach.call($d, function(d) {
+        d.isInvalid = !d.querySelector('input').validity.valid;
+      });
+    },
 
-//    _isInvalid: function (id) {
-//      return this.$[id].classList.contains("invalid");
-//    },
-//
-//    submit: function () {
-//      'use strict';
-//      /*
-//        preforms the validation
-//      */
-//      this.validate(function () {
-//        var invalid1 = this._isInvalid('input1');
-//        var invalid2 = this._isInvalid('input2');;
-//        var invalid3 = this._isInvalid('input3');;
-//        if (invalid1 && invalid2 && this.post.version === undefined) {
-//          this.$.globals.makeToast("URL, Username & Version Required");
-//        } else if (invalid1) {
-//          this.$.globals.makeToast("URL Required");
-//        } else if (invalid2) {
-//          this.$.globals.makeToast("Username Required");
-//        } else if (this.version === undefined) {
-//          this.$.globals.makeToast("Version Required");
-//        }
-//        if (!invalid1 && !invalid2 && !invalid3 && this.post.version !== undefined && this.post.bitRate !== undefined) {
-//          var lastChar = this.post.url.substr(-1); // Selects the last character
-//          if (lastChar === '/') {         // If the last character is a slash
-//            this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
-//          }
-//          this.$.ajax.go();
-//          wall.clearData(function () {
-//            wall.doAjax();
-//          }.bind(this));
-//        }
-//      }.bind(this));
-//    },
+    _submit: function () {
+      this.validateInputs();
+      if (this.invalidAddress && this.inValidName && this.invalidPassword) {
+        this.$.globals.makeToast("URL, Username & Password Required");
+      } else if (this.invalidAddress) {
+        this.$.globals.makeToast("URL Required");
+      } else if (this.inValidName) {
+        this.$.globals.makeToast("Username Required");
+      } else if (this.inValidPassword) {
+        this.$.globals.makeToast("Password Required");
+      }
+      if (!this.invalidAddress && !this.inValidName && !this.inValidPassword) {
+        var lastChar = this.post.url.substr(-1); // Selects the last character
+        if (lastChar === '/') {         // If the last character is a slash
+          this.post.url = this.post.url.substring(0, this.post.url.length - 1);  // remove the slash from end of string
+        }
+        this.isLoading = true;
+        this._testPostSettings().then(function (response) {
+          if (response.status === 'ok') {
+            simpleStorage.getSync('configs').then(function (configs) {
+              configs.push({
+                name: this.post.name,
+                url: this.post.url,
+                user: this.post.user,
+                pass: this.post.pass,
+                md5Auth: this.post.md5Auth,
+                version: this.post.version
+              });
+              simpleStorage.setSync({
+                configs:configs
+              });
+              this.app.configs = configs;
+              this.$.globals.makeToast("Config Saved");
+              this.newConfig = !Boolean(this.app.configs[this.post.config]);
+              this._setFormDisabledState(!this.newConfig);
+              this.isLoading = false;
+            }.bind(this));
+          } else if (response.status === 'failed') {
+            this.$.globals.makeToast(this._response['subsonic-response'].error.message);
+            this.isLoading = false;
+          } else  {
+            this.$.connectionError.open();
+            this.$.globals.makeToast("Error Connecting to Server. Check Settings");
+            this.isLoading = false;
+          }
+        }.bind(this), function () {
+          this.$.connectionError.open();
+          this.$.globals.makeToast("Error Connecting to Server. Check Settings");
+          this.isLoading = false;
+        }.bind(this));
+      }
+    },
 
-//    _hidePass: function (event, detail, sender) {
-//      'use strict';
-//      var type = this.$.password.type,
-//        button = this.$.showPass,
-//        timer = this._timer;
-//
-//      if (type === "text") {
-//        this.$.password.type = "password";
-//        button.innerHTML = this.showPass;
-//        if (timer) {
-//          clearTimeout(timer);
-//          timer = 0;
-//        }
-//      } else {
-//        this.$.password.type = "text";
-//        button.innerHTML = this.hideThePass;
-//        timer = setTimeout(function () {
-//          this.$.password.type = "password";
-//          button.innerHTML = this.showPass;
-//          timer = 0;
-//        }.bind(this), 15000);
-//      }
-//    },
+    _saveAnyway: function () {
+      this.$.connectionError.close();
+      this.isLoading = true;
+      simpleStorage.getSync('configs').then(function (configs) {
+        configs.push({
+          name: this.post.name,
+          url: this.post.url,
+          user: this.post.user,
+          pass: this.post.pass,
+          md5Auth: this.post.md5Auth,
+          version: this.post.version
+        });
+        simpleStorage.setSync({
+          configs:configs
+        });
+        this.app.configs = configs;
+        this.$.globals.makeToast("Config Saved");
+        this.newConfig = !Boolean(this.app.configs[this.post.config]);
+        this._setFormDisabledState(!this.newConfig);
+        this.isLoading = false;
+      }.bind(this));
+    },
 
-//    _methodSelect: function () {
-//      this.async(function () {
-//        simpleStorage.setSync({
-//          'queryMethod': this.post.queryMethod
-//        });
-//        app.queryMethod = this.post.queryMethod;
-//        console.log('Query Method: ' + this.post.queryMethod);
-//      });
-//    },
+    _hidePass: function (event, detail, sender) {
+      var type = this.$.password.type,
+        button = this.$.showPass,
+        timer = this._timer;
 
-//    _responseChanged: function () {
-//      'use strict';
-//      /*
-//        will display server response in a toast
-//      */
-//      if (this._response) {
-//        if (this._response['subsonic-response'].status === 'ok') {
-//          if (this.post.url !== app.url) {
-//            this._clearCache()
-//          }
-//
-//          simpleStorage.setSync({
-//            'url': this.post.url,
-//            'user': this.post.user,
-//            'pass': this.post.pass,
-//            'version': this._response['subsonic-response'].version,
-//            'querySize': this.post.querySize,
-//            'queryMethod': this.post.queryMethod
-//          });
-//          simpleStorage.setLocal({
-//            'bitRate': this.post.bitRate
-//          });
-//
-//          app.url = this.post.url;
-//
-//          app.user = this.post.user;
-//
-//          app.pass = this.post.pass;
-//
-//          app.version = this._response['subsonic-response'].version;
-//
-//          app.bitRate = this.post.bitRate;
-//
-//          app.querySize = this.post.querySize;
-//
-//          app.queryMethod = this.post.queryMethod;
-//
-//          this.$.globals.makeToast("Settings Saved");
-//        } else if (this._response['subsonic-response'].status === 'failed') {
-//          this.$.globals.makeToast(this._response['subsonic-response'].error.message);
-//        } else  {
-//          this.$.globals.makeToast("Error Connecting to Server. Check Settings");
-//        }
-//      }
-//    },
+      if (type === "text") {
+        this.$.password.type = "password";
+        button.innerHTML = this.$.globals.texts.showPass;
+        if (timer) {
+          clearTimeout(timer);
+          timer = 0;
+        }
+      } else {
+        this.$.password.type = "text";
+        button.innerHTML = this.$.globals.texts.hideThePass;
+        timer = setTimeout(function () {
+          this.$.password.type = "password";
+          button.innerHTML = this.$.globals.texts.showPass;
+          timer = 0;
+        }.bind(this), 15000);
+      }
+    },
 
-
-//    _querySelect: function () {
-//      simpleStorage.setSync({
-//        'querySize': this.post.querySize
-//      });
-//      app.querySize = this.post.querySize;
-//      console.log('Query Size: ' + this.post.querySize);
-//    },
-
-    _clearCache: function () {
-      app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
-        dir.removeRecursively(function (e) {
-          app.$.globals.makeToast('image cache cleared');
-        }, function (e) {
-          console.error(e)
+    _clearImages: function () {
+      return new Promise(function (resolve, reject) {
+        app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
+          dir.removeRecursively(function (e) {
+            app.db.close();
+            var req = indexedDB.deleteDatabase(app.dbname);
+            req.onsuccess = resolve;
+            req.onerror = reject;
+            req.onblocked = reject;
+          }, function (e) {
+            reject(e)
+          });
         });
       });
-      var req = indexedDB.deleteDatabase(app.dbname);
-      req.onsuccess = function () {
-        console.log("Deleted database successfully");
-        app.createObjectStore();
+    },
+
+    _confirmDelete: function () {
+      this.$.confirmDelete.open();
+    },
+
+
+    _clearCache: function () {
+      app.dataLoading = true;
+      this._clearImages().then(app.$.globals.openIndexedDB).then(function () {
+        app.$.globals.initFS();
         app.calculateStorageSize();
-      }.bind(this);
-      req.onerror = function () {
-        console.log("Error deleting database");
-        app.calculateStorageSize();
-      }.bind(this);
-      req.onblocked = function () {
-        console.log("Couldn't delete database due to the operation being blocked");
-        app.calculateStorageSize();
-      }.bind(this);
-      app.$.recommendReloadDialog.open();
+        this.$.globals.makeToast('Cache cleared');
+        app.dataLoading = false;
+      }.bind(this));
     },
 
     _clearSettings: function () {
-      app.fs.root.getDirectory(encodeURIComponent(app.url), {}, function (dir) {
-        dir.removeRecursively(function (e) {
-          app.$.globals.makeToast('image cache cleared');
-        }, function (e) {
-          console.error(e)
-        });
-      });
-      var req = indexedDB.deleteDatabase(app.dbname);
-      req.onsuccess = function () {
-        console.log("Deleted database successfully");
-        app.createObjectStore();
-        app.calculateStorageSize();
-      }.bind(this);
-      req.onerror = function () {
-        console.log("Error deleting database");
-        app.calculateStorageSize();
-      }.bind(this);
-      req.onblocked = function () {
-        console.log("Couldn't delete database due to the operation being blocked");
-        app.calculateStorageSize();
-      }.bind(this);
-      chrome.storage.sync.clear();
-      app.url = '';
-      app.user = '';
-      app.pass = '';
-      app.version = '';
-      app.bitRate = '';
-      app.querySize = '';
-      app.$.reloadAppDialog.open();
+      this._clearImages().then(function () {
+        chrome.storage.sync.clear();
+        app.url = '';
+        app.user = '';
+        app.pass = '';
+        app.version = '';
+        app.bitRate = '';
+        app.querySize = '';
+        app.$.reloadAppDialog.open();
+      }, function () {
+        this.$.globals.makeToast('Error deleteing Database');
+      }.bind(this));
     },
 
     _bitRateSelect: function () {
       this.async(function () {
-        simpleStorage.setSync({
-          'bitRate': this.post.bitRate
+        simpleStorage.setLocal({
+          'bitRate': this.app.bitRate
         });
-        app.bitRate = this.post.bitRate;
-        console.log('Bitrate: ' + this.post.bitRate);
+        console.log('Bitrate: ' + this.app.bitRate);
+      });
+    },
+
+    _queryMethodSelect: function () {
+      app.dataLoading = true;
+      this.async(function () {
+        this._clearImages().then(function () {
+          app.$.globals.openIndexedDB().then(function () {
+            app.$.globals.initFS();
+            app.dataLoading = false;
+            console.log(app.$.wall.request);
+            // swap methods
+            var request = app.$.wall.request;
+            switch (request) {
+              case ('getIndexes'):
+                app.$.wall.getArtist();
+                break;
+              case ('getArtists'):
+                app.$.wall.getArtist();
+                break;
+              case ('getAlbumList'):
+                app.$.wall.sortChanged();
+                break;
+              case ('getAlbumList2'):
+                app.$.wall.sortChanged();
+                break;
+              case ('getStarred'):
+                app.$.wall.getStarred();
+                break;
+              case ('getStarred2'):
+                app.$.wall.getStarred();
+                break;
+            }
+            simpleStorage.setSync({
+              queryMethod: app.queryMethod
+            });
+          });
+        });
       });
     },
 
     _errorChanged: function () {
-      if (this.error.statusCode === 0) {
+      if (this._error.statusCode === 0) {
         this.$.globals.makeToast(chrome.i18n.getMessage('connectionError'));
       }
     },
 
-    urlChanged: function () {
-      this.post.url = this.url;
+    _defaultConfigs: function () {
+      if ("config" in this) {
+        simpleStorage.getSync('configs').then(function (configs) {
+          if (configs) {
+            var index = 0;
+            if ('post' in this && 'config' in this.post) {
+              index = this.post.config;
+            } else {
+              index = this.config;
+            }
+            var config = configs[index];
+            this.post = config;
+            this.post.config = index;
+          } else {
+            this.post = {};
+            this.post.config = 0;
+          }
+        }.bind(this));
+      }
     },
 
-    userChanged: function () {
-      this.post.user = this.user;
+    _setConfig: function () {
+      app.user = this.post.user;
+      app.url = this.post.url;
+      app.pass = this.post.pass;
+      app.version = this.post.version;
+      app.md5Auth = this.post.md5Auth;
     },
 
-    passChanged: function () {
-      this.post.pass = this.pass;
+    _cancelAttempt: function () {
+      this.isLoading = false;
+      app.dataLoading = false;
+      app.lastRequest.abort();
+      this.async(function () {
+        this._setFormDisabledState(true);
+      }, null, 500);
     },
 
-    versionChanged: function () {
-      this.post.version = this.version;
+    _testPostSettings: function () {
+      return new Promise(function (resolve, reject) {
+        var params = {
+          u: this.post.user,
+          v: this.post.version || '1.11.0',
+          f: 'json',
+          c: 'PolySonic'
+        };
+        if (versionCompare(this.post.version, '1.13.0') >= 0 && this.post.md5Auth) {
+          params.s = this.$.globals.makeSalt(16);
+          params.t = md5(this.post.pass + params.s);
+        } else {
+          params.p = this.post.pass.hexEncode();
+        }
+        var url = this.post.url + '/rest/ping.view?' + this.$.globals.toQueryString(params);
+        app.$.globals.doXhr(url, 'json').then(function (e) {
+          resolve(e.target.response['subsonic-response']);
+        }, reject);
+      }.bind(this));
     },
 
-    bitRateChanged: function () {
-      this.post.bitRate = this.bitRate;
+    _useThis: function () {
+      this.isLoading = true;
+      app.folder = 'none';
+      this._testPostSettings().then(function (response) {
+        if (response.status === 'ok') {
+          if (app.$.player.audio && !app.$.player.audio.paused) {
+            app.$.player.audio.pause();
+          }
+          app.playlist = [];
+          this._setConfig();
+          app.currentConfig = this.post.config;
+          simpleStorage.setLocal({
+            currentConfig: app.currentConfig
+          });
+          this.isLoading = false;
+          app.dataLoading = true;
+          this._clearImages().then(function () {
+            app.$.globals.openIndexedDB().then(function () {
+              app.$.globals.initFS();
+              app.userDetails();
+              console.log('Connected with config ' + app.configs[app.currentConfig].name);
+              var folders = app.$.globals.buildUrl('getMusicFolders');
+              app.$.globals.doXhr(folders, 'json').then(function (e) {
+                app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+                  app.$.sortBox.style.display = 'none';
+                }
+                app.$.wall.refreshContent();
+                this.async(function () {
+                  this._setFormDisabledState(true);
+                }, null, 500);
+                app.dataLoading = false;
+              }.bind(this));
+            }.bind(this));
+          }.bind(this));
+        } else {
+          this.isLoading = false;
+          console.log(response);
+          this.$.globals.makeToast('Error connecting with config ' + app.configs[this.post.config].name);
+        }
+      }.bind(this), function () {
+        this.isLoading = false;
+        this.$.globals.makeToast('Error connecting with config ' + app.configs[this.post.config].name);
+      }.bind(this));
+    },
+
+    _53orGreater: function (version) {
+      if (versionCompare(version, '1.13.0') >= 0) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    postChanged: function () {
+      if ('post' in this) {
+        this.async(this.validateInputs, null, 200);
+        if ('post' in this && 'version' in this.post && this._53orGreater(this.post.version)) {
+          this.$.editorMD5.hidden = false;
+        }
+        if ('config' in this.post) {
+          this.newConfig = !Boolean(this.app.configs[this.post.config]);
+          this._setFormDisabledState(!this.newConfig);
+        }
+      }
+    },
+
+    _setFormDisabledState: function (state) {
+      this.validateInputs();
+      this.$.md5.disabled = state;
+      var inputs = this.$.validate.querySelectorAll('paper-input-decorator');
+      for (var i = 0; i < inputs.length; i++) {
+        inputs[i].disabled = state;
+        inputs[i].querySelector('input').disabled = state;
+      }
+    },
+
+    _editConfig: function () {
+      this.isLoading = true;
+      this._setFormDisabledState(false);
+      this.isLoading = false;
+      this.editing = true;
+    },
+
+    _exportConfig: function () {
+      simpleStorage.getSync('configs').then(function (configs) {
+        var toSave = configs[this.post.config];
+        var saveConfig = {
+          type: 'saveFile',
+          suggestedName: toSave.name + ' config.cfg'
+        };
+        if ('config' in toSave) {
+          delete toSave.config;
+        }
+        console.log
+        var blob = new Blob([
+          btoa(
+            JSON.stringify(toSave, null, 2)
+          )
+        ], {
+          type: 'text/js'
+        });
+        chrome.fileSystem.chooseEntry(saveConfig, function (writableEntry) {
+          if (writableEntry) {
+            this.$.globals._writeFileEntry(
+              writableEntry,
+              blob
+            ).then(function () {
+              this.$.globals.makeToast("Export Complete");
+              this.async(function () {
+                this._setFormDisabledState(true);
+              }, null, 500);
+            }.bind(this));
+          } else {
+            this.async(function () {
+              this._setFormDisabledState(true);
+            }, null, 500);
+            console.error('Error Saving Config', e);
+          }
+        }.bind(this));
+      }.bind(this));
+    },
+
+    _selectConfigFile: function () {
+      chrome.fileSystem.chooseEntry({
+        type: 'openFile',
+        accepts: [
+          {
+            mimeTypes: [
+              'text/js'
+            ],
+            extensions: [
+              'cfg'
+            ]
+          }
+        ]
+      }, function(theEntry) {
+        if (theEntry) {
+          this.$.globals.loadFileEntry(theEntry).then(function (encodedText) {
+            var decodedText = atob(encodedText);
+            var imported = JSON.parse(decodedText);
+            if  (imported.user && imported.url && imported.pass
+                 && imported.name && imported.md5Auth && imported.version) {
+              this.post.user = imported.user;
+              this.post.url = imported.url;
+              this.post.pass = imported.pass;
+              this.post.name = imported.name;
+              this.post.md5Auth = imported.md5Auth;
+              this.post.version = imported.version;
+              this.async(function () {
+                this.validateInputs();
+              });
+            } else {
+              this.$.globals.makeToast('Error Importing Config');
+            }
+          }.bind(this));
+        }
+      }.bind(this));
+    },
+
+    _saveEdits: function () {
+      this.isLoading = true;
+      this.validateInputs();
+      this.async(function () {
+        this._setFormDisabledState(true);
+      }, null, 200);
+      if  (this._isValidData()) {
+        simpleStorage.getSync().then(function (storage) {
+          var configUpdating = storage.configs[this.post.config]
+          for (var key in configUpdating) {
+            configUpdating[key] = this.post[key];
+          }
+          simpleStorage.setSync({
+            configs: storage.configs
+          });
+          this.app.configs = storage.configs;
+          this.isLoading = false;
+          this.editing = false;
+          if (this.post.config === this.app.currentConfig) {
+            var editedURL = this.app.url !== this.post.url;
+            if (editedURL) {
+              this._clearImages();
+            }
+            this._setConfig();
+            if (editedURL) {
+              app.$.globals.openIndexedDB().then(function () {
+                app.$.globals.initFS();
+                var firstPing = app.$.globals.buildUrl('ping');
+                app.$.globals.doXhr(firstPing, 'json').then(function (e) {
+                  if (e.target.response['subsonic-response'].status === 'ok') {
+                    this.app.userDetails();
+                    console.log('config ' + this.app.configs[this.app.currentConfig].name + ' Refreshed');
+                    var folders = app.$.globals.buildUrl('getMusicFolders');
+                    app.$.globals.doXhr(folders, 'json').then(function (e) {
+                      app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                      app.folder = 'none';
+                      if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+                        app.$.sortBox.style.display = 'none';
+                      }
+                      app.tracker.sendAppView('Album Wall');
+                      this.isLoading = false;
+                    }.bind(this));
+                  }
+                }.bind(this));
+              });
+            }
+          }
+        }.bind(this));
+      } else {
+        this.$.globals.makeToast("Valid URL, Username & Password Required");
+      }
+    },
+
+    _isValidData: function () {
+      if (!this.inValidAddress && !this.inValidName && !this.inValidPassword) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    _cancelEdit: function () {
+      this.isLoading = true;
+      this._setFormDisabledState(true);
+      this.isLoading = false;
+      this.editing = false;
+      this.validateInputs();
+      this._defaultConfigs();
+    },
+
+    _checkKeyup: function (e) {
+      this.validateInputs();
+      if (e.keyIdentifier === "Enter") {
+        if (this.editing && !this.newConfig) {
+          this._saveEdits();
+        } else if (!this.editing && this.newConfig) {
+          this._submit();
+        }
+      }
+    },
+
+    _select: function () {
+      var clicked = this.post.config;
+      var config = this.app.configs[this.post.config];
+      if (config) {
+        this.post = config;
+        this.post.config = clicked;
+      }
+    },
+
+    _selectAction: function () {
+      this.async(this._select);
+    },
+
+    _deleteConfig: function () {
+      simpleStorage.getSync('configs').then(function (configs) {
+        var beforeChange = configs[this.app.currentConfig].name;
+        configs.splice(this.post.config, 1);
+        // find the config currently being used
+        for (var i = 0; i < configs.length; i++) {
+          if (configs[i].name === beforeChange) {
+            this.app.currentConfig = i;
+            this.post.config = i;
+          }
+        }
+        // save changes
+        simpleStorage.setSync({
+          configs: configs
+        });
+        simpleStorage.setLocal({
+          currentConfig: this.app.currentConfig
+        });
+        this.app.configs = configs;
+        this.async(this._select);
+      }.bind(this));
+    },
+
+    _testUrl: function (event) {
+      var input = event.target;
+      this.$.url.isInvalid = !this.$.url.querySelector('input').validity.valid;
+      if (!this.$.url.isInvalid) {
+        this.testingURL = true;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", input.value + '/rest/ping.view?f=json', true);
+        xhr.responseType = 'json';
+        xhr.onload = function (e) {
+          var json = e.target.response['subsonic-response'];
+          this.post.version = json.version;
+          if (this._53orGreater(json.version)) {
+            this.$.editorMD5.hidden = false;
+            this.post.md5Auth = true;
+          }
+          this.testingURL = false;
+          this.attempt = false;
+        }.bind(this);
+
+        xhr.onerror = function (e) {
+          this.testingURL = false;
+          this.attempt = false;
+        }.bind(this);
+        // cancel previous attempts
+        if (this.attempt) {
+          this.attempt.abort();
+        }
+        // send result and tag the attempt
+        xhr.send();
+        this.attempt = xhr;
+      }
+    },
+
+    _newConfig: function () {
+      this.post = {};
+      var configLength = app.configs.length
+      this.post.config = configLength;
+      this.post.version = '1.11.0';
+      this.post.name = 'Config' + Math.abs(configLength + 1);
+      this.$.editorMD5.hidden = true;
+    },
+
+    configChanged: function () {
+      this.async(this._defaultConfigs);
     },
 
     querySizeChanged: function () {

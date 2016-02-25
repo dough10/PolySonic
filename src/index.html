@@ -42,7 +42,7 @@
                     isNowPlaying="{{!isNowPlaying}}" on-tap="{{doAction}}"
                     colorThiefFab="{{colorThiefFab}}" colorThiefFabOff="{{colorThiefFabOff}}"
                     colorThiefalbum="{{colorThiefAlbum}}" colorThiefAlbumOff="{{colorThiefAlbumOff}}"></animated-fab>
-      <core-drawer-panel id="panel" narrow="{{narrow}}" disableSwipe?="{{page !== 0}}" responsiveWidth="1000px">
+      <core-drawer-panel id="panel" narrow="{{narrow}}" disableSwipe?="{{page !== 0}}" responsiveWidth="1150px">
 
         <!-- menu -->
         <core-header-panel drawer flex mode="standard">
@@ -82,7 +82,12 @@
             </paper-item>
             <paper-item on-tap="{{getArtist}}">
               <core-icon icon="av:recent-actors"></core-icon>
-              {{$.globals.texts.artistButton}}
+              <template if="{{queryMethod === 'ID3'}}">
+                {{$.globals.texts.artistButton}}
+              </template>
+              <template if="{{queryMethod === 'Folder'}}">
+                {{$.globals.texts.indexesLabel}}
+              </template>
             </paper-item>
             <template repeat="{{sortTypes}}">
               <paper-item on-tap="{{selectAction}}" i="{{sort}}">
@@ -112,7 +117,8 @@
         </core-header-panel>
 
         <!-- main page animations -->
-        <core-animated-pages main  class="pages" selected="{{page}}" transitions="slide-from-right hero-transition">
+        <core-animated-pages main  class="pages" selected="{{page}}" transitions="slide-from-right hero-transition"
+                             on-core-animated-pages-transition-prepare="{{_animationPrepare}}" on-core-animated-pages-transition-end="{{_animationEnd}}">
 
           <!-- album wall -->
           <section>
@@ -191,19 +197,19 @@
             <core-header-panel class="pages" mode="standard">
               <core-toolbar>
                 <paper-icon-button class="bottom" icon="arrow-back"
-                                   disabled?="{{dataLoading || shuffleLoading}}"
+                                   disabled?="{{dataLoading || shuffleLoading || attemptingConnection}}"
                                    on-tap="{{back2List}}"></paper-icon-button>
                 <div class="bottom" flex></div>
               </core-toolbar>
               <div style="padding: 8px;">
                 <paper-shadow z='1' style="max-width:800px; margin:auto;" class='card'>
-                  <settings-menu url="{{url}}" user="{{user}}" pass="{{pass}}"
-                                 version="{{version}}" bitRate="{{bitRate}}" querySize="{{querySize}}"
-                                 storageQuota="{{storageQuota}}" queryMethod="{{queryMethod}}"
-                                 colorThiefEnabled="{{colorThiefEnabled}}"></settings-menu>
+                  <settings-menu config="{{currentConfig}}" bitRate="{{bitRate}}" isLoading="{{attemptingConnection}}"></settings-menu>
                 </paper-shadow>
               </div>
+              <div style="min-height:100px;"></div>
             </core-header-panel>
+            <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}"
+                         progress="{{progress}}" hero></mini-player>
           </section>
 
           <!-- artist details page -->
@@ -347,7 +353,6 @@
 
       <!-- volume dialog -->
       <paper-dialog id="volumeDialog" transition="core-transition-bottom">
-        <link rel="stylesheet" href="styles/PolySonic.css" shim-shadowdom>
         <core-tooltip style=" position:absolute; top:8px; right:8px;" position="left" label="{{$.globals.texts.closeLabel}}">
           <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeVolume}}"></paper-icon-button>
         </core-tooltip>
@@ -357,10 +362,9 @@
       </paper-dialog>
 
       <!-- first run dialog -->
-      <paper-action-dialog id="firstRun" style="min-height: 425px; width:280px; text-align:center;"
+      <paper-action-dialog id="firstRun" style="min-height: 430px; width:330px; text-align:center;"
                            autoclosedisabled transition="core-transition-center">
-        <subsonic-login url="{{url}}" user="{{user}}" pass="{{pass}}"
-                        version="{{version}}" appName="{{$.globals.texts.appName}}" appDesc="{{$.globals.texts.appDesc}}"></subsonic-login>
+        <subsonic-login config="{{currentConfig}}"></subsonic-login>
       </paper-action-dialog>
 
       <!-- request analistics dialog -->
@@ -489,7 +493,6 @@
 
       <!-- create playlist dialog -->
       <paper-dialog id="createPlaylist" style="min-width:300px;" transition="core-transition-center">
-        <link rel="stylesheet" href="styles/PolySonic.css" shim-shadowdom>
         <core-tooltip position="left" label="{{$.globals.texts.closeLabel}}"
                       style="position:absolute; right:8px; top:8px;">
           <paper-icon-button icon="close" disabled?="{{savingPlaylist}}"
@@ -617,6 +620,7 @@
   <script src="js/version_compare.js"></script>
   <script src="js/x-notification.js"></script>
   <script src="js/moment.js"></script>
+  <script src="js/smartcrop.js"></script>
   <script src="js/PolySonic.js"></script>
 </body>
 </html>

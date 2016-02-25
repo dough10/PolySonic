@@ -7,6 +7,7 @@ HTML5 Subsonic client
   <img src="https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png">
 </a>
 
+
 Required software for development environment
 
 - NPM
@@ -36,6 +37,36 @@ Steps to install development environment
 After making changes run 'grunt' from the project root directory
 
 Changelog
+0.2.9
+
+- change max # of albums returned by search to 200. up from 20
+
+- if there is playing content the "mini player" will now shown at bottom of settings page aswell 
+
+- "mini player" now has link to volume dialog 
+
+- album details dialog now has the link "more by this artist"
+
+- updates to artists page styling (larger artist image recentered using SmartCrop.js, not perfect but better then allowing to crop the center)
+
+- flushing image cache no longer requires app restart
+
+- option to browse Subsonic library by folder index as opposed to ID3 info (changeable from a dropdown on settings page, image cache cleard and content refreshed on change) ** currently assumes the folowing folder structure imported-folder/artist/album ** I see this needing more work in the near future as it will not work for everyone
+
+- ability to use multiple configs (new config UIs, image cache will be cleared on change)
+
+- option to import / export config files as base64 encoded string saved as .cfg file
+
+- fix for issue where playback would start more then one time on some playlist build tasks
+
+0.2.8.2
+
+- fix for menu not showing for users on chrome dev channel
+
+0.2.8.1
+
+- fix for no albums displaying on first login or if settings cleared
+
 0.2.8
 
 - refactor code base / reduce line / more maintainable

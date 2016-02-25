@@ -12,8 +12,6 @@
   var dbName = 'metaData';
   app.dbname = dbName;
 
-  var request = indexedDB.open(dbName, dbVersion);
-
   function createObjectStore(dataBase) {
     console.log("Creating objectStore");
     dataBase.createObjectStore(dbName);
@@ -21,29 +19,6 @@
   app.createObjectStore = createObjectStore;
 
   var db;
-
-  request.onerror = function () {
-    console.log("Error creating/accessing IndexedDB database");
-  };
-
-  request.onsuccess = function () {
-    console.log("Success creating/accessing IndexedDB database");
-    db = this.result;
-
-    // Interim solution for Google Chrome to create an objectStore. Will be deprecated
-    if (db.setVersion) {
-      if (db.version !== dbVersion) {
-        var setVersion = db.setVersion(dbVersion);
-        setVersion.onsuccess = function () {
-          createObjectStore(db);
-        };
-      }
-    }
-  };
-
-  request.onupgradeneeded = function (event) {
-    createObjectStore(event.target.result);
-  };
 
   /**
    * method to create folder structure
@@ -90,6 +65,11 @@
     console.log('Error: ' + msg);
   }
 
+
+  function _errorHandler(e) {
+    console.error(e);
+  }
+
   /**
    * initalize filesystem
    */
@@ -109,44 +89,6 @@
    */
   function getMessage(id) {
     return chrome.i18n.getMessage(id);
-  }
-
-  /**
-   * default xhr error
-   * @param {Error} e
-   */
-  function xhrError(e) {
-    app.$.globals.makeToast(getMessage("connectionError"));
-    if (!document.querySelector('#loader').classList.contains("hide")) {
-      app.$.firstRun.open();
-    }
-    app.dataLoading = false;
-    console.error(e);
-  }
-
-  /**
-   * convert object a query string
-   * @param {Object} params
-   */
-  function toQueryString(params) {
-    var r = [];
-    for (var n in params) {
-      n = encodeURIComponent(n);
-      r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
-    }
-    return r.join('&');
-  }
-
-  /**
-   * create a random string of a given length
-   * @param {number} length
-   */
-  function makeSalt(length) {
-    var text = "";
-    var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for( var i=0; i < length; i++ )
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    return text;
   }
 
   /**
@@ -199,117 +141,161 @@
   };
 
   /**
-   * localization texts
-   */
-  var texts = {
-    fromStart: getMessage('fromStart'),
-    playFrom: getMessage('playFrom'),
-    hasBookmark: getMessage('hasBookmark'),
-    moreLikeThis: getMessage("moreLikeThis"),
-    backButton: getMessage("backButton"),
-    playTrackLabel: getMessage("playTrack"),
-    moreOptionsLabel: getMessage("moreOptionsLabel"),
-    closeLabel: getMessage("closeLabel"),
-    add2PlayQueue: getMessage("add2PlayQueue"),
-    favoriteAlbum: getMessage("favoriteAlbum"),
-    downloadButton: getMessage("downloadButton"),
-    albumTracklist: getMessage("albumTracklist"),
-    deletebookMarkConfirm: getMessage('deletebookMarkConfirm'),
-    accept: getMessage("accept"),
-    decline: getMessage("decline"),
-    added2Queue: getMessage("added2Queue"),
-    noResults: getMessage("noResults"),
-    noFavoriteHeader: getMessage("noFavoriteHeader"),
-    noFavoriteMessage: getMessage("noFavoriteMessage"),
-    addContent: getMessage("addContent"),
-    addPodcasts: getMessage("addPodcasts"),
-    addAlbums: getMessage("addAlbums"),
-    addPodcast: getMessage("addPodcast"),
-    foundHere: getMessage("foundHere"),
-    deleteLabel: getMessage("deleteLabel"),
-    playPodcastLabel: getMessage("playPodcast"),
-    removeDownloadLabel: getMessage('removeDownloadLabel'),
-    saveFileLabel: getMessage('saveFileLabel'),
-    pauseDownload: getMessage('abortDownload'),
-    label: getMessage('nowPlayingTitle'),
-    appName: getMessage("appName"),
-    appDesc: getMessage("appDesc"),
-    folderSelector: getMessage("folderSelector"),
-    shuffleButton: getMessage("shuffleButton"),
-    artistButton: getMessage("artistButton"),
-    podcastButton: getMessage("podcastButton"),
-    favoritesButton: getMessage("favoritesButton"),
-    searchButton: getMessage("searchButton"),
-    settingsButton: getMessage("settingsButton"),
-    nowPlayingLabel: getMessage("nowPlayingLabel"),
-    folderSelectorLabel: getMessage("folderSelectorLabel"),
-    clearQueue: getMessage("clearQueue"),
-    volumeLabel: getMessage("volumeLabel"),
-    analistics: getMessage("analistics"),
-    shuffleOptionsLabel: getMessage("shuffleOptionsLabel"),
-    optional: getMessage("optional"),
-    artistLabel: getMessage("artistLabel"),
-    albumLabel: getMessage("albumLabel"),
-    genreLabel: getMessage("genreLabel"),
-    songReturn: getMessage("songReturn"),
-    playButton: getMessage("playButton"),
-    yearError: getMessage("yearError"),
-    releasedAfter: getMessage("releasedAfter"),
-    releasedBefore: getMessage("releasedBefore"),
-    submitButton: getMessage("submitButton"),
-    deleteConfirm: getMessage("deleteConfirm"),
-    urlError: getMessage("urlError"),
-    podcastSubmissionLabel: getMessage("podcastSubmissionLabel"),
-    diskUsed: getMessage("diskUsed"),
-    diskRemaining: getMessage("diskRemaining"),
-    playlistsButton: getMessage("playlistsButton"),
-    createPlaylistLabel: getMessage("createPlaylistLabel"),
-    playlistLabel: getMessage("playlistLabel"),
-    reloadAppLabel: getMessage("reloadApp"),
-    settingsDeleted: getMessage("settingsDeleted"),
-    recommendReload: getMessage("recommendReload"),
-    jumpToLabel: getMessage("jumpToLabel"),
-    refreshPodcastLabel: getMessage("refreshPodcast"),
-    registeredEmail: getMessage("registeredEmail"),
-    licenseKey: getMessage("licenseKey"),
-    keyDate: getMessage("keyDate"),
-    validLicense: getMessage("validLicense"),
-    invalidLicense: getMessage("invalidLicense"),
-    adjustVolumeLabel: getMessage("adjustVolumeLabel"),
-    showDownloads: getMessage('showDownloads'),
-    shuffleList: getMessage('shuffleList'),
-    randomized: getMessage('randomized'),
-    markCreated: getMessage('markCreated'),
-    bookmarks: getMessage('bookmarks'),
-    createBookmarkText: getMessage('createBookmark'),
-    toggleList: getMessage('toggleList'),
-    playlists: getMessage('playlists'),
-    downloads: getMessage('downloads'),
-    repeatText: getMessage('repeatText'),
-    md5: getMessage('md5'),
-    precache: getMessage('precache'),
-    urlLabel: getMessage("urlLabel"),
-    usernameError: getMessage("usernameError"),
-    usernameLabel: getMessage("usernameLabel"),
-    passwordLabel: getMessage("passwordLabel"),
-    showPass: getMessage("showPass"),
-    hideThePass: getMessage("hidePass"),
-    bitrateLabel: getMessage('bitrateLabel'),
-    anonStats: getMessage('anonStats'),
-    autoBookmark: getMessage('autoBookmark'),
-    cacheDetails: getMessage("cacheDetails"),
-    clearCacheLabel: getMessage("clearCacheLabel"),
-    clearSettingsLabel: getMessage("clearSettingsLabel"),
-    licenseInfoLink: getMessage("licenseInfoLink"),
-    showLicenseLabel: getMessage("showLicenseLabel")
-  };
-
-  /**
    *  polymer things
    */
   Polymer('app-globals', {
-    ready: function () {
-      this.texts = texts;
+    /**
+     * localization texts
+     */
+    texts: {
+      fromStart: getMessage('fromStart'),
+      playFrom: getMessage('playFrom'),
+      hasBookmark: getMessage('hasBookmark'),
+      moreLikeThis: getMessage("moreLikeThis"),
+      backButton: getMessage("backButton"),
+      playTrackLabel: getMessage("playTrack"),
+      moreOptionsLabel: getMessage("moreOptionsLabel"),
+      closeLabel: getMessage("closeLabel"),
+      add2PlayQueue: getMessage("add2PlayQueue"),
+      favoriteAlbum: getMessage("favoriteAlbum"),
+      downloadButton: getMessage("downloadButton"),
+      albumTracklist: getMessage("albumTracklist"),
+      deletebookMarkConfirm: getMessage('deletebookMarkConfirm'),
+      accept: getMessage("accept"),
+      decline: getMessage("decline"),
+      added2Queue: getMessage("added2Queue"),
+      noResults: getMessage("noResults"),
+      noFavoriteHeader: getMessage("noFavoriteHeader"),
+      noFavoriteMessage: getMessage("noFavoriteMessage"),
+      addContent: getMessage("addContent"),
+      addPodcasts: getMessage("addPodcasts"),
+      addAlbums: getMessage("addAlbums"),
+      addPodcast: getMessage("addPodcast"),
+      foundHere: getMessage("foundHere"),
+      deleteLabel: getMessage("deleteLabel"),
+      playPodcastLabel: getMessage("playPodcast"),
+      removeDownloadLabel: getMessage('removeDownloadLabel'),
+      saveFileLabel: getMessage('saveFileLabel'),
+      pauseDownload: getMessage('abortDownload'),
+      label: getMessage('nowPlayingTitle'),
+      appName: getMessage("appName"),
+      appDesc: getMessage("appDesc"),
+      folderSelector: getMessage("folderSelector"),
+      shuffleButton: getMessage("shuffleButton"),
+      artistButton: getMessage("artistButton"),
+      podcastButton: getMessage("podcastButton"),
+      favoritesButton: getMessage("favoritesButton"),
+      searchButton: getMessage("searchButton"),
+      settingsButton: getMessage("settingsButton"),
+      nowPlayingLabel: getMessage("nowPlayingLabel"),
+      folderSelectorLabel: getMessage("folderSelectorLabel"),
+      clearQueue: getMessage("clearQueue"),
+      volumeLabel: getMessage("volumeLabel"),
+      analistics: getMessage("analistics"),
+      shuffleOptionsLabel: getMessage("shuffleOptionsLabel"),
+      optional: getMessage("optional"),
+      artistLabel: getMessage("artistLabel"),
+      albumLabel: getMessage("albumLabel"),
+      genreLabel: getMessage("genreLabel"),
+      songReturn: getMessage("songReturn"),
+      playButton: getMessage("playButton"),
+      yearError: getMessage("yearError"),
+      releasedAfter: getMessage("releasedAfter"),
+      releasedBefore: getMessage("releasedBefore"),
+      submitButton: getMessage("submitButton"),
+      deleteConfirm: getMessage("deleteConfirm"),
+      urlError: getMessage("urlError"),
+      podcastSubmissionLabel: getMessage("podcastSubmissionLabel"),
+      diskUsed: getMessage("diskUsed"),
+      diskRemaining: getMessage("diskRemaining"),
+      playlistsButton: getMessage("playlistsButton"),
+      createPlaylistLabel: getMessage("createPlaylistLabel"),
+      playlistLabel: getMessage("playlistLabel"),
+      reloadAppLabel: getMessage("reloadApp"),
+      settingsDeleted: getMessage("settingsDeleted"),
+      recommendReload: getMessage("recommendReload"),
+      jumpToLabel: getMessage("jumpToLabel"),
+      refreshPodcastLabel: getMessage("refreshPodcast"),
+      registeredEmail: getMessage("registeredEmail"),
+      licenseKey: getMessage("licenseKey"),
+      keyDate: getMessage("keyDate"),
+      validLicense: getMessage("validLicense"),
+      invalidLicense: getMessage("invalidLicense"),
+      adjustVolumeLabel: getMessage("adjustVolumeLabel"),
+      showDownloads: getMessage('showDownloads'),
+      shuffleList: getMessage('shuffleList'),
+      randomized: getMessage('randomized'),
+      markCreated: getMessage('markCreated'),
+      bookmarks: getMessage('bookmarks'),
+      createBookmarkText: getMessage('createBookmark'),
+      toggleList: getMessage('toggleList'),
+      playlists: getMessage('playlists'),
+      downloads: getMessage('downloads'),
+      repeatText: getMessage('repeatText'),
+      md5: getMessage('md5'),
+      precache: getMessage('precache'),
+      urlLabel: getMessage("urlLabel"),
+      usernameError: getMessage("usernameError"),
+      usernameLabel: getMessage("usernameLabel"),
+      passwordLabel: getMessage("passwordLabel"),
+      showPass: getMessage("showPass"),
+      hideThePass: getMessage("hidePass"),
+      bitrateLabel: getMessage('bitrateLabel'),
+      anonStats: getMessage('anonStats'),
+      autoBookmark: getMessage('autoBookmark'),
+      cacheDetails: getMessage("cacheDetails"),
+      clearCacheLabel: getMessage("clearCacheLabel"),
+      clearSettingsLabel: getMessage("clearSettingsLabel"),
+      licenseInfoLink: getMessage("licenseInfoLink"),
+      showLicenseLabel: getMessage("showLicenseLabel"),
+      configLabel: getMessage('configLabel'),
+      useThis: getMessage('useThis'),
+      testButton: getMessage('testButton'),
+      moreByArtist: getMessage('moreByArtist'),
+      queryMethodLabel: getMessage('queryMethodLabel'),
+      indexesLabel: getMessage('indexesLabel'),
+      apiVersion: getMessage('apiVersion'),
+      connect: getMessage('connect'),
+      connectSave: getMessage('connectSave'),
+      attemptError: getMessage('attemptError'),
+      saveButton: getMessage('saveButton'),
+      cancelButton: getMessage('cancelButton'),
+      editButton: getMessage('editButton'),
+      exportButton: getMessage('exportButton'),
+      querySizeLabel: getMessage('querySizeLabel')
+    },
+
+    openIndexedDB: function () {
+      return new Promise(function (resolve, reject) {
+        var request = indexedDB.open(dbName, dbVersion);
+
+        request.onerror = function () {
+          reject();
+          console.log("Error creating/accessing IndexedDB database");
+        };
+
+        request.onsuccess = function () {
+          console.log("Success creating/accessing IndexedDB database");
+          resolve();
+          db = this.result;
+          app.db = db;
+
+          // Interim solution for Google Chrome to create an objectStore. Will be deprecated
+          if (db.setVersion) {
+            if (db.version !== dbVersion) {
+              var setVersion = db.setVersion(dbVersion);
+              setVersion.onsuccess = function () {
+                createObjectStore(db);
+              };
+            }
+          }
+        };
+
+        request.onupgradeneeded = function (event) {
+          resolve();
+          createObjectStore(event.target.result);
+        };
+      });
     },
 
     initFS: function () {
@@ -319,7 +305,7 @@
         console.log('Error', e);
       });
     },
-    
+
     formatBytes: function (bytes) {
       if (bytes < 1024) return bytes + ' Bytes';
       else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
@@ -388,8 +374,17 @@
         xhr.open("GET", url, true);
         xhr.responseType = dataType;
         xhr.onload = resolve;
-        xhr.onerror = xhrError;
+        xhr.onerror = function xhrError(e) {
+          reject(e);
+          app.$.globals.makeToast(getMessage("connectionError"));
+          if (!document.querySelector('#loader').classList.contains("hide")) {
+            app.$.firstRun.open();
+          }
+          app.dataLoading = false;
+          console.error(e);
+        };
         xhr.send();
+        app.lastRequest = xhr;
       });
     },
 
@@ -423,7 +418,9 @@
         if (id) {
           var transaction = db.transaction([dbName], "readwrite");
           var request = transaction.objectStore(dbName).get(id);
-          request.onsuccess = resolve;
+          request.onsuccess = function (e) {
+            resolve(e);
+          };
           request.onerror = reject;
         }
       });
@@ -435,16 +432,20 @@
      * @param {String} url
      * @param {String} id
      */
-    _getImageFile: function (url, id) {
+    _getImageFile: function (id) {
       return new Promise(function (resolve, reject) {
+        var url = this.buildUrl('getCoverArt', {
+          size: 550,
+          id: id
+        });
         var fileName = id + '.jpg';
         this.doXhr(url, 'blob').then(function (e) {
           app.fs.root.getFile(app.filePath + '/' + fileName, {create: true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
 
               fileWriter.onwriteend = function(e) {
-                app.fs.root.getFile(app.filePath + '/' + fileName, {create: false}, function(fileEntry) {
-                  resolve(fileEntry.toURL());
+                app.fs.root.getFile(app.filePath + '/' + fileName, {create: false}, function(retrived) {
+                  resolve(retrived.toURL());
                 });
               };
 
@@ -461,6 +462,98 @@
     },
 
     /**
+     * fetch header image. either from HTML filesystem or from internet
+     * @param {String} url - url to the image we want to use for the header
+     * @param {Number} artistId - artist id from subsonic server
+     */
+    _fetchArtistHeaderImage: function (url, artistId) {
+      return new Promise(function (resolve, reject) {
+        app.fs.root.getFile(app.filePath + '/artist-' + artistId + '.jpg', {
+          create: false,
+          exclusive: true
+        }, function (fileEntry) {
+          this.getDbItem('artist-' + artistId + '-palette').then(function (e) {
+            var colors = e.target.result;
+            resolve({
+              url: fileEntry.toURL(),
+              fabBgColor: colors[0],
+              fabColor: colors[1]
+            });
+          }.bind(this));
+        }.bind(this), function () {
+          this.doXhr(url, 'blob').then(function (xhrEvent) {
+            var blob = xhrEvent.target.response;
+            var image = window.URL.createObjectURL(blob);
+            this._saveArtistImage(blob, artistId);
+            this._stealColor(image, 'artist-' + artistId).then(function (colors) {
+              resolve({
+                url: image,
+                fabBgColor: colors[0],
+                fabColor: colors[1]
+              });
+            });
+          }.bind(this));
+        }.bind(this));
+      }.bind(this));
+    },
+
+    /**
+     * use smartCrop to attempt to get a well centered header image
+     * @param {String} image - url to the image we are attempting to crop
+     */
+    _cropImage: function (image) {
+      return new Promise(function (resolve, reject) {
+        var containerWidth = 808;
+        var parts = Math.abs(containerWidth / 21);
+        var height = Math.abs(parts * 9);
+        var imgEl = new Image();
+        imgEl.src = image;
+        imgEl.onload = function imgLoaded() {
+          SmartCrop.crop(imgEl, {
+            width: containerWidth,
+            height: height
+          }, function imgCropped(crops) {
+            var canvas = document.createElement('canvas');
+            canvas.width = containerWidth;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            var crop = crops.crops[1];
+            ctx.drawImage(imgEl, crop.x, crop.y, crop.width, crop.height, 0, 0, containerWidth, height);
+            resolve(canvas.toDataURL('image/jpg'));
+          });
+        };
+      });
+    },
+
+
+    /**
+     *
+     */
+    _saveArtistImage: function (file, artistId) {
+      return new Promise(function (resolve, reject) {
+        var fileName = app.filePath + '/artist-' + artistId + '.jpg';
+        app.fs.root.getFile(fileName, {
+          create: true
+        }, function(fileEntry) {
+          fileEntry.createWriter(function(fileWriter) {
+            fileWriter.onwriteend = function(e) {
+              app.fs.root.getFile(fileName, {
+                create: false
+              }, function(retrived) {
+                resolve(retrived.toURL());
+              });
+            };
+            fileWriter.onerror = function(e) {
+              console.log('Write failed: ' + e.toString());
+            };
+            var blob = new Blob([ file ], { type: 'image/jpeg' });
+            fileWriter.write(blob);
+          }, fsErrorHandler);
+        }, fsErrorHandler);
+      });
+    },
+
+    /**
      * returns image url will get from either local image or will get from server and save as local then give url
      * @param {String} artId
      */
@@ -472,13 +565,9 @@
         }, function(fileEntry) {
           resolve(fileEntry.toURL());
         }.bind(this), function () {
-          var url = this.buildUrl('getCoverArt', {
-            size: 550,
-            id: artId
-          });
-          this._getImageFile(url, artId).then(function (imgURL) {
-            this._stealColor(imgURL, artId);
+          this._getImageFile(artId).then(function (imgURL) {
             resolve(imgURL);
+            this._stealColor(imgURL, artId);
           }.bind(this));
         }.bind(this));
       }.bind(this));
@@ -493,27 +582,29 @@
      */
     _stealColor: function (imgURL, artId) {
       return new Promise(function (resolve, reject) {
-        var imgElement = new Image();
-        imgElement.src = imgURL;
-        imgElement.onload = function () {
-          var color = getColor(imgElement);
-          var colorArray = [];
-          var r = color[1][0];
-          var g = color[1][1];
-          var b = color[1][2];
-          colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-          colorArray[1] = getContrast50(rgbToHex(r, g, b));
-          colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4);';
-          if (colorArray[1] !== 'white') {
-            colorArray[3] = '#444444';
-          } else {
-            colorArray[3] = '#c8c8c8';
-          }
-          this._putInDb(colorArray, artId + '-palette').then(resolve);
-        }.bind(this);
+        if (artId) {
+          var imgElement = new Image();
+          imgElement.src = imgURL;
+          imgElement.onload = function () {
+            var color = getColor(imgElement);
+            var colorArray = [];
+            var r = color[1][0];
+            var g = color[1][1];
+            var b = color[1][2];
+            colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
+            colorArray[1] = getContrast50(rgbToHex(r, g, b));
+            colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4);';
+            if (colorArray[1] !== 'white') {
+              colorArray[3] = '#444444';
+            } else {
+              colorArray[3] = '#c8c8c8';
+            }
+            this._putInDb(colorArray, artId + '-palette').then(resolve);
+          }.bind(this);
+        }
       }.bind(this));
     },
-    
+
     /**
      * will play a playlist item with the given index
      * @param {Number} index
@@ -526,6 +617,139 @@
       }
     },
 
+    _waitForIO: function (writer) {
+      return new Promise(function (resolve, reject) {
+        // set a watchdog to avoid eventual locking:
+        var start = Date.now();
+        // wait for a few seconds
+        var reentrant = function() {
+          if (writer.readyState===writer.WRITING && Date.now()-start<4000) {
+            setTimeout(reentrant, 100);
+            return;
+          }
+          if (writer.readyState===writer.WRITING) {
+            console.error("Write operation taking too long, aborting!"+
+              " (current writer readyState is "+writer.readyState+")");
+            writer.abort();
+          }
+          else {
+            resolve();
+          }
+        };
+        setTimeout(reentrant, 100);
+      });
+    },
+
+
+    _writeFileEntry: function (writableEntry, blob) {
+      return new Promise(function (resolve, reject) {
+        writableEntry.createWriter(function(writer) {
+
+          writer.onerror = reject;
+          writer.onwriteend = resolve;
+
+          writer.truncate(blob.size);
+          this._waitForIO(writer).then(function() {
+            writer.seek(0);
+            writer.write(blob);
+          });
+        }.bind(this), _errorHandler);
+      }.bind(this));
+    },
+
+    readAsText: function (fileEntry) {
+      return new Promise(function (resolve, reject) {
+        fileEntry.file(function(file) {
+          var reader = new FileReader();
+
+          reader.onerror = _errorHandler;
+          reader.onload = function(e) {
+            resolve(e.target.result);
+          };
+          reader.readAsText(file);
+        });
+      });
+    },
+
+    loadFileEntry: function (chosenEntry) {
+      return new Promise(function (resolve, reject) {
+        if (chosenEntry) {
+          chosenEntry.file(function(file) {
+            this.readAsText(chosenEntry).then(function(result) {
+              resolve(result);
+            });
+          }.bind(this));
+        } else {
+          reject();
+        }
+      }.bind(this));
+    },
+
+    changeConfig: function (index) {
+      if (app.configs[index]) {
+        var url = app.configs[index].url;
+        var pass = app.configs[index].pass;
+        var md5Auth = app.configs[index].md5Auth;
+        var params = {
+          u: app.configs[index].user,
+          v: app.configs[index].version,
+          f: 'json',
+          c: 'PolySonic'
+        };
+
+
+        if (versionCompare(params.v, '1.13.0') >= 0 && md5Auth) {
+          params.s = makeSalt(16);
+          params.t = md5(pass + params.s);
+        } else {
+          params.p = pass.hexEncode();
+        }
+
+        var ping = url + '/rest/ping.view?' +  toQueryString(params);
+
+        this.doXhr(ping, 'json').then(function (json) {
+          json = json.target.response['subsonic-response'];
+          if (json.status === 'ok') {
+            app.url = app.configs[index].url;
+            app.user = app.configs[index].user;
+            app.pass = app.configs[index].pass;
+            app.md5Auth = app.configs[index].md5Auth;
+            app.version = json.version;
+            this.makeToast('Config Changed');
+          }
+        }.bind(this), function (e) {
+          this.makeToast('Error connecting this that config');
+        }.bind(this)).catch(function () {
+          this.makeToast('Error connecting this that config');
+        }.bind(this));
+      }
+    },
+
+    /**
+     * create a random string of a given length
+     * @param {number} length
+     */
+    makeSalt: function (length) {
+      var text = "";
+      var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      for( var i=0; i < length; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+      return text;
+    },
+
+    /**
+     * convert object a query string
+     * @param {Object} params
+     */
+    toQueryString: function (params) {
+      var r = [];
+      for (var n in params) {
+        n = encodeURIComponent(n);
+        r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
+      }
+      return r.join('&');
+    },
+
     /**
      * generate a subsonic url string
      * @param {String} method
@@ -533,7 +757,7 @@
      */
     buildUrl: function(method, options) {
       if (options !== null && typeof options === 'object') {
-        options = '&' + toQueryString(options);
+        options = '&' + this.toQueryString(options);
       }
       if (app.user !== app.params.u) {
         app.params.u = app.user;
@@ -548,16 +772,16 @@
         if (app.params.p) {
           delete app.params.p;
         }
-        app.params.s = makeSalt(16);
+        app.params.s = this.makeSalt(16);
         app.params.t = md5(app.pass + app.params.s);
-        return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
+        return app.url + '/rest/' + method + '.view?' + this.toQueryString(app.params) + options;
       } else {
         if (app.params.t) {
           delete app.params.t;
           delete app.params.s;
         }
         app.params.p = app.pass.hexEncode();
-        return app.url + '/rest/' + method + '.view?' + toQueryString(app.params) + options;
+        return app.url + '/rest/' + method + '.view?' + this.toQueryString(app.params) + options;
       }
     }
   });

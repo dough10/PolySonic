@@ -4,7 +4,7 @@
   "short_name": "__MSG_appName__",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
-  "version": "0.2.8.2",
+  "version": "0.2.9",
   "minimum_chrome_version": "38",
 
   "icons": {
@@ -14,7 +14,9 @@
 
   "app": {
     "background": {
-      "scripts": ["background.js"]
+      "scripts": [
+        "background.js"
+      ]
     }
   },
 

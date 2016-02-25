@@ -2,7 +2,7 @@
   var app = document.getElementById('tmpl');
   Polymer('mini-player', {
     time: 0,
-
+    app: app,
 
     setPlaying: function (obj) {
       this._img = obj.cover;
@@ -18,6 +18,15 @@
         this.$.spinner.hidden = false;
       }
     },
+
+
+    /**
+     * open the volume dialog
+     */
+    toggleVolume: function () {
+      app.toggleVolume();
+    },
+
 
 
     isNowPlayingChanged: function (newVal, oldVal) {

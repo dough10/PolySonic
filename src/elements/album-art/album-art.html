@@ -52,6 +52,7 @@
             <div class="playWrapper">
               <paper-icon-button class="huge"
                                  icon="av:play-arrow"
+                                 disabled?="{{isLoading}}"
                                  on-tap="{{doPlayback}}">
               </paper-icon-button>
             </div>
@@ -63,6 +64,7 @@
                             label="{{$.globals.texts.moreOptionsLabel}}"
                             position="left">
                 <paper-icon-button on-tap="{{showDetails}}"
+                                   disabled?="{{isLoading}}"
                                    icon="more-vert">
                 </paper-icon-button>
               </core-tooltip>
@@ -99,14 +101,16 @@
             </div>
             <paper-icon-button icon="av:play-arrow"
                                on-tap="{{doPlayback}}"
-                               class="marginR24">
+                               class="marginR24"
+                               disabled?="{{isLoading}}">
             </paper-icon-button>
             <div class="marginT10">
               <core-tooltip class="left-icon"
                             label="{{$.globals.texts.moreOptionsLabel}}"
                             position="left">
                 <paper-icon-button on-tap="{{showDetails}}"
-                                   icon="more-vert">
+                                   icon="more-vert"
+                                   disabled?="{{isLoading}}">
                 </paper-icon-button>
               </core-tooltip>
             </div>

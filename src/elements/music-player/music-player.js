@@ -83,7 +83,6 @@ Polymer('music-player',{
    * @param {Object} obj - the playlist object to playback
    */
   playAudio: function (obj) {
-
     // clean up old players
     if (this.audio && !this.audio.paused) {
       this.audio.pause();
@@ -99,7 +98,11 @@ Polymer('music-player',{
       delete this.isCued;
     // when not using gapless playback
     } else {
+      if (this.isCued) {
+        delete this.isCued;
+      }
       this.audio = new Audio();
+      this.audio.preload = 'auto';
       if (obj.artist === '') {
         this.app.currentPlaying = obj.title;
         this.note.title = obj.title;
@@ -120,16 +123,21 @@ Polymer('music-player',{
         }
       }
     }
-    
+
     // set playback position if bookmarked file
     if (obj.bookmarkPosition) {
       this.audio.currentTime = obj.bookmarkPosition / 1000;
     } else {
       this.audio.currentTime = 0;
     }
-    
+
     // set action fab color to match color of playing track art
-    this.app.setFabColor(obj);
+    if (obj.palette) {
+      this.app.colorThiefFab = obj.palette[0];
+      this.app.colorThiefFabOff = obj.palette[1];
+      this.app.colorThiefBuffered = obj.palette[2];
+      this.app.colorThiefProgBg = obj.palette[3];
+    }
 
     // set cover art
     this.$.cover2.style.backgroundImage = "url('" + obj.cover + "')";
@@ -157,10 +165,10 @@ Polymer('music-player',{
     // send analitics
     this.app.tracker.sendEvent('Playback Started', new Date());
   },
-  
+
   /**
    * toggle play / pause state
-   */ 
+   */
   playPause: function () {
     if (!this.audio.paused) {
       this.audio.pause();
@@ -168,7 +176,7 @@ Polymer('music-player',{
       this.audio.play();
     }
   },
-  
+
   /**
    * will play the next track with a given index
    * @param {Number} next = index of the next item to play
@@ -196,13 +204,13 @@ Polymer('music-player',{
       }
     }
   },
-  
+
   /**
    * incriment the playing item by 1 & remove any bookmark for the play file
    */
   nextTrack: function () {
-    // if track longer then 20 min and autobookmark enabled 
-    // will delete the last bookmark 
+    // if track longer then 20 min and autobookmark enabled
+    // will delete the last bookmark
     if (this.app.autoBookmark && this.audio.duration > 1200) {
       var url = this.$.globals.buildUrl('deleteBookmark', {
         id: this.app.playlist[this.app.playing].id
@@ -216,14 +224,14 @@ Polymer('music-player',{
     //this.app.playing = this.app.playing || 0;
     this.playNext(this.app.playing + 1);
   },
-  
+
   /**
    * incriment the playing item by -1
    */
   lastTrack: function () {
     this.playNext(this.app.playing - 1);
   },
-  
+
   /**
    * audio playback error
    */
@@ -233,7 +241,7 @@ Polymer('music-player',{
     this.$.globals.makeToast('Audio Playback Error');
     this.app.tracker.sendEvent('Audio Playback Error', e.target);
   },
-  
+
   /**
    * download progress callback
    * @param {Event} e -  progress event
@@ -247,26 +255,27 @@ Polymer('music-player',{
     }
     audio = null;
   },
-  
+
   /**
    * playback progress callback
-   * 
-   * if gapless playback is enable will start precache 
+   *
+   * if gapless playback is enable will start precache
    * of next track @ 1 min from end of currently playing
-   * 
-   * will scrobble to last.fm if more then half of the track has been played 
-   * 
-   * will create a bookmark for files longer then 20 mins @ about every 1 min of play time 
-   * if more then 2 mins into track and 
-   * 
+   *
+   * will scrobble to last.fm if more then half of the track has been played
+   *
+   * will create a bookmark for files longer then 20 mins @ about every 1 min of play time
+   * if more then 2 mins into track and
+   *
    * @param {Event} e - progress event
    */
   playerProgress: function (e) {
     var audio = e.srcElement;
     // gapless?
-    if (this.app.gapless && audio.currentTime >= Math.abs(audio.duration - 60) 
+    if (this.app.gapless && audio.currentTime >= Math.abs(audio.duration - 60)
     && !this.isCued && this.app.playlist[this.app.playing + 1]) {
       this.isCued = new Audio();
+      this.isCued.preload = 'auto';
       if (this.app.playlist[this.app.playing + 1].artist === '') {
         this.isCued.src = this.$.globals.buildUrl('stream', {
           format: 'raw',
@@ -280,7 +289,7 @@ Polymer('music-player',{
         });
       }
     }
-    
+
     // if waiting for playback to start
     if (e) {
       if (e.type === 'waiting') {
@@ -289,19 +298,23 @@ Polymer('music-player',{
         this.app.waitingToPlay = false;   // spinner on album art hidden
       }
     }
-    this.currentMins = Math.floor(audio.currentTime / 60);
-    this.currentSecs = Math.floor(audio.currentTime - (this.currentMins * 60));
-    this.totalMins = Math.floor(audio.duration / 60);
-    this.totalSecs = Math.floor(audio.duration - (this.totalMins * 60));
-    
+
+    if (this.app.page === 1) {
+      this.currentMins = Math.floor(audio.currentTime / 60);
+      this.currentSecs = Math.floor(audio.currentTime - (this.currentMins * 60));
+      this.totalMins = Math.floor(audio.duration / 60);
+      this.totalSecs = Math.floor(audio.duration - (this.totalMins * 60));
+    }
+
+
     // scrobble lastFM if over half of song has been played played & it is not a podcast
-    if (this.app.activeUser.scrobblingEnabled 
+    if (this.app.activeUser.scrobblingEnabled
     && Math.abs(audio.currentTime / audio.duration * 100) > 50
     && !this.scrobbled
     && this.app.playlist[this.app.playing].artist !== '') {
       this.scrobbled = true;
       this.$.globals.doXhr(this.$.globals.buildUrl('scrobble', {
-        id: this.app.playlist[this.app.playing].id, 
+        id: this.app.playlist[this.app.playing].id,
         time: new Date().getTime()
       }), 'json').then(function (e) {
         if (e.target.response['subsonic-response'].status === 'failed') {
@@ -312,7 +325,7 @@ Polymer('music-player',{
     }
 
 
-    // if file longer then 20 min and autobookmark enabled 
+    // if file longer then 20 min and autobookmark enabled
     // creates a bookmark about every 1 min.
     if (this.app.autoBookmark && audio.duration > 1200
       && audio.currentTime > 60 && !this.app.waitingToPlay
@@ -337,10 +350,14 @@ Polymer('music-player',{
       this.app.isNowPlaying = true;
       this.$.avIcon.icon = "av:pause";
       if (!audio.duration) {
-        this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ?:??';
+        if (this.app.page === 1) {
+          this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ?:??';
+        }
         this.progress = 0;
       } else {
-        this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ' + this.totalMins + ':' + ('0' + this.totalSecs).slice(-2);
+        if (this.app.page === 1) {
+          this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ' + this.totalMins + ':' + ('0' + this.totalSecs).slice(-2);
+        }
         this.progress = Math.floor(audio.currentTime / audio.duration * 100);
       }
     } else {
@@ -348,14 +365,14 @@ Polymer('music-player',{
       this.$.avIcon.icon = "av:play-arrow";
     }
   },
-  
+
   /**
    * open the volume dialog
    */
   toggleVolume: function () {
     this.app.toggleVolume();
   },
-  
+
   /**
    * user click on progress bar callback
    * @param {Event} e - click event
@@ -377,7 +394,7 @@ Polymer('music-player',{
     this.progress = clicked * 100;
     this.audio.currentTime = duration - (duration - (duration * clicked));
   },
-  
+
   /**
    * toggle playlist repeat option
    */
@@ -401,7 +418,7 @@ Polymer('music-player',{
       this.app.repeatText = chrome.i18n.getMessage('playlistRepeatOn');
     }
   },
-  
+
   /**
    * callback for media query state change
    * toggles player view
@@ -417,7 +434,7 @@ Polymer('music-player',{
       }
     });
   },
-  
+
   /**
    * open the bookmark creation dialog
    */
@@ -428,7 +445,7 @@ Polymer('music-player',{
     this.app.$.bookmarkDialog.open();
     this.app.bookmarkComment = this.app.playlist[this.app.playing].title + ' at ' +     this.$.globals.secondsToMins(this.audio.currentTime);
   },
-  
+
   /**
    * submit data to server to create a bookmark
    */
@@ -450,7 +467,7 @@ Polymer('music-player',{
       }
     }.bind(this));
   },
-  
+
   /**
    * shuffle the current play queue
    */

@@ -132,7 +132,6 @@
     app.playlist.splice(app.playing, 1);
     _shuffleArray(app.playlist);
     app.playlist.unshift(temp);
-    app.$.globals.makeToast(app.$.globals.texts.randomized);
     if (app.playing !== 0) {
       app.alreadyPlaying = true; // tell player this track is already playing other wise will start play over again
       app.playing = 0;
@@ -189,12 +188,14 @@
       obj.bookmarkPosition = song.bookmarkPosition;
       app.$.globals.fetchImage(artId).then(function (imgURL) {
         obj.cover = imgURL;
-        app.$.globals.getDbItem(artId + '-palette').then(function (palette) {
-          obj.palette = palette.target.result;
-          app.dataLoading = false;
-          app.playlist = [obj];
-          app.$.globals.playListIndex(0);
-        });
+        app.async(function () {
+          app.$.globals.getDbItem(artId + '-palette').then(function (palette) {
+            obj.palette = palette.target.result;
+            app.dataLoading = false;
+            app.playlist = [obj];
+            app.$.globals.playListIndex(0);
+          });
+        }, null, 200);
       });
     });
   };
@@ -269,6 +270,7 @@
     app.dataLoading = true;
     app.playlist = null;
     app.playlist = [];
+    var playing = false;
     if (app.$.player.audio) {
       app.$.player.audio.pause();
     }
@@ -287,16 +289,19 @@
         var artId = 'al-' + item.albumId;
         app.$.globals.fetchImage(artId).then(function (imgURL) {
           obj.cover = imgURL;
-          app.$.globals.getDbItem(artId + '-palette').then(function (e) {
-            obj.palette = e.target.result;
-            app.playlist.push(obj);
-            app.job('moreLike', function () {
-              app.dataLoading = false;
-              app.closePlaylists();
-              app.dataLoading = false;
-              app.$.globals.playListIndex(0);
-            }, 500);
-          });
+          app.async(function () {
+            app.$.globals.getDbItem(artId + '-palette').then(function (e) {
+              obj.palette = e.target.result;
+              app.playlist.push(obj);
+              if (!playing) {
+                playing = true;
+                app.dataLoading = false;
+                app.closePlaylists();
+                app.dataLoading = false;
+                app.$.globals.playListIndex(0);
+              }
+            });
+          }, null, 200);
         });
       });
     });
@@ -310,6 +315,7 @@
     app.dataLoading = true;
     app.shuffleLoading = true;
     app.playlist.length = 0;
+    var playing = false;
     if (!app.startYearInvalid && !app.endYearInvalid) {
       if (app.$.player.audio && !app.$.player.audio.paused) {
         app.$.player.audio.pause();
@@ -319,7 +325,7 @@
       }
       var url = app.$.globals.buildUrl('getRandomSongs', app.shuffleSettings);
       app.$.globals.doXhr(url, 'json').then(function (event) {
-        var data = event.target.response['subsonic-response'].randomSongs.song;
+        var data = event.target.response['subsonic-response'].randomSongs.song || [];
         if (data.length) {
           data.forEach(function (item) {
             var obj = {
@@ -334,12 +340,14 @@
               app.$.globals.getDbItem(artId + '-palette').then(function (e) {
                 obj.palette = e.target.result;
                 app.playlist.push(obj);
-                app.job('moreLike', function () {
+                if (!playing) {
+                  playing = true;
+                  console.count('shuffle play');
                   app.dataLoading = false;
                   app.shuffleLoading = false;
                   app.$.shuffleOptions.close();
                   app.$.globals.playListIndex(0);
-                }, 1000);
+                }
               });
             });
           });
@@ -458,18 +466,6 @@
     });
   };
 
-  /**
-   * set color of accent colors in player
-   * @param {Array} array
-   */
-  app.setFabColor = function (array) {
-    if (array.palette) {
-      app.colorThiefFab = array.palette[0];
-      app.colorThiefFabOff = array.palette[1];
-      app.colorThiefBuffered = array.palette[2];
-      app.colorThiefProgBg = array.palette[3];
-    }
-  };
 
   /**
    * open playlist save dialog  set default name to curent time & date
@@ -479,10 +475,6 @@
     app.$.createPlaylist.open();
     app.defaultName = new Date().toString();
   };
-
-  /**
-   * callback for saving a playlist
-   */
 
 
   /**
@@ -535,16 +527,16 @@
     }
     if (app.page === 0 && app.$.fab.state === 'mid') {
       animation.play();
-      app.$.wall.playSomething(sender.ident, function () {
+      app.$.fab.state = 'bottom';
+      wall.playSomething(sender.ident, function () {
         animation.cancel();
-        app.$.fab.state = 'bottom';
       });
     }
     if (app.page === 3) {
       animation.play();
+      app.$.fab.state = 'bottom';
       app.$.aDetails.playSomething(sender.ident, function () {
         animation.cancel();
-        app.$.fab.state = 'bottom';
       });
     }
   };
@@ -565,15 +557,29 @@
   app.doSearch = function () {
     if (app.searchQuery) {
       app.$.globals.closeDrawer().then(function () {
-        var url = app.$.globals.buildUrl('search3', {
-          query: encodeURIComponent(app.searchQuery)
-        });
+        if (app.queryMethod === 'ID3') {
+          var url = app.$.globals.buildUrl('search3', {
+            query: encodeURIComponent(app.searchQuery),
+            albumCount: 200
+          });
+        } else {
+          var url = app.$.globals.buildUrl('search2', {
+            query: encodeURIComponent(app.searchQuery),
+            albumCount: 200
+          });
+        }
         app.$.globals.doXhr(url, 'json').then(function (e) {
           app.dataLoading = true;
           if (e.target.response['subsonic-response'].status === 'ok') {
             app.searchQuery = '';
             var response = e.target.response;
-            if (response['subsonic-response'].searchResult3.album) {
+            var resTrimmed = response['subsonic-response'];
+            if (resTrimmed.hasOwnProperty('searchResult3') && resTrimmed.searchResult3.album) {
+              app.page = 0;
+              app.$.wall.response = response;
+              app.showing = 'wall';
+              app.pageLimit = true;
+            } else if (resTrimmed.hasOwnProperty('searchResult2') && resTrimmed.searchResult2.album) {
               app.page = 0;
               app.$.wall.response = response;
               app.showing = 'wall';
@@ -946,6 +952,19 @@
     });
   };
 
+  app._animationPrapare = function () {
+    app._animation = true;
+  };
+
+  app._animationEnd = function (e) {
+     app._animation = false;
+    if (app.page === 3) {
+      app.$.aDetails.resize();
+      app.$.aDetails._animationEnd();
+    }
+  };
+
+
   /**
    * key binding listener
    */
@@ -971,96 +990,151 @@
    */
   app.addEventListener('template-bound', function () {
     app.$.player.resize();
-    // bitrate
-    simpleStorage.getLocal().then(function (result) {
-      app.bitRate = result.bitRate || 320;
-    });
-    // all synced settings
+    app.$.globals.openIndexedDB();
+    // get account synced settings
     simpleStorage.getSync().then(function (result) {
-      app.url = result.url;
-      app.user = result.user;
-      app.pass = result.pass;
-      app.md5Auth = result.md5Auth;
+      app.dataLoading = false;
+      app.configs = result.configs || [];
+
+      // update config storage method
+      if (!app.configs.length && 'url' in result && 'user' in result && 'pass' in result) {
+        // default md5 auth true
+        if (result.md5Auth === undefined) {
+          result.md5Auth = true;
+        }
+        console.log('updating config storage');
+        app.configs.push({
+          name: 'Config1',
+          url: result.url,
+          user: result.user,
+          pass: result.pass,
+          md5Auth: result.md5Auth,
+          version: result.version
+        });
+        chrome.storage.sync.remove('url');
+        chrome.storage.sync.remove('user');
+        chrome.storage.sync.remove('pass');
+        chrome.storage.sync.remove('version');
+        chrome.storage.sync.remove('md5Auth');
+        simpleStorage.setSync({
+          configs: app.configs
+        });
+        simpleStorage.setLocal({
+          currentConfig: 0
+        });
+      }
+
       app.autoBookmark = result.autoBookmark;
       app.gapless = result.gapless;
       app.shuffleSettings.size = '50';
-      app.version = result.version || '1.11.0';
-      app.querySize = 60;
-      app.listMode = result.listMode || 'cover';
+      app.querySize = result.querySeize || 60;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';
       app.repeatPlaylist = false;
+      // configure album all first request
       app.$.wall.post = {
         type: result.sortType || 'newest',
         size: 60,
         offset: 0
       };
       app.$.wall.request = result.request || 'getAlbumList2';
+
+      // set up some default texts / styles for repeat buttons
       app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
       app.repeatState = chrome.i18n.getMessage('disabled');
       app.$.repeatButton.style.color = '#db4437';
-      app.dataLoading = false;
-      app.params = {
-        u: app.user,
-        v: app.version,
-        c: 'PolySonic',
-        f: 'json'
-      };
-      var wallToggles = document.querySelectorAll('.wallToggle');
-      for (var i = 0; i < wallToggles.length; i++) {
-        if (app.listMode === 'cover') {
-          wallToggles[i].icon = 'view-stream';
-        } else {
-          wallToggles[i].icon = 'view-module';
-        }
-      }
-      if (app.md5Auth === undefined) {
-        app.md5Auth = true;
-      }
-      if (app.url && app.user && app.pass) {
-        app.$.globals.initFS();
-        var firstPing = app.$.globals.buildUrl('ping');
-        app.$.globals.doXhr(firstPing, 'json').then(function (e) {
-          if (e.target.status === 200) {
 
-            if (versionCompare(e.target.response['subsonic-response'].version, app.version) >= 0) {
-              app.version = e.target.response['subsonic-response'].version;
-              simpleStorage.setSync({
-                version: app.version
-              });
-            }
-
-            if (e.target.response['subsonic-response'].status === 'ok') {
-              app.userDetails();
-              console.log('Connected to Subconic loading data');
-              var folders = app.$.globals.buildUrl('getMusicFolders');
-              app.$.globals.doXhr(folders, 'json').then(function (e) {
-                app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-                /* setting mediaFolder causes a ajax call to get album wall data */
-                app.folder = result.mediaFolder || 'none';
-                if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
-                  app.$.sortBox.style.display = 'none';
-                }
-                app.tracker.sendAppView('Album Wall');
-              });
-            } else {
-              app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-              app.$.firstRun.open();
-              app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
-            }
-
-          } else {
-            app.tracker.sendEvent('Connection Error', e.target.response['subsonic-response'].error.meessage);
-            app.$.firstRun.open();
-            app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
+      // get install specific settings
+      simpleStorage.getLocal().then(function (resultLocal) {
+        app.bitRate = resultLocal.bitRate || 320;
+        app.currentConfig = resultLocal.currentConfig || 0;
+        if (app.configs[app.currentConfig]) {
+          for (var key in app.configs[app.currentConfig]) {
+            app[key] = app.configs[app.currentConfig][key];
           }
-        }).catch(function () {
-          app.$.firstRun.open();
-        });
+        } else {
+          app.url;
+          app.user;
+          app.pass;
+          app.version = '1.11.0';
+          app.md5Auth = result.md5Auth || true;
+        }
 
-      } else {
-        app.$.firstRun.open();
-      }
+        // default params sent with every request
+        app.params = {
+          u: app.user,
+          v: app.version,
+          c: 'PolySonic',
+          f: 'json'
+        };
+
+        // set up the wall list method
+        app.listMode = result.listMode || 'cover';
+        var wallToggles = document.querySelectorAll('.wallToggle');
+        for (var i = 0; i < wallToggles.length; i++) {
+          if (app.listMode === 'cover') {
+            wallToggles[i].icon = 'view-stream';
+          } else {
+            wallToggles[i].icon = 'view-module';
+          }
+        }
+
+        if (app.url && app.user && app.pass) {
+          app.$.globals.initFS();
+          var firstPing = app.$.globals.buildUrl('ping');
+          app.$.globals.doXhr(firstPing, 'json').then(function (e) {
+            var json = e.target.response['subsonic-response'];
+            if (e.target.status === 200) {
+
+              // update api version if it has changed
+              if (versionCompare(json.version, app.version) >= 0) {
+                app.version = json.version;
+                simpleStorage.getSync('configs').then(function (configs) {
+                  configs[app.currentConfig].version = app.version;
+                  simpleStorage.setSync({
+                    configs: configs
+                  });
+                });
+              }
+              // begin fetching Subsonic data
+              if (json.status === 'ok') {
+                console.log('Connected to Subconic loading data');
+                app.userDetails();
+                var foldersURL = app.$.globals.buildUrl('getMusicFolders');
+
+                // get list of folders from Subsonic
+                app.$.globals.doXhr(foldersURL, 'json').then(function (e) {
+                  app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+
+                  /* setting mediaFolder causes a ajax call to get album wall data */
+
+                  // set the currently used folder
+                  app.folder = result.mediaFolder || 'none';
+                  if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+                    app.$.sortBox.style.display = 'none';
+                  }
+
+                  // analistics
+                  app.tracker.sendAppView('Album Wall');
+                });
+              } else {
+                // open first run dialog & alert user of the reason for the connection error
+                app.$.firstRun.open();
+                app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
+              }
+
+            } else {
+              app.$.firstRun.open();
+              app.$.globals.makeToast('Error connection to Subsonic');
+            }
+          }).catch(function () {
+            app.$.firstRun.open();
+          });
+
+        } else {
+          app.$.firstRun.open();
+        }
+      });
     });
 
     // set main content scrolling callback
@@ -1083,14 +1157,16 @@
       app.scrolling = true;
       app.job('scroll', function () {
         app.scrolling = false;
-      }, 50);
+      }, 100);
     };
 
     // app resize callback
     window.onresize = function () {
+      app.$.aDetails.resize();
       app.$.fab.setPos();
       app.$.player.resize();
       app.$.fab.resize();
+      app.$.albumDialog._resized();
       if (chrome.app.window.current().innerBounds.width < 571) {
         chrome.app.window.current().innerBounds.height = 761;
       }

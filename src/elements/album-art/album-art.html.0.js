@@ -38,13 +38,14 @@
 
     showDialog: function () {
       this.async(function () {
-        this.app.dataLoading = false;
+        this.app.dataLoading = true;
         this.app.tracker.sendAppView('Album Details');
         if (this.playlist[0].palette) {
           this.app.colorThiefAlbum = this.playlist[0].palette[0];
           this.app.colorThiefAlbumOff = this.playlist[0].palette[1];
         }
-        var details = {
+        var dialog = this.app.$.albumDialog;
+        dialog.details = {
           album: this.album,
           artist: this.artist,
           cover: this.imgURL,
@@ -55,19 +56,18 @@
           tracks: this.playlist,
           artistId: this.artistId
         };
-        var dialog = this.app.$.albumDialog;
-        dialog.details = details;
         dialog.opened = true;
-        this.app.$.fab.state = 'mid';
-        // pass the id of the album to the play button
         this.app.$.fab.ident = this.id;
+        this.app.dataLoading = false;
       });
     },
 
     chooseOption: function () {
       if (this.bookmarkIndex !== undefined) {
         this.app.dataLoading = false;
-        this.bookmarkTime = this.$.globals.secondsToMins(this.playlist[this.bookmarkIndex].bookmarkPosition / 1000);
+        this.bookmarkTime = this.$.globals.secondsToMins(
+          this.playlist[this.bookmarkIndex].bookmarkPosition / 1000
+        );
         this.$.albumPlaybackConfirm.open();
         if (this.app.$.albumDialog.opened) {
           this.app.$.albumDialog.opened = false;
@@ -112,10 +112,16 @@
 
     processJSON: function (e) {
       return new Promise(function (resolve, reject) {
+        var res = e.target.response['subsonic-response'];
         this.playlist.length = 0;
-        this.artistId = e.target.response['subsonic-response'].album.artistId;
-        this.albumID = e.target.response['subsonic-response'].album.song[0].parent;
-        var tracks = e.target.response['subsonic-response'].album.song;
+        var tracks = [];
+        if (this.app.queryMethod === 'ID3') {
+          this.artistId = res.album.artistId;
+          tracks = res.album.song;
+        } else {
+          this.artistId = res.directory.parent;
+          tracks = res.directory.child;
+        }
         var length = tracks.length;
         for (var i = 0; i < length; i++) {
           this.albumSize = this.albumSize + tracks[i].size;
@@ -150,11 +156,21 @@
 
     doQuery: function () {
       return new Promise(function (resolve, reject) {
-        this.$.globals.getDbItem("al-" + this.item + '-palette').then(function (e) {
-          this.palette = e.target.result;
-          var url = this.$.globals.buildUrl('getAlbum', {
+        var artId;
+        var url;
+        if (this.app.queryMethod === 'ID3') {
+          artId = "al-" + this.item;
+          url = this.$.globals.buildUrl('getAlbum', {
             id: this.item
           });
+        } else {
+          artId = this.item;
+          url = this.$.globals.buildUrl('getMusicDirectory', {
+            id: this.item
+          });
+        }
+        this.$.globals.getDbItem(artId + '-palette').then(function (e) {
+          this.palette = e.target.result;
           this.$.globals.doXhr(url, 'json').then(this.processJSON.bind(this)).then(resolve);
         }.bind(this));
       }.bind(this));
@@ -166,9 +182,15 @@
         this.playlist = [];
         this.albumSize = 0;
         this.isLoading = true;
-        this.$.globals.fetchImage("al-" + this.item).then(this.setImage.bind(this));
+        var artId;
+        if (this.app.queryMethod === 'ID3') {
+          artId = "al-" + this.item;
+        } else {
+          artId = this.item;
+        }
+        this.$.globals.fetchImage(artId).then(this.setImage.bind(this));
       } else {
-        this.async(this.itemChanged, null, 50);
+        this.async(this._updateItem, null, 200);
       }
     },
 

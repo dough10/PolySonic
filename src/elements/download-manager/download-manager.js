@@ -1,29 +1,6 @@
 (function () {
   'use strict';
-  
-  function _waitForIO(writer) {
-    return new Promise(function (resolve, reject) {
-      // set a watchdog to avoid eventual locking:
-      var start = Date.now();
-      // wait for a few seconds
-      var reentrant = function() {
-        if (writer.readyState===writer.WRITING && Date.now()-start<4000) {
-          setTimeout(reentrant, 100);
-          return;
-        }
-        if (writer.readyState===writer.WRITING) {
-          console.error("Write operation taking too long, aborting!"+
-            " (current writer readyState is "+writer.readyState+")");
-          writer.abort();
-        }
-        else {
-          resolve();
-        }
-      };
-      setTimeout(reentrant, 100);
-    });
-  }
-  
+
   function _errorHandler(e) {
     console.error(e);
   }
@@ -72,22 +49,6 @@
         this._rate = Mbps + ' Mbps';
       }
       this._output = this.$.globals.formatBytes(e.loaded) + ' of ' + this._downloadSizeReadable + ' Downloaded';
-    },
-  
-    _writeFileEntry: function (writableEntry, blob) {
-      return new Promise(function (resolve, reject) {
-        writableEntry.createWriter(function(writer) {
-    
-          writer.onerror = reject;
-          writer.onwriteend = resolve;
-    
-          writer.truncate(blob.size);
-          _waitForIO(writer).then(function() {
-            writer.seek(0);
-            writer.write(blob);
-          });
-        }.bind(this), _errorHandler);
-      }.bind(this));
     },
 
     _downloadFile: function (id, details) {
@@ -148,7 +109,7 @@
       };
       chrome.fileSystem.chooseEntry(config, function (writableEntry) {
         if (writableEntry) {
-          this._writeFileEntry(writableEntry, this._blob).then(function () {
+          this.$.globals._writeFileEntry(writableEntry, this._blob).then(function () {
             this._output = 'File Saved ' + this._downloadSizeReadable;
             this.hasSaved = true;
           }.bind(this));

@@ -50,7 +50,7 @@
       </paper-button>
     </paper-action-dialog>
     <!-- album details -->
-    <paper-dialog id="detailsDialog" opened="{{opened}}" backdrop autoclosedisabled transition="core-transition-center">
+    <paper-dialog id="detailsDialog" opened="{{opened}}" backdrop autoclosedisabled transition="core-transition-center" on-core-overlay-open-completed="{{_dialogOpened}}">
       <link rel="stylesheet" href="styles.css">
 
       <!-- close button -->
@@ -108,6 +108,14 @@
         <core-tooltip label="{{$.globals.texts.moreLikeThis}}" position="top">
           <paper-icon-button on-tap="{{moreLike}}"
                              icon="av:radio">
+          </paper-icon-button>
+        </core-tooltip>
+
+
+        <!-- more by this artist option -->
+        <core-tooltip label="{{$.globals.texts.moreByArtist}}" position="top">
+          <paper-icon-button on-tap="{{_artist}}"
+                             icon="account-circle">
           </paper-icon-button>
         </core-tooltip>
 

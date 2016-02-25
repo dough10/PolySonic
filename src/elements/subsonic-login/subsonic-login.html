@@ -8,7 +8,7 @@
 <link href="../../bower_components/core-menu/core-menu.html" rel="import">
 <link href="../../bower_components/core-collapse/core-collapse.html" rel="import">
 <link href="../../bower_components/paper-dropdown/paper-dropdown.html" rel="import">
-</head><body><polymer-element name="subsonic-login" attributes="url user pass version appName appDesc">
+</head><body><polymer-element name="subsonic-login" attributes="config">
   <template>
     <style>
       :host {
@@ -39,6 +39,10 @@
         cursor:pointer;
         display:inline-block;
       }
+      .red-button {
+        background:#db4437;
+        color:#ffffff;
+      }
       paper-toggle-button.redSwitch::shadow [checked] .toggle-ink {
         color: #db4437;
       }
@@ -46,45 +50,147 @@
       paper-toggle-button.redSwitch::shadow [checked] .toggle {
         background-color: #db4437;
       }
+      #uploadFab {
+        position: absolute;
+        top: 122px;
+        margin-left: 90px;
+      }
     </style>
     <!-- globals -->
     <app-globals id="globals"></app-globals>
-    <core-ajax id="ajax" auto="false" method="GET" handleas="json" loading="{{isLoading}}" error="{{error}}" response="{{response}}">
+<!--
+    <core-ajax id="ajax"
+               auto="false"
+               method="GET"
+               handleas="json"
+               loading="{{isLoading}}"
+               error="{{error}}"
+               response="{{response}}">
     </core-ajax>
-      <h3>{{$.globals.texts.appName}}</h3>
-      {{$.globals.texts.appDesc}}
-      <div id="validate">
-        <paper-input-decorator id="input1" disabled?="{{isLoading}}" autoValidate isInvalid="{{invalid1}}" labelvisible="" floatinglabel="" error="{{$.globals.texts.urlError}}" label="{{$.globals.texts.urlLabel}}">
-          <input is="core-input" on-blur="{{testURL}}"  disabled?="{{isLoading}}" id="address" type="URL" value="{{app.url}}" required="">
-        </paper-input-decorator>
-        <paper-spinner hidden?="{{!testingURL}}" active></paper-spinner>
+-->
+    <h3>{{$.globals.texts.appName}}</h3>
+    {{$.globals.texts.appDesc}}
+    <div id="validate">
+      <core-label>
+        {{$.globals.texts.configLabel}}:
+        <paper-dropdown-menu id="selector" label="{{$.globals.texts.config}}">
+          <paper-dropdown layer class="dropdown">
+            <core-menu id="configSelector" selected="{{post.config}}">
+              <template repeat="{{app.configs}}">
+                <paper-item on-tap="{{_selectAction}}">
+                  {{name}}
+                </paper-item>
+              </template>
+              <paper-item on-tap="{{_newConfig}}">New</paper-item>
+            </core-menu>
+          </paper-dropdown>
+        </paper-dropdown-menu>
+      </core-label>
+
+      <template if="{{newConfig}}">
         <br>
-        <paper-input-decorator id="input2" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid2}}" labelvisible="" floatinglabel="" error="{{$.globals.texts.usernameError}}" label="{{$.globals.texts.usernameLabel}}">
-          <input is="core-input"  disabled?="{{isLoading}}" type="text" value="{{app.user}}" required="">
-        </paper-input-decorator>
-        <br>
-        <paper-input-decorator id="input3" disabled?="{{isLoading}}" autoValidate isInvalid="{{inValid3}}" labelvisible="" floatinglabel="" label="{{$.globals.texts.passwordLabel}}">
-          <input is="core-input" on-keyup="{{checkKeyup}}" disabled?="{{isLoading}}" id="password" type="password" value="{{app.pass}}">
-        </paper-input-decorator>
-        <br>
-        <div id="showPass" on-tap="{{hidePass}}">{{$.globals.texts.showPass}}</div><br>
-        <br>
-        <div id="auth" hidden horizontal layout>
-          <div style="text-align: left;" flex>{{$.globals.texts.md5}}</div>
-          <paper-toggle-button class="redSwitch" on-change="{{authChanged}}" checked="{{app.md5Auth}}"></paper-toggle-button>
-        </div>
-        <br>
-        <paper-button id='submit' on-tap="{{submit}}" disabled?="{{isLoading}}">
-          <template if="{{isLoading}}">
-            <div id="load">
-              <paper-spinner active=""></paper-spinner>
-            </div>
-          </template>
-          {{$.globals.texts.submitButton}}
-        </paper-button>
+        <paper-fab raised id="uploadFab" icon="file-upload" on-tap="{{_selectConfigFile}}">
+          <div class="load" hidden?="{{!isLoading}}">
+            <paper-spinner active=""></paper-spinner>
+          </div>
+        </paper-fab>
+      </template>
+
+      <paper-input-decorator disabled?="{{isLoading}}"
+                             labelvisible=""
+                             floatinglabel=""
+                             label="Config Name">
+        <input is="core-input"
+               disabled?="{{isLoading}}"
+               value="{{post.name}}"
+               on-keyup="{{_checkKeyup}}"
+               required>
+      </paper-input-decorator>
+      <br>
+      <paper-input-decorator id="input1"
+                             disabled?="{{isLoading}}"
+                             autoValidate
+                             isInvalid="{{invalid1}}"
+                             labelvisible=""
+                             floatinglabel=""
+                             error="{{$.globals.texts.urlError}}"
+                             label="{{$.globals.texts.urlLabel}}">
+        <input is="core-input"
+               on-blur="{{testURL}}"
+               disabled?="{{isLoading}}"
+               id="address"
+               type="URL"
+               on-keyup="{{_checkKeyup}}"
+               value="{{post.url}}"
+               required="">
+      </paper-input-decorator>
+      <paper-spinner hidden?="{{!testingURL}}"
+                     active></paper-spinner>
+      <br>
+      <paper-input-decorator id="input2"
+                             disabled?="{{isLoading}}"
+                             autoValidate
+                             isInvalid="{{inValid2}}"
+                             labelvisible=""
+                             floatinglabel=""
+                             error="{{$.globals.texts.usernameError}}"
+                             label="{{$.globals.texts.usernameLabel}}">
+        <input is="core-input"
+               disabled?="{{isLoading}}"
+               type="text"
+               value="{{post.user}}"
+               on-keyup="{{_checkKeyup}}"
+               required="">
+      </paper-input-decorator>
+      <br>
+      <paper-input-decorator id="input3"
+                             disabled?="{{isLoading}}"
+                             autoValidate
+                             isInvalid="{{inValid3}}"
+                             labelvisible=""
+                             floatinglabel=""
+                             label="{{$.globals.texts.passwordLabel}}">
+        <input is="core-input"
+               on-keyup="{{checkKeyup}}"
+               disabled?="{{isLoading}}"
+               id="password"
+               type="password"
+               on-keyup="{{_checkKeyup}}"
+               value="{{post.pass}}">
+      </paper-input-decorator>
+      <br>
+      <div id="showPass"
+           on-tap="{{hidePass}}">{{$.globals.texts.showPass}}</div>
+      <br>
+      <br>
+      <div class="center">{{$.globals.texts.apiVersion}}: {{post.version}}</div>
+      <br>
+      <div id="auth" hidden horizontal layout>
+        <div style="text-align: left;" flex>{{$.globals.texts.md5}}</div>
+        <paper-toggle-button class="redSwitch"
+                             checked="{{post.md5Auth}}"></paper-toggle-button>
       </div>
-    <core-label>
-    </core-label>
+      <br>
+      <template if="{{newConfig}}">
+        <paper-button on-tap="{{submit}}" disabled?="{{isLoading}}">
+          <div id="load" hidden?="{{!isLoading}}">
+            <paper-spinner active=""></paper-spinner>
+          </div>
+          {{$.globals.texts.connectSave}}
+        </paper-button>
+      </template>
+      <template if="{{!newConfig}}">
+        <paper-button on-tap="{{submit}}" disabled?="{{isLoading}}">
+          <div id="load" hidden?="{{!isLoading}}">
+            <paper-spinner active=""></paper-spinner>
+          </div>
+          {{$.globals.texts.connect}}
+        </paper-button>
+      </template>
+      <template if="{{isLoading}}">
+        <paper-button class="red-button" on-tap="{{_cancelAttempt}}">{{$.globals.texts.cancelButton}}</paper-button>
+      </template>
+    </div>
   </template>
   <script src="subsonic-login.html.0.js"></script>
 </polymer-element></body></html>
