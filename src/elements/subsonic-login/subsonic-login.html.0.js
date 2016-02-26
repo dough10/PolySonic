@@ -183,7 +183,6 @@
         }
         this.isLoading = true;
         this._testPostSettings().then(function (json) {
-          console.log(json);
           this.isLoading = false;
           if (json.status === 'ok') {
             app.currentConfig = this.post.config;
@@ -213,8 +212,12 @@
                 } else {
                   this._completeConnection();
                 }
-              }.bind(this));
-            }.bind(this));
+              }.bind(this), function () {
+                console.error('error opening indexeddb');
+              });
+            }.bind(this), function () {
+              console.error('error clearing images')
+            });
           } else {
             this.$.globals.makeToast(this.response['subsonic-response'].error.message);
           }

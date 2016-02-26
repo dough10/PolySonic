@@ -16,7 +16,8 @@ chrome.app.runtime.onLaunched.addListener(function() {
       'minHeight': 761
     }
   }, function (created) {
-    created.contentWindow.onload = function (e) {
+    var window =  created.contentWindow;
+    window.onload = function (e) {
       console.log(e);
     };
   });
