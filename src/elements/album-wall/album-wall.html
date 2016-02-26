@@ -83,8 +83,17 @@
     </style>
     <!-- globals -->
     <app-globals id="globals"></app-globals>
-    <core-ajax auto="false" id="ajax" method="GET" handleas="json" error="{{error}}" response="{{response}}"></core-ajax>
-    <core-scroll-threshold id="threshold" lowerThreshold="10" on-lower-trigger="{{loadMore}}" scrollTarget="{{scrollTarget}}">
+    <core-ajax auto="false"
+               id="ajax"
+               method="GET"
+               handleas="json"
+               error="{{error}}"
+               response="{{response}}">
+    </core-ajax>
+    <core-scroll-threshold id="threshold"
+                           lowerThreshold="10"
+                           on-lower-trigger="{{loadMore}}"
+                           scrollTarget="{{scrollTarget}}">
     </core-scroll-threshold>
     <div id="all">
       <core-animated-pages selected="{{showing}}" valueattr="view">
@@ -105,7 +114,10 @@
               {{$.globals.texts.addAlbums}}
             </paper-shadow>
           </template>
-          <core-list id="list" data="{{wall}}" scrollTarget="{{scrollTarget}}" runwayFactor='1.5'>
+          <core-list id="list"
+                     data="{{wall}}"
+                     scrollTarget="{{scrollTarget}}"
+                     runwayFactor='2'>
             <template>
               <album-art id='ac{{model.id}}'
                          listMode="{{model.listMode}}"

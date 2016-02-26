@@ -269,8 +269,8 @@
       return new Promise(function (resolve, reject) {
         var request = indexedDB.open(dbName, dbVersion);
 
-        request.onerror = function () {
-          reject();
+        request.onerror = function (err) {
+          reject(err);
           console.log("Error creating/accessing IndexedDB database");
         };
 

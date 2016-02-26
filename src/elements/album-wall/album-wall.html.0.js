@@ -206,22 +206,21 @@
                 break;
             }
             this.app.dataLoading = false;
+            this.$.list.updateSize();
           }
         }
       });
     },
 
     doAjax: function () {
-      this.async(function () {
-        this.request = this.request || 'getAlbumList2';
-        this.post = this.post || {
-          type: 'newest',
-          size: 60,
-          offset: 0
-        };
-        this.$.ajax.url = this.$.globals.buildUrl(this.request, this.post);
-        this.$.ajax.go();
-      });
+      this.request = this.request || 'getAlbumList2';
+      this.post = this.post || {
+        type: 'newest',
+        size: 60,
+        offset: 0
+      };
+      this.$.ajax.url = this.$.globals.buildUrl(this.request, this.post);
+      this.$.ajax.go();
     },
 
     getPodcast: function () {
@@ -237,7 +236,7 @@
           'request': this.request,
           'mediaFolder': this.mediaFolder
         });
-        this.async(this.doAjax);
+        this.async(this.doAjax.bind(this));
       }.bind(this));
     },
 
@@ -258,7 +257,7 @@
           'request': this.request,
           'mediaFolder': this.mediaFolder
         });
-        this.async(this.doAjax);
+        this.async(this.doAjax.bind(this));
       }.bind(this));
     },
 
@@ -279,7 +278,7 @@
           'mediaFolder': this.mediaFolder
         });
         this.showing = 'artists';
-        this.async(this.doAjax);
+        this.async(this.doAjax.bind(this));
       }.bind(this));
     },
 
@@ -299,7 +298,7 @@
           'request': this.request,
           'mediaFolder': this.mediaFolder
         });
-        this.async(this.doAjax);
+        this.async(this.doAjax.bind(this));
       }.bind(this));
     },
 
@@ -316,7 +315,7 @@
         this.isLoading = true;
         console.count('lazy load');
         this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
-        this.async(this.doAjax);
+        this.async(this.doAjax.bind(this));
       }
     },
 

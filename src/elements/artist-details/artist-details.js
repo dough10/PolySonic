@@ -99,9 +99,10 @@
       } else {
         this.headerIndex = 1;
       }
-      this.$.globals._putInDb(this.headerIndex, 'artist-' + this.artistId + '-headerIndex').then(function () {
-        this._cropIt();
-      }.bind(this));
+      this.$.globals._putInDb(
+        this.headerIndex,
+        'artist-' + this.artistId + '-headerIndex'
+      ).then(this._cropIt.bind(this));
     },
 
     _lastIndex: function () {
@@ -111,14 +112,18 @@
       } else {
         this.headerIndex = 1;
       }
-      this.$.globals._putInDb(this.headerIndex, 'artist-' + this.artistId + '-headerIndex').then(function () {
-        this._cropIt();
-      }.bind(this));
+      this.$.globals._putInDb(
+        this.headerIndex,
+        'artist-' + this.artistId + '-headerIndex'
+      ).then(this._cropIt.bind(this));
     },
 
     _cropIt: function () {
       if (this.headerImgURL) {
-        this.$.globals._cropImage(this.headerImgURL, this.headerIndex || 0).then(function (croppedURL) {
+        this.$.globals._cropImage(
+          this.headerImgURL,
+          this.headerIndex || 0
+        ).then(function (croppedURL) {
           this.$.bioImage.style.backgroundImage = "url('" + croppedURL + "')";
           this.loadingBio = false;
         }.bind(this));
