@@ -273,7 +273,7 @@ Polymer('music-player',{
     var audio = e.srcElement;
     // gapless?
     if (this.app.gapless && audio.currentTime >= Math.abs(audio.duration - 60)
-    && !this.isCued && this.app.playlist[this.app.playing + 1]) {
+        && !this.isCued && this.app.playlist[this.app.playing + 1]) {
       this.isCued = new Audio();
       this.isCued.preload = 'auto';
       if (this.app.playlist[this.app.playing + 1].artist === '') {
@@ -309,9 +309,9 @@ Polymer('music-player',{
 
     // scrobble lastFM if over half of song has been played played & it is not a podcast
     if (this.app.activeUser.scrobblingEnabled
-    && Math.abs(audio.currentTime / audio.duration * 100) > 50
-    && !this.scrobbled
-    && this.app.playlist[this.app.playing].artist !== '') {
+        && Math.abs(audio.currentTime / audio.duration * 100) > 50
+        && !this.scrobbled
+        && this.app.playlist[this.app.playing].artist !== '') {
       this.scrobbled = true;
       this.$.globals.doXhr(this.$.globals.buildUrl('scrobble', {
         id: this.app.playlist[this.app.playing].id,
