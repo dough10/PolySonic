@@ -4,6 +4,7 @@
   Polymer('artist-details', {
 
 
+
     domReady: function () {
       this.app = app;
       this.scrollTarget = app.appScroller();
@@ -16,6 +17,8 @@
      */
     queryData: function (artistId) {
       this.async(function () {
+        if ( this.headerIndex) delete this.headerIndex;
+        this.artistId = artistId;
         var url;
         if (app.queryMethod === 'ID3') {
           url= this.$.globals.buildUrl('getArtistInfo2', {
@@ -47,8 +50,12 @@
               this.fabBgColor = image.fabBgColor;
               this.fabColor = image.fabColor;
               this.$.bg.style.backgroundImage = "url('" + image.url + "')";
-              this.imgURL = image.url;
-              if (!app._animating) this._cropIt();
+              this.headerImgURL = image.url;
+              this.$.globals.getDbItem('artist-' + artistId + '-headerIndex').then(function (e) {
+                var index = e.target.result;
+                this.headerIndex = index;
+                if (!app._animating) this._cropIt();
+              }.bind(this));
             }.bind(this));
           } else {
             this.loadingBio = false;
@@ -85,9 +92,33 @@
       });
     },
 
+    _nextIndex: function () {
+      this.loadingBio = true;
+      if (this.headerIndex) {
+        this.headerIndex = this.headerIndex + 1;
+      } else {
+        this.headerIndex = 1;
+      }
+      this.$.globals._putInDb(this.headerIndex, 'artist-' + this.artistId + '-headerIndex').then(function () {
+        this._cropIt();
+      }.bind(this));
+    },
+
+    _lastIndex: function () {
+      this.loadingBio = true;
+      if (this.headerIndex) {
+        this.headerIndex = this.headerIndex - 1;
+      } else {
+        this.headerIndex = 1;
+      }
+      this.$.globals._putInDb(this.headerIndex, 'artist-' + this.artistId + '-headerIndex').then(function () {
+        this._cropIt();
+      }.bind(this));
+    },
+
     _cropIt: function () {
-      if (this.imgURL) {
-        this.$.globals._cropImage(this.imgURL).then(function (croppedURL) {
+      if (this.headerImgURL) {
+        this.$.globals._cropImage(this.headerImgURL, this.headerIndex || 0).then(function (croppedURL) {
           this.$.bioImage.style.backgroundImage = "url('" + croppedURL + "')";
           this.loadingBio = false;
         }.bind(this));
