@@ -237,7 +237,7 @@ Polymer('music-player',{
    */
   audioError: function (e) {
     this.app.page = 0;
-    console.error('audio playback error ', e);
+    throw new Error('audio playback error ', e);
     this.$.globals.makeToast('Audio Playback Error');
     this.app.tracker.sendEvent('Audio Playback Error', e.target);
   },
@@ -308,10 +308,12 @@ Polymer('music-player',{
 
 
     // scrobble lastFM if over half of song has been played played & it is not a podcast
-    if (this.app.activeUser.scrobblingEnabled
+    if (
+        this.app.activeUser.scrobblingEnabled
         && Math.abs(audio.currentTime / audio.duration * 100) > 50
         && !this.scrobbled
-        && this.app.playlist[this.app.playing].artist !== '') {
+        && this.app.playlist[this.app.playing].artist !== ''
+      ) {
       this.scrobbled = true;
       this.$.globals.doXhr(this.$.globals.buildUrl('scrobble', {
         id: this.app.playlist[this.app.playing].id,

@@ -214,10 +214,10 @@
    * @param {Event} event
    */
   app.deleteBookmark = function (event) {
-    app.$.globals.doXhr(
-      app.$.globals.buildUrl('deleteBookmark', {
-        id: app.delID
-      }), 'json', function (e) {
+    var url = app.$.globals.buildUrl('deleteBookmark', {
+      id: app.delID
+    });
+    app.$.globals.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         app.dataLoading = true;
         app.$.globals.doXhr(app.$.globals.buildUrl('getBookmarks', ''), 'json').then(function (ev) {

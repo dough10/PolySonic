@@ -332,7 +332,6 @@
             app.$.player.audio.pause();
           }
           app.playlist = [];
-          this._setConfig();
           app.currentConfig = this.post.config;
           simpleStorage.setLocal({
             currentConfig: app.currentConfig
@@ -340,6 +339,7 @@
           this.isLoading = false;
           app.dataLoading = true;
           this._clearImages().then(function () {
+            this._setConfig();
             app.$.globals.openIndexedDB().then(function () {
               app.$.globals.initFS();
               app.userDetails();
@@ -349,12 +349,14 @@
                 app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                 if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
                   app.$.sortBox.style.display = 'none';
+                } else {
+                  app.$.sortBox.style.display = 'block';
                 }
                 app.$.wall.refreshContent();
+                app.dataLoading = false;
                 this.async(function () {
                   this._setFormDisabledState(true);
                 }, null, 500);
-                app.dataLoading = false;
               }.bind(this));
             }.bind(this));
           }.bind(this));
@@ -521,6 +523,8 @@
                       app.folder = 'none';
                       if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
                         app.$.sortBox.style.display = 'none';
+                      } else {
+                        app.$.sortBox.style.display = 'block';
                       }
                       app.tracker.sendAppView('Album Wall');
                       this.isLoading = false;

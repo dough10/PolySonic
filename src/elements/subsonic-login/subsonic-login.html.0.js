@@ -187,17 +187,15 @@
         this._testPostSettings().then(function (json) {
           this.isLoading = false;
           if (json.status === 'ok') {
-            app.currentConfig = this.post.config;
-            if (this.post.hasOwnProperty('config')) {
-              delete this.post.config;
-            }
-            for (var key in this.post) {
-              app[key] = this.post[key];
-            }
-
             app.$.firstRun.close();
-            app.version = json.version;
             this._clearImages().then(function () {
+              app.currentConfig = this.post.config;
+              if (this.post.hasOwnProperty('config')) {
+                delete this.post.config;
+              }
+              for (var key in this.post) {
+                app[key] = this.post[key];
+              }
               this.$.globals.openIndexedDB().then(function () {
                 this.$.globals.initFS();
                 // creating a new config when no prevoius configs are stored

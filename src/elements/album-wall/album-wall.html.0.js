@@ -65,6 +65,7 @@
       this.app.dataLoading = false;
       this.isLoading = false;
       this.app.showApp();
+      this.$.list.updateSize();
     },
 
     responseChanged: function () {
