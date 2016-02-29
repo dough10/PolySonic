@@ -419,7 +419,6 @@
         if ('config' in toSave) {
           delete toSave.config;
         }
-        console.log
         var blob = new Blob([
           btoa(
             JSON.stringify(toSave, null, 2)
@@ -468,12 +467,9 @@
             var imported = JSON.parse(decodedText);
             if  (imported.user && imported.url && imported.pass
                  && imported.name && imported.md5Auth && imported.version) {
-              this.post.user = imported.user;
-              this.post.url = imported.url;
-              this.post.pass = imported.pass;
-              this.post.name = imported.name;
-              this.post.md5Auth = imported.md5Auth;
-              this.post.version = imported.version;
+              for (var key in imported) {
+                this.post[key] = imported[key];
+              }
               this.async(function () {
                 this.validateInputs();
               });
