@@ -345,8 +345,8 @@
           .then(this._setConfig.bind(this))
           .then(this.$.globals.openIndexedDB)
           .then(this.$.globals.initFS)
+          .then(app.userDetails)
           .then(function () {
-            app.userDetails();
             console.log('Connected with config ' + app.configs[app.currentConfig].name);
             var folders = app.$.globals.buildUrl('getMusicFolders');
             app.$.globals.doXhr(folders, 'json').then(function (e) {
@@ -508,13 +508,13 @@
                   .then(this._setConfig.bind(this))
                   .then(this.$.globals.openIndexedDB)
                   .then(this.$.globals.initFS)
+                  .then(app.userDetails)
                   .then(function () {
-                    app.userDetails();
                     console.log('config ' + this.app.configs[this.app.currentConfig].name + ' Refreshed');
                     var folders = app.$.globals.buildUrl('getMusicFolders');
                     this.$.globals.doXhr(folders, 'json').then(function (e) {
-                      app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                       app.folder = 'none';
+                      app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                       if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
                         app.$.sortBox.style.display = 'none';
                       } else {
@@ -523,8 +523,11 @@
                       app.tracker.sendAppView('Album Wall');
                       this.isLoading = false;
                     }.bind(this));
-                  }.bind(this));
-                }else {
+                  }.bind(this)).catch(function (err) {
+                    throw new Error(err);
+                    this.isLoading = false;
+                  });
+                } else {
                   this.isLoading = false;
                   this.$.globals.makeToast('Error connecting to Subsonic. Check Settings');
                 }

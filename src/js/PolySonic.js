@@ -939,16 +939,19 @@
    * used to set flags for access restrictions
    */
   app.userDetails = function () {
-    var url = app.$.globals.buildUrl('getUser', {
-      username: app.user
-    });
-    app.$.globals.doXhr(url, 'json').then(function (e) {
-      var response = e.target.response['subsonic-response'];
-      if (response.status === 'ok') {
-        app.activeUser = response.user;
-      } else {
-        console.error('Error getting User details');
-      }
+    return new Promise(function (resolve, reject) {
+      var url = app.$.globals.buildUrl('getUser', {
+        username: app.user
+      });
+      app.$.globals.doXhr(url, 'json').then(function (e) {
+        var response = e.target.response['subsonic-response'];
+        resolve(response);
+        if (response.status === 'ok') {
+          app.activeUser = response.user;
+        } else {
+          console.error('Error getting User details');
+        }
+      });
     });
   };
 
@@ -1100,23 +1103,24 @@
               // begin fetching Subsonic data
               if (json.status === 'ok') {
                 console.log('Connected to Subconic loading data');
-                app.userDetails();
-                var foldersURL = app.$.globals.buildUrl('getMusicFolders');
+                app.userDetails().then(function () {
+                  var foldersURL = app.$.globals.buildUrl('getMusicFolders');
 
-                // get list of folders from Subsonic
-                app.$.globals.doXhr(foldersURL, 'json').then(function (e) {
-                  app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                  // get list of folders from Subsonic
+                  app.$.globals.doXhr(foldersURL, 'json').then(function (e) {
+                    app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
 
-                  /* setting mediaFolder causes a ajax call to get album wall data */
+                    /* setting mediaFolder causes a ajax call to get album wall data */
 
-                  // set the currently used folder
-                  app.folder = result.mediaFolder || 'none';
-                  if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
-                    app.$.sortBox.style.display = 'none';
-                  }
+                    // set the currently used folder
+                    app.folder = result.mediaFolder || 'none';
+                    if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+                      app.$.sortBox.style.display = 'none';
+                    }
 
-                  // analistics
-                  app.tracker.sendAppView('Album Wall');
+                    // analistics
+                    app.tracker.sendAppView('Album Wall');
+                  });
                 });
               } else {
                 // open first run dialog & alert user of the reason for the connection error

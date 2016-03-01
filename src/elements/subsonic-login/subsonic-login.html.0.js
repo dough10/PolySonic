@@ -144,7 +144,6 @@
     },
 
     _completeConnection: function () {
-      app.userDetails();
       var settings = document.querySelector('settings-menu');
       settings.post = app.configs[app.currentConfig];
       settings.post.config = app.currentConfig;
@@ -202,12 +201,12 @@
             .then(this._setConfig.bind(this))
             .then(this.$.globals.openIndexedDB)
             .then(this.$.globals.initFS)
+            .then(app.userDetails)
             .then(function () {
               app.currentConfig = this.post.config;
               // creating a new config when no prevoius configs are stored
               var currentConfig = app.configs[app.currentConfig];
-              console.log('length: ', app.configs.length);
-              console.log('config: ', currentConfig);
+
               if (currentConfig === undefined && !app.configs.length) {
                 app.configs = [
                   this.post
