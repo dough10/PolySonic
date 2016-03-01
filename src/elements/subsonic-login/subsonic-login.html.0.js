@@ -59,18 +59,13 @@
             var imported = JSON.parse(decodedText);
             if (imported.user && imported.url && imported.pass
                  && imported.name && imported.md5Auth && imported.version) {
-              this.post.user = imported.user;
-              this.post.url = imported.url;
-              this.post.pass = imported.pass;
-              this.post.name = imported.name;
-              this.post.md5Auth = imported.md5Auth;
-              this.post.version = imported.version;
+              for (var key in imported) {
+                this.post[key] = imported[key];
+              }
               if (versionCompare(imported.version, '1.13.0') >= 0) {
                 this.$.auth.hidden = false;
               }
-              this.async(function () {
-                this.validateInputs();
-              });
+              this.async(this.validateInputs);
             } else {
               this.$.globals.makeToast('Error Importing Config');
             }
@@ -112,6 +107,10 @@
       if (!this.invalid1) {
         this.testingURL = true;
         this.isLoading = true;
+        var lastChar = input.value.substr(-1); // Selects the last character
+        if (lastChar === '/') {         // If the last character is a slash
+          input.value = input.value.substring(0, input.value.length - 1);  // remove the slash from end of string
+        }
         var xhr = new XMLHttpRequest();
         xhr.open("GET", input.value + '/rest/ping.view?f=json', true);
         xhr.responseType = 'json';
@@ -170,6 +169,17 @@
     },
 
 
+    _setConfig: function () {
+      return new Promise(function (resolve, reject) {
+        var post = this.post;
+        for (var key in post) {
+          app[key] = post[key];
+        }
+        resolve();
+      }.bind(this));
+    },
+
+
     submit: function () {
       if (this.invalid1 && this.invalid2) {
         this.$.globals.makeToast("URL & Username Required");
@@ -188,40 +198,35 @@
           this.isLoading = false;
           if (json.status === 'ok') {
             app.$.firstRun.close();
-            this._clearImages().then(function () {
+            this._clearImages()
+            .then(this._setConfig.bind(this))
+            .then(this.$.globals.openIndexedDB)
+            .then(this.$.globals.initFS)
+            .then(function () {
               app.currentConfig = this.post.config;
-              if (this.post.hasOwnProperty('config')) {
-                delete this.post.config;
+              // creating a new config when no prevoius configs are stored
+              var currentConfig = app.configs[app.currentConfig];
+              console.log('length: ', app.configs.length);
+              console.log('config: ', currentConfig);
+              if (currentConfig === undefined && !app.configs.length) {
+                app.configs = [
+                  this.post
+                ];
+                this._completeConnection();
+              // add a new config to a existing config list
+              } else if (currentConfig === undefined && app.configs.length) {
+                app.configs.push(this.post);
+                this._completeConnection();
+              // picked another config
+              } else {
+                this._completeConnection();
               }
-              for (var key in this.post) {
-                app[key] = this.post[key];
-              }
-              this.$.globals.openIndexedDB().then(function () {
-                this.$.globals.initFS();
-                // creating a new config when no prevoius configs are stored
-                var currentConfig = app.configs[app.currentConfig];
-                console.log('length: ', app.configs.length);
-                console.log('config: ', currentConfig);
-                if (currentConfig === undefined && !app.configs.length) {
-                  app.configs = [
-                    this.post
-                  ];
-                  this._completeConnection();
-                // add a new config to a existing config list
-                } else if (currentConfig === undefined && app.configs.length) {
-                  app.configs.push(this.post);
-                  this._completeConnection();
-                // picked another config
-                } else {
-                  this._completeConnection();
-                }
-              }.bind(this), function (err) {
-                throw new Error('error opening indexeddb', err);
-              });
             }.bind(this), function (err) {
-              throw new Error('error clearing images', err)
-            });
+              this.isLoading = false;
+              throw new Error(err);
+            }.bind(this));
           } else {
+            this.isLoading = false;
             this.$.globals.makeToast(this.response['subsonic-response'].error.message);
           }
         }.bind(this), function () {

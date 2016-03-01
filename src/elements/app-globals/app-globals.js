@@ -71,20 +71,6 @@
   }
 
   /**
-   * initalize filesystem
-   */
-  function onInitFs(fs) {
-    app.filePath = encodeURIComponent(app.url) + '/' + encodeURIComponent(app.user);
-    app.fs = fs;
-    fs.root.getDirectory(app.filePath, {create: true}, function(dirEntry) {
-      console.log('Opened file system: ' + fs.name + '/' + app.filePath);
-    }, function () {
-      console.log('Creating file system: ' + fs.name + '/' + app.filePath);
-      createDir(fs.root, app.filePath.split('/'));
-    });
-  }
-
-  /**
    * return chrome localization string
    */
   function getMessage(id) {
@@ -299,10 +285,21 @@
     },
 
     initFS: function () {
-      navigator.webkitPersistentStorage.requestQuota(1024*1024*512, function(grantedBytes) {
-        window.requestFileSystem(PERSISTENT, grantedBytes, onInitFs, fsErrorHandler);
-      }, function(e) {
-        console.log('Error', e);
+      return new Promise(function (resolve, reject) {
+        navigator.webkitPersistentStorage.requestQuota(1024*1024*512, function(grantedBytes) {
+          window.requestFileSystem(PERSISTENT, grantedBytes, function (fs) {
+            app.filePath = encodeURIComponent(app.url) + '/' + encodeURIComponent(app.user);
+            app.fs = fs;
+            fs.root.getDirectory(app.filePath, {create: true}, function(dirEntry) {
+              console.log('Opened file system: ' + fs.name + '/' + app.filePath);
+              resolve();
+            }, function () {
+              console.log('Creating file system: ' + fs.name + '/' + app.filePath);
+              createDir(fs.root, app.filePath.split('/'));
+              resolve();
+            });
+          }, reject);
+        }, reject);
       });
     },
 
