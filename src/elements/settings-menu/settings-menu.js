@@ -470,9 +470,7 @@
               for (var key in imported) {
                 this.post[key] = imported[key];
               }
-              this.async(function () {
-                this.validateInputs();
-              });
+              this.async(this.validateInputs);
             } else {
               this.$.globals.makeToast('Error Importing Config');
             }
@@ -506,15 +504,16 @@
             }
             this._setConfig();
             if (editedURL) {
-              app.$.globals.openIndexedDB().then(function () {
-                app.$.globals.initFS();
-                var firstPing = app.$.globals.buildUrl('ping');
-                app.$.globals.doXhr(firstPing, 'json').then(function (e) {
-                  if (e.target.response['subsonic-response'].status === 'ok') {
-                    this.app.userDetails();
+              this._testPostSettings().then(function (response) {
+                if (response.status === 'ok') {
+                  this._clearImages().then(function () {
+                    this.$.globals.openIndexedDB();
+                    this._setConfig();
+                    this.$.globals.initFS();
+                    app.userDetails();
                     console.log('config ' + this.app.configs[this.app.currentConfig].name + ' Refreshed');
                     var folders = app.$.globals.buildUrl('getMusicFolders');
-                    app.$.globals.doXhr(folders, 'json').then(function (e) {
+                    this.$.globals.doXhr(folders, 'json').then(function (e) {
                       app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                       app.folder = 'none';
                       if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
@@ -525,9 +524,11 @@
                       app.tracker.sendAppView('Album Wall');
                       this.isLoading = false;
                     }.bind(this));
-                  }
-                }.bind(this));
-              });
+                  }.bind(this));
+                }else {
+                  this.$.globals.makeToast('Error connecting to Subsonic. Check Settings');
+                }
+              }.bind(this));
             }
           }
         }.bind(this));
