@@ -8,6 +8,12 @@ HTML5 Subsonic client
 </a>
 
 
+in current development
+
+- when finished playing playlist will not longer be automatically cleared
+
+- previous track button will now restart the track if pressed while first son gin playlist is currently playing
+
 Required software for development environment
 
 - NPM
@@ -47,9 +53,9 @@ Changelog
 
 - change max # of albums returned by search to 200. up from 20
 
-- if there is playing content the "mini player" will now shown at bottom of settings page aswell 
+- if there is playing content the "mini player" will now shown at bottom of settings page aswell
 
-- "mini player" now has link to volume dialog 
+- "mini player" now has link to volume dialog
 
 - album details dialog now has the link "more by this artist"
 
@@ -87,7 +93,7 @@ Changelog
 
 0.2.7.4
 
-- fix for app not loading a second time if not using MD5 auth and api version higher then 1.13.0 
+- fix for app not loading a second time if not using MD5 auth and api version higher then 1.13.0
 
 0.2.7.3
 

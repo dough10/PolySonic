@@ -194,7 +194,8 @@ Polymer('music-player',{
       this.audio.pause();
       this.removeListeners(this.audio);
       delete this.audio;
-      this.app.clearPlaylist();
+      app.$.playlistDialog.close();
+      app.page = 0;
 
       // hide mini players
       var minis = document.querySelectorAll('mini-player');
@@ -229,7 +230,11 @@ Polymer('music-player',{
    * incriment the playing item by -1
    */
   lastTrack: function () {
-    this.playNext(this.app.playing - 1);
+    if (this.app.playlist[this.app.playing - 1]) {
+      this.playNext(this.app.playing - 1);
+    } else {
+      this.audio.currentTime = 0;
+    }
   },
 
   /**
