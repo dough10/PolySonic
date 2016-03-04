@@ -225,9 +225,18 @@
       this.albumID = this.details.id;
       this.isFavorite = this.details.isFavorite || false;
       this.$.topper.style.backgroundImage = "url('" + this.details.cover + "')";
-      this.async(function () {
-        fitText(this.$.info, 1.2);
-      }, null, 500);
+      var nameTitle = this.artist + ' / ' + this.album;
+      console.log(nameTitle.length);
+      if (nameTitle.length > 100) {
+        this.$.nameTitle.style.fontSize = '13pt';
+      } else if (nameTitle.length > 26 && nameTitle.length < 100) {
+        this.$.nameTitle.style.fontSize = '18pt';
+      } else if (nameTitle.length < 36) {
+        this.$.nameTitle.style.fontSize = '22pt';
+      } else {
+        this.$.nameTitle.style.fontSize = '14pt';
+      }
+      this.$.nameTitle.textContent = nameTitle;
     },
 
     _resized: function (e) {
