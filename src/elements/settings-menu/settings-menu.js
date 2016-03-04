@@ -425,7 +425,7 @@
           if (writableEntry) {
             var blob = new Blob([
               btoa(
-                JSON.stringify(toSave, null, 2)
+                JSON.stringify(toSave)
               )
             ], {
               type: 'text/js'
