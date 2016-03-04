@@ -282,4 +282,5 @@ paper-icon-button[icon='bookmark'] {
   margin:8px;
   margin-right: 30px;
   max-height:30px;
+  min-height:30px;
 }

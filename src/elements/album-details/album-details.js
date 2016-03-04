@@ -173,6 +173,7 @@
     moreLike: function () {
       var id = this.details.artistId;
       this.close();
+      var playing = false;
       this.app.dataLoading = true;
       var url = this.$.globals.buildUrl('getSimilarSongs2', {
         count: 50,
@@ -198,10 +199,11 @@
               this.$.globals.getDbItem(artId + '-palette').then(function (e) {
                 obj.palette = e.target.result;
                 this.app.playlist.push(obj);
-                this.job('modeLike', function () {
+                if (!playing) {
+                  playing = true;
                   this.app.dataLoading = false;
                   this.$.globals.playListIndex(0);
-                }, 500);
+                };
               }.bind(this));
             }.bind(this));
           }.bind(this));
@@ -223,6 +225,9 @@
       this.albumID = this.details.id;
       this.isFavorite = this.details.isFavorite || false;
       this.$.topper.style.backgroundImage = "url('" + this.details.cover + "')";
+      this.async(function () {
+        fitText(this.$.info, 1.2);
+      }, null, 500);
     },
 
     _resized: function (e) {
