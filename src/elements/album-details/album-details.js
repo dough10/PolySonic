@@ -5,7 +5,7 @@
     ready: function () {
       this.app = app;
     },
-    
+
     add2Playlist: function () {
       this.app.playlist = this.app.playlist.concat(this.playlist);
       this.$.globals.makeToast(this.$.globals.texts.added2Queue);
@@ -16,7 +16,7 @@
         this.$.globals.playListIndex(0);
       }
     },
-    
+
     downloadAlbum: function (event, detail, sender) {
       var manager = new DownloadManager();
       this.app.isDownloading = true;
@@ -28,7 +28,7 @@
       });
       this.app.$.downloads.appendChild(manager);
     },
-    
+
     downloadTrack: function (event, detail, sender) {
       var manager = new DownloadManager();
       this.app.isDownloading = true;
@@ -36,13 +36,13 @@
       manager.downloadTrack(id);
       this.app.$.downloads.appendChild(manager);
     },
-    
+
     close: function () {
       this.app.tracker.sendAppView('Album Wall');
       this.opened = false;
       this.app.$.fab.state = 'off';
     },
-    
+
     playSingle: function (event, detail, sender) {
       this.app.playlist = [
         {
@@ -61,7 +61,7 @@
       }
       this.$.globals.playListIndex(0);
     },
-    
+
     addSingle2Playlist: function (event, detail, sender) {
       this.app.playlist.push({
         id: sender.attributes.ident.value,
@@ -80,7 +80,7 @@
       }
       this.$.globals.makeToast(this.$.globals.texts.added2Queue);
     },
-    
+
     addFavorite: function (event, detail, sender) {
       var url;
       if (this.app.queryMethod === 'ID3') {
@@ -101,7 +101,7 @@
         }
       }.bind(this));
     },
-    
+
     removeFavorite: function (event, detail, sender) {
       if (this.app.queryMethod === 'ID3') {
         var url = this.$.globals.buildUrl('unstar', {
@@ -121,7 +121,7 @@
         }
       }.bind(this));
     },
-    
+
     conBookDel: function (event, detail, sender) {
       this.delID = sender.attributes.ident.value;
       this.close();
@@ -213,7 +213,7 @@
         }
       }.bind(this));
     },
-    
+
     detailsChanged: function () {
       this.artist = this.details.artist;
       this.album = this.details.album;
@@ -229,8 +229,8 @@
       console.log(nameTitle.length);
       if (nameTitle.length > 100) {
         this.$.nameTitle.style.fontSize = '13pt';
-      } else if (nameTitle.length > 26 && nameTitle.length < 100) {
-        this.$.nameTitle.style.fontSize = '18pt';
+      } else if (nameTitle.length > 36 && nameTitle.length < 100) {
+        this.$.nameTitle.style.fontSize = '16pt';
       } else if (nameTitle.length < 36) {
         this.$.nameTitle.style.fontSize = '22pt';
       } else {
