@@ -156,20 +156,23 @@
 
     doQuery: function () {
       return new Promise(function (resolve, reject) {
-        var artId;
-        var url;
-        if (this.app.queryMethod === 'ID3') {
-          artId = "al-" + this.item;
-          url = this.$.globals.buildUrl('getAlbum', {
-            id: this.item
-          });
-        } else {
-          artId = this.item;
-          url = this.$.globals.buildUrl('getMusicDirectory', {
-            id: this.item
-          });
-        }
-        this.$.globals.getDbItem(artId + '-palette').then(function (e) {
+        var requestObj = (function () {
+          if (this.app.queryMethod === 'ID3') {
+            return {
+              artId: "al-" + this.item,
+              request: 'getAlbum'
+            };
+          } else {
+            return {
+              artId: this.item,
+              request: 'getMusicDirectory'
+            };
+          }
+        }.bind(this))();
+        var url = this.$.globals.buildUrl(requestObj.request, {
+          id: this.item
+        });
+        this.$.globals.getDbItem(requestObj.artId + '-palette').then(function (e) {
           this.palette = e.target.result;
           this.$.globals.doXhr(url, 'json').then(this.processJSON.bind(this)).then(resolve);
         }.bind(this));
@@ -182,12 +185,13 @@
         this.playlist = [];
         this.albumSize = 0;
         this.isLoading = true;
-        var artId;
-        if (this.app.queryMethod === 'ID3') {
-          artId = "al-" + this.item;
-        } else {
-          artId = this.item;
-        }
+        var artId = (function () {
+          if (this.app.queryMethod === 'ID3') {
+            return "al-" + this.item;
+          } else {
+            return this.item;
+          }
+        }.bind(this))();
         this.$.globals.fetchImage(artId).then(this.setImage.bind(this));
       } else {
         this.async(this._updateItem, null, 200);

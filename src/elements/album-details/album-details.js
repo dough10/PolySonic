@@ -203,7 +203,7 @@
                   playing = true;
                   this.app.dataLoading = false;
                   this.$.globals.playListIndex(0);
-                };
+                }
               }.bind(this));
             }.bind(this));
           }.bind(this));
@@ -227,14 +227,18 @@
       this.$.topper.style.backgroundImage = "url('" + this.details.cover + "')";
       var nameTitle = this.artist + ' / ' + this.album;
       console.log(nameTitle.length);
-      if (nameTitle.length > 100) {
+      if (nameTitle.length > 120) {
+        this.$.nameTitle.style.fontSize = '12pt';
+      } else if (nameTitle.length > 100 && nameTitle.length < 119) {
         this.$.nameTitle.style.fontSize = '13pt';
-      } else if (nameTitle.length > 36 && nameTitle.length < 100) {
+      } else if (nameTitle.length > 46 && nameTitle.length < 55) {
         this.$.nameTitle.style.fontSize = '16pt';
-      } else if (nameTitle.length < 36) {
+      } else if (nameTitle.length > 40 && nameTitle.length < 45) {
+        this.$.nameTitle.style.fontSize = '17pt';
+      } else if (nameTitle.length > 39 && nameTitle < 35) {
+        this.$.nameTitle.style.fontSize = '18pt';
+      } else if (nameTitle.length < 34) {
         this.$.nameTitle.style.fontSize = '22pt';
-      } else {
-        this.$.nameTitle.style.fontSize = '14pt';
       }
       this.$.nameTitle.textContent = nameTitle;
     },

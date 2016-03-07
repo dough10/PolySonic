@@ -568,8 +568,9 @@
           resolve(fileEntry.toURL());
         }.bind(this), function () {
           this._getImageFile(artId).then(function (imgURL) {
-            resolve(imgURL);
-            this._stealColor(imgURL, artId);
+            this._stealColor(imgURL, artId).then(function () {
+              resolve(imgURL);
+            });
           }.bind(this));
         }.bind(this));
       }.bind(this));
