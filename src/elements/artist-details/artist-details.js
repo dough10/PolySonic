@@ -17,29 +17,31 @@
      */
     queryData: function (artistId) {
       this.async(function () {
-        if ( this.headerIndex) delete this.headerIndex;
+        if (this.headerIndex) delete this.headerIndex;
         this.artistId = artistId;
-        var url;
-        if (app.queryMethod === 'ID3') {
-          url= this.$.globals.buildUrl('getArtistInfo2', {
-            id: artistId
-          });
-        } else {
-          url= this.$.globals.buildUrl('getArtistInfo', {
-            id: artistId
-          });
-        }
-        this.$.bg.style.backgroundImage = 'none';
-        this.$.bioImage.style.backgroundImage = 'none';
+        var url = this.$.globals.buildUrl((function () {
+          if (app.queryMethod === 'ID3') {
+            return 'getArtistInfo2';
+          } else {
+            return 'getArtistInfo';
+          }
+        })(), {
+          id: artistId
+        });
+
+        // attempt to remove old header image with delete
+        delete this.$.bg.style.backgroundImage;
+        delete this.$.bioImage.style.backgroundImage;
+
         this.$.globals.doXhr(url, 'json').then(function (e) {
           var res = e.target.response['subsonic-response'];
-          var artistBio;
-          if (app.queryMethod === 'ID3') {
-            artistBio = res.artistInfo2;
-          } else {
-            artistBio = res.artistInfo;
-          }
-          this.artistBio = artistBio;
+          this.artistBio = (function () {
+            if (app.queryMethod === 'ID3') {
+              return res.artistInfo2;
+            } else {
+              return res.artistInfo;
+            }
+          })();
           this.$.bio.innerHTML = this.artistBio.biography;
           this.loadingBio = true;
           if (this.artistBio.largeImageUrl) {
@@ -52,33 +54,39 @@
               this.$.bg.style.backgroundImage = "url('" + image.url + "')";
               this.headerImgURL = image.url;
               this.$.globals.getDbItem('artist-' + artistId + '-headerIndex').then(function (e) {
-                var index = e.target.result;
-                this.headerIndex = index;
+                this.headerIndex = e.target.result;
                 if (!app._animating) this._cropIt();
               }.bind(this));
             }.bind(this));
           } else {
             this.loadingBio = false;
           }
-          var url;
-          if (app.queryMethod === 'ID3') {
-            url = this.$.globals.buildUrl('getArtist', {
-              id: artistId
-            });
-          } else {
-            url = this.$.globals.buildUrl('getMusicDirectory', {
-              id: artistId
-            });
-          }
+          var url = this.$.globals.buildUrl((function () {
+            if (app.queryMethod === 'ID3') {
+              return 'getArtist';
+            } else {
+              return 'getMusicDirectory';
+            }
+          })(), {
+            id: artistId
+          });
           this.$.globals.doXhr(url, 'json').then(function (event) {
             var res = event.target.response['subsonic-response'];
-            if (app.queryMethod === 'ID3') {
-              this.data = res.artist.album;
-              this.artistName = this.data[0].artist;
-            } else {
-              this.data = res.directory.child;
-              this.artistName = res.directory.name
-            }
+            var resObj = (function () {
+              if (app.queryMethod === 'ID3') {
+                return {
+                  response: res.artist.album,
+                  artistName: res.artist.album[0].artist
+                };
+              } else {
+                return {
+                  response: res.directory.child,
+                  artistName: res.directory.name
+                };
+              }
+            })();
+            this.data = resObj.response;
+            this.artistName = resObj.artistname;
             for (var i = 0; i < this.data.length; i++) {
               this.data[i].listMode = this.listMode;
             }
@@ -217,6 +225,7 @@
             app.shufflePlaylist();
             if (!playing) {
               playing = true;
+              // idk where this undefined item is coming from be it need to be removed
               if (app.playlist[0] === undefined) {
                 app.playlist.splice(0, 1);
               }

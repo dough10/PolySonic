@@ -226,21 +226,31 @@
       this.isFavorite = this.details.isFavorite || false;
       this.$.topper.style.backgroundImage = "url('" + this.details.cover + "')";
       var nameTitle = this.artist + ' / ' + this.album;
-      console.log(nameTitle.length);
-      if (nameTitle.length > 120) {
-        this.$.nameTitle.style.fontSize = '12pt';
-      } else if (nameTitle.length > 100 && nameTitle.length < 119) {
-        this.$.nameTitle.style.fontSize = '13pt';
-      } else if (nameTitle.length > 46 && nameTitle.length < 55) {
-        this.$.nameTitle.style.fontSize = '16pt';
-      } else if (nameTitle.length > 40 && nameTitle.length < 45) {
-        this.$.nameTitle.style.fontSize = '17pt';
-      } else if (nameTitle.length > 39 && nameTitle < 35) {
-        this.$.nameTitle.style.fontSize = '18pt';
-      } else if (nameTitle.length < 34) {
-        this.$.nameTitle.style.fontSize = '22pt';
+      switch (true) {
+        case (nameTitle.length > 120):
+          this.$.nameTitle.style.fontSize = '12pt';
+          break;
+        case (nameTitle.length > 100 && nameTitle.length < 120):
+          this.$.nameTitle.style.fontSize = '13pt';
+          break;
+        case (nameTitle.length > 85 && nameTitle.length < 100):
+          this.$.nameTitle.style.fontSize = '14pt';
+          break;
+        case (nameTitle.length > 55 && nameTitle.length < 85):
+          this.$.nameTitle.style.fontSize = '15pt';
+          break;
+        case (nameTitle.length > 45 && nameTitle.length < 55):
+          this.$.nameTitle.style.fontSize = '16pt';
+          break;
+        case(nameTitle.length > 35 && nameTitle.length < 45):
+          this.$.nameTitle.style.fontSize = '18pt';
+          break;
+        case (nameTitle.length < 34):
+          this.$.nameTitle.style.fontSize = '22pt';
+          break;
       }
       this.$.nameTitle.textContent = nameTitle;
+      console.log(nameTitle.length);
     },
 
     _resized: function (e) {
