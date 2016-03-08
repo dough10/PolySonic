@@ -242,10 +242,10 @@
         case (nameTitle.length > 45 && nameTitle.length < 55):
           this.$.nameTitle.style.fontSize = '16pt';
           break;
-        case(nameTitle.length > 35 && nameTitle.length < 45):
+        case(nameTitle.length > 30 && nameTitle.length < 45):
           this.$.nameTitle.style.fontSize = '18pt';
           break;
-        case (nameTitle.length < 34):
+        case (nameTitle.length < 30):
           this.$.nameTitle.style.fontSize = '22pt';
           break;
       }

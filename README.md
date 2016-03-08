@@ -12,7 +12,11 @@ in current development
 
 - when finished playing playlist will not longer be automatically cleared
 
-- previous track button will now restart the track if pressed while first son gin playlist is currently playing
+- previous track button will now restart the track if pressed while first song in a playlist is currently playing
+
+- fix multi disc sorting (tracks will now be displayed in the order they are intended to be played)
+
+- bug fixes
 
 Required software for development environment
 

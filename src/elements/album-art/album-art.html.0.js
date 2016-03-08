@@ -114,14 +114,26 @@
       return new Promise(function (resolve, reject) {
         var res = e.target.response['subsonic-response'];
         this.playlist.length = 0;
-        var tracks = [];
-        if (this.app.queryMethod === 'ID3') {
-          this.artistId = res.album.artistId;
-          tracks = res.album.song;
-        } else {
-          this.artistId = res.directory.parent;
-          tracks = res.directory.child;
-        }
+        var obj = (function () {
+          if (this.app.queryMethod === 'ID3') {
+            return {
+              tracks: res.album.song,
+              artistId: res.album.artistId
+            };
+          } else {
+            return {
+              tracks: res.directory.child,
+              artistId: res.directory.parent
+            };
+          }
+        }.bind(this))();
+
+        // correctly sort tracks but discNumber && track
+        obj.tracks.sort(function sorting(a, b) {
+          return a.discNumber - b.discNumber || a.track - b.track;
+        });
+        this.artistId = obj.artistId;
+        var tracks = obj.tracks;
         var length = tracks.length;
         for (var i = 0; i < length; i++) {
           this.albumSize = this.albumSize + tracks[i].size;
@@ -133,23 +145,13 @@
             cover: this.imgURL,
             bookmarkPosition: tracks[i].bookmarkPosition,
             palette: this.palette,
-            disk: tracks[i].diskNumber,
+            disc: tracks[i].discNumber,
             track: tracks[i].track
           });
           if (tracks[i].bookmarkPosition && this.bookmarkIndex === undefined) {
             this.bookmarkIndex = i;
           }
         }
-        /* sort tracks by diskNumber thanks Joe Shelby */
-        this.playlist.sort(function sorting(a, b) {
-          var da = a.discNumber || 0, db = b.discNumber || 0,
-            ta = a.track || 0, tb = b.track || 0;
-          if (da === db) {
-            return ta - tb;
-          } else {
-            return da - db;
-          }
-        });
         this.async(resolve);
       }.bind(this));
     },
@@ -181,18 +183,17 @@
 
     _updateItem: function () {
       this.bookmarkIndex = undefined;
-      if (this.item && !this.app.scrolling) {
+      if (this.item && !this.app.scrolling && !this.app._animating) {
         this.playlist = [];
         this.albumSize = 0;
         this.isLoading = true;
-        var artId = (function () {
+        this.$.globals.fetchImage((function () {
           if (this.app.queryMethod === 'ID3') {
             return "al-" + this.item;
           } else {
             return this.item;
           }
-        }.bind(this))();
-        this.$.globals.fetchImage(artId).then(this.setImage.bind(this));
+        }.bind(this))()).then(this.setImage.bind(this));
       } else {
         this.async(this._updateItem, null, 200);
       }

@@ -18,6 +18,7 @@
     queryData: function (artistId) {
       this.async(function () {
         if (this.headerIndex) delete this.headerIndex;
+        this.headerImgURL = '';
         this.artistId = artistId;
         var url = this.$.globals.buildUrl((function () {
           if (app.queryMethod === 'ID3') {
@@ -29,9 +30,8 @@
           id: artistId
         });
 
-        // attempt to remove old header image with delete
-        delete this.$.bg.style.backgroundImage;
-        delete this.$.bioImage.style.backgroundImage;
+        this.$.bg.style.backgroundImage = 'none';
+        this.$.bioImage.style.backgroundImage = 'none';
 
         this.$.globals.doXhr(url, 'json').then(function (e) {
           var res = e.target.response['subsonic-response'];
@@ -42,9 +42,11 @@
               return res.artistInfo;
             }
           })();
-          this.$.bio.innerHTML = this.artistBio.biography;
+          if (this.artistBio && this.artistBio.hasOwnProperty('biography')) {
+            this.$.bio.innerHTML = this.artistBio.biography;
+          }
           this.loadingBio = true;
-          if (this.artistBio.largeImageUrl) {
+          if (this.artistBio && this.artistBio.hasOwnProperty('largeImageUrl')) {
             this.$.globals._fetchArtistHeaderImage(
               this.artistBio.largeImageUrl,
               artistId
@@ -86,7 +88,7 @@
               }
             })();
             this.data = resObj.response;
-            this.artistName = resObj.artistname;
+            this.artistName = resObj.artistName;
             for (var i = 0; i < this.data.length; i++) {
               this.data[i].listMode = this.listMode;
             }

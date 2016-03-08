@@ -594,8 +594,9 @@
             var r = color[1][0];
             var g = color[1][1];
             var b = color[1][2];
+            var hexString = rgbToHex(r, g, b);
             colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
-            colorArray[1] = getContrast50(rgbToHex(r, g, b));
+            colorArray[1] = getContrast50(hexString);
             colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4);';
             if (colorArray[1] !== 'white') {
               colorArray[3] = '#444444';
@@ -660,6 +661,10 @@
       }.bind(this));
     },
 
+    /**
+     * import file contents as text
+     * @param {Object} fileEntry - writeable file entry
+     */
     readAsText: function (fileEntry) {
       return new Promise(function (resolve, reject) {
         fileEntry.file(function(file) {
@@ -674,6 +679,10 @@
       });
     },
 
+    /**
+     * load a file entry
+     * @param {Object} chosenEntry - user chosen file entry
+     */
     loadFileEntry: function (chosenEntry) {
       return new Promise(function (resolve, reject) {
         if (chosenEntry) {
@@ -688,45 +697,45 @@
       }.bind(this));
     },
 
-    changeConfig: function (index) {
-      if (app.configs[index]) {
-        var url = app.configs[index].url;
-        var pass = app.configs[index].pass;
-        var md5Auth = app.configs[index].md5Auth;
-        var params = {
-          u: app.configs[index].user,
-          v: app.configs[index].version,
-          f: 'json',
-          c: 'PolySonic'
-        };
-
-
-        if (versionCompare(params.v, '1.13.0') >= 0 && md5Auth) {
-          params.s = makeSalt(16);
-          params.t = md5(pass + params.s);
-        } else {
-          params.p = pass.hexEncode();
-        }
-
-        var ping = url + '/rest/ping.view?' +  toQueryString(params);
-
-        this.doXhr(ping, 'json').then(function (json) {
-          json = json.target.response['subsonic-response'];
-          if (json.status === 'ok') {
-            app.url = app.configs[index].url;
-            app.user = app.configs[index].user;
-            app.pass = app.configs[index].pass;
-            app.md5Auth = app.configs[index].md5Auth;
-            app.version = json.version;
-            this.makeToast('Config Changed');
-          }
-        }.bind(this), function (e) {
-          this.makeToast('Error connecting this that config');
-        }.bind(this)).catch(function () {
-          this.makeToast('Error connecting this that config');
-        }.bind(this));
-      }
-    },
+    // changeConfig: function (index) {
+    //   if (app.configs[index]) {
+    //     var url = app.configs[index].url;
+    //     var pass = app.configs[index].pass;
+    //     var md5Auth = app.configs[index].md5Auth;
+    //     var params = {
+    //       u: app.configs[index].user,
+    //       v: app.configs[index].version,
+    //       f: 'json',
+    //       c: 'PolySonic'
+    //     };
+    //
+    //
+    //     if (versionCompare(params.v, '1.13.0') >= 0 && md5Auth) {
+    //       params.s = makeSalt(16);
+    //       params.t = md5(pass + params.s);
+    //     } else {
+    //       params.p = pass.hexEncode();
+    //     }
+    //
+    //     var ping = url + '/rest/ping.view?' +  toQueryString(params);
+    //
+    //     this.doXhr(ping, 'json').then(function (json) {
+    //       json = json.target.response['subsonic-response'];
+    //       if (json.status === 'ok') {
+    //         app.url = app.configs[index].url;
+    //         app.user = app.configs[index].user;
+    //         app.pass = app.configs[index].pass;
+    //         app.md5Auth = app.configs[index].md5Auth;
+    //         app.version = json.version;
+    //         this.makeToast('Config Changed');
+    //       }
+    //     }.bind(this), function (e) {
+    //       this.makeToast('Error connecting this that config');
+    //     }.bind(this)).catch(function () {
+    //       this.makeToast('Error connecting this that config');
+    //     }.bind(this));
+    //   }
+    // },
 
     /**
      * create a random string of a given length
@@ -755,8 +764,8 @@
 
     /**
      * generate a subsonic url string
-     * @param {String} method
-     * @param {Object} options
+     * @param {String} method - the subsonic query method
+     * @param {Object} options - object of options for the query
      */
     buildUrl: function(method, options) {
       if (options !== null && typeof options === 'object') {

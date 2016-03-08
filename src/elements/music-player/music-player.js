@@ -245,6 +245,12 @@ Polymer('music-player',{
     throw new Error('audio playback error ', e);
     this.$.globals.makeToast('Audio Playback Error');
     this.app.tracker.sendEvent('Audio Playback Error', e.target);
+    // hide mini players
+    var minis = document.querySelectorAll('mini-player');
+    var length = minis.length;
+    for (var i = 0; i < length; i++) {
+      minis[i].page = 0;
+    }
   },
 
   /**
