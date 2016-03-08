@@ -140,6 +140,12 @@
         top: 418px;
         transition: background 0.5s ease-out;
       }
+      .white {
+        color: rgba(255, 255, 255, 0.1);
+      }
+      .white:hover {
+        color: rgba(255, 255, 255, 1);
+      }
     </style>
     <app-globals id="globals"></app-globals>
     <div id="bg"></div>
@@ -153,6 +159,15 @@
                   <paper-spinner class="spinner" active></paper-spinner>
                 </div>
               </template>
+              <div horizontal layout>
+                <div>
+                  <paper-icon-button class="white" on-tap="{{_lastIndex}}" icon="arrow-back"></paper-icon-button>
+                </div>
+                <div flex></div>
+                <div>
+                  <paper-icon-button class="white" on-tap="{{_nextIndex}}" icon="arrow-forward"></paper-icon-button>
+                </div>
+              </div>
             </div>
             <paper-fab id="fab" on-tap="{{playAllAlbums}}"
                        icon="av:play-arrow"></paper-fab>

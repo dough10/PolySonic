@@ -9,11 +9,16 @@ chrome.app.runtime.onLaunched.addListener(function() {
       'width': 535,
       'height': 761
     },
-    'innerBounds': {
+    'outerBounds': {
       'width': 535,
       'height': 761,
       'minWidth': 535,
       'minHeight': 761
     }
+  }, function (created) {
+    var window =  created.contentWindow;
+    window.onload = function (e) {
+      console.log(e);
+    };
   });
 });

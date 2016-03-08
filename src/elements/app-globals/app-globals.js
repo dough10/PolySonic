@@ -269,8 +269,8 @@
       return new Promise(function (resolve, reject) {
         var request = indexedDB.open(dbName, dbVersion);
 
-        request.onerror = function () {
-          reject();
+        request.onerror = function (err) {
+          reject(err);
           console.log("Error creating/accessing IndexedDB database");
         };
 
@@ -501,7 +501,7 @@
      * use smartCrop to attempt to get a well centered header image
      * @param {String} image - url to the image we are attempting to crop
      */
-    _cropImage: function (image) {
+    _cropImage: function (image, index) {
       return new Promise(function (resolve, reject) {
         var containerWidth = 808;
         var parts = Math.abs(containerWidth / 21);
@@ -517,7 +517,12 @@
             canvas.width = containerWidth;
             canvas.height = height;
             var ctx = canvas.getContext('2d');
-            var crop = crops.crops[1];
+            var crop;
+            if (index) {
+              crop = crops.crops[index];
+            } else {
+              crop = crops.crops[1];
+            }
             ctx.drawImage(imgEl, crop.x, crop.y, crop.width, crop.height, 0, 0, containerWidth, height);
             resolve(canvas.toDataURL('image/jpg'));
           });

@@ -23,8 +23,8 @@ module.exports = function(grunt) {
         },
         files: {
           'src/PolySonic.html': 'src/index.html'
-        },
-      },
+        }
+      }
     },
     uglify: {
       options: {

@@ -179,10 +179,8 @@
             req.onsuccess = resolve;
             req.onerror = reject;
             req.onblocked = reject;
-          }, function (e) {
-            reject(e)
-          });
-        });
+          }, reject);
+        }, reject);
       });
     },
 
@@ -204,6 +202,7 @@
     _clearSettings: function () {
       this._clearImages().then(function () {
         chrome.storage.sync.clear();
+        chrome.storage.local.clear();
         app.url = '';
         app.user = '';
         app.pass = '';
@@ -232,10 +231,7 @@
           app.$.globals.openIndexedDB().then(function () {
             app.$.globals.initFS();
             app.dataLoading = false;
-            console.log(app.$.wall.request);
-            // swap methods
-            var request = app.$.wall.request;
-            switch (request) {
+            switch (app.$.wall.request) {
               case ('getIndexes'):
                 app.$.wall.getArtist();
                 break;
@@ -291,11 +287,10 @@
     },
 
     _setConfig: function () {
-      app.user = this.post.user;
-      app.url = this.post.url;
-      app.pass = this.post.pass;
-      app.version = this.post.version;
-      app.md5Auth = this.post.md5Auth;
+      var post = this.post;
+      for (var key in post) {
+        app[key] = post[key];
+      }
     },
 
     _cancelAttempt: function () {
@@ -337,7 +332,6 @@
             app.$.player.audio.pause();
           }
           app.playlist = [];
-          this._setConfig();
           app.currentConfig = this.post.config;
           simpleStorage.setLocal({
             currentConfig: app.currentConfig
@@ -345,6 +339,7 @@
           this.isLoading = false;
           app.dataLoading = true;
           this._clearImages().then(function () {
+            this._setConfig();
             app.$.globals.openIndexedDB().then(function () {
               app.$.globals.initFS();
               app.userDetails();
@@ -354,12 +349,14 @@
                 app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                 if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
                   app.$.sortBox.style.display = 'none';
+                } else {
+                  app.$.sortBox.style.display = 'block';
                 }
                 app.$.wall.refreshContent();
+                app.dataLoading = false;
                 this.async(function () {
                   this._setFormDisabledState(true);
                 }, null, 500);
-                app.dataLoading = false;
               }.bind(this));
             }.bind(this));
           }.bind(this));
@@ -526,6 +523,8 @@
                       app.folder = 'none';
                       if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
                         app.$.sortBox.style.display = 'none';
+                      } else {
+                        app.$.sortBox.style.display = 'block';
                       }
                       app.tracker.sendAppView('Album Wall');
                       this.isLoading = false;

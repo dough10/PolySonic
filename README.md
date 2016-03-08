@@ -37,6 +37,12 @@ Steps to install development environment
 After making changes run 'grunt' from the project root directory
 
 Changelog
+0.2.9.1
+
+- fix for issue where when changing servers folder dropdown might hide and not reappear
+
+- fix for when changing configs and attempting to clear up album metadata. app would attempt to clear data for a server it has not yet connected to (this may be preventing users from loging in)
+
 0.2.9
 
 - change max # of albums returned by search to 200. up from 20

@@ -1,11 +1,11 @@
+/*global chrome, CryptoJS, console, window, document, XMLHttpRequest, setInterval, screen, analytics, Blob, navigator, Image, CoreAnimation, ColorThief, setTimeout, Polymer, atob, Promise, versionCompare, simpleStorage, md5 */
 (function () {
-  'use-strict';
+  'use strict';
   var app = document.getElementById("tmpl");
-  Polymer('subsonic-login',{
+  Polymer('subsonic-login', {
     timer: 0,
 
     ready: function () {
-      'use strict';
       this.app = app;
       this.testingURL = false;
       this.post = {
@@ -31,7 +31,7 @@
 
     _newConfig: function () {
       this.post = {};
-      var configLength = app.configs.length
+      var configLength = app.configs.length;
       this.post.config = configLength;
       this.post.version = '1.11.0';
       this.post.name = 'Config' + Math.abs(configLength + 1);
@@ -52,12 +52,12 @@
             ]
           }
         ]
-      }, function(theEntry) {
+      }, function (theEntry) {
         if (theEntry) {
           this.$.globals.loadFileEntry(theEntry).then(function (encodedText) {
             var decodedText = atob(encodedText);
             var imported = JSON.parse(decodedText);
-            if  (imported.user && imported.url && imported.pass
+            if (imported.user && imported.url && imported.pass
                  && imported.name && imported.md5Auth && imported.version) {
               this.post.user = imported.user;
               this.post.url = imported.url;
@@ -163,6 +163,8 @@
         app.folder = 'none';
         if (res.musicFolders.musicFolder && !res.musicFolders.musicFolder[1]) {
           app.$.sortBox.style.display = 'none';
+        } else {
+          app.$.sortBox.style.display = 'block';
         }
       }.bind(this));
     },
@@ -183,38 +185,42 @@
         }
         this.isLoading = true;
         this._testPostSettings().then(function (json) {
-          console.log(json);
           this.isLoading = false;
           if (json.status === 'ok') {
-            app.currentConfig = this.post.config;
-            if ('config' in this.post) {
-              delete this.post.config;
-            }
-            for (var key in this.post) {
-              app[key] = this.post[key];
-            }
-
             app.$.firstRun.close();
-            app.version = json.version;
             this._clearImages().then(function () {
+              app.currentConfig = this.post.config;
+              if (this.post.hasOwnProperty('config')) {
+                delete this.post.config;
+              }
+              for (var key in this.post) {
+                app[key] = this.post[key];
+              }
               this.$.globals.openIndexedDB().then(function () {
                 this.$.globals.initFS();
                 // creating a new config when no prevoius configs are stored
-                if (app.configs[app.currentConfig] === undefined && !app.configs.length) {
+                var currentConfig = app.configs[app.currentConfig];
+                console.log('length: ', app.configs.length);
+                console.log('config: ', currentConfig);
+                if (currentConfig === undefined && !app.configs.length) {
                   app.configs = [
                     this.post
                   ];
                   this._completeConnection();
                 // add a new config to a existing config list
-                } else if (app.configs[app.currentConfig] === undefined && app.configs.length) {
+                } else if (currentConfig === undefined && app.configs.length) {
                   app.configs.push(this.post);
                   this._completeConnection();
                 // picked another config
                 } else {
                   this._completeConnection();
                 }
-              }.bind(this));
-            }.bind(this));
+              }.bind(this), function (err) {
+                throw new Error('error opening indexeddb', err);
+              });
+            }.bind(this), function (err) {
+              throw new Error('error clearing images', err)
+            });
           } else {
             this.$.globals.makeToast(this.response['subsonic-response'].error.message);
           }
@@ -237,12 +243,8 @@
     _checkKeyup: function (e) {
       this.validateInputs();
       if (e.keyIdentifier === "Enter") {
-        if (this.editing && !this.newConfig) {
-          //this._saveEdits();
-        } else if (!this.editing && this.newConfig && !this.isLoading) {
-          e.target.blur();
-          this.submit();
-        }
+        e.target.blur();
+        this.submit();
       }
     },
 
@@ -316,9 +318,7 @@
               req.onsuccess = resolve;
               req.onerror = reject;
               req.onblocked = reject;
-            }, function (e) {
-              reject(e)
-            });
+            }, reject);
           });
         } else {
           resolve();

@@ -214,10 +214,10 @@
    * @param {Event} event
    */
   app.deleteBookmark = function (event) {
-    app.$.globals.doXhr(
-      app.$.globals.buildUrl('deleteBookmark', {
-        id: app.delID
-      }), 'json', function (e) {
+    var url = app.$.globals.buildUrl('deleteBookmark', {
+      id: app.delID
+    });
+    app.$.globals.doXhr(url, 'json', function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         app.dataLoading = true;
         app.$.globals.doXhr(app.$.globals.buildUrl('getBookmarks', ''), 'json').then(function (ev) {
@@ -996,7 +996,7 @@
       app.dataLoading = false;
       app.configs = result.configs || [];
 
-      // update config storage method
+      // update config storage method from pre 0.2.9 method
       if (!app.configs.length && 'url' in result && 'user' in result && 'pass' in result) {
         // default md5 auth true
         if (result.md5Auth === undefined) {
@@ -1048,9 +1048,10 @@
       simpleStorage.getLocal().then(function (resultLocal) {
         app.bitRate = resultLocal.bitRate || 320;
         app.currentConfig = resultLocal.currentConfig || 0;
-        if (app.configs[app.currentConfig]) {
-          for (var key in app.configs[app.currentConfig]) {
-            app[key] = app.configs[app.currentConfig][key];
+        var using = app.configs[app.currentConfig];
+        if (using) {
+          for (var key in using) {
+            app[key] = using[key];
           }
         } else {
           app.url;
@@ -1087,7 +1088,7 @@
             if (e.target.status === 200) {
 
               // update api version if it has changed
-              if (versionCompare(json.version, app.version) >= 0) {
+              if (versionCompare(json.version, app.version) > 0) {
                 app.version = json.version;
                 simpleStorage.getSync('configs').then(function (configs) {
                   configs[app.currentConfig].version = app.version;
