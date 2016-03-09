@@ -715,7 +715,8 @@
     }
     app.tracker.sendEvent('ListMode Changed', app.listMode);
     if (app.page === 3) {
-      app.$.aDetails.queryData();
+      var id = app.$.aDetails.artistId;
+      app.$.aDetails.queryData(id);
     }
     var wallToggles = document.querySelectorAll('.wallToggle');
     for (var i = 0; i < wallToggles.length; i++) {

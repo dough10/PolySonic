@@ -53,12 +53,10 @@
       this.app.pageLimit = false;
       this.isLoading = true;
       this.app.dataLoading = true;
-      this.async(function () {
-        this.$.list.updateSize();
-        this.$.podcast.updateSize();
-        this.$.artists.updateSize();
-      });
-      this.async(callback, null, 200);
+      this.$.list.updateSize();
+      this.$.podcast.updateSize();
+      this.$.artists.updateSize();
+      this.async(callback, null, 250);
     },
 
     responseCallback: function () {
@@ -66,6 +64,8 @@
       this.isLoading = false;
       this.app.showApp();
       this.$.list.updateSize();
+      this.$.podcast.updateSize();
+      this.$.artists.updateSize();
     },
 
     responseChanged: function () {
