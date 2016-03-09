@@ -18,8 +18,8 @@
     },
 
     downloadAlbum: function (event, detail, sender) {
-      var manager = new DownloadManager();
       this.app.isDownloading = true;
+      var manager = new DownloadManager();
       manager.downloadAlbum({
         id: this.albumID,
         artist: this.artist,
@@ -82,16 +82,17 @@
     },
 
     addFavorite: function (event, detail, sender) {
-      var url;
-      if (this.app.queryMethod === 'ID3') {
-        url = this.$.globals.buildUrl('star', {
-          albumId: this.albumID
-        });
-      } else {
-        url = this.$.globals.buildUrl('star', {
-          id: this.albumID
-        });
-      }
+      var url = this.$.globals.buildUrl('star', (function () {
+        if (this.app.queryMethod === 'ID3') {
+          return {
+            albumId: this.albumID
+          };
+        } else {
+          return {
+            id: this.albumID
+          };
+        }
+      })());
       var animation = this.$.globals.attachAnimation(sender);
       animation.play();
       this.$.globals.doXhr(url, 'json').then(function (e) {
@@ -103,15 +104,17 @@
     },
 
     removeFavorite: function (event, detail, sender) {
-      if (this.app.queryMethod === 'ID3') {
-        var url = this.$.globals.buildUrl('unstar', {
-          albumId: this.albumID
-        });
-      } else {
-        var url = this.$.globals.buildUrl('unstar', {
-          id: this.albumID
-        });
-      }
+      var url = this.$.globals.buildUrl('unstar', (function () {
+        if (this.app.queryMethod === 'ID3') {
+          return {
+            albumId: this.albumID
+          };
+        } else {
+          return {
+            id: this.albumID
+          };
+        }
+      })());
       var animation = this.$.globals.attachAnimation(sender);
       animation.play();
       this.$.globals.doXhr(url, 'json').then(function (e) {
