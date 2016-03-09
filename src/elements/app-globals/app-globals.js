@@ -104,14 +104,17 @@
 
   /**
    * convert rgb values to hex color
-   * @param {Number} r
-   * @param {Number} g
-   * @param {Number} b
+   * @param {Number} r - red value
+   * @param {Number} g - green value
+   * @param {Number} b - blue value
    */
   function rgbToHex(r, g, b) {
     return componentToHex(r) + componentToHex(g) + componentToHex(b);
   }
 
+  /**
+   * hex encode a string
+   */
   String.prototype.hexEncode = function () {
     var r = '';
     var i = 0;
@@ -251,6 +254,9 @@
       querySizeLabel: getMessage('querySizeLabel')
     },
 
+    /**
+     * open the indexeddb database
+     */
     openIndexedDB: function () {
       return new Promise(function (resolve, reject) {
         var request = indexedDB.open(dbName, dbVersion);
@@ -284,6 +290,9 @@
       });
     },
 
+    /**
+     * initate the HTML 5 filesystem
+     */
     initFS: function () {
       return new Promise(function (resolve, reject) {
         navigator.webkitPersistentStorage.requestQuota(1024*1024*512, function(grantedBytes) {
@@ -303,6 +312,10 @@
       });
     },
 
+    /**
+     * format bytes into a readable form
+     * @param {Number} bytes
+     */
     formatBytes: function (bytes) {
       if (bytes < 1024) return bytes + ' Bytes';
       else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
@@ -529,7 +542,9 @@
 
 
     /**
-     *
+     * save the artist header image to HTML5 filesystem
+     * @param {Object} file - the file to be saved
+     * @param {String} artistId - id of the artist image we are saving
      */
     _saveArtistImage: function (file, artistId) {
       return new Promise(function (resolve, reject) {
@@ -621,6 +636,10 @@
       }
     },
 
+    /**
+     * wait for filke writer IO
+     * @param {Object} writer
+     */
     _waitForIO: function (writer) {
       return new Promise(function (resolve, reject) {
         // set a watchdog to avoid eventual locking:
@@ -644,7 +663,11 @@
       });
     },
 
-
+    /**
+     * save a file to a user selected file entry
+     * @param {Object} writableEntry - the user selected file entry
+     * @param {Object} blob - the file to be saved
+     */
     _writeFileEntry: function (writableEntry, blob) {
       return new Promise(function (resolve, reject) {
         writableEntry.createWriter(function(writer) {
@@ -696,46 +719,6 @@
         }
       }.bind(this));
     },
-
-    // changeConfig: function (index) {
-    //   if (app.configs[index]) {
-    //     var url = app.configs[index].url;
-    //     var pass = app.configs[index].pass;
-    //     var md5Auth = app.configs[index].md5Auth;
-    //     var params = {
-    //       u: app.configs[index].user,
-    //       v: app.configs[index].version,
-    //       f: 'json',
-    //       c: 'PolySonic'
-    //     };
-    //
-    //
-    //     if (versionCompare(params.v, '1.13.0') >= 0 && md5Auth) {
-    //       params.s = makeSalt(16);
-    //       params.t = md5(pass + params.s);
-    //     } else {
-    //       params.p = pass.hexEncode();
-    //     }
-    //
-    //     var ping = url + '/rest/ping.view?' +  toQueryString(params);
-    //
-    //     this.doXhr(ping, 'json').then(function (json) {
-    //       json = json.target.response['subsonic-response'];
-    //       if (json.status === 'ok') {
-    //         app.url = app.configs[index].url;
-    //         app.user = app.configs[index].user;
-    //         app.pass = app.configs[index].pass;
-    //         app.md5Auth = app.configs[index].md5Auth;
-    //         app.version = json.version;
-    //         this.makeToast('Config Changed');
-    //       }
-    //     }.bind(this), function (e) {
-    //       this.makeToast('Error connecting this that config');
-    //     }.bind(this)).catch(function () {
-    //       this.makeToast('Error connecting this that config');
-    //     }.bind(this));
-    //   }
-    // },
 
     /**
      * create a random string of a given length
