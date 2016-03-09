@@ -250,7 +250,6 @@
           break;
       }
       this.$.nameTitle.textContent = nameTitle;
-      console.log(nameTitle.length);
     },
 
     _resized: function (e) {

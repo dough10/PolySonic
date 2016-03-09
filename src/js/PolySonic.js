@@ -1030,7 +1030,7 @@
 
       app.autoBookmark = result.autoBookmark;
       app.gapless = result.gapless;
-      app.shuffleSettings.size = '50';
+      app.shuffleSettings.size = 50;
       app.querySize = result.querySeize || 60;
       app.volume = result.volume || 100;
       app.queryMethod = result.queryMethod || 'ID3';

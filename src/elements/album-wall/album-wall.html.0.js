@@ -224,6 +224,14 @@
       this.$.ajax.go();
     },
 
+    _saveLastRequest: function () {
+      chrome.storage.sync.set({
+        'sortType': this.post.type,
+        'request': this.request,
+        'mediaFolder': this.mediaFolder
+      });
+    },
+
     getPodcast: function () {
       this.showing = 'podcast';
       this.clearData(function podcastCallback() {
@@ -232,11 +240,7 @@
           delete this.post.type;
         }
         this.post.offset = 0;
-        chrome.storage.sync.set({
-          'sortType': this.post.type,
-          'request': this.request,
-          'mediaFolder': this.mediaFolder
-        });
+        this._saveLastRequest();
         this.async(this.doAjax.bind(this));
       }.bind(this));
     },
@@ -253,16 +257,13 @@
           delete this.post.type;
         }
         this.post.offset = 0;
-        chrome.storage.sync.set({
-          'sortType': this.post.type,
-          'request': this.request,
-          'mediaFolder': this.mediaFolder
-        });
+        this._saveLastRequest();
         this.async(this.doAjax.bind(this));
       }.bind(this));
     },
 
     getArtist: function () {
+      this.showing = 'artists';
       this.clearData(function artistSearch() {
         if (this.queryMethod === 'ID3') {
           this.request = 'getArtists';
@@ -273,12 +274,7 @@
           delete this.post.type;
         }
         this.post.offset = 0;
-        chrome.storage.sync.set({
-          'sortType': this.post.type,
-          'request': this.request,
-          'mediaFolder': this.mediaFolder
-        });
-        this.showing = 'artists';
+        this._saveLastRequest();
         this.async(this.doAjax.bind(this));
       }.bind(this));
     },
@@ -294,11 +290,7 @@
         }
         this.post.type = this.sort;
         this.post.offset = 0;
-        chrome.storage.sync.set({
-          'sortType': this.post.type,
-          'request': this.request,
-          'mediaFolder': this.mediaFolder
-        });
+        this._saveLastRequest();
         this.async(this.doAjax.bind(this));
       }.bind(this));
     },
@@ -314,7 +306,6 @@
       this.$.threshold.clearLower();
       if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.app.pageLimit && this.app.page === 0) {
         this.isLoading = true;
-        console.count('lazy load');
         this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
         this.async(this.doAjax.bind(this));
       }
