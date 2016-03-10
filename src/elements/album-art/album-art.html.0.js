@@ -70,6 +70,7 @@
         );
         this.$.albumPlaybackConfirm.open();
         if (this.app.$.albumDialog.opened) {
+          this.app.$.fab.state = 'bottom';
           this.app.$.albumDialog.opened = false;
         }
       } else {
@@ -94,6 +95,9 @@
       }
       this.app.dataLoading = false;
       this.app.$.albumDialog.opened = false;
+      if (this.app.$.fab.state !== 'bottom') {
+        this.app.$.fab.state = 'bottom';
+      }
       this.app.playlist = this.playlist;
       this.$.globals.playListIndex(0);
     },

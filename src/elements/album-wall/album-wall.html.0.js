@@ -265,8 +265,8 @@
     },
 
     getArtist: function () {
-      this.showing = 'artists';
       this.clearData().then(function artistSearch() {
+        this.showing = 'artists';
         this.request = (function () {
           if (this.queryMethod === 'ID3') {
             return 'getArtists';

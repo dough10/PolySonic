@@ -514,8 +514,8 @@
    */
   app.doAction = function (event, detail, sender) {
     var scroller = app.appScroller(),
-      wall = app.$.wall,
-      animation = app.$.globals.attachAnimation(sender);
+        wall = app.$.wall,
+        animation = app.$.globals.attachAnimation(sender);
     if (app.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast' && app.$.fab.state === 'bottom') {
       scroller.scrollTop = 0;
     }
@@ -527,14 +527,12 @@
     }
     if (app.page === 0 && app.$.fab.state === 'mid') {
       animation.play();
-      app.$.fab.state = 'bottom';
       wall.playSomething(sender.ident, function () {
         animation.cancel();
       });
     }
     if (app.page === 3) {
       animation.play();
-      app.$.fab.state = 'bottom';
       app.$.aDetails.playSomething(sender.ident, function () {
         animation.cancel();
       });
@@ -557,17 +555,16 @@
   app.doSearch = function () {
     if (app.searchQuery) {
       app.$.globals.closeDrawer().then(function () {
-        if (app.queryMethod === 'ID3') {
-          var url = app.$.globals.buildUrl('search3', {
-            query: encodeURIComponent(app.searchQuery),
-            albumCount: 200
-          });
-        } else {
-          var url = app.$.globals.buildUrl('search2', {
-            query: encodeURIComponent(app.searchQuery),
-            albumCount: 200
-          });
-        }
+        var url = app.$.globals.buildUrl((function () {
+          if (app.queryMethod === 'ID3') {
+            return'search3';
+          } else {
+            return 'search2';
+          }
+        })(), {
+          query: encodeURIComponent(app.searchQuery),
+          albumCount: 200
+        });
         app.$.globals.doXhr(url, 'json').then(function (e) {
           app.dataLoading = true;
           if (e.target.response['subsonic-response'].status === 'ok') {
@@ -601,11 +598,13 @@
    * @param {String} p - just a small string I send with the click to set animation
    */
   app.showPlaylist = function (p) {
-    if (p) {
-      app.$.playlistDialog.transition = "core-transition-bottom";
-    } else {
-      app.$.playlistDialog.transition = "core-transition-top";
-    }
+    app.$.playlistDialog.transition = (function () {
+      if (p) {
+        return "core-transition-bottom";
+      } else {
+        return "core-transition-top";
+      }
+    })();
     app.$.playlistDialog.toggle();
   };
 
@@ -702,17 +701,16 @@
   };
 
   app.toggleWall = function (e , detail, sender) {
-    if (app.listMode === 'cover') {
-      app.listMode = 'list';
-      simpleStorage.setSync({
-        'listMode': 'list'
-      });
-    } else {
-      app.listMode = 'cover';
-      simpleStorage.setSync({
-        'listMode': 'cover'
-      });
-    }
+    app.listMode = (function () {
+      if (app.listMode === 'cover') {
+        return 'list';
+      } else {
+        return 'cover';
+      }
+    })();
+    simpleStorage.setSync({
+      'listMode': app.listMode
+    });
     app.tracker.sendEvent('ListMode Changed', app.listMode);
     if (app.page === 3) {
       var id = app.$.aDetails.artistId;
@@ -751,54 +749,23 @@
   app.selectAction = function (event, detail, sender) {
     var wall = app.$.wall;
     app.tracker.sendEvent('Sorting By ' + wall.sort, new Date());
-    if (!app.narrow && app.page !== 0) {
-      app.page = 0;
-      app.async(function () {
-        if (wall.sort === sender.attributes.i.value) {
-          app.pageLimit = false;
-          if (app.queryMethod === 'ID3') {
-            wall.request = 'getAlbumList2';
-          } else {
-            wall.request = 'getAlbumList';
-          }
-          wall.post.type = sender.attributes.i.value;
-          wall.refreshContent();
-          wall.showing = app.listMode;
-          wall.$.threshold.clearLower();
-        }
-        wall.sort = sender.attributes.i.value;
-      });
-    } else if (!app.narrow) {
+    app.$.globals.closeDrawer().then(function () {
       if (wall.sort === sender.attributes.i.value) {
         app.pageLimit = false;
-        if (app.queryMethod === 'ID3') {
-          wall.request = 'getAlbumList2';
-        } else {
-          wall.request = 'getAlbumList';
-        }
+        wall.request = (function () {
+          if (app.queryMethod === 'ID3') {
+            return 'getAlbumList2';
+          } else {
+            return 'getAlbumList';
+          }
+        })();
         wall.post.type = sender.attributes.i.value;
         wall.refreshContent();
         wall.showing = app.listMode;
         wall.$.threshold.clearLower();
       }
       wall.sort = sender.attributes.i.value;
-    } else {
-      app.$.globals.closeDrawer().then(function () {
-        if (wall.sort === sender.attributes.i.value) {
-          app.pageLimit = false;
-          if (app.queryMethod === 'ID3') {
-            wall.request = 'getAlbumList2';
-          } else {
-            wall.request = 'getAlbumList';
-          }
-          wall.post.type = sender.attributes.i.value;
-          wall.refreshContent();
-          wall.showing = app.listMode;
-          wall.$.threshold.clearLower();
-        }
-        wall.sort = sender.attributes.i.value;
-      });
-    }
+    });
   };
 
   /**
@@ -807,9 +774,7 @@
   app.getPodcast = function () {
     app.tracker.sendEvent('Showing Podcast', new Date());
     app.page = 0;
-    app.$.globals.closeDrawer().then(function () {
-      app.$.wall.getPodcast();
-    });
+    app.$.globals.closeDrawer().then(app.$.wall.getPodcast());
   };
 
   /**
@@ -818,9 +783,7 @@
   app.getStarred = function () {
     app.tracker.sendEvent('Showing Favorites', new Date());
     app.page = 0;
-    app.$.globals.closeDrawer().then(function () {
-      app.$.wall.getStarred();
-    });
+    app.$.globals.closeDrawer().then(app.$.wall.getStarred());
   };
 
   /**
@@ -829,9 +792,7 @@
   app.getArtist = function () {
     app.tracker.sendEvent('Showing Artist List', new Date());
     app.page = 0;
-    app.$.globals.closeDrawer().then(function () {
-      app.$.wall.getArtist();
-    });
+    app.$.globals.closeDrawer().then(app.$.wall.getArtist());
   };
 
   /**
@@ -851,8 +812,8 @@
    */
   app.refreshPodcast = function (event, detail, sender) {
     var animation = app.$.globals.attachAnimation(sender);
-    animation.play();
     var url = app.$.globals.buildUrl('refreshPodcasts');
+    animation.play();
     app.$.globals.doXhr(url, 'json').then(function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         animation.cancel();
