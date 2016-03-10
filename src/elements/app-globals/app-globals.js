@@ -462,7 +462,11 @@
               fileWriter.onerror = function(e) {
                 console.log('Write failed: ' + e.toString());
               };
-              var blob = new Blob([ e.target.response ], { type: 'image/jpeg' });
+              var blob = new Blob([
+                e.target.response
+              ], {
+                type: 'image/jpeg'
+              });
 
               fileWriter.write(blob);
             }.bind(this), fsErrorHandler);
@@ -527,12 +531,13 @@
             canvas.width = containerWidth;
             canvas.height = height;
             var ctx = canvas.getContext('2d');
-            var crop;
-            if (index) {
-              crop = crops.crops[index];
-            } else {
-              crop = crops.crops[1];
-            }
+            var crop = (function (index) {
+              if (index) {
+                return crops.crops[index];
+              } else {
+                return crops.crops[1];
+              }
+            })(index);
             ctx.drawImage(imgEl, crop.x, crop.y, crop.width, crop.height, 0, 0, containerWidth, height);
             resolve(canvas.toDataURL('image/jpg'));
           });
@@ -563,7 +568,11 @@
             fileWriter.onerror = function(e) {
               console.log('Write failed: ' + e.toString());
             };
-            var blob = new Blob([ file ], { type: 'image/jpeg' });
+            var blob = new Blob([
+              file
+            ], {
+              type: 'image/jpeg'
+            });
             fileWriter.write(blob);
           }, fsErrorHandler);
         }, fsErrorHandler);
@@ -604,20 +613,23 @@
           var imgElement = new Image();
           imgElement.src = imgURL;
           imgElement.onload = function () {
+            var paletteIndex = 1;
             var color = getColor(imgElement);
             var colorArray = [];
-            var r = color[1][0];
-            var g = color[1][1];
-            var b = color[1][2];
+            var r = color[paletteIndex][0];
+            var g = color[paletteIndex][1];
+            var b = color[paletteIndex][2];
             var hexString = rgbToHex(r, g, b);
             colorArray[0] = 'rgb(' + r + ',' + g + ',' + b + ');';
             colorArray[1] = getContrast50(hexString);
             colorArray[2] = 'rgba(' + r + ',' + g + ',' + b + ',0.4);';
-            if (colorArray[1] !== 'white') {
-              colorArray[3] = '#444444';
-            } else {
-              colorArray[3] = '#c8c8c8';
-            }
+            colorArray[3] = (function () {
+              if (colorArray[1] !== 'white') {
+                return '#444444';
+              } else {
+                return '#c8c8c8';
+              }
+            })();
             this._putInDb(colorArray, artId + '-palette').then(resolve);
           }.bind(this);
         }
