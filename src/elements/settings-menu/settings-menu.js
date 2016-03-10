@@ -191,9 +191,11 @@
 
     _clearCache: function () {
       app.dataLoading = true;
-      this._clearImages().then(app.$.globals.openIndexedDB).then(function () {
-        app.$.globals.initFS();
-        app.calculateStorageSize();
+      this._clearImages()
+      .then(app.$.globals.openIndexedDB)
+      .then(app.$.globals.initFS)
+      .then(app.calculateStorageSize)
+      .then(function () {
         this.$.globals.makeToast('Cache cleared');
         app.dataLoading = false;
       }.bind(this));
@@ -203,12 +205,6 @@
       this._clearImages().then(function () {
         chrome.storage.sync.clear();
         chrome.storage.local.clear();
-        app.url = '';
-        app.user = '';
-        app.pass = '';
-        app.version = '';
-        app.bitRate = '';
-        app.querySize = '';
         app.$.reloadAppDialog.open();
       }, function () {
         this.$.globals.makeToast('Error deleteing Database');
@@ -500,7 +496,13 @@
           this.app.configs = storage.configs;
           this.isLoading = false;
           this.editing = false;
+          //  updating the config currently  in use
           if (this.post.config === this.app.currentConfig) {
+            // if md5 authrntication setting has changed it must be updated
+            if (this.app.md5Auth !== this.post.md5Auth) {
+              this.app.md5Auth = this.post.md5Auth;
+            }
+            // if the URL has changed it must be tested and caches cleard
             if (this.app.url !== this.post.url) {
               this._testPostSettings().then(function (response) {
                 if (response.status === 'ok') {

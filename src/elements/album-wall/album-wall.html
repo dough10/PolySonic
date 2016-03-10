@@ -130,7 +130,7 @@
             </template>
           </core-list>
           <div class="center">
-            <paper-spinner class="black" hidden?="{{!isLoading && app.dataLoading}}" active></paper-spinner>
+            <paper-spinner class="black" hidden?="{{!isLoading}}" active></paper-spinner>
           </div>
           <template if="{{app.pageLimit}}">
             <div class="foot"></div>
@@ -238,7 +238,7 @@
             </div>
           </template>
           <div class="center">
-            <paper-spinner class="black" hidden?="{{!isLoading && app.dataLoading}}" active></paper-spinner>
+            <paper-spinner class="black" hidden?="{{!isLoading}}" active></paper-spinner>
           </div>
           <template if="{{app.pageLimit}}">
             <div class="foot"></div>

@@ -92,7 +92,7 @@
             id: this.albumID
           };
         }
-      })());
+      }.bind(this))());
       var animation = this.$.globals.attachAnimation(sender);
       animation.play();
       this.$.globals.doXhr(url, 'json').then(function (e) {
@@ -114,7 +114,7 @@
             id: this.albumID
           };
         }
-      })());
+      }.bind(this))());
       var animation = this.$.globals.attachAnimation(sender);
       animation.play();
       this.$.globals.doXhr(url, 'json').then(function (e) {
