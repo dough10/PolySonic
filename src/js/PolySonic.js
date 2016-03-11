@@ -217,15 +217,17 @@
     var url = app.$.globals.buildUrl('deleteBookmark', {
       id: app.delID
     });
-    app.$.globals.doXhr(url, 'json', function (e) {
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         app.dataLoading = true;
-        app.$.globals.doXhr(app.$.globals.buildUrl('getBookmarks', ''), 'json').then(function (ev) {
-          app.allBookmarks = ev.target.response['subsonic-response'].bookmarks.bookmark;
+        var refreshUrl = app.$.globals.buildUrl('getBookmarks');
+        app.$.globals.doXhr(refreshUrl, 'json').then(function (ev) {
           app.$.showBookmarks.open();
+          app.allBookmarks = ev.target.response['subsonic-response'].bookmarks.bookmark;
           app.dataLoading = false;
         });
       } else {
+        console.log(e.target.response['subsonic-response']);
         app.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
       }
     });
