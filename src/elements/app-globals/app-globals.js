@@ -251,7 +251,8 @@
       cancelButton: getMessage('cancelButton'),
       editButton: getMessage('editButton'),
       exportButton: getMessage('exportButton'),
-      querySizeLabel: getMessage('querySizeLabel')
+      querySizeLabel: getMessage('querySizeLabel'),
+      deleteAllbookMarkConfirm: getMessage('deleteAllbookMarkConfirm')
     },
 
     /**

@@ -563,10 +563,10 @@
         <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{$.globals.texts.accept}}</paper-button>
       </paper-action-dialog>
 
-      <!-- delete confirmation bookmark-->
+      <!-- delete confirmation all bookmarks -->
       <paper-action-dialog id='bookmarkConfirmAll' autoclosedisabled transition="core-transition-center" layered>
         <div style="min-width:280px"></div>
-        <h4>{{$.globals.texts.deletebookMarkConfirm}}</h4>
+        <h4>{{$.globals.texts.deleteAllbookMarkConfirm}}</h4>
         <paper-button affirmative on-tap="{{openBookmarks}}">{{$.globals.texts.decline}}</paper-button>
         <paper-button affirmative on-tap="{{deleteAllBookmarks}}">{{$.globals.texts.accept}}</paper-button>
       </paper-action-dialog>

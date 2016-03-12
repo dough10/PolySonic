@@ -180,22 +180,22 @@
       obj.id = song.id;
       obj.album = song.album;
       obj.title = decodeURIComponent(song.title);
-      if (song.artist === 'Podcast') {
-        obj.artist = '';
-      } else {
-        obj.artist = song.artist;
-      }
+      obj.artist = (function () {
+        if (song.artist === 'Podcast') {
+           return '';
+        } else {
+          return song.artist;
+        }
+      })();
       obj.bookmarkPosition = song.bookmarkPosition;
       app.$.globals.fetchImage(artId).then(function (imgURL) {
         obj.cover = imgURL;
-        app.async(function () {
-          app.$.globals.getDbItem(artId + '-palette').then(function (palette) {
-            obj.palette = palette.target.result;
-            app.dataLoading = false;
-            app.playlist = [obj];
-            app.$.globals.playListIndex(0);
-          });
-        }, null, 200);
+        app.$.globals.getDbItem(artId + '-palette').then(function (palette) {
+          obj.palette = palette.target.result;
+          app.dataLoading = false;
+          app.playlist = [obj];
+          app.$.globals.playListIndex(0);
+        });
       });
     });
   };
@@ -233,16 +233,21 @@
     });
   };
 
+  /**
+   * confirm that the user really does want to delete all bookmarks
+   */
   app.confirmDeleteAll = function () {
-    if (app.allBookmarks.length) {
+    if (app.allBookmarks && app.allBookmarks.length) {
       app.$.showBookmarks.close();
       app.$.bookmarkConfirmAll.open();
     }
   };
 
+  /**
+   * delete all bookmarks
+   */
   app.deleteAllBookmarks = function () {
     for (var i = 0; i < app.allBookmarks.length; i++) {
-      var id = app.allBookmarks[i].entry.id;
       (function (id, end) {
         var url = app.$.globals.buildUrl('deleteBookmark', {
           id: id
@@ -258,7 +263,7 @@
             });
           }
         });
-      })(id, Boolean(i === app.allBookmarks.length - 1));
+      })(app.allBookmarks[i].entry.id, Boolean(i === app.allBookmarks.length - 1));
     }
   };
 
@@ -942,7 +947,7 @@
         if (response.status === 'ok') {
           app.activeUser = response.user;
         } else {
-          app.async(app.userDetails);
+          app.async(app.userDetails, null, 1000);
           console.error('Error getting User details');
         }
       });
