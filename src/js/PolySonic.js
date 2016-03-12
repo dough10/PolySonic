@@ -233,6 +233,35 @@
     });
   };
 
+  app.confirmDeleteAll = function () {
+    if (app.allBookmarks.length) {
+      app.$.showBookmarks.close();
+      app.$.bookmarkConfirmAll.open();
+    }
+  };
+
+  app.deleteAllBookmarks = function () {
+    for (var i = 0; i < app.allBookmarks.length; i++) {
+      var id = app.allBookmarks[i].entry.id;
+      (function (id, end) {
+        var url = app.$.globals.buildUrl('deleteBookmark', {
+          id: id
+        });
+        app.$.globals.doXhr(url, 'json').then(function (e) {
+          if (end) {
+            app.dataLoading = true;
+            var refreshUrl = app.$.globals.buildUrl('getBookmarks');
+            app.$.globals.doXhr(refreshUrl, 'json').then(function (ev) {
+              app.$.showBookmarks.open();
+              app.allBookmarks = ev.target.response['subsonic-response'].bookmarks.bookmark;
+              app.dataLoading = false;
+            });
+          }
+        });
+      })(id, Boolean(i === app.allBookmarks.length - 1));
+    }
+  };
+
   /**
    * close bookmarks dialog
    */

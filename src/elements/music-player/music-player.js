@@ -241,16 +241,14 @@ Polymer('music-player',{
    * audio playback error
    */
   audioError: function (e) {
-    this.app.page = 0;
-    throw new Error('audio playback error ', e);
-    this.$.globals.makeToast('Audio Playback Error');
-    this.app.tracker.sendEvent('Audio Playback Error', e.target);
     // hide mini players
     var minis = document.querySelectorAll('mini-player');
     var length = minis.length;
     for (var i = 0; i < length; i++) {
       minis[i].page = 0;
     }
+    this.app.page = 0;
+    this.$.globals.makeToast('Audio Playback Error');
   },
 
   /**
@@ -473,7 +471,7 @@ Polymer('music-player',{
     this.$.globals.doXhr(url, 'json').then(function (e) {
       this.app.submittingBookmark = false;
       if (e.target.response['subsonic-response'].status === 'ok') {
-        this.$.globals.makeToast(this.$.globals.markCreated);
+        this.$.globals.makeToast(this.$.globals.texts.markCreated);
         this.app.$.bookmarkDialog.close();
       } else {
         this.$.globals.makeToast(e.target.response['subsonic-response'].error.message);

@@ -232,7 +232,7 @@
                 </core-tooltip>
               </core-toolbar>
               <artist-details id="aDetails" listMode="{{listMode}}"></artist-details>
-            </core-header-panel> 
+            </core-header-panel>
             <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}"
                          progress="{{progress}}"></mini-player>
           </section>
@@ -304,6 +304,21 @@
         <div horizontal layout>
           <div style="font-weight: bold; font-size: 16px;" flex>{{$.globals.texts.bookmarks}}</div>
           <div>
+            <paper-menu-button>
+              <core-tooltip position="left" label="{{$.globals.texts.moreOptionsLabel}}">
+                <paper-icon-button icon="more-vert"></paper-icon-button>
+              </core-tooltip>
+              <paper-dropdown class="dropdown" halign="right">
+                <core-menu class="menu">
+                  <paper-item on-tap="{{confirmDeleteAll}}">
+                    <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
+                    Delete All
+                  </paper-item>
+                </core-menu>
+              </paper-dropdown>
+            </paper-menu-button>
+          </div>
+          <div>
             <core-tooltip label="{{$.globals.texts.closeLabel}}" position="left">
               <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeBookmarks}}"></paper-icon-button>
             </core-tooltip>
@@ -348,7 +363,7 @@
 
       <!-- want Toast? -->
       <paper-toast id="toast"></paper-toast>
-      
+
       <album-details id="albumDialog"></album-details>
 
       <!-- volume dialog -->
@@ -546,6 +561,14 @@
         <h4>{{$.globals.texts.deletebookMarkConfirm}}</h4>
         <paper-button affirmative on-tap="{{openBookmarks}}">{{$.globals.texts.decline}}</paper-button>
         <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{$.globals.texts.accept}}</paper-button>
+      </paper-action-dialog>
+
+      <!-- delete confirmation bookmark-->
+      <paper-action-dialog id='bookmarkConfirmAll' autoclosedisabled transition="core-transition-center" layered>
+        <div style="min-width:280px"></div>
+        <h4>{{$.globals.texts.deletebookMarkConfirm}}</h4>
+        <paper-button affirmative on-tap="{{openBookmarks}}">{{$.globals.texts.decline}}</paper-button>
+        <paper-button affirmative on-tap="{{deleteAllBookmarks}}">{{$.globals.texts.accept}}</paper-button>
       </paper-action-dialog>
 
       <!-- reload app dialog -->

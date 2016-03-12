@@ -236,20 +236,8 @@
         case (nameTitle.length > 100 && nameTitle.length < 120):
           this.$.nameTitle.style.fontSize = '13pt';
           break;
-        case (nameTitle.length > 85 && nameTitle.length < 100):
+        default:
           this.$.nameTitle.style.fontSize = '14pt';
-          break;
-        case (nameTitle.length > 55 && nameTitle.length < 85):
-          this.$.nameTitle.style.fontSize = '15pt';
-          break;
-        case (nameTitle.length > 45 && nameTitle.length < 55):
-          this.$.nameTitle.style.fontSize = '16pt';
-          break;
-        case(nameTitle.length > 30 && nameTitle.length < 45):
-          this.$.nameTitle.style.fontSize = '18pt';
-          break;
-        case (nameTitle.length < 30):
-          this.$.nameTitle.style.fontSize = '22pt';
           break;
       }
       this.$.nameTitle.textContent = nameTitle;
