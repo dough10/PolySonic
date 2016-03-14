@@ -135,7 +135,9 @@
           this.headerIndex || 0
         ).then(function (croppedURL) {
           this.$.bioImage.style.backgroundImage = "url('" + croppedURL + "')";
-          this.loadingBio = false;
+          this.async(function () {
+            this.loadingBio = false;
+          }, null, 250);
         }.bind(this));
       } else {
         this.loadingBio = false;

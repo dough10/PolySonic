@@ -429,9 +429,7 @@
         if (id) {
           var transaction = db.transaction([dbName], "readwrite");
           var request = transaction.objectStore(dbName).get(id);
-          request.onsuccess = function (e) {
-            resolve(e);
-          };
+          request.onsuccess = resolve;
           request.onerror = reject;
         }
       });
@@ -453,14 +451,13 @@
         this.doXhr(url, 'blob').then(function (e) {
           app.fs.root.getFile(app.filePath + '/' + fileName, {create: true}, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
-
               fileWriter.onwriteend = function(e) {
                 app.fs.root.getFile(app.filePath + '/' + fileName, {create: false}, function(retrived) {
                   resolve(retrived.toURL());
-                });
+                }, reject);
               };
-
               fileWriter.onerror = function(e) {
+                reject(e);
                 console.log('Write failed: ' + e.toString());
               };
               var blob = new Blob([
@@ -468,7 +465,6 @@
               ], {
                 type: 'image/jpeg'
               });
-
               fileWriter.write(blob);
             }.bind(this), fsErrorHandler);
           }.bind(this), fsErrorHandler);
@@ -497,11 +493,10 @@
           }.bind(this));
         }.bind(this), function () {
           this.doXhr(url, 'blob').then(this._resizeLargeImage).then(function (blob) {
-            var image = window.URL.createObjectURL(blob);
-            this._stealColor(image, 'artist-' + artistId).then(function (colors) {
-              this._saveArtistImage(blob, artistId).then(function () {
+            this._saveArtistImage(blob, artistId).then(function (imgURL) {
+              this._stealColor(imgURL, 'artist-' + artistId).then(function (colors) {
                 resolve({
-                  url: image,
+                  url: imgURL,
                   fabBgColor: colors[0],
                   fabColor: colors[1]
                 });
@@ -523,6 +518,8 @@
         var img = new Image();
         img.src = window.URL.createObjectURL(blob);
         img.onload = function () {
+          window.URL.revokeObjectURL(img.src);
+          img.remove();
           if (img.width > maxWidth) {
             var ratio = Math.abs(maxWidth / img.width);
             var canvas = document.createElement('canvas');
@@ -530,7 +527,10 @@
             canvas.height = Math.abs(img.height * ratio);
             var ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            canvas.toBlob(resolve, 'image/jpeg');
+            canvas.toBlob(function (blob) {
+              canvas.remove();
+              resolve(blob);
+            }, 'image/jpeg');
           } else {
             resolve(blob);
           }
@@ -550,6 +550,7 @@
         var imgEl = new Image();
         imgEl.src = image;
         imgEl.onload = function imgLoaded() {
+          imgEl.remove();
           SmartCrop.crop(imgEl, {
             width: containerWidth,
             height: height
@@ -566,7 +567,9 @@
               }
             })(index);
             ctx.drawImage(imgEl, crop.x, crop.y, crop.width, crop.height, 0, 0, containerWidth, height);
-            resolve(canvas.toDataURL('image/jpg'));
+            var url = canvas.toDataURL('image/jpg');
+            canvas.remove();
+            resolve(url);
           });
         };
       });
@@ -641,6 +644,7 @@
           var imgElement = new Image();
           imgElement.src = imgURL;
           imgElement.onload = function () {
+            imgElement.remove();
             var paletteIndex = 1;
             var color = getColor(imgElement);
             var colorArray = [];

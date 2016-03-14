@@ -157,6 +157,7 @@ Polymer('music-player',{
     // start playback
     this.applyAudioListeners(this.audio);
     this.audio.play();
+    this.app.isNowPlaying = true;
 
     // notify user of new track
     this.note.icon = obj.cover;
@@ -192,17 +193,8 @@ Polymer('music-player',{
       this.app.playing = next;
     } else {
       this.audio.pause();
-      this.removeListeners(this.audio);
-      delete this.audio;
-      app.$.playlistDialog.close();
       app.page = 0;
-
-      // hide mini players
-      var minis = document.querySelectorAll('mini-player');
-      var length = minis.length;
-      for (var i = 0; i < length; i++) {
-        minis[i].page = 0;
-      }
+      this.app.isNowPlaying = false;
     }
   },
 
