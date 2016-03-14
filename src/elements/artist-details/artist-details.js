@@ -45,8 +45,8 @@
           if (this.artistBio && this.artistBio.hasOwnProperty('biography')) {
             this.$.bio.innerHTML = this.artistBio.biography;
           }
-          this.loadingBio = true;
           if (this.artistBio && this.artistBio.hasOwnProperty('largeImageUrl')) {
+            this.loadingBio = true;
             this.$.globals._fetchArtistHeaderImage(
               this.artistBio.largeImageUrl,
               artistId

@@ -18,6 +18,8 @@ in current development
 
 - fix for bookmark window not reopening after deleting a bookmark
 
+- if downloaded artist header image is larger then 800 px will now be resized to 800 px width before saving
+
 - minor bug fixes
 
 Required software for development environment

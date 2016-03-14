@@ -496,20 +496,46 @@
             });
           }.bind(this));
         }.bind(this), function () {
-          this.doXhr(url, 'blob').then(function (xhrEvent) {
-            var blob = xhrEvent.target.response;
+          this.doXhr(url, 'blob').then(this._resizeLargeImage).then(function (blob) {
             var image = window.URL.createObjectURL(blob);
-            this._saveArtistImage(blob, artistId);
             this._stealColor(image, 'artist-' + artistId).then(function (colors) {
-              resolve({
-                url: image,
-                fabBgColor: colors[0],
-                fabColor: colors[1]
+              this._saveArtistImage(blob, artistId).then(function () {
+                resolve({
+                  url: image,
+                  fabBgColor: colors[0],
+                  fabColor: colors[1]
+                });
               });
-            });
+            }.bind(this));
           }.bind(this));
         }.bind(this));
       }.bind(this));
+    },
+
+    /**
+     * resize the downloaded image if wider then 800 px
+     * @param {Event} e - download finished event
+     */
+    _resizeLargeImage: function (e) {
+      return new Promise(function (resolve, reject) {
+        var maxWidth = 800;
+        var blob = e.target.response;
+        var img = new Image();
+        img.src = window.URL.createObjectURL(blob);
+        img.onload = function () {
+          if (img.width > maxWidth) {
+            var ratio = Math.abs(maxWidth / img.width);
+            var canvas = document.createElement('canvas');
+            canvas.width = Math.abs(img.width * ratio);
+            canvas.height = Math.abs(img.height * ratio);
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(resolve, 'image/jpeg');
+          } else {
+            resolve(blob);
+          }
+        };
+      });
     },
 
     /**
@@ -564,9 +590,10 @@
                 create: false
               }, function(retrived) {
                 resolve(retrived.toURL());
-              });
+              }, reject);
             };
             fileWriter.onerror = function(e) {
+              reject(e);
               console.log('Write failed: ' + e.toString());
             };
             var blob = new Blob([
@@ -684,10 +711,8 @@
     _writeFileEntry: function (writableEntry, blob) {
       return new Promise(function (resolve, reject) {
         writableEntry.createWriter(function(writer) {
-
           writer.onerror = reject;
           writer.onwriteend = resolve;
-
           writer.truncate(blob.size);
           this._waitForIO(writer).then(function() {
             writer.seek(0);
@@ -705,7 +730,6 @@
       return new Promise(function (resolve, reject) {
         fileEntry.file(function(file) {
           var reader = new FileReader();
-
           reader.onerror = _errorHandler;
           reader.onload = function(e) {
             resolve(e.target.result);
@@ -722,11 +746,7 @@
     loadFileEntry: function (chosenEntry) {
       return new Promise(function (resolve, reject) {
         if (chosenEntry) {
-          chosenEntry.file(function(file) {
-            this.readAsText(chosenEntry).then(function(result) {
-              resolve(result);
-            });
-          }.bind(this));
+          chosenEntry.file(this.readAsText).then(resolve);
         } else {
           reject();
         }
