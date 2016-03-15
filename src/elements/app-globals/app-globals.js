@@ -635,7 +635,6 @@
      * capture color palette from image and store in indexeddb
      * @param {String} imgURL
      * @param {String} artId
-     * @param {Function} callback - returns an array of colors
      */
     _stealColor: function (imgURL, artId) {
       return new Promise(function (resolve, reject) {
@@ -643,7 +642,6 @@
           var imgElement = new Image();
           imgElement.src = imgURL;
           imgElement.onload = function () {
-            imgElement.remove();
             var paletteIndex = 1;
             var color = getColor(imgElement);
             var colorArray = [];
@@ -662,6 +660,7 @@
               }
             })();
             this._putInDb(colorArray, artId + '-palette').then(resolve);
+            imgElement.remove();
           }.bind(this);
         }
       }.bind(this));
