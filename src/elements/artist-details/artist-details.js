@@ -132,7 +132,7 @@
       if (this.headerImgURL) {
         this.$.globals._cropImage(
           this.headerImgURL,
-          this.headerIndex || 0
+          this.headerIndex || 5
         ).then(function (croppedURL) {
           this.$.bioImage.style.backgroundImage = "url('" + croppedURL + "')";
           this.async(function () {

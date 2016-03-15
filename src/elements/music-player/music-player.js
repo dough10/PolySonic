@@ -76,6 +76,23 @@ Polymer('music-player',{
       this.$.bg.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
       this.playAudio(this.app.playlist[newVal]);
     }
+    if (this.app.activeUser) {
+      simpleStorage.setSync({
+        lastPlaying: this.playing
+      });
+    }
+  },
+
+  _savePlaylist: function () {
+    if (this.app.activeUser) {
+      simpleStorage.setSync({
+        playlist: this.playlist
+      });
+    }
+  },
+
+  playlistChanged: function () {
+    this.async(this._savePlaylist);
   },
 
   /**
@@ -209,6 +226,8 @@ Polymer('music-player',{
         id: this.app.playlist[this.app.playing].id
       });
       this.$.globals.doXhr(url, 'json').then(function (e) {
+        delete this.app.playlist[this.app.playing].bookmarkPosition;
+        this._savePlaylist();
         if (e.target.response['subsonic-response'].status === 'failed') {
           console.error(e.target.response['subsonic-response'].error.message);
         }
@@ -336,16 +355,19 @@ Polymer('music-player',{
       this.count = this.count + 1;
       if (this.count >= 250) {
         this.count = 0;
+        var position = Math.floor(audio.currentTime * 1000);
         var url = this.$.globals.buildUrl('createBookmark', {
           id: this.app.playlist[this.app.playing].id,
-          position: Math.floor(audio.currentTime * 1000),
+          position: position,
           comment: this.app.playlist[this.app.playing].title + ' at ' + this.$.globals.secondsToMins(audio.currentTime)
         });
         this.$.globals.doXhr(url, 'json').then(function (e) {
+          this.app.playlist[this.app.playing].bookmarkPosition = position;
+          this._savePlaylist();
           if (e.target.response['subsonic-response'].status === 'failed') {
             console.error(e.target.response['subsonic-response'].error.message);
           }
-        });
+        }.bind(this));
       }
     }
 

@@ -966,6 +966,15 @@
     }
   };
 
+  app._resumePlaylist = function () {
+    app.$.resumePlaylist.open();
+  };
+
+  app.resumeLast = function () {
+    app.playlist = app.lastPlaylist;
+    app.playing = app.lastPlaying;
+  };
+
 
   /**
    * key binding listener
@@ -1004,7 +1013,6 @@
           if (result.md5Auth === undefined) {
             result.md5Auth = true;
           }
-          console.log('updating config storage');
           app.configs.push({
             name: 'Config1',
             url: result.url,
@@ -1025,7 +1033,8 @@
             currentConfig: 0
           });
         }
-
+        app.lastPlaylist = result.playlist;
+        app.lastPlaying = result.lastPlaying;
         app.autoBookmark = result.autoBookmark;
         app.gapless = result.gapless;
         app.shuffleSettings.size = 50;
@@ -1033,7 +1042,7 @@
         app.volume = result.volume || 100;
         app.queryMethod = result.queryMethod || 'ID3';
         app.repeatPlaylist = false;
-        // configure album all first request
+        // configure album wall first request
         app.$.wall.post = {
           type: result.sortType || 'newest',
           size: 60,
@@ -1116,6 +1125,9 @@
 
                         // analistics
                         app.tracker.sendAppView('Album Wall');
+
+                        // if saved playlist give user the option to resume it
+                        if (app.lastPlaylist.length) app.async(app._resumePlaylist, null, 1000);
                       });
                     });
                   } else {

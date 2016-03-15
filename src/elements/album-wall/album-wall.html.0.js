@@ -63,9 +63,6 @@
       this.app.dataLoading = false;
       this.isLoading = false;
       this.app.showApp();
-      this.$.list.updateSize();
-      this.$.podcast.updateSize();
-      this.$.artists.updateSize();
     },
 
     responseChanged: function () {

@@ -191,8 +191,10 @@
                                  on-tap="{{back2List}}"></paper-icon-button>
               <div class="top" style="text-align: center;" flex>{{currentPlaying}}</div>
             </core-toolbar>
-            <music-player id="player" playing="{{playing}}" progress="{{progress}}"></music-player>
+            <music-player id="player" playlist="{{playlist}}" playing="{{playing}}" progress="{{progress}}"></music-player>
           </section>
+
+          <!-- settings page -->
           <section>
             <core-header-panel class="pages" mode="standard">
               <core-toolbar>
@@ -633,6 +635,14 @@
              style="position:absolute; top:80px; bottom:0; left:0; right:0; overflow:auto; padding:20px;">
         </div>
       </paper-dialog>
+
+      <!-- resume last playlist dialog -->
+      <paper-action-dialog id='resumePlaylist' transition="core-transition-center" layered>
+        <div style="min-width:280px"></div>
+        <h4>{{$.globals.texts.resumePlaylist}}</h4>
+        <paper-button affirmative>{{$.globals.texts.decline}}</paper-button>
+        <paper-button affirmative on-tap='{{resumeLast}}'>{{$.globals.texts.accept}}</paper-button>
+      </paper-action-dialog>
 
     </template>
   </div>

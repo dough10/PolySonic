@@ -425,6 +425,8 @@
   },
   "deleteAllbookMarkConfirm": {
     "message": "Delete All Bookmarks? Are you Sure?"
+  },
+  "resumePlaylist": {
+    "message": "Resume Last Playlist?"
   }
-
 }

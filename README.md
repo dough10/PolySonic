@@ -20,6 +20,8 @@ in current development
 
 - if downloaded artist header image is larger then 800 px will now be resized to 800 px width before saving
 
+- if app is closed with files in the play queue user will get option to resume that queue
+
 - minor bug fixes
 
 Required software for development environment
