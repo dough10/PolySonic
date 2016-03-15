@@ -975,6 +975,15 @@
     app.playing = app.lastPlaying;
   };
 
+  app.clearLastPlaylist = function () {
+    simpleStorage.setSync({
+      lastPlaying: undefined
+    });
+    app.$.globals._putInDb([], 'playlist');
+    app.lastPlaylist = undefined;
+    app.lastPlaying = undefined;
+  };
+
 
   /**
    * key binding listener
@@ -1033,7 +1042,6 @@
             currentConfig: 0
           });
         }
-        app.lastPlaylist = result.playlist;
         app.lastPlaying = result.lastPlaying;
         app.autoBookmark = result.autoBookmark;
         app.gapless = result.gapless;
@@ -1127,7 +1135,10 @@
                         app.tracker.sendAppView('Album Wall');
 
                         // if saved playlist give user the option to resume it
-                        if (app.lastPlaylist.length) app.async(app._resumePlaylist, null, 1000);
+                        app.$.globals.getDbItem('playlist').then(function (e) {
+                          app.lastPlaylist = e.target.result;
+                          if (app.lastPlaylist && app.lastPlaylist.length) app.async(app._resumePlaylist, null, 1000);
+                        });
                       });
                     });
                   } else {

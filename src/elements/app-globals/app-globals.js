@@ -423,7 +423,6 @@
     /**
      * fetch a item from indexeddb
      * @param {String} id
-     * @param {Function} callback
      */
     getDbItem: function (id) {
       return new Promise(function (resolve, reject) {
@@ -439,7 +438,6 @@
 
     /**
      * Fetch image from subsonic server and store it in HTML5 filesystem
-     * @param {String} url
      * @param {String} id
      */
     _getImageFile: function (id) {
@@ -751,7 +749,11 @@
     loadFileEntry: function (chosenEntry) {
       return new Promise(function (resolve, reject) {
         if (chosenEntry) {
-          chosenEntry.file(this.readAsText).then(resolve);
+          chosenEntry.file(function(file) {
+            this.readAsText(chosenEntry).then(function(result) {
+              resolve(result);
+            });
+          }.bind(this));
         } else {
           reject();
         }

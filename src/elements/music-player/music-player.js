@@ -85,9 +85,7 @@ Polymer('music-player',{
 
   _savePlaylist: function () {
     if (this.app.activeUser) {
-      simpleStorage.setSync({
-        playlist: this.playlist
-      });
+      this.$.globals._putInDb(this.playlist, 'playlist');
     }
   },
 
