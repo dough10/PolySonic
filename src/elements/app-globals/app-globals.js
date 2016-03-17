@@ -253,7 +253,8 @@
       exportButton: getMessage('exportButton'),
       querySizeLabel: getMessage('querySizeLabel'),
       deleteAllbookMarkConfirm: getMessage('deleteAllbookMarkConfirm'),
-      resumePlaylist: getMessage('resumePlaylist')
+      resumePlaylist: getMessage('resumePlaylist'),
+      resume: getMessage('resume')
     },
 
     /**

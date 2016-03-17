@@ -250,12 +250,7 @@ Polymer('music-player',{
    * audio playback error
    */
   audioError: function (e) {
-    // hide mini players
-    var minis = document.querySelectorAll('mini-player');
-    var length = minis.length;
-    for (var i = 0; i < length; i++) {
-      minis[i].page = 0;
-    }
+    this.app.isNowPlaying = false;
     this.app.page = 0;
     this.$.globals.makeToast('Audio Playback Error');
   },

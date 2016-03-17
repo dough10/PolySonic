@@ -640,8 +640,14 @@
       <paper-action-dialog id='resumePlaylist' transition="core-transition-center" layered>
         <div style="min-width:280px"></div>
         <h4>{{$.globals.texts.resumePlaylist}}</h4>
+        <div>
+          {{lastPlaylist.length}} Tracks in old Queue..
+          <br>
+          <br>
+          Track {{lastPlaying + 1}} "{{lastPlaylist[lastPlaying].title}}" by {{lastPlaylist[lastPlaying].artist}} was last playing..
+        </div>
         <paper-button affirmative on-tap='{{clearLastPlaylist}}'>{{$.globals.texts.decline}}</paper-button>
-        <paper-button affirmative on-tap='{{resumeLast}}'>{{$.globals.texts.accept}}</paper-button>
+        <paper-button affirmative on-tap='{{resumeLast}}'>{{$.globals.texts.resume}}</paper-button>
       </paper-action-dialog>
 
     </template>
