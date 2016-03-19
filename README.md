@@ -8,22 +8,6 @@ HTML5 Subsonic client
 </a>
 
 
-in current development
-
-- when finished playing playlist will not longer be automatically cleared
-
-- previous track button will now restart the track if pressed while first song in a playlist is currently playing if no the first track will jusp back 1 track
-
-- fix multi disc sorting (tracks will now be displayed in the order they are intended to be played)
-
-- fix for bookmark window not reopening after deleting a bookmark
-
-- if downloaded artist header image is larger then 800 px will now be resized to 800 px width before saving
-
-- if app is closed with files in the play queue user will get option to resume that queue
-
-- minor bug fixes
-
 Required software for development environment
 
 - NPM
@@ -53,6 +37,22 @@ Steps to install development environment
 After making changes run 'grunt' from the project root directory
 
 Changelog
+0.2.9.2
+
+- when finished playing playlist will not longer be automatically cleared
+
+- previous track button will now restart the track if pressed while first song in a playlist is currently playing if not the first track will jump back 1 track
+
+- fix multi disc sorting (tracks will now be displayed in the order they are intended to be played)
+
+- fix for bookmark window not reopening after deleting a bookmark
+
+- if downloaded artist header image is larger then 800 px will now be resized to 800 px width before saving
+
+- if app is closed with files in the play queue user will get option to resume that queue
+
+- minor bug fixes
+
 0.2.9.1
 
 - fix for issue where when changing servers folder dropdown might hide and not reappear
