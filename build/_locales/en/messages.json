@@ -422,6 +422,14 @@
   },
   "querySizeLabel":{
     "message":"Number of Albums per request"
+  },
+  "deleteAllbookMarkConfirm": {
+    "message": "Delete All Bookmarks? Are you Sure?"
+  },
+  "resumePlaylist": {
+    "message": "Resume Last Play Queue?"
+  },
+  "resume": {
+    "message": "Resume"
   }
-
 }

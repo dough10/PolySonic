@@ -76,6 +76,21 @@ Polymer('music-player',{
       this.$.bg.style.backgroundImage = "url('" + this.app.playlist[newVal].cover + "')";
       this.playAudio(this.app.playlist[newVal]);
     }
+    if (this.app.activeUser) {
+      simpleStorage.setSync({
+        lastPlaying: this.playing
+      });
+    }
+  },
+
+  _savePlaylist: function () {
+    if (this.app.activeUser) {
+      this.$.globals._putInDb(this.playlist, 'playlist');
+    }
+  },
+
+  playlistChanged: function () {
+    this.async(this._savePlaylist);
   },
 
   /**
@@ -157,6 +172,7 @@ Polymer('music-player',{
     // start playback
     this.applyAudioListeners(this.audio);
     this.audio.play();
+    this.app.isNowPlaying = true;
 
     // notify user of new track
     this.note.icon = obj.cover;
@@ -192,16 +208,8 @@ Polymer('music-player',{
       this.app.playing = next;
     } else {
       this.audio.pause();
-      this.removeListeners(this.audio);
-      delete this.audio;
-      this.app.clearPlaylist();
-
-      // hide mini players
-      var minis = document.querySelectorAll('mini-player');
-      var length = minis.length;
-      for (var i = 0; i < length; i++) {
-        minis[i].page = 0;
-      }
+      app.page = 0;
+      this.app.isNowPlaying = false;
     }
   },
 
@@ -216,6 +224,8 @@ Polymer('music-player',{
         id: this.app.playlist[this.app.playing].id
       });
       this.$.globals.doXhr(url, 'json').then(function (e) {
+        delete this.app.playlist[this.app.playing].bookmarkPosition;
+        this._savePlaylist();
         if (e.target.response['subsonic-response'].status === 'failed') {
           console.error(e.target.response['subsonic-response'].error.message);
         }
@@ -229,17 +239,20 @@ Polymer('music-player',{
    * incriment the playing item by -1
    */
   lastTrack: function () {
-    this.playNext(this.app.playing - 1);
+    if (this.app.playlist[this.app.playing - 1]) {
+      this.playNext(this.app.playing - 1);
+    } else {
+      this.audio.currentTime = 0;
+    }
   },
 
   /**
    * audio playback error
    */
   audioError: function (e) {
+    this.app.isNowPlaying = false;
     this.app.page = 0;
-    throw new Error('audio playback error ', e);
     this.$.globals.makeToast('Audio Playback Error');
-    this.app.tracker.sendEvent('Audio Playback Error', e.target);
   },
 
   /**
@@ -335,16 +348,19 @@ Polymer('music-player',{
       this.count = this.count + 1;
       if (this.count >= 250) {
         this.count = 0;
+        var position = Math.floor(audio.currentTime * 1000);
         var url = this.$.globals.buildUrl('createBookmark', {
           id: this.app.playlist[this.app.playing].id,
-          position: Math.floor(audio.currentTime * 1000),
+          position: position,
           comment: this.app.playlist[this.app.playing].title + ' at ' + this.$.globals.secondsToMins(audio.currentTime)
         });
         this.$.globals.doXhr(url, 'json').then(function (e) {
+          this.app.playlist[this.app.playing].bookmarkPosition = position;
+          this._savePlaylist();
           if (e.target.response['subsonic-response'].status === 'failed') {
             console.error(e.target.response['subsonic-response'].error.message);
           }
-        });
+        }.bind(this));
       }
     }
 
@@ -462,7 +478,7 @@ Polymer('music-player',{
     this.$.globals.doXhr(url, 'json').then(function (e) {
       this.app.submittingBookmark = false;
       if (e.target.response['subsonic-response'].status === 'ok') {
-        this.$.globals.makeToast(this.$.globals.markCreated);
+        this.$.globals.makeToast(this.$.globals.texts.markCreated);
         this.app.$.bookmarkDialog.close();
       } else {
         this.$.globals.makeToast(e.target.response['subsonic-response'].error.message);

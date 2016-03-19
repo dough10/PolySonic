@@ -180,22 +180,22 @@
       obj.id = song.id;
       obj.album = song.album;
       obj.title = decodeURIComponent(song.title);
-      if (song.artist === 'Podcast') {
-        obj.artist = '';
-      } else {
-        obj.artist = song.artist;
-      }
+      obj.artist = (function () {
+        if (song.artist === 'Podcast') {
+           return '';
+        } else {
+          return song.artist;
+        }
+      })();
       obj.bookmarkPosition = song.bookmarkPosition;
       app.$.globals.fetchImage(artId).then(function (imgURL) {
         obj.cover = imgURL;
-        app.async(function () {
-          app.$.globals.getDbItem(artId + '-palette').then(function (palette) {
-            obj.palette = palette.target.result;
-            app.dataLoading = false;
-            app.playlist = [obj];
-            app.$.globals.playListIndex(0);
-          });
-        }, null, 200);
+        app.$.globals.getDbItem(artId + '-palette').then(function (palette) {
+          obj.palette = palette.target.result;
+          app.dataLoading = false;
+          app.playlist = [obj];
+          app.$.globals.playListIndex(0);
+        });
       });
     });
   };
@@ -217,18 +217,54 @@
     var url = app.$.globals.buildUrl('deleteBookmark', {
       id: app.delID
     });
-    app.$.globals.doXhr(url, 'json', function (e) {
+    app.$.globals.doXhr(url, 'json').then(function (e) {
       if (e.target.response['subsonic-response'].status === 'ok') {
         app.dataLoading = true;
-        app.$.globals.doXhr(app.$.globals.buildUrl('getBookmarks', ''), 'json').then(function (ev) {
-          app.allBookmarks = ev.target.response['subsonic-response'].bookmarks.bookmark;
+        var refreshUrl = app.$.globals.buildUrl('getBookmarks');
+        app.$.globals.doXhr(refreshUrl, 'json').then(function (ev) {
           app.$.showBookmarks.open();
+          app.allBookmarks = ev.target.response['subsonic-response'].bookmarks.bookmark;
           app.dataLoading = false;
         });
       } else {
+        console.log(e.target.response['subsonic-response']);
         app.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
       }
     });
+  };
+
+  /**
+   * confirm that the user really does want to delete all bookmarks
+   */
+  app.confirmDeleteAll = function () {
+    if (app.allBookmarks && app.allBookmarks.length) {
+      app.$.showBookmarks.close();
+      app.$.bookmarkConfirmAll.open();
+    }
+  };
+
+  /**
+   * delete all bookmarks
+   */
+  app.deleteAllBookmarks = function () {
+    for (var i = 0; i < app.allBookmarks.length; i++) {
+      (function (id, end) {
+        var url = app.$.globals.buildUrl('deleteBookmark', {
+          id: id
+        });
+        app.$.globals.doXhr(url, 'json').then(function (e) {
+          if (end) {
+            app.dataLoading = true;
+            var refreshUrl = app.$.globals.buildUrl('getBookmarks');
+            app.$.globals.doXhr(refreshUrl, 'json').then(function (ev) {
+              app.$.showBookmarks.open();
+              app.allBookmarks = ev.target.response['subsonic-response'].bookmarks.bookmark;
+              app.dataLoading = false;
+            });
+          }
+        });
+      })(app.allBookmarks[i].entry.id, Boolean(i === app.allBookmarks.length - 1));
+    }
   };
 
   /**
@@ -514,8 +550,8 @@
    */
   app.doAction = function (event, detail, sender) {
     var scroller = app.appScroller(),
-      wall = app.$.wall,
-      animation = app.$.globals.attachAnimation(sender);
+        wall = app.$.wall,
+        animation = app.$.globals.attachAnimation(sender);
     if (app.page === 0 && scroller.scrollTop !== 0 && wall.showing !== 'podcast' && app.$.fab.state === 'bottom') {
       scroller.scrollTop = 0;
     }
@@ -527,14 +563,12 @@
     }
     if (app.page === 0 && app.$.fab.state === 'mid') {
       animation.play();
-      app.$.fab.state = 'bottom';
       wall.playSomething(sender.ident, function () {
         animation.cancel();
       });
     }
     if (app.page === 3) {
       animation.play();
-      app.$.fab.state = 'bottom';
       app.$.aDetails.playSomething(sender.ident, function () {
         animation.cancel();
       });
@@ -557,17 +591,16 @@
   app.doSearch = function () {
     if (app.searchQuery) {
       app.$.globals.closeDrawer().then(function () {
-        if (app.queryMethod === 'ID3') {
-          var url = app.$.globals.buildUrl('search3', {
-            query: encodeURIComponent(app.searchQuery),
-            albumCount: 200
-          });
-        } else {
-          var url = app.$.globals.buildUrl('search2', {
-            query: encodeURIComponent(app.searchQuery),
-            albumCount: 200
-          });
-        }
+        var url = app.$.globals.buildUrl((function () {
+          if (app.queryMethod === 'ID3') {
+            return'search3';
+          } else {
+            return 'search2';
+          }
+        })(), {
+          query: encodeURIComponent(app.searchQuery),
+          albumCount: 200
+        });
         app.$.globals.doXhr(url, 'json').then(function (e) {
           app.dataLoading = true;
           if (e.target.response['subsonic-response'].status === 'ok') {
@@ -601,11 +634,13 @@
    * @param {String} p - just a small string I send with the click to set animation
    */
   app.showPlaylist = function (p) {
-    if (p) {
-      app.$.playlistDialog.transition = "core-transition-bottom";
-    } else {
-      app.$.playlistDialog.transition = "core-transition-top";
-    }
+    app.$.playlistDialog.transition = (function () {
+      if (p) {
+        return "core-transition-bottom";
+      } else {
+        return "core-transition-top";
+      }
+    })();
     app.$.playlistDialog.toggle();
   };
 
@@ -702,20 +737,20 @@
   };
 
   app.toggleWall = function (e , detail, sender) {
-    if (app.listMode === 'cover') {
-      app.listMode = 'list';
-      simpleStorage.setSync({
-        'listMode': 'list'
-      });
-    } else {
-      app.listMode = 'cover';
-      simpleStorage.setSync({
-        'listMode': 'cover'
-      });
-    }
+    app.listMode = (function () {
+      if (app.listMode === 'cover') {
+        return 'list';
+      } else {
+        return 'cover';
+      }
+    })();
+    simpleStorage.setSync({
+      'listMode': app.listMode
+    });
     app.tracker.sendEvent('ListMode Changed', app.listMode);
     if (app.page === 3) {
-      app.$.aDetails.queryData();
+      var id = app.$.aDetails.artistId;
+      app.$.aDetails.queryData(id);
     }
     var wallToggles = document.querySelectorAll('.wallToggle');
     for (var i = 0; i < wallToggles.length; i++) {
@@ -750,54 +785,23 @@
   app.selectAction = function (event, detail, sender) {
     var wall = app.$.wall;
     app.tracker.sendEvent('Sorting By ' + wall.sort, new Date());
-    if (!app.narrow && app.page !== 0) {
-      app.page = 0;
-      app.async(function () {
-        if (wall.sort === sender.attributes.i.value) {
-          app.pageLimit = false;
-          if (app.queryMethod === 'ID3') {
-            wall.request = 'getAlbumList2';
-          } else {
-            wall.request = 'getAlbumList';
-          }
-          wall.post.type = sender.attributes.i.value;
-          wall.refreshContent();
-          wall.showing = app.listMode;
-          wall.$.threshold.clearLower();
-        }
-        wall.sort = sender.attributes.i.value;
-      });
-    } else if (!app.narrow) {
+    app.$.globals.closeDrawer().then(function () {
       if (wall.sort === sender.attributes.i.value) {
         app.pageLimit = false;
-        if (app.queryMethod === 'ID3') {
-          wall.request = 'getAlbumList2';
-        } else {
-          wall.request = 'getAlbumList';
-        }
+        wall.request = (function () {
+          if (app.queryMethod === 'ID3') {
+            return 'getAlbumList2';
+          } else {
+            return 'getAlbumList';
+          }
+        })();
         wall.post.type = sender.attributes.i.value;
         wall.refreshContent();
         wall.showing = app.listMode;
         wall.$.threshold.clearLower();
       }
       wall.sort = sender.attributes.i.value;
-    } else {
-      app.$.globals.closeDrawer().then(function () {
-        if (wall.sort === sender.attributes.i.value) {
-          app.pageLimit = false;
-          if (app.queryMethod === 'ID3') {
-            wall.request = 'getAlbumList2';
-          } else {
-            wall.request = 'getAlbumList';
-          }
-          wall.post.type = sender.attributes.i.value;
-          wall.refreshContent();
-          wall.showing = app.listMode;
-          wall.$.threshold.clearLower();
-        }
-        wall.sort = sender.attributes.i.value;
-      });
-    }
+    });
   };
 
   /**
@@ -806,9 +810,7 @@
   app.getPodcast = function () {
     app.tracker.sendEvent('Showing Podcast', new Date());
     app.page = 0;
-    app.$.globals.closeDrawer().then(function () {
-      app.$.wall.getPodcast();
-    });
+    app.$.globals.closeDrawer().then(app.$.wall.getPodcast());
   };
 
   /**
@@ -817,9 +819,7 @@
   app.getStarred = function () {
     app.tracker.sendEvent('Showing Favorites', new Date());
     app.page = 0;
-    app.$.globals.closeDrawer().then(function () {
-      app.$.wall.getStarred();
-    });
+    app.$.globals.closeDrawer().then(app.$.wall.getStarred());
   };
 
   /**
@@ -828,9 +828,7 @@
   app.getArtist = function () {
     app.tracker.sendEvent('Showing Artist List', new Date());
     app.page = 0;
-    app.$.globals.closeDrawer().then(function () {
-      app.$.wall.getArtist();
-    });
+    app.$.globals.closeDrawer().then(app.$.wall.getArtist());
   };
 
   /**
@@ -850,11 +848,11 @@
    */
   app.refreshPodcast = function (event, detail, sender) {
     var animation = app.$.globals.attachAnimation(sender);
-    animation.play();
     var url = app.$.globals.buildUrl('refreshPodcasts');
+    animation.play();
     app.$.globals.doXhr(url, 'json').then(function (e) {
+      animation.cancel();
       if (e.target.response['subsonic-response'].status === 'ok') {
-        animation.cancel();
         app.$.wall.refreshContent();
         app.$.globals.makeToast(chrome.i18n.getMessage("podcastCheck"));
       }
@@ -939,16 +937,20 @@
    * used to set flags for access restrictions
    */
   app.userDetails = function () {
-    var url = app.$.globals.buildUrl('getUser', {
-      username: app.user
-    });
-    app.$.globals.doXhr(url, 'json').then(function (e) {
-      var response = e.target.response['subsonic-response'];
-      if (response.status === 'ok') {
-        app.activeUser = response.user;
-      } else {
-        console.error('Error getting User details');
-      }
+    return new Promise(function (resolve, reject) {
+      var url = app.$.globals.buildUrl('getUser', {
+        username: app.user
+      });
+      app.$.globals.doXhr(url, 'json').then(function (e) {
+        var response = e.target.response['subsonic-response'];
+        resolve(response);
+        if (response.status === 'ok') {
+          app.activeUser = response.user;
+        } else {
+          app.async(app.userDetails, null, 1000);
+          console.error('Error getting User details');
+        }
+      });
     });
   };
 
@@ -957,11 +959,29 @@
   };
 
   app._animationEnd = function (e) {
-     app._animation = false;
+    app._animation = false;
     if (app.page === 3) {
       app.$.aDetails.resize();
       app.$.aDetails._animationEnd();
     }
+  };
+
+  app._resumePlaylist = function () {
+    app.$.resumePlaylist.open();
+  };
+
+  app.resumeLast = function () {
+    app.playlist = app.lastPlaylist;
+    app.playing = app.lastPlaying;
+  };
+
+  app.clearLastPlaylist = function () {
+    simpleStorage.setSync({
+      lastPlaying: undefined
+    });
+    app.$.globals._putInDb([], 'playlist');
+    app.lastPlaylist = undefined;
+    app.lastPlaying = undefined;
   };
 
 
@@ -990,151 +1010,156 @@
    */
   app.addEventListener('template-bound', function () {
     app.$.player.resize();
-    app.$.globals.openIndexedDB();
-    // get account synced settings
-    simpleStorage.getSync().then(function (result) {
-      app.dataLoading = false;
-      app.configs = result.configs || [];
+    app.$.globals.openIndexedDB().then(function () {
+      // get account synced settings
+      simpleStorage.getSync().then(function (result) {
+        app.dataLoading = false;
+        app.configs = result.configs || [];
 
-      // update config storage method from pre 0.2.9 method
-      if (!app.configs.length && 'url' in result && 'user' in result && 'pass' in result) {
-        // default md5 auth true
-        if (result.md5Auth === undefined) {
-          result.md5Auth = true;
-        }
-        console.log('updating config storage');
-        app.configs.push({
-          name: 'Config1',
-          url: result.url,
-          user: result.user,
-          pass: result.pass,
-          md5Auth: result.md5Auth,
-          version: result.version
-        });
-        chrome.storage.sync.remove('url');
-        chrome.storage.sync.remove('user');
-        chrome.storage.sync.remove('pass');
-        chrome.storage.sync.remove('version');
-        chrome.storage.sync.remove('md5Auth');
-        simpleStorage.setSync({
-          configs: app.configs
-        });
-        simpleStorage.setLocal({
-          currentConfig: 0
-        });
-      }
-
-      app.autoBookmark = result.autoBookmark;
-      app.gapless = result.gapless;
-      app.shuffleSettings.size = '50';
-      app.querySize = result.querySeize || 60;
-      app.volume = result.volume || 100;
-      app.queryMethod = result.queryMethod || 'ID3';
-      app.repeatPlaylist = false;
-      // configure album all first request
-      app.$.wall.post = {
-        type: result.sortType || 'newest',
-        size: 60,
-        offset: 0
-      };
-      app.$.wall.request = result.request || 'getAlbumList2';
-
-      // set up some default texts / styles for repeat buttons
-      app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
-      app.repeatState = chrome.i18n.getMessage('disabled');
-      app.$.repeatButton.style.color = '#db4437';
-
-      // get install specific settings
-      simpleStorage.getLocal().then(function (resultLocal) {
-        app.bitRate = resultLocal.bitRate || 320;
-        app.currentConfig = resultLocal.currentConfig || 0;
-        var using = app.configs[app.currentConfig];
-        if (using) {
-          for (var key in using) {
-            app[key] = using[key];
+        // update config storage method to 0.2.9 method
+        if (!app.configs.length && 'url' in result && 'user' in result && 'pass' in result) {
+          // default md5 auth true
+          if (result.md5Auth === undefined) {
+            result.md5Auth = true;
           }
-        } else {
-          app.url;
-          app.user;
-          app.pass;
-          app.version = '1.11.0';
-          app.md5Auth = result.md5Auth || true;
+          app.configs.push({
+            name: 'Config1',
+            url: result.url,
+            user: result.user,
+            pass: result.pass,
+            md5Auth: result.md5Auth,
+            version: result.version
+          });
+          chrome.storage.sync.remove('url');
+          chrome.storage.sync.remove('user');
+          chrome.storage.sync.remove('pass');
+          chrome.storage.sync.remove('version');
+          chrome.storage.sync.remove('md5Auth');
+          simpleStorage.setSync({
+            configs: app.configs
+          });
+          simpleStorage.setLocal({
+            currentConfig: 0
+          });
         }
-
-        // default params sent with every request
-        app.params = {
-          u: app.user,
-          v: app.version,
-          c: 'PolySonic',
-          f: 'json'
+        app.lastPlaying = result.lastPlaying;
+        app.autoBookmark = result.autoBookmark;
+        app.gapless = result.gapless;
+        app.shuffleSettings.size = 50;
+        app.querySize = result.querySize || 60;
+        app.volume = result.volume || 100;
+        app.queryMethod = result.queryMethod || 'ID3';
+        app.repeatPlaylist = false;
+        // configure album wall first request
+        app.$.wall.post = {
+          type: result.sortType || 'newest',
+          size: 60,
+          offset: 0
         };
+        app.$.wall.request = result.request || 'getAlbumList2';
 
-        // set up the wall list method
-        app.listMode = result.listMode || 'cover';
-        var wallToggles = document.querySelectorAll('.wallToggle');
-        for (var i = 0; i < wallToggles.length; i++) {
-          if (app.listMode === 'cover') {
-            wallToggles[i].icon = 'view-stream';
+        // set up some default texts / styles for repeat buttons
+        app.repeatText = chrome.i18n.getMessage('playlistRepeatOff');
+        app.repeatState = chrome.i18n.getMessage('disabled');
+        app.$.repeatButton.style.color = '#db4437';
+
+        // get install specific settings
+        simpleStorage.getLocal().then(function (resultLocal) {
+          app.bitRate = resultLocal.bitRate || 320;
+          app.currentConfig = resultLocal.currentConfig || 0;
+          var using = app.configs[app.currentConfig];
+          if (using) {
+            for (var key in using) {
+              app[key] = using[key];
+            }
           } else {
-            wallToggles[i].icon = 'view-module';
+            app.version = '1.11.0';
+            app.md5Auth = result.md5Auth || true;
           }
-        }
 
-        if (app.url && app.user && app.pass) {
-          app.$.globals.initFS();
-          var firstPing = app.$.globals.buildUrl('ping');
-          app.$.globals.doXhr(firstPing, 'json').then(function (e) {
-            var json = e.target.response['subsonic-response'];
-            if (e.target.status === 200) {
+          // default params sent with every request
+          app.params = {
+            u: app.user,
+            v: app.version,
+            c: 'PolySonic',
+            f: 'json'
+          };
 
-              // update api version if it has changed
-              if (versionCompare(json.version, app.version) > 0) {
-                app.version = json.version;
-                simpleStorage.getSync('configs').then(function (configs) {
-                  configs[app.currentConfig].version = app.version;
-                  simpleStorage.setSync({
-                    configs: configs
-                  });
-                });
-              }
-              // begin fetching Subsonic data
-              if (json.status === 'ok') {
-                console.log('Connected to Subconic loading data');
-                app.userDetails();
-                var foldersURL = app.$.globals.buildUrl('getMusicFolders');
+          // set up the wall list method
+          app.listMode = result.listMode || 'cover';
+          var wallToggles = document.querySelectorAll('.wallToggle');
+          for (var i = 0; i < wallToggles.length; i++) {
+            if (app.listMode === 'cover') {
+              wallToggles[i].icon = 'view-stream';
+            } else {
+              wallToggles[i].icon = 'view-module';
+            }
+          }
 
-                // get list of folders from Subsonic
-                app.$.globals.doXhr(foldersURL, 'json').then(function (e) {
-                  app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+          if (app.url && app.user && app.pass) {
+            app.$.globals.initFS().then(function () {
+              var firstPing = app.$.globals.buildUrl('ping');
+              app.$.globals.doXhr(firstPing, 'json').then(function (e) {
+                var json = e.target.response['subsonic-response'];
+                if (e.target.status === 200) {
 
-                  /* setting mediaFolder causes a ajax call to get album wall data */
+                  // update api version if it has changed
+                  if (versionCompare(json.version, app.version) > 0) {
+                    app.version = json.version;
+                    simpleStorage.getSync('configs').then(function (configs) {
+                      configs[app.currentConfig].version = app.version;
+                      simpleStorage.setSync({
+                        configs: configs
+                      });
+                    });
+                  }
+                  // begin fetching Subsonic data
+                  if (json.status === 'ok') {
+                    console.log('Connected to Subconic loading data');
+                    app.userDetails().then(function () {
+                      var foldersURL = app.$.globals.buildUrl('getMusicFolders');
 
-                  // set the currently used folder
-                  app.folder = result.mediaFolder || 'none';
-                  if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
-                    app.$.sortBox.style.display = 'none';
+                      // get list of folders from Subsonic
+                      app.$.globals.doXhr(foldersURL, 'json').then(function (e) {
+                        app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+
+                        /* setting mediaFolder causes a ajax call to get album wall data */
+
+                        // set the currently used folder
+                        app.folder = result.mediaFolder || 'none';
+                        if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+                          app.$.sortBox.style.display = 'none';
+                        }
+
+                        // analistics
+                        app.tracker.sendAppView('Album Wall');
+
+                        // if saved playlist give user the option to resume it
+                        app.$.globals.getDbItem('playlist').then(function (e) {
+                          app.lastPlaylist = e.target.result;
+                          if (app.lastPlaylist && app.lastPlaylist.length) app.async(app._resumePlaylist, null, 1000);
+                        });
+                      });
+                    });
+                  } else {
+                    // open first run dialog & alert user of the reason for the connection error
+                    app.$.firstRun.open();
+                    app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
                   }
 
-                  // analistics
-                  app.tracker.sendAppView('Album Wall');
-                });
-              } else {
-                // open first run dialog & alert user of the reason for the connection error
+                } else {
+                  app.$.firstRun.open();
+                  app.$.globals.makeToast('Error connection to Subsonic');
+                }
+              }).catch(function () {
                 app.$.firstRun.open();
-                app.$.globals.makeToast(e.target.response['subsonic-response'].error.meessage);
-              }
+              });
+            });
 
-            } else {
-              app.$.firstRun.open();
-              app.$.globals.makeToast('Error connection to Subsonic');
-            }
-          }).catch(function () {
+          } else {
             app.$.firstRun.open();
-          });
-
-        } else {
-          app.$.firstRun.open();
-        }
+          }
+        });
       });
     });
 

@@ -191,8 +191,10 @@
                                  on-tap="{{back2List}}"></paper-icon-button>
               <div class="top" style="text-align: center;" flex>{{currentPlaying}}</div>
             </core-toolbar>
-            <music-player id="player" playing="{{playing}}" progress="{{progress}}"></music-player>
+            <music-player id="player" playlist="{{playlist}}" playing="{{playing}}" progress="{{progress}}"></music-player>
           </section>
+
+          <!-- settings page -->
           <section>
             <core-header-panel class="pages" mode="standard">
               <core-toolbar>
@@ -232,7 +234,7 @@
                 </core-tooltip>
               </core-toolbar>
               <artist-details id="aDetails" listMode="{{listMode}}"></artist-details>
-            </core-header-panel> 
+            </core-header-panel>
             <mini-player isNowPlaying="{{!isNowPlaying}}" waitingToPlay="{{waitingToPlay}}"
                          progress="{{progress}}"></mini-player>
           </section>
@@ -304,6 +306,21 @@
         <div horizontal layout>
           <div style="font-weight: bold; font-size: 16px;" flex>{{$.globals.texts.bookmarks}}</div>
           <div>
+            <paper-menu-button>
+              <core-tooltip position="left" label="{{$.globals.texts.moreOptionsLabel}}">
+                <paper-icon-button icon="more-vert"></paper-icon-button>
+              </core-tooltip>
+              <paper-dropdown class="dropdown" halign="right">
+                <core-menu class="menu">
+                  <paper-item on-tap="{{confirmDeleteAll}}">
+                    <core-icon icon="remove-circle" style="margin-right:24px; color:#db4437;"></core-icon>
+                    Delete All
+                  </paper-item>
+                </core-menu>
+              </paper-dropdown>
+            </paper-menu-button>
+          </div>
+          <div>
             <core-tooltip label="{{$.globals.texts.closeLabel}}" position="left">
               <paper-icon-button style='color:#db4437;' icon="close" on-tap="{{closeBookmarks}}"></paper-icon-button>
             </core-tooltip>
@@ -348,7 +365,7 @@
 
       <!-- want Toast? -->
       <paper-toast id="toast"></paper-toast>
-      
+
       <album-details id="albumDialog"></album-details>
 
       <!-- volume dialog -->
@@ -548,6 +565,14 @@
         <paper-button affirmative data-id="{{delID}}" on-tap="{{deleteBookmark}}">{{$.globals.texts.accept}}</paper-button>
       </paper-action-dialog>
 
+      <!-- delete confirmation all bookmarks -->
+      <paper-action-dialog id='bookmarkConfirmAll' autoclosedisabled transition="core-transition-center" layered>
+        <div style="min-width:280px"></div>
+        <h4>{{$.globals.texts.deleteAllbookMarkConfirm}}</h4>
+        <paper-button affirmative on-tap="{{openBookmarks}}">{{$.globals.texts.decline}}</paper-button>
+        <paper-button affirmative on-tap="{{deleteAllBookmarks}}">{{$.globals.texts.accept}}</paper-button>
+      </paper-action-dialog>
+
       <!-- reload app dialog -->
       <paper-action-dialog id='reloadAppDialog' autoclosedisabled backdrop transition="core-transition-center" layered>
         <div style="min-width:280px"></div>
@@ -611,6 +636,20 @@
         </div>
       </paper-dialog>
 
+      <!-- resume last playlist dialog -->
+      <paper-action-dialog id='resumePlaylist' transition="core-transition-center" layered>
+        <div style="min-width:280px"></div>
+        <h4>{{$.globals.texts.resumePlaylist}}</h4>
+        <div>
+          {{lastPlaylist.length}} Tracks in old Queue..
+          <br>
+          <br>
+          Track {{lastPlaying + 1}} "{{lastPlaylist[lastPlaying].title}}" by {{lastPlaylist[lastPlaying].artist}} was last playing..
+        </div>
+        <paper-button affirmative on-tap='{{clearLastPlaylist}}'>{{$.globals.texts.decline}}</paper-button>
+        <paper-button affirmative on-tap='{{resumeLast}}'>{{$.globals.texts.resume}}</paper-button>
+      </paper-action-dialog>
+
     </template>
   </div>
   <script src="js/simpleStorage.js"></script>
@@ -621,6 +660,7 @@
   <script src="js/x-notification.js"></script>
   <script src="js/moment.js"></script>
   <script src="js/smartcrop.js"></script>
+  <script src="js/toBlob.min.js"></script>
   <script src="js/PolySonic.js"></script>
 </body>
 </html>

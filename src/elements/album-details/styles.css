@@ -277,7 +277,7 @@ paper-icon-button[icon='bookmark'] {
 .marginT10 {
   margin-top:10px;
 }
-.nameTitle {
+#nameTitle {
   font-size:14pt;
   margin:8px;
   margin-right: 30px;

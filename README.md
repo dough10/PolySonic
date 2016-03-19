@@ -37,6 +37,22 @@ Steps to install development environment
 After making changes run 'grunt' from the project root directory
 
 Changelog
+0.2.9.2
+
+- when finished playing playlist will not longer be automatically cleared
+
+- previous track button will now restart the track if pressed while first song in a playlist is currently playing if not the first track will jump back 1 track
+
+- fix multi disc sorting (tracks will now be displayed in the order they are intended to be played)
+
+- fix for bookmark window not reopening after deleting a bookmark
+
+- if downloaded artist header image is larger then 800 px will now be resized to 800 px width before saving
+
+- if app is closed with files in the play queue user will get option to resume that queue
+
+- minor bug fixes
+
 0.2.9.1
 
 - fix for issue where when changing servers folder dropdown might hide and not reappear
@@ -47,9 +63,9 @@ Changelog
 
 - change max # of albums returned by search to 200. up from 20
 
-- if there is playing content the "mini player" will now shown at bottom of settings page aswell 
+- if there is playing content the "mini player" will now shown at bottom of settings page aswell
 
-- "mini player" now has link to volume dialog 
+- "mini player" now has link to volume dialog
 
 - album details dialog now has the link "more by this artist"
 
@@ -87,7 +103,7 @@ Changelog
 
 0.2.7.4
 
-- fix for app not loading a second time if not using MD5 auth and api version higher then 1.13.0 
+- fix for app not loading a second time if not using MD5 auth and api version higher then 1.13.0
 
 0.2.7.3
 

@@ -4,15 +4,15 @@
   function _errorHandler(e) {
     console.error(e);
   }
-  
+
   Polymer('download-manager', {
-  
+
     _app: document.querySelector('#tmpl'),
-    
+
     _isDownloading: false,
-  
+
     hasSaved: false,
-  
+
     _removeThis: function () {
       this.parentNode.removeChild(this);
       this.async(function () {
@@ -21,7 +21,7 @@
         }
       }, null, 100);
     },
-  
+
     _doXhr: function (url, dataType) {
       return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
@@ -34,7 +34,7 @@
         this._request = xhr;
       }.bind(this));
     },
-  
+
     _xhrProgress: function (e) {
       this._progress = Math.floor((e.loaded / this._downloadSize) *  100);
       var now = new Date().getTime();
@@ -43,11 +43,13 @@
       var Bps = Math.abs(bits / timeElapsed);
       var Kbps = Math.abs(Bps / 1024).toFixed(2);
       var Mbps = Math.abs(Kbps / 1024).toFixed(2);
-      if (Mbps < 1) {
-        this._rate = Kbps + ' Kbps';
-      } else {
-        this._rate = Mbps + ' Mbps';
-      }
+      this._rate = (function () {
+        if (Mbps < 1) {
+           return Kbps + ' Kbps';
+        } else {
+          return Mbps + ' Mbps';
+        }
+      })();
       this._output = this.$.globals.formatBytes(e.loaded) + ' of ' + this._downloadSizeReadable + ' Downloaded';
     },
 
@@ -72,7 +74,7 @@
         }.bind(this));
       }.bind(this));
     },
-  
+
 
     downloadTrack: function (id) {
       var songUrl = this.$.globals.buildUrl('getSong', {
@@ -93,21 +95,20 @@
         this.$.globals.makeToast(chrome.i18n.getMessage('downloadStarted'));
       }.bind(this));
     },
-  
+
     downloadSinglePodcast: function (details) {
       this._fileName = details.title.replace(':', '-') + '.' + details.suffix;
       this._downloadFile(details.id, details).then(function () {
         this.$.globals.makeToast(chrome.i18n.getMessage('downloadStarted'));
       }.bind(this));
     },
-  
+
     _doSave: function () {
       this._output = 'Saving.. ' + this._downloadSizeReadable;
-      var config = {
+      chrome.fileSystem.chooseEntry({
         type: 'saveFile',
         suggestedName: this._fileName
-      };
-      chrome.fileSystem.chooseEntry(config, function (writableEntry) {
+      }, function (writableEntry) {
         if (writableEntry) {
           this.$.globals._writeFileEntry(writableEntry, this._blob).then(function () {
             this._output = 'File Saved ' + this._downloadSizeReadable;
@@ -118,7 +119,7 @@
         }
       }.bind(this));
     },
-  
+
     _abortDownload: function () {
       this._request.abort();
       this._removeThis();
@@ -126,5 +127,3 @@
   });
 
 })();
-
-

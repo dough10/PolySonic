@@ -69,7 +69,7 @@
         <paper-fab id="mid" raised class="mid colorThiefOther" icon="av:play-arrow" hero-id="foo" hero layered></paper-fab>
       </div>
       <div page="podcast">
-        <paper-fab raised class="bottom" icon="add" hero-id="foo" hero layered></paper-fab>
+        <paper-fab raised hidden="{{!app.activeUser.podcastRole}}" class="bottom" icon="add" hero-id="foo" hero layered></paper-fab>
       </div>
     </core-animated-pages>
   </template>

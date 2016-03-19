@@ -191,9 +191,11 @@
 
     _clearCache: function () {
       app.dataLoading = true;
-      this._clearImages().then(app.$.globals.openIndexedDB).then(function () {
-        app.$.globals.initFS();
-        app.calculateStorageSize();
+      this._clearImages()
+      .then(app.$.globals.openIndexedDB)
+      .then(app.$.globals.initFS)
+      .then(app.calculateStorageSize)
+      .then(function () {
         this.$.globals.makeToast('Cache cleared');
         app.dataLoading = false;
       }.bind(this));
@@ -203,12 +205,6 @@
       this._clearImages().then(function () {
         chrome.storage.sync.clear();
         chrome.storage.local.clear();
-        app.url = '';
-        app.user = '';
-        app.pass = '';
-        app.version = '';
-        app.bitRate = '';
-        app.querySize = '';
         app.$.reloadAppDialog.open();
       }, function () {
         this.$.globals.makeToast('Error deleteing Database');
@@ -287,10 +283,13 @@
     },
 
     _setConfig: function () {
-      var post = this.post;
-      for (var key in post) {
-        app[key] = post[key];
-      }
+      return new Promise(function (resolve, reject) {
+        var post = this.post;
+        for (var key in post) {
+          app[key] = post[key];
+        }
+        resolve();
+      }.bind(this));
     },
 
     _cancelAttempt: function () {
@@ -338,26 +337,26 @@
           });
           this.isLoading = false;
           app.dataLoading = true;
-          this._clearImages().then(function () {
-            this._setConfig();
-            app.$.globals.openIndexedDB().then(function () {
-              app.$.globals.initFS();
-              app.userDetails();
-              console.log('Connected with config ' + app.configs[app.currentConfig].name);
-              var folders = app.$.globals.buildUrl('getMusicFolders');
-              app.$.globals.doXhr(folders, 'json').then(function (e) {
-                app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
-                if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
-                  app.$.sortBox.style.display = 'none';
-                } else {
-                  app.$.sortBox.style.display = 'block';
-                }
-                app.$.wall.refreshContent();
-                app.dataLoading = false;
-                this.async(function () {
-                  this._setFormDisabledState(true);
-                }, null, 500);
-              }.bind(this));
+          this._clearImages()
+          .then(this._setConfig.bind(this))
+          .then(this.$.globals.openIndexedDB)
+          .then(this.$.globals.initFS)
+          .then(app.userDetails)
+          .then(function () {
+            console.log('Connected with config ' + app.configs[app.currentConfig].name);
+            var folders = app.$.globals.buildUrl('getMusicFolders');
+            app.$.globals.doXhr(folders, 'json').then(function (e) {
+              app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+              if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
+                app.$.sortBox.style.display = 'none';
+              } else {
+                app.$.sortBox.style.display = 'block';
+              }
+              app.$.wall.refreshContent();
+              app.dataLoading = false;
+              this.async(function () {
+                this._setFormDisabledState(true);
+              }, null, 500);
             }.bind(this));
           }.bind(this));
         } else {
@@ -412,23 +411,21 @@
     _exportConfig: function () {
       simpleStorage.getSync('configs').then(function (configs) {
         var toSave = configs[this.post.config];
-        var saveConfig = {
-          type: 'saveFile',
-          suggestedName: toSave.name + ' config.cfg'
-        };
         if ('config' in toSave) {
           delete toSave.config;
         }
-        console.log
-        var blob = new Blob([
-          btoa(
-            JSON.stringify(toSave, null, 2)
-          )
-        ], {
-          type: 'text/js'
-        });
-        chrome.fileSystem.chooseEntry(saveConfig, function (writableEntry) {
+        chrome.fileSystem.chooseEntry({
+          type: 'saveFile',
+          suggestedName: toSave.name + ' config.cfg'
+        }, function (writableEntry) {
           if (writableEntry) {
+            var blob = new Blob([
+              btoa(
+                JSON.stringify(toSave)
+              )
+            ], {
+              type: 'text/js'
+            });
             this.$.globals._writeFileEntry(
               writableEntry,
               blob
@@ -439,6 +436,7 @@
               }, null, 500);
             }.bind(this));
           } else {
+            this.$.globals.makeToast('Error Saving Config');
             this.async(function () {
               this._setFormDisabledState(true);
             }, null, 500);
@@ -468,15 +466,10 @@
             var imported = JSON.parse(decodedText);
             if  (imported.user && imported.url && imported.pass
                  && imported.name && imported.md5Auth && imported.version) {
-              this.post.user = imported.user;
-              this.post.url = imported.url;
-              this.post.pass = imported.pass;
-              this.post.name = imported.name;
-              this.post.md5Auth = imported.md5Auth;
-              this.post.version = imported.version;
-              this.async(function () {
-                this.validateInputs();
-              });
+              for (var key in imported) {
+                this.post[key] = imported[key];
+              }
+              this.async(this.validateInputs);
             } else {
               this.$.globals.makeToast('Error Importing Config');
             }
@@ -503,24 +496,27 @@
           this.app.configs = storage.configs;
           this.isLoading = false;
           this.editing = false;
+          //  updating the config currently  in use
           if (this.post.config === this.app.currentConfig) {
-            var editedURL = this.app.url !== this.post.url;
-            if (editedURL) {
-              this._clearImages();
+            // if md5 authrntication setting has changed it must be updated
+            if (this.app.md5Auth !== this.post.md5Auth) {
+              this.app.md5Auth = this.post.md5Auth;
             }
-            this._setConfig();
-            if (editedURL) {
-              app.$.globals.openIndexedDB().then(function () {
-                app.$.globals.initFS();
-                var firstPing = app.$.globals.buildUrl('ping');
-                app.$.globals.doXhr(firstPing, 'json').then(function (e) {
-                  if (e.target.response['subsonic-response'].status === 'ok') {
-                    this.app.userDetails();
+            // if the URL has changed it must be tested and caches cleard
+            if (this.app.url !== this.post.url) {
+              this._testPostSettings().then(function (response) {
+                if (response.status === 'ok') {
+                  this._clearImages()
+                  .then(this._setConfig.bind(this))
+                  .then(this.$.globals.openIndexedDB)
+                  .then(this.$.globals.initFS)
+                  .then(app.userDetails)
+                  .then(function () {
                     console.log('config ' + this.app.configs[this.app.currentConfig].name + ' Refreshed');
                     var folders = app.$.globals.buildUrl('getMusicFolders');
-                    app.$.globals.doXhr(folders, 'json').then(function (e) {
-                      app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
+                    this.$.globals.doXhr(folders, 'json').then(function (e) {
                       app.folder = 'none';
+                      app.mediaFolders = e.target.response['subsonic-response'].musicFolders.musicFolder;
                       if (app.mediaFolders === undefined || !app.mediaFolders[1]) {
                         app.$.sortBox.style.display = 'none';
                       } else {
@@ -529,13 +525,20 @@
                       app.tracker.sendAppView('Album Wall');
                       this.isLoading = false;
                     }.bind(this));
-                  }
-                }.bind(this));
-              });
+                  }.bind(this)).catch(function (err) {
+                    throw new Error(err);
+                    this.isLoading = false;
+                  });
+                } else {
+                  this.isLoading = false;
+                  this.$.globals.makeToast('Error connecting to Subsonic. Check Settings');
+                }
+              }.bind(this));
             }
           }
         }.bind(this));
       } else {
+        this.isLoading = false;
         this.$.globals.makeToast("Valid URL, Username & Password Required");
       }
     },
@@ -610,6 +613,10 @@
       if (!this.$.url.isInvalid) {
         this.testingURL = true;
         var xhr = new XMLHttpRequest();
+        var lastChar = input.value.substr(-1); // Selects the last character
+        if (lastChar === '/') {         // If the last character is a slash
+          input.value = input.value.substring(0, input.value.length - 1);  // remove the slash from end of string
+        }
         xhr.open("GET", input.value + '/rest/ping.view?f=json', true);
         xhr.responseType = 'json';
         xhr.onload = function (e) {
