@@ -989,7 +989,7 @@
    * key binding listener
    */
   chrome.commands.onCommand.addListener(function(command) {
-    var player = document.querySelector('music-player');
+    var player = app.$.player;
     if (command === 'mediaPlay') {
       player.playPause();
     } else if (command === 'mediaStop') {
@@ -1197,6 +1197,12 @@
         chrome.app.window.current().innerBounds.height = 761;
       }
     };
+
+    window.addEventListener('keyup', function (e) {
+      if (e.keyCode === 32 && app.page === 1 && app.$.player.hasOwnProperty('audio')) {
+        app.$.player.playPause();
+      }
+    });
 
     // analistics
     app.service = analytics.getService('PolySonic');
