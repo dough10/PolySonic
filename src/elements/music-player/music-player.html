@@ -51,6 +51,10 @@
         padding:0px;
         margin-top:16px;
       }
+      #avIcon2 {
+        padding:0px;
+        margin-top:16px;
+      }
       .volume {
         position:absolute;
         right:1%;
@@ -281,7 +285,7 @@
               <template if="{{app.playlist[0] && app.playing === 0}}">
                 <paper-icon-button class="big"></paper-icon-button>
               </template>
-              <paper-icon-button id="avIcon" style="margin-top:8px;" class="huge black" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
+              <paper-icon-button id="avIcon2" style="margin-top:8px;" class="huge black" icon="av:pause" on-tap="{{playPause}}"></paper-icon-button>
               <template if="{{app.playlist[0]}}">
                 <paper-icon-button icon="av:skip-next" style="margin-top:8px;" on-tap="{{nextTrack}}" id="nextTrack" class="big black"></paper-icon-button>
               </template>

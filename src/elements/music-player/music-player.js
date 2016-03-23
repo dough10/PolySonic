@@ -188,8 +188,12 @@ Polymer('music-player',{
   playPause: function () {
     if (!this.audio.paused) {
       this.audio.pause();
+      this.$.avIcon.icon = "av:play-arrow";
+      this.$.avIcon2.icon = "av:play-arrow";
     } else {
       this.audio.play();
+      this.$.avIcon.icon = "av:pause";
+      this.$.avIcon2.icon = "av:pause";
     }
   },
 
@@ -367,6 +371,7 @@ Polymer('music-player',{
     if (!audio.paused) {
       this.app.isNowPlaying = true;
       this.$.avIcon.icon = "av:pause";
+      this.$.avIcon2.icon = "av:pause";
       if (!audio.duration) {
         if (this.app.page === 1) {
           this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ?:??';
@@ -381,6 +386,7 @@ Polymer('music-player',{
     } else {
       this.app.isNowPlaying = false;
       this.$.avIcon.icon = "av:play-arrow";
+      this.$.avIcon2.icon = "av:play-arrow";
     }
   },
 
