@@ -1089,11 +1089,13 @@
           app.listMode = result.listMode || 'cover';
           var wallToggles = document.querySelectorAll('.wallToggle');
           for (var i = 0; i < wallToggles.length; i++) {
-            if (app.listMode === 'cover') {
-              wallToggles[i].icon = 'view-stream';
-            } else {
-              wallToggles[i].icon = 'view-module';
-            }
+            wallToggles[i].icon = (function () {
+              if (app.listMode === 'cover') {
+                return 'view-stream';
+              } else {
+                return 'view-module';
+              }
+            })();
           }
 
           if (app.url && app.user && app.pass) {

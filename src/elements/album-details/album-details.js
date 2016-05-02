@@ -4,6 +4,7 @@
   Polymer('album-details', {
     ready: function () {
       this.app = app;
+      this._resized();
     },
 
     add2Playlist: function () {
@@ -244,6 +245,31 @@
     },
 
     _resized: function (e) {
+      var dWidth = this.$.detailsDialog.offsetWidth;
+
+      var winHeight = window.innerHeight;
+      var winWidth = window.innerWidth;
+      var heightScale = (function () {
+        switch (true) {
+          case (winHeight < 1000):
+            return 0.95;
+            break;
+          case (winHeight > 2000):
+            return 0.7;
+            break;
+          default:
+            return 0.85;
+            break;
+        }
+      })();
+
+      var dialogMinHeight = winHeight * heightScale;
+
+
+      this.$.detailsDialog.style.minHeight = dialogMinHeight + 'px';
+
+      console.log(dWidth / dialogMinHeight)
+
       if (this.$.detailsDialog.opened) {
         this.$.detailsDialog.resizeHandler();
       }
