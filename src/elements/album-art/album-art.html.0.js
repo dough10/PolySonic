@@ -73,9 +73,9 @@
           this.app.$.fab.state = 'bottom';
           this.app.$.albumDialog.opened = false;
         }
-      } else {
-        this.playAlbum();
+        return;
       }
+      this.playAlbum();
     },
 
     playFromBookmark: function () {
@@ -124,12 +124,11 @@
               tracks: res.album.song,
               artistId: res.album.artistId
             };
-          } else {
-            return {
-              tracks: res.directory.child,
-              artistId: res.directory.parent
-            };
           }
+          return {
+            tracks: res.directory.child,
+            artistId: res.directory.parent
+          };
         }.bind(this))();
 
         // correctly sort tracks but discNumber && track
@@ -168,42 +167,47 @@
               artId: "al-" + this.item,
               request: 'getAlbum'
             };
-          } else {
-            return {
-              artId: this.item,
-              request: 'getMusicDirectory'
-            };
           }
+          return {
+            artId: this.item,
+            request: 'getMusicDirectory'
+          };
         }.bind(this))();
-        var url = this.$.globals.buildUrl(requestObj.request, {
-          id: this.item
-        });
         this.$.globals.getDbItem(requestObj.artId + '-palette').then(function (e) {
+          var url = this.$.globals.buildUrl(requestObj.request, {
+            id: this.item
+          });
           this.palette = e.target.result;
           this.$.globals.doXhr(url, 'json').then(this.processJSON.bind(this)).then(resolve);
         }.bind(this));
       }.bind(this));
     },
+    
+    scrollingOrTransitioning: function () {
+      return (this.app.scrolling && this.app._animating);
+    },
 
     _updateItem: function () {
       this.bookmarkIndex = undefined;
-      if (this.item && !this.app.scrolling && !this.app._animating) {
-        this.playlist = [];
-        this.albumSize = 0;
-        this.isLoading = true;
-        this.$.globals.fetchImage((function () {
-          if (this.app.queryMethod === 'ID3') {
-            return "al-" + this.item;
-          } else {
-            return this.item;
-          }
-        }.bind(this))()).then(this.setImage.bind(this));
-      } else {
+      if (this.scrollingOrTransitioning()) {
         this.async(this._updateItem, null, 200);
+        return;
       }
+      this.playlist = [];
+      this.albumSize = 0;
+      this.isLoading = true;
+      this.$.globals.fetchImage((function () {
+        if (this.app.queryMethod === 'ID3') {
+          return "al-" + this.item;
+        }
+        return this.item;
+      }.bind(this))()).then(this.setImage.bind(this));
     },
 
     itemChanged: function () {
+      if (!this.item) {
+        return;
+      }
       this.async(this._updateItem);
     }
   });

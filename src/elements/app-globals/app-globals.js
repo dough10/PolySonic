@@ -271,7 +271,6 @@
 
         request.onsuccess = function () {
           console.log("Success creating/accessing IndexedDB database");
-          resolve();
           db = this.result;
           app.db = db;
 
@@ -284,11 +283,12 @@
               };
             }
           }
+          resolve();
         };
 
         request.onupgradeneeded = function (event) {
-          resolve();
           createObjectStore(event.target.result);
+          resolve();
         };
       });
     },
@@ -411,12 +411,13 @@
     _putInDb: function (data, id) {
       return new Promise(function (resolve, reject) {
         var transaction = db.transaction([dbName], "readwrite");
-        if (id) {
-          transaction.objectStore(dbName).put(data, id);
-          transaction.objectStore(dbName).get(id).onsuccess = function (e) {
-            resolve(e.target.result);
-          };
+        if (!id) {
+          return;
         }
+        transaction.objectStore(dbName).put(data, id);
+        transaction.objectStore(dbName).get(id).onsuccess = function (e) {
+          resolve(e.target.result);
+        };
       });
     },
 
@@ -427,12 +428,13 @@
      */
     getDbItem: function (id) {
       return new Promise(function (resolve, reject) {
-        if (id) {
-          var transaction = db.transaction([dbName], "readwrite");
-          var request = transaction.objectStore(dbName).get(id);
-          request.onsuccess = resolve;
-          request.onerror = reject;
+        if (!id) {
+          return;
         }
+        var transaction = db.transaction([dbName], "readwrite");
+        var request = transaction.objectStore(dbName).get(id);
+        request.onsuccess = resolve;
+        request.onerror = reject;
       });
     },
 
@@ -448,27 +450,36 @@
           id: id
         });
         var fileName = id + '.jpg';
+        // downlaod image from subsonic
         this.doXhr(url, 'blob').then(function (e) {
-          app.fs.root.getFile(app.filePath + '/' + fileName, {create: true}, function(fileEntry) {
+          // open writable html5 filesystem
+          app.fs.root.getFile(app.filePath + '/' + fileName, {
+            create: true
+          }, function(fileEntry) {
             fileEntry.createWriter(function(fileWriter) {
+              // get the file url from filesystem and return
               fileWriter.onwriteend = function(e) {
-                app.fs.root.getFile(app.filePath + '/' + fileName, {create: false}, function(retrived) {
+                app.fs.root.getFile(app.filePath + '/' + fileName, {
+                  create: false
+                }, function(retrived) {
                   resolve(retrived.toURL());
                 }, reject);
               };
+              // error saving file
               fileWriter.onerror = function(e) {
                 reject(e);
                 console.log('Write failed: ' + e.toString());
               };
+              // save downloaded response
               var blob = new Blob([
                 e.target.response
               ], {
                 type: 'image/jpeg'
               });
               fileWriter.write(blob);
-            }.bind(this), fsErrorHandler);
-          }.bind(this), fsErrorHandler);
-        }.bind(this));
+            }, fsErrorHandler);
+          }, fsErrorHandler);
+        });
       }.bind(this));
     },
 
@@ -490,7 +501,7 @@
               fabBgColor: colors[0],
               fabColor: colors[1]
             });
-          }.bind(this));
+          });
         }.bind(this), function () {
           this.doXhr(url, 'blob').then(this._resizeLargeImage).then(function (blob) {
             this._saveArtistImage(blob, artistId).then(function (imgURL) {
@@ -531,9 +542,9 @@
               canvas.remove();
               resolve(blob);
             }, 'image/jpeg');
-          } else {
-            resolve(blob);
+            return;
           }
+          resolve(blob);
         };
       });
     },
@@ -674,9 +685,9 @@
     playListIndex: function (index) {
       if (app.playing === index) {
         app.$.player.playAudio(app.playlist[index]);
-      } else {
-        app.playing = index;
+        return;
       }
+      app.playing = index;
     },
 
     /**
@@ -694,13 +705,11 @@
             return;
           }
           if (writer.readyState===writer.WRITING) {
-            console.error("Write operation taking too long, aborting!"+
-              " (current writer readyState is "+writer.readyState+")");
+            console.error("Write operation taking too long, aborting!" + " (current writer readyState is "+writer.readyState+")");
             writer.abort();
+            return;
           }
-          else {
-            resolve();
-          }
+          resolve();
         };
         setTimeout(reentrant, 100);
       });
@@ -810,14 +819,13 @@
         app.params.s = this.makeSalt(16);
         app.params.t = md5(app.pass + app.params.s);
         return app.url + '/rest/' + method + '.view?' + this.toQueryString(app.params) + options;
-      } else {
-        if (app.params.t) {
-          delete app.params.t;
-          delete app.params.s;
-        }
-        app.params.p = app.pass.hexEncode();
-        return app.url + '/rest/' + method + '.view?' + this.toQueryString(app.params) + options;
       }
+      if (app.params.t) {
+        delete app.params.t;
+        delete app.params.s;
+      }
+      app.params.p = app.pass.hexEncode();
+      return app.url + '/rest/' + method + '.view?' + this.toQueryString(app.params) + options;
     }
   });
 

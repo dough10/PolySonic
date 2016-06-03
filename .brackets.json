@@ -1,6 +1,8 @@
 {
     "jscodehints.detectedExclusions": [
         "C:/Documents and Settings/Administrator/Desktop/polysonic/src/js/PolySonic.js",
-        "C:/Documents and Settings/Administrator/Desktop/polysonic/src/elements/album-details/album-details.js"
+        "C:/Documents and Settings/Administrator/Desktop/polysonic/src/elements/album-details/album-details.js",
+        "C:/Documents and Settings/Administrator/Desktop/polysonic/node_modules/grunt/node_modules/rimraf/bin.js",
+        "C:/Documents and Settings/Administrator/Desktop/polysonic/src/elements/album-wall/album-wall.html.0.js"
     ]
 }

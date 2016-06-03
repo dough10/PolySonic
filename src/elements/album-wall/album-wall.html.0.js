@@ -71,107 +71,107 @@
           var response = this.response['subsonic-response'];
           if (response.status === 'failed') {
             this.$.globals.makeToast(response.error.message);
-          } else {
-            switch (true) {
-              case ('albumList2' in response && 'album' in response.albumList2):
-                this.wall = this.wall.concat(response.albumList2.album);
-                for (var i = 0; i < this.wall.length; i++) {
-                  this.wall[i].listMode = this.listMode;
-                }
-                this.showing = 'wall';
-                this.async(this.responseCallback);
-                break;
-              case ('albumList' in response && 'album' in response.albumList):
-                this.wall = this.wall.concat(response.albumList.album);
-                for (var i = 0; i < this.wall.length; i++) {
-                  this.wall[i].listMode = this.listMode;
-                }
-                this.showing = 'wall';
-                this.async(this.responseCallback);
-                break;
-              case ('starred2' in response && 'album' in response.starred2):
-                this.wall = this.wall.concat(response.starred2.album);
-                for (var i = 0; i < this.wall.length; i++) {
-                  this.wall[i].listMode = this.listMode;
-                }
-                this.showing = 'wall';
-                this.async(this.responseCallback);
-                break;
-              case ('starred' in response && 'album' in response.starred):
-                this.wall = this.wall.concat(response.starred.album);
-                for (var i = 0; i < this.wall.length; i++) {
-                  this.wall[i].listMode = this.listMode;
-                }
-                this.showing = 'wall';
-                this.async(this.responseCallback);
-                break;
-              case ('podcasts' in response && 'channel' in response.podcasts):
-                /* inject podcastRole into response so it can be used inside the repeating template scope */
-                var podcasts = response.podcasts.channel;
-                var length = podcasts.length;
-                for (var i = 0; i < length; i++) {
-                  if ('episode' in podcasts[i]) {
-                    var innerLength = podcasts[i].episode.length;
-                    for (var ii = 0; ii < innerLength; ii++) {
-                      podcasts[i].episode[ii].podcastRole = this.app.activeUser.podcastRole;
-                    }
+            return;
+          }
+          switch (true) {
+            case ('albumList2' in response && 'album' in response.albumList2):
+              this.wall = this.wall.concat(response.albumList2.album);
+              for (var i = 0; i < this.wall.length; i++) {
+                this.wall[i].listMode = this.listMode;
+              }
+              this.showing = 'wall';
+              this.async(this.responseCallback);
+              break;
+            case ('albumList' in response && 'album' in response.albumList):
+              this.wall = this.wall.concat(response.albumList.album);
+              for (var i = 0; i < this.wall.length; i++) {
+                this.wall[i].listMode = this.listMode;
+              }
+              this.showing = 'wall';
+              this.async(this.responseCallback);
+              break;
+            case ('starred2' in response && 'album' in response.starred2):
+              this.wall = this.wall.concat(response.starred2.album);
+              for (var i = 0; i < this.wall.length; i++) {
+                this.wall[i].listMode = this.listMode;
+              }
+              this.showing = 'wall';
+              this.async(this.responseCallback);
+              break;
+            case ('starred' in response && 'album' in response.starred):
+              this.wall = this.wall.concat(response.starred.album);
+              for (var i = 0; i < this.wall.length; i++) {
+                this.wall[i].listMode = this.listMode;
+              }
+              this.showing = 'wall';
+              this.async(this.responseCallback);
+              break;
+            case ('podcasts' in response && 'channel' in response.podcasts):
+              /* inject podcastRole into response so it can be used inside the repeating template scope */
+              var podcasts = response.podcasts.channel;
+              var length = podcasts.length;
+              for (var i = 0; i < length; i++) {
+                if ('episode' in podcasts[i]) {
+                  var innerLength = podcasts[i].episode.length;
+                  for (var ii = 0; ii < innerLength; ii++) {
+                    podcasts[i].episode[ii].podcastRole = this.app.activeUser.podcastRole;
                   }
                 }
-                this.podcast = podcasts;
-                this.async(this.responseCallback);
-                this.showing = 'podcast';
-                break;
-              case ('artists' in response && 'index' in response.artists):
-                this.artist = response.artists.index;
-                this.showing = 'artists';
-                this.async(this.responseCallback);
-                break;
-              case ('indexes' in response && 'index' in response.indexes):
-                this.artist = response.indexes.index;
-                this.showing = 'artists';
-                this.async(this.responseCallback);
-                break;
-              case ('searchResult3' in response && 'album' in response.searchResult3):
-                /* filter out duplicate albums from response array */
-                var data = response.searchResult3.album;
-                var length2 = data.length;
-                var tmpArray = [];
-                for  (var i = 0; i < length2; i++) {
-                  if (!this.containsObject(data[i], tmpArray)) {
-                    tmpArray.push(data[i]);
-                  }
+              }
+              this.podcast = podcasts;
+              this.async(this.responseCallback);
+              this.showing = 'podcast';
+              break;
+            case ('artists' in response && 'index' in response.artists):
+              this.artist = response.artists.index;
+              this.showing = 'artists';
+              this.async(this.responseCallback);
+              break;
+            case ('indexes' in response && 'index' in response.indexes):
+              this.artist = response.indexes.index;
+              this.showing = 'artists';
+              this.async(this.responseCallback);
+              break;
+            case ('searchResult3' in response && 'album' in response.searchResult3):
+              /* filter out duplicate albums from response array */
+              var data = response.searchResult3.album;
+              var length2 = data.length;
+              var tmpArray = [];
+              for  (var i = 0; i < length2; i++) {
+                if (!this.containsObject(data[i], tmpArray)) {
+                  tmpArray.push(data[i]);
                 }
-                this.wall = tmpArray;
-                for (var i = 0; i < this.wall.length; i++) {
-                  this.wall[i].listMode = this.listMode;
+              }
+              this.wall = tmpArray;
+              for (var i = 0; i < this.wall.length; i++) {
+                this.wall[i].listMode = this.listMode;
+              }
+              this.showing = 'wall';
+              this.async(this.responseCallback);
+              break;
+            case ('searchResult2' in response && 'album' in response.searchResult2):
+              /* filter out duplicate albums from response array */
+              var data = response.searchResult2.album;
+              var length2 = data.length;
+              var tmpArray = [];
+              for  (var i = 0; i < length2; i++) {
+                if (!this.containsObject(data[i], tmpArray)) {
+                  tmpArray.push(data[i]);
                 }
-                this.showing = 'wall';
-                this.async(this.responseCallback);
-                break;
-              case ('searchResult2' in response && 'album' in response.searchResult2):
-                /* filter out duplicate albums from response array */
-                var data = response.searchResult2.album;
-                var length2 = data.length;
-                var tmpArray = [];
-                for  (var i = 0; i < length2; i++) {
-                  if (!this.containsObject(data[i], tmpArray)) {
-                    tmpArray.push(data[i]);
-                  }
-                }
-                this.wall = tmpArray;
-                for (var i = 0; i < this.wall.length; i++) {
-                  this.wall[i].listMode = this.listMode;
-                }
-                this.showing = 'wall';
-                this.async(this.responseCallback);
-                break;
-              default:
-                this.app.dataLoading = false;
-                this.isLoading = false;
-                this.app.showApp();
-                this.app.pageLimit = true;
-                break;
-            }
+              }
+              this.wall = tmpArray;
+              for (var i = 0; i < this.wall.length; i++) {
+                this.wall[i].listMode = this.listMode;
+              }
+              this.showing = 'wall';
+              this.async(this.responseCallback);
+              break;
+            default:
+              this.app.dataLoading = false;
+              this.isLoading = false;
+              this.app.showApp();
+              this.app.pageLimit = true;
+              break;
           }
         });
       }
@@ -185,27 +185,28 @@
 
     listModeChanged: function () {
       this.async(function () {
-        if (this.listMode) {
-          if (this.request !== 'getArtists' && this.request !== 'getPodcasts') {
-            this.app.dataLoading = true;
-            for (var i = 0; i < this.wall.length; i++) {
-              this.wall[i].listMode = this.listMode;
-            }
-            switch (this.listMode) {
-              case 'cover':
-                this.$.list.width = '260';
-                this.$.list.grid = true;
-                this.$.list.height = '260';
-                break;
-              case 'list':
-                this.$.list.grid = false;
-                this.$.list.width = chrome.app.window.current().innerBounds.width;
-                this.$.list.height = '60';
-                break;
-            }
-            this.app.dataLoading = false;
-            this.$.list.updateSize();
+        if (!this.listMode) {
+          return;
+        }
+        if (this.request !== 'getArtists' && this.request !== 'getPodcasts') {
+          this.app.dataLoading = true;
+          for (var i = 0; i < this.wall.length; i++) {
+            this.wall[i].listMode = this.listMode;
           }
+          switch (this.listMode) {
+            case 'cover':
+              this.$.list.width = '260';
+              this.$.list.grid = true;
+              this.$.list.height = '260';
+              break;
+            case 'list':
+              this.$.list.grid = false;
+              this.$.list.width = chrome.app.window.current().innerBounds.width;
+              this.$.list.height = '60';
+              break;
+          }
+          this.app.dataLoading = false;
+          this.$.list.updateSize();
         }
       });
     },
@@ -248,9 +249,8 @@
         this.request = (function () {
           if (this.queryMethod === 'ID3') {
              return 'getStarred2';
-          } else {
-            return 'getStarred';
           }
+          return 'getStarred';
         }.bind(this))();
         if (this.post.type) {
           delete this.post.type;
@@ -267,9 +267,8 @@
         this.request = (function () {
           if (this.queryMethod === 'ID3') {
             return 'getArtists';
-          } else {
-            return 'getIndexes';
           }
+          return 'getIndexes';
         }.bind(this))();
         if (this.post.type) {
           delete this.post.type;
@@ -287,9 +286,8 @@
         this.request = (function () {
           if (this.queryMethod === 'ID3') {
             return 'getAlbumList2';
-          } else {
-            return 'getAlbumList';
           }
+          return 'getAlbumList';
         }.bind(this))();
         this.post.type = this.sort;
         this.post.offset = 0;
@@ -299,19 +297,25 @@
     },
 
     errorChanged: function () {
-      if (this.error) {
-        console.error(this.error);
-        this.$.globals.makeToast(chrome.i18n.getMessage("connectionError"));
+      if (!this.error) {
+        return;
       }
+      console.error(this.error);
+      this.$.globals.makeToast(chrome.i18n.getMessage("connectionError"));
+    },
+    
+    _pageIsLazyLoad: function () {
+      return (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.app.pageLimit && this.app.page === 0);
     },
 
     loadMore: function () {
       this.$.threshold.clearLower();
-      if (!this.isLoading && this.request !== 'getStarred2' && this.request !== 'getPodcasts' && this.request !== 'getArtists' && !this.app.pageLimit && this.app.page === 0) {
-        this.isLoading = true;
-        this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
-        this.async(this.doAjax.bind(this));
+      if (!this._pageIsLazyLoad()) {
+        return;
       }
+      this.isLoading = true;
+      this.post.offset = parseInt(this.post.offset, 10) + parseInt(this.post.size, 10);
+      this.async(this.doAjax.bind(this));
     },
 
     querySizeChanged: function () {
@@ -321,7 +325,7 @@
     getPaletteFromDb: function (id, callback) {
       this.app.getDbItem(id + '-palette', function (e) {
         callback(e.target.result);
-      }.bind(this));
+      });
     },
 
     doPlay: function (obj) {
@@ -351,31 +355,28 @@
 
     playPodcast: function (event, detial, sender) {
       this.app.dataLoading = true;
-      var imgURL,
-        obj = {
-          id: sender.attributes.streamId.value,
-          artist: '',
-          artist: '',
-          title: sender.attributes.trackTitle.value,
-        };
+      var imgURL;
+      var obj = {
+        id: sender.attributes.streamId.value,
+        artist: '',
+        title: sender.attributes.trackTitle.value
+      };
       if (sender.attributes.bookmark) {
         obj.bookmarkPosition = sender.attributes.bookmark.value;
       }
       var artId = sender.attributes.cover.value;
-      if (artId) {
-        this.$.globals.fetchImage(artId).then(function (imgURL) {
-          this.async(function () {
-            this.$.globals.getDbItem(artId + '-palette').then(function (e) {
-              obj.cover = imgURL;
-              obj.palette = e.target.result;
-              this.doPlay(obj);
-            }.bind(this));
-          }, null, 200);
-        }.bind(this));
-      } else {
+      if (!artId) {
         obj.cover = '../../../images/default-cover-art.png';
         this.doPlay(obj);
+        return;
       }
+      this.$.globals.fetchImage(artId).then(function (imgURL) {
+        this.$.globals.getDbItem(artId + '-palette').then(function (e) {
+          obj.cover = imgURL;
+          obj.palette = e.target.result;
+          this.doPlay(obj);
+        }.bind(this));
+      }.bind(this));
     },
 
     _openSubsonic: function () {
@@ -388,66 +389,64 @@
     },
 
     deleteBookmark: function (event) {
-      this.$.globals.doXhr(
-        this.$.globals.buildUrl('deleteBookmark', {
-          id: this.delID
-        }), 'json').then(function (e) {
-        if (e.target.response['subsonic-response'].status === 'ok') {
-          this.refreshContent();
-        } else {
+      var url = this.$.globals.buildUrl('deleteBookmark', {
+        id: this.delID
+      });
+      this.$.globals.doXhr(url, 'json').then(function (e) {
+        if (e.target.response['subsonic-response'].status !== 'ok') {
           this.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
+          return;
         }
+        this.refreshContent();
       }.bind(this));
     },
 
     add2Playlist: function (event, detial, sender) {
-      var imgURL,
-        obj = {
-          id: sender.attributes.streamId.value,
-          artist: '',
-          title: sender.attributes.trackTitle.value,
-        };
+      var imgURL;
+      var obj = {
+        id: sender.attributes.streamId.value,
+        artist: '',
+        title: sender.attributes.trackTitle.value,
+      };
       this.app.dataLoading = true;
       var artId = sender.attributes.cover.value;
-      if (artId) {
-        this.$.globals.fetchImage(artId).then(function (imgURL) {
-          this.async(function () {
-            this.$.globals.getDbItem(artId + '-palette').then(function (e) {
-              obj.cover = imgURL;
-              obj.palette = e.target.result;
-              if ('audio' in this.app.$.player && !this.app.$.player.audio.paused) {
-                this.app.dataLoading = false;
-                this.app.playlist.push(obj);
-                this.$.globals.makeToast(chrome.i18n.getMessage("added2Queue"));
-              } else {
-                this.app.dataLoading = false;
-                this.doPlay(obj);
-                this.$.globals.makeToast(chrome.i18n.getMessage("added2Queue"));
-              }
-            }.bind(this));
-          }, null, 200);
-        }.bind(this));
-      } else {
+      if (!artId) {
         imgURL = '../../../images/default-cover-art.png';
         if ('audio' in this.app.$.player && !this.app.$.player.audio.paused) {
           obj.cover = imgURL;
           this.app.playlist.push(obj);
           this.$.globals.makeToast(chrome.i18n.getMessage("added2Queue"));
-        } else {
+          return;
+        }
+        obj.cover = imgURL;
+        this.doPlay(obj);
+        this.$.globals.makeToast(chrome.i18n.getMessage("added2Queue"));
+        return;
+      }
+      this.$.globals.fetchImage(artId).then(function (imgURL) {
+        this.$.globals.getDbItem(artId + '-palette').then(function (e) {
           obj.cover = imgURL;
+          obj.palette = e.target.result;
+          if ('audio' in this.app.$.player && !this.app.$.player.audio.paused) {
+            this.app.dataLoading = false;
+            this.app.playlist.push(obj);
+            this.$.globals.makeToast(chrome.i18n.getMessage("added2Queue"));
+            return;
+          }
+          this.app.dataLoading = false;
           this.doPlay(obj);
           this.$.globals.makeToast(chrome.i18n.getMessage("added2Queue"));
-        }
-      }
+        }.bind(this));
+      }.bind(this));
     },
 
     showingChanged: function () {
       var fab = document.getElementById('fab');
       if (this.showing === 'podcast') {
         fab.state = 'podcast';
-      } else {
-        fab.state = "off";
+        return;
       }
+      fab.state = "off";
     },
 
     topOfPage: function () {
@@ -463,9 +462,10 @@
       this.$.globals.doXhr(this.$.globals.buildUrl('deletePodcastChannel', {
         id: id
       }), 'json').then(function (e) {
-        if (e.target.response['subsonic-response'].status === 'ok') {
-          this.clearData().then(this.doAjax.bind(this));
+        if (e.target.response['subsonic-response'].status !== 'ok') {
+          return;
         }
+        this.clearData().then(this.doAjax.bind(this));
       }.bind(this));
     },
 
@@ -481,12 +481,13 @@
         id: sender.attributes.ident.value
       });
       this.$.globals.doXhr(url, 'json').then(function (e) {
-        if (e.target.response['subsonic-response'].status === 'ok') {
-          this.clearData().then(function () {
-            this.doAjax();
-            this.$.globals.makeToast(chrome.i18n.getMessage("downloadPodcast"));
-          }.bind(this));
+        if (e.target.response['subsonic-response'].status !== 'ok') {
+          return;
         }
+        this.clearData().then(function () {
+          this.doAjax();
+          this.$.globals.makeToast(chrome.i18n.getMessage("downloadPodcast"));
+        }.bind(this));
       }.bind(this));
     },
 
@@ -500,9 +501,10 @@
         id: id
       });
       this.$.globals.doXhr(url, 'json').then(function (e) {
-        if (e.target.response['subsonic-response'].status === 'ok') {
-          this.clearData().then(this.doAjax.bind(this));
+        if (e.target.response['subsonic-response'].status !== 'ok') {
+          return;
         }
+        this.clearData().then(this.doAjax.bind(this));
       }.bind(this));
     },
 
