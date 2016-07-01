@@ -1,8 +1,9 @@
 (function () {
 
+
   function _transitionElement(el, transition, transform, opacity, willChange) {
-    return new Promise(function (resolve) {
-      var _transitionEnd = function (_) {
+    return new Promise(resolve => {
+      const _transitionEnd = _ => {
         el.style.transition = 'initial';
         el.style.willChange = 'initial';
         el.removeEventListener('transitionend', _transitionEnd);
@@ -14,7 +15,7 @@
       el.style.transition = transition;
       el.style.willChange = willChange || 'transform';
       el.addEventListener('transitionend', _transitionEnd);
-      requestAnimationFrame(function (_) {
+      requestAnimationFrame(_ => {
         el.style.transform = transform;
         if (opacity === undefined) {
           return;
@@ -24,20 +25,28 @@
     });
   }
 
+
   function showApp() {
-    return new Promise(function (resolve) {
-      var loader = document.querySelector('#loader');
+    return new Promise(resolve => {
+      const loader = document.querySelector('#loader');
       _transitionElement(loader, 'transform 350ms ease-out', 'translateY(-102%)').then(resolve);
     });
   }
 
+
   function cascadeElements() {
-    var albums = document.querySelectorAll('.js-album-hidden');
-    var count = albums.length;
+    const albums = document.querySelectorAll('.js-album-hidden');
+    const count = albums.length;
     for (var i = 0; i < count; i++) {
       var delay = 30 * i;
       var element = albums[i];
-      _transitionElement(element, 'all 200ms ' + delay + 'ms ease-in', 'translateY(0px)', 1, 'transform opacity');
+      _transitionElement(
+        element,
+        'all 200ms ' + delay + 'ms ease-in',
+        'translateY(0px)',
+        1,
+        'transform opacity'
+      );
     }
   }
 
@@ -46,8 +55,8 @@
   }
 
   function hashChangeCallback() {
-    var hash = location.hash.split('/');
-    console.log(hash);
+    const hash = location.hash.split('/');
+    console.log(hash)
     // switch (hash[0]) {
     //
     // }
@@ -55,15 +64,16 @@
 
   window.addEventListener('hashchange', hashChangeCallback);
 
-  window.onload = function (_) {
+  window.onload = _ => {
     var app = document.querySelector('#app');
     app.page = 0;
-    app.albums = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-    setTimeout(function (_) {
-      return showApp().then(function (_) {
-        requestAnimationFrame(cascadeElements);
-      });
-    }, 1000);
+    app.albums = [
+      0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+      0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+      0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+    ];
+    setTimeout(_ => showApp().then(_ => {
+      requestAnimationFrame(cascadeElements);
+    }), 1000);
   };
 })();
-//# sourceMappingURL=PolySonic.js.map

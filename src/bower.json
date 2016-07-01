@@ -6,11 +6,13 @@
   "author": "",
   "private": true,
   "dependencies": {
-    "iron-ajax": "PolymerElements/iron-ajax#^1.0.0",
-    "iron-list": "PolymerElements/iron-list#1.0.0",
-    "neon-animation": "PolymerElements/neon-animation#1.0.0",
+    "iron-list": "PolymerElements/iron-list#^1.0.0",
+    "neon-animation": "PolymerElements/neon-animation#^1.0.0",
     "paper-elements": "PolymerElements/paper-elements#^1.0.0",
-    "paper-tooltip": "PolymerElements/paper-tooltip#1.0.0",
+    "paper-tooltip": "PolymerElements/paper-tooltip#^1.0.0",
+    "paper-toolbar": "PolymerElements/paper-toolbar#^1.0.0",
+    "paper-header-panel": "PolymerElements/paper-header-panel#^1.0.0",
+
     "x-notification": "1000ch/x-notification"
   }
 }

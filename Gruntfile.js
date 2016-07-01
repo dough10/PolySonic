@@ -1,74 +1,98 @@
 module.exports = function(grunt) {
-
-  // Project configuration.
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
     copy: {
       main: {
         files: [
-          {nonull: true, src: 'src/PolySonic.html', dest: 'build/index.html'},
-          {nonull: true, src: 'src/background.js', dest: 'build/background.js'},
-          {nonull: true, src: 'src/manifest.json', dest: 'build/manifest.json'},
-          {expand: true, cwd: 'src/', nonull: true, src: '_locales/*/*.json', dest: 'build/'},
-          {expand: true, cwd: 'src/', nonull: true, src: 'images/*', dest: 'build/'}
+          {
+            nonull: true,
+            src: 'src/manifest.json',
+            dest: 'build/manifest.json'
+          }, {
+            nonull: true,
+            src: 'src/vulcanized.js',
+            dest: 'build/vulcanized.js'
+          }, {
+            nonull: true,
+            src: 'src/background.js',
+            dest: 'build/background.js'
+          }, {
+            expand: true,
+            cwd: 'src',
+            nonull: true,
+            src: 'images/*',
+            dest: 'build'
+          }, {
+            expand: true,
+            cwd: 'src',
+            nonull: true,
+            src: '_locales/*/*',
+            dest: 'build'
+          }
         ]
       }
     },
-    vulcanize: {
-      default: {
-        options: {
-          inline:true,
-          csp: true,
-          strip: true
-        },
-        files: {
-          'src/PolySonic.html': 'src/index.html'
-        },
-      },
-    },
-    uglify: {
+    babel: {
       options: {
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+        sourceMap: true,
+        plugins: [
+          "transform-es2015-arrow-functions",
+          "transform-es2015-block-scoping"
+        ]
       },
       build: {
-        src: 'src/PolySonic.js',
-        dest: 'build/PolySonic.js'
-      }
-    },
-    uncss: {
-      main: {
         files: {
-          'build/PolySonic.css': ['src/index.html']
+          "src/js/PolySonic.js": "src/js/PolySonic.es6"
         }
       }
     },
-    htmlmin: {
+    processhtml: {
       build: {
         options: {
-          removeComments: true,
-          collapseWhitespace: true
+          strip: true,
+          recursive: true
         },
         files: {
-          'build/PolySonic.html' : 'src/PolySonic.html'
+          'src/build.html':'src/index.html'
+        }
+      }
+    },
+    uglify: {
+      build: {
+        files: {
+          'src/vulcanized.js': [
+            'src/vulcanized.js'
+          ]
         }
       }
     },
     cssmin: {
-      main: {
-        files: [
-          {expand: true, cwd: 'src/', src: ['PolySonic.html'], dest: 'src/', ext: '.css'}
-        ]
+      options: {
+        shorthandCompacting: false,
+        roundingPrecision: -1
+      },
+      target: {
+        files: {
+          'src/app.min.css': [
+            'src/styles/pace.css'
+          ]
+        }
+      }
+    },
+    minifyPolymer: {
+      default: {
+        files: {
+          'build/index.html': 'src/vulcanized.html'
+        }
       }
     }
   });
-  grunt.loadNpmTasks('grunt-vulcanize');
-  /*grunt.loadNpmTasks('grunt-contrib-htmlmin');*/
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  /*grunt.loadNpmTasks('grunt-uncss');*/
+  grunt.loadNpmTasks('grunt-processhtml');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  /*grunt.loadNpmTasks('grunt-contrib-cssmin');*/
-
-  // Default task(s).
-  grunt.registerTask('default', ['vulcanize', 'uglify', 'copy']);
-
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-vulcanize');
+  grunt.loadNpmTasks('grunt-minify-polymer');
+  grunt.loadNpmTasks('grunt-babel');
+  grunt.registerTask('build', ['babel', 'processhtml', 'cssmin:target']);
+  grunt.registerTask('minify', ['uglify', 'minifyPolymer', 'copy']);
 };
