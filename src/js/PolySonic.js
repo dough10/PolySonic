@@ -145,6 +145,13 @@
     return currentConfig;
   }
 
+  function saveConfigs(config) {
+    app.configs[app.currentConfig] = config;
+    simpleStorage.setSync({
+      configs: app.configs
+    });
+  }
+
   app.openDrawer = function () {
     app.$.appDrawer.openDrawer();
   };
@@ -159,30 +166,20 @@
   };
 
   window.addEventListener('hashchange', hashChangeCallback);
-
+  hashChangeCallback();
   app.addEventListener('dom-change', function (_) {
-    hashChangeCallback();
-    app.dataLoading = false;
     simpleStorage.getSync().then(function (syncStorage) {
-      console.log(syncStorage);
-      if (!syncStorage) {
-        // display login dialog
-        return;
-      }
+      app.dataLoading = false;
       app.configs = syncStorage.configs;
       simpleStorage.getLocal().then(function (local) {
-        //console.log(local)
-        if (!local) {
+        app.currentConfig = local.currentConfig || 0;
+        app.bitRate = local.bitRate || '320';
+        if (!app.configs) {
           // display login dialog
           return;
         }
-        app.currentConfig = local.currentConfig || 0;
-        app.bitRate = local.bitRate || '320';
         var currentConfig = updateConfig(app.configs[app.currentConfig]);
-        app.configs[app.currentConfig] = currentConfig;
-        simpleStorage.setSync({
-          configs: app.configs
-        });
+        saveConfigs(currentConfig);
         testConnection({
           https: currentConfig.https,
           ip: currentConfig.ip,
