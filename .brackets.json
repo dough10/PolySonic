@@ -1,0 +1,9 @@
+{
+    "jscodehints.detectedExclusions": [
+        "C:/Documents and Settings/Administrator/Desktop/polysonic/node_modules/grunt/lib/grunt/cli.js",
+        "C:/Documents and Settings/Administrator/Desktop/polysonic/node_modules/es6-iterator/index.js",
+        "C:/Documents and Settings/Administrator/Desktop/polysonic/node_modules/es6-iterator/is-iterable.js",
+        "C:/Documents and Settings/Administrator/Desktop/polysonic/src/js/PolySonic.es6",
+        "align-text.js"
+    ]
+}
