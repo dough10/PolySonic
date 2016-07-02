@@ -90,7 +90,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-vulcanize');
   grunt.loadNpmTasks('grunt-minify-polymer');
   grunt.loadNpmTasks('grunt-babel');
   grunt.registerTask('build', ['babel', 'processhtml', 'cssmin:target']);

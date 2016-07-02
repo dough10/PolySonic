@@ -157,7 +157,22 @@
     app.configs[app.currentConfig] = config;
     simpleStorage.setSync({
       configs: app.configs
-    })
+    });
+  }
+
+  function mainPageAnimationFinished() {
+    if (!app.page === 0 && app.subPage === 0) {
+      app.subsonic[app.request](app.sortType , 30, 0, (function () {
+        if (app.mediaFolder !== 'none') {
+          return app.mediaFolder;
+        }
+        return;
+      })()).then(response => {
+        app.albums = response;
+        return;
+      }).then(cascadeElements).catch(err => console.error(err));
+    }
+
   }
 
   app.openDrawer = function () {
@@ -178,6 +193,9 @@
   app.addEventListener('dom-change', _ => {
     simpleStorage.getSync().then(syncStorage => {
       app.dataLoading = false;
+      app.sortType = syncStorage.sortType;
+      app.request = syncStorage.request;
+      app.mediaFolder = syncStorage.mediaFolder;
       app.configs = syncStorage.configs;
       simpleStorage.getLocal().then(local => {
         app.currentConfig = local.currentConfig || 0;
@@ -187,28 +205,33 @@
           return;
         }
         const currentConfig = updateConfig(app.configs[app.currentConfig]);
+
         saveConfigs(currentConfig);
-        testConnection({
-          https: currentConfig.https,
-          ip: currentConfig.ip,
-          port: currentConfig.port,
-          user: currentConfig.user,
-          password: currentConfig.pass,
-          appName: 'PolySonic',
-          md5Auth: currentConfig.md5Auth
-        }).then(subsonic => {
-          app.subsonic = subsonic;
-          app.subsonic[syncStorage.request](syncStorage.sortType , 30, 0, (function (storage) {
-            if (syncStorage.mediaFolder !== 'none') {
-              return storage.mediaFolder;
-            }
-            return;
-          })(syncStorage)).then(firstResponse => {
-            app.albums = firstResponse;
-            return;
-          }).then(showApp).then(cascadeElements).catch(err => console.error(err));
-        }).catch(_ => {
-          // display login doalog
+        app.async(_ => {
+          testConnection({
+            https: currentConfig.https,
+            ip: currentConfig.ip,
+            port: currentConfig.port,
+            user: currentConfig.user,
+            password: currentConfig.pass,
+            appName: 'PolySonic',
+            md5Auth: currentConfig.md5Auth
+          }).then(subsonic => {
+            app.subsonic = subsonic;
+
+            // make first request
+            app.subsonic[app.request](app.sortType , 30, 0, (function () {
+              if (app.mediaFolder !== 'none') {
+                return app.mediaFolder;
+              }
+              return;
+            })()).then(response => {
+              app.albums = response;
+              return;
+            }).then(showApp).then(cascadeElements).catch(err => console.error(err));
+          }).catch(_ => {
+            console.log(currentConfig)
+          });
         });
 
       });
