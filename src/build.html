@@ -34,10 +34,11 @@
             Settings
           </paper-item>
         </paper-header-panel>
-        <neon-animated-pages main entry-animation="{{entryAnimation}}" exit-animation="{{exitAnimation}}" selected="{{page}}">
+        <neon-animated-pages main on-iron-select="mainPageAnimationPrepare" on-neon-animation-finish="mainPageAnimationFinished" entry-animation="{{entryAnimation}}" exit-animation="{{exitAnimation}}" selected="{{page}}">
           <!-- album wall -->
           <neon-animated>
-            <paper-header-panel>
+            <iron-scroll-threshold scroll-target="{{scrollTarget}}" on-lower-threshold="lazyLoadAlbums" lower-threshold="500"></iron-scroll-threshold>
+            <paper-header-panel id="mainPageHeader">
               <paper-toolbar>
                 <paper-icon-button hidden="{{!narrow}}" icon="menu" on-tap="openDrawer" class="mRight20"></paper-icon-button>
                 PolySonic
@@ -48,8 +49,8 @@
               <div class="center">
                 <neon-animated-pages entry-animation="fade-in-animation" exit-animation="fade-out-animation" selected="{{subPage}}">
                   <neon-animated>
-                    <template is="dom-repeat" items="{{albums}}">
-                      <div class="album js-album-hidden"></div>
+                    <template is="dom-repeat" items="{{albums}}" as="album">
+                      <div class="album js-album-hidden">{{album.artist}}</div>
                     </template>
                   </neon-animated>
                   <neon-animated></neon-animated>

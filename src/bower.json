@@ -12,7 +12,7 @@
     "paper-tooltip": "PolymerElements/paper-tooltip#^1.0.0",
     "paper-toolbar": "PolymerElements/paper-toolbar#^1.0.0",
     "paper-header-panel": "PolymerElements/paper-header-panel#^1.0.0",
-
+    "iron-scroll-threshold":"PolymerElements/iron-scroll-threshold#^1.0.0",
     "x-notification": "1000ch/x-notification"
   }
 }

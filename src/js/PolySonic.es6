@@ -29,7 +29,10 @@
   function showApp() {
     return new Promise(resolve => {
       const loader = document.querySelector('#loader');
-      _transitionElement(loader, 'transform 350ms ease-out', 'translateY(-102%)').then(resolve);
+      _transitionElement(loader, 'transform 350ms ease-out', 'translateY(-102%)').then(_ => {
+        app.shown = true;
+        resolve();
+      });
     });
   }
 
@@ -149,6 +152,11 @@
       if (!currentConfig.md5Auth) {
         currentConfig.md5Auth = true;
       }
+
+    }
+    if (currentConfig.pass) {
+      currentConfig.password = currentConfig.pass;
+      delete currentConfig.pass;
     }
     return currentConfig;
   }
@@ -160,20 +168,29 @@
     });
   }
 
-  function mainPageAnimationFinished() {
-    if (!app.page === 0 && app.subPage === 0) {
-      app.subsonic[app.request](app.sortType , 30, 0, (function () {
-        if (app.mediaFolder !== 'none') {
-          return app.mediaFolder;
-        }
-        return;
-      })()).then(response => {
-        app.albums = response;
-        return;
-      }).then(cascadeElements).catch(err => console.error(err));
-    }
+  app.mainPageAnimationPrepare = function (e) {
+    if (app.albums && app.albums.length) app.albums = [];
+  };
 
-  }
+  app.mainPageAnimationFinished = function (e) {
+    switch (true) {
+      case (app.page === 0 && app.subPage === 0):
+        app.requestOffset = 0;
+        app.dataLoading = true;
+        app.subsonic[app.request](app.sortType, app.requestSize, app.requestOffset, (function () {
+          if (app.mediaFolder !== 'none') {
+            return app.mediaFolder;
+          }
+          return;
+        })()).then(response => {
+          app.dataLoading = false;
+          app.albums = app.albums.concat(response);
+          return;
+        }).then(_ => requestAnimationFrame(cascadeElements))
+        .catch(err => console.error(err));
+        break;
+    }
+  };
 
   app.openDrawer = function () {
     app.$.appDrawer.openDrawer();
@@ -191,11 +208,35 @@
   window.addEventListener('hashchange', hashChangeCallback);
   hashChangeCallback();
   app.addEventListener('dom-change', _ => {
+    app.scrollTarget = app.$.mainPageHeader.scroller;
+    app.scrollTarget.onscroll = function (e) {
+      if (app.scrollTarget.scrollTop === (app.scrollTarget.scrollHeight - app.scrollTarget.offsetHeight)) {
+        app.requestOffset = app.requestOffset + app.requestSize;
+        app.dataLoading = true;
+        app.subsonic[app.request](app.sortType, app.requestSize, app.requestOffset, (function () {
+          if (app.mediaFolder !== 'none') {
+            return app.mediaFolder;
+          }
+          return;
+        })()).then(response => {
+          app.dataLoading = false;
+          app.albums = app.albums.concat(response);
+          return;
+        }).then(_ => requestAnimationFrame(cascadeElements))
+        .catch(err => console.error(err));
+      }
+    };
+    console.log(app.scrollTarget)
     simpleStorage.getSync().then(syncStorage => {
+      app.shown = false;
       app.dataLoading = false;
-      app.sortType = syncStorage.sortType;
-      app.request = syncStorage.request;
-      app.mediaFolder = syncStorage.mediaFolder;
+      app.shuffleSettings = {};
+      app.shuffleSizes = [20,40,50,75,100,200];
+      app.requestOffset = 0;
+      app.requestSize = syncStorage.requestSize || 30;
+      app.sortType = syncStorage.sortType || 'newest';
+      app.request = syncStorage.request || 'getAlbumList2';
+      app.mediaFolder = syncStorage.mediaFolder || 'none';
       app.configs = syncStorage.configs;
       simpleStorage.getLocal().then(local => {
         app.currentConfig = local.currentConfig || 0;
@@ -207,32 +248,30 @@
         const currentConfig = updateConfig(app.configs[app.currentConfig]);
 
         saveConfigs(currentConfig);
-        app.async(_ => {
-          testConnection({
-            https: currentConfig.https,
-            ip: currentConfig.ip,
-            port: currentConfig.port,
-            user: currentConfig.user,
-            password: currentConfig.pass,
-            appName: 'PolySonic',
-            md5Auth: currentConfig.md5Auth
-          }).then(subsonic => {
-            app.subsonic = subsonic;
-
-            // make first request
-            app.subsonic[app.request](app.sortType , 30, 0, (function () {
-              if (app.mediaFolder !== 'none') {
-                return app.mediaFolder;
-              }
-              return;
-            })()).then(response => {
-              app.albums = response;
-              return;
-            }).then(showApp).then(cascadeElements).catch(err => console.error(err));
-          }).catch(_ => {
-            console.log(currentConfig)
-          });
+        testConnection({
+          https: currentConfig.https,
+          ip: currentConfig.ip,
+          port: currentConfig.port,
+          user: currentConfig.user,
+          password: currentConfig.password,
+          appName: 'PolySonic',
+          md5Auth: currentConfig.md5Auth
+        }).then(subsonic => {
+          app.subsonic = subsonic;
+          app.subsonic[app.request](app.sortType, app.requestSize, app.requestOffset, (function () {
+            if (app.mediaFolder !== 'none') {
+              return app.mediaFolder;
+            }
+            return;
+          })()).then(response => {
+            app.albums = response;
+            return;
+          }).then(showApp).then(cascadeElements)
+          .catch(err => console.error(err));
+        }, err => {
+          console.log(currentConfig, err)
         });
+
 
       });
 
