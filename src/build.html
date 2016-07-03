@@ -37,7 +37,6 @@
         <neon-animated-pages main on-iron-select="mainPageAnimationPrepare" on-neon-animation-finish="mainPageAnimationFinished" entry-animation="{{entryAnimation}}" exit-animation="{{exitAnimation}}" selected="{{page}}">
           <!-- album wall -->
           <neon-animated>
-            <iron-scroll-threshold scroll-target="{{scrollTarget}}" on-lower-threshold="lazyLoadAlbums" lower-threshold="500"></iron-scroll-threshold>
             <paper-header-panel id="mainPageHeader">
               <paper-toolbar>
                 <paper-icon-button hidden="{{!narrow}}" icon="menu" on-tap="openDrawer" class="mRight20"></paper-icon-button>

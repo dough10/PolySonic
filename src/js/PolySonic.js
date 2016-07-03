@@ -81,12 +81,19 @@
 
   function hashChangeCallback() {
     var hash = location.hash.split('/');
+    if (app.albums && app.albums.length) app.albums = [];
     switch (hash[0]) {
       case '':
-        setRoute('#Albums');
+        setRoute('#Albums/newest');
         return;
         break;
       case '#Albums':
+        if (!hash[1]) {
+          return;
+        }
+        app.requestOffset = 0;
+        app.sortType = hash[1];
+        if (app.page === 0) app.mainPageAnimationFinished();
         goToPage(0);
         app.subPage = 0;
         break;
@@ -159,9 +166,7 @@
     });
   }
 
-  app.mainPageAnimationPrepare = function (e) {
-    if (app.albums && app.albums.length) app.albums = [];
-  };
+  app.mainPageAnimationPrepare = function (e) {};
 
   app.mainPageAnimationFinished = function (e) {
     switch (true) {
@@ -223,14 +228,14 @@
         });
       }
     };
-    console.log(app.scrollTarget);
     simpleStorage.getSync().then(function (syncStorage) {
+      app.albums = [];
       app.shown = false;
       app.dataLoading = false;
       app.shuffleSettings = {};
       app.shuffleSizes = [20, 40, 50, 75, 100, 200];
       app.requestOffset = 0;
-      app.requestSize = syncStorage.requestSize || 30;
+      app.requestSize = syncStorage.requestSize || 60;
       app.sortType = syncStorage.sortType || 'newest';
       app.request = syncStorage.request || 'getAlbumList2';
       app.mediaFolder = syncStorage.mediaFolder || 'none';
@@ -261,7 +266,7 @@
             }
             return;
           }()).then(function (response) {
-            app.albums = response;
+            app.albums = app.albums.concat(response);
             return;
           }).then(showApp).then(cascadeElements).catch(function (err) {
             return console.error(err);
