@@ -28,6 +28,9 @@
 
   function showApp() {
     return new Promise(resolve => {
+      if (app.shown) {
+        resolve();
+      }
       const loader = document.querySelector('#loader');
       _transitionElement(loader, 'transform 350ms ease-out', 'translateY(-102%)').then(_ => {
         app.shown = true;
@@ -41,7 +44,7 @@
     const albums = document.querySelectorAll('.js-album-hidden');
     const count = albums.length;
     for (var i = 0; i < count; i++) {
-      var delay = 30 * i;
+      var delay = 25 * i;
       var element = albums[i];
       _transitionElement(
         element,
@@ -83,54 +86,66 @@
   }
 
   function setRoute(hash) {
+    app.requestOffset = 0;
     app.lastHash = location.hash;
     location.hash = hash;
   }
 
   function hashChangeCallback() {
     const hash = location.hash.split('/');
+    console.log(hash)
     if (app.albums && app.albums.length) app.albums = [];
+    if (app.artists && app.artists.length) app.artists = [];
     switch (hash[0]) {
       case '':
-        setRoute('#Albums/newest');
         return;
         break;
       case '#Albums':
         if (!hash[1]) {
+          setRoute('#Albums/newest');
           return;
         }
         app.requestOffset = 0;
+        app.request = 'getAlbumList2';
+        if ([
+          'newest',
+          'alphabeticalByArtist',
+          'alphabeticalByName',
+          'frequent',
+          'recent'
+        ].indexOf(hash[1]) < 0) {
+          setRoute('#Albums/newest');
+          return;
+        }
         app.sortType = hash[1];
-        if (app.page === 0) app.mainPageAnimationFinished();
-        goToPage(0);
+        if (app.page === 0 && app.subPage === 0) app.mainPageAnimationFinished();
         app.subPage = 0;
+        goToPage(0);
         break;
       case '#Artists':
-        goToPage(0);
+        app.request = 'getArtists';
+        if (app.page === 0 && app.subPage === 1) app.mainPageAnimationFinished();
         app.subPage = 1;
+        goToPage(0);
         break;
       case '#Podcasts':
-        goToPage(0);
+        app.request = 'getPodcasts';
+        if (app.page === 0 && app.subPage === 2) app.mainPageAnimationFinished();
         app.subPage = 2;
+        goToPage(0);
         break;
       case '#Settings':
         goToPage(3)
         break;
     }
-  }
-
-  function testConnection(obj) {
-    return new Promise((resolve, reject) => {
-      var subsonic = new SubsonicAPI(obj);
-      const readyCallback = function (event) {
-        document.removeEventListener('subsonicApi-ready', readyCallback);
-        if (event.detail.status === 'ok') {
-          resolve(subsonic);
-        } else {
-          reject();
-        }
-      };
-      document.addEventListener('subsonicApi-ready', readyCallback);
+    app.async(_ => {
+      if (!app.shown) app.mainPageAnimationFinished();
+    });
+    requestIdleCallback(deadLine => {
+      simpleStorage.setSync({
+        lastHash: location.hash
+      });
+      console.log(deadLine);
     });
   }
 
@@ -175,32 +190,107 @@
     });
   }
 
+  function requestAlbums() {
+    app.pageLimit = false;
+    app.dataLoading = true;
+    app.subsonic[app.request](app.sortType, app.requestSize, app.requestOffset, (function () {
+      if (app.mediaFolder !== 'none') {
+        return app.mediaFolder;
+      }
+      return;
+    })()).then(response => {
+      app.dataLoading = false;
+      if (response === undefined) {
+        app.pageLimit = true;
+        return;
+      }
+      app.albums = app.albums.concat(response);
+      return;
+    }).then(showApp).then(_ => requestAnimationFrame(cascadeElements))
+    .catch(err => console.error(err));
+  }
+
+  function requestArtists() {
+    app.pageLimit = false;
+    app.dataLoading = true;
+    app.subsonic[app.request]().then(artists => {
+      app.dataLoading = false;
+      app.artists = artists;
+      return;
+    }).then(showApp).then(_ => requestAnimationFrame(cascadeElements))
+    .catch(err => console.error(err));
+  }
+
+  function requestPodcasts() {}
+
+  app.testConnection = function (obj) {
+    return new Promise((resolve, reject) => {
+      var subsonic = new SubsonicAPI(obj);
+      const readyCallback = function (event) {
+        document.removeEventListener('subsonicApi-ready', readyCallback);
+        if (event.detail.status === 'ok') {
+          resolve(subsonic);
+        } else {
+          reject();
+        }
+      };
+      document.addEventListener('subsonicApi-ready', readyCallback);
+    });
+  };
+
   app.mainPageAnimationPrepare = function (e) {
 
   };
 
   app.mainPageAnimationFinished = function (e) {
     switch (true) {
+
       case (app.page === 0 && app.subPage === 0):
-        app.requestOffset = 0;
-        app.dataLoading = true;
-        app.subsonic[app.request](app.sortType, app.requestSize, app.requestOffset, (function () {
-          if (app.mediaFolder !== 'none') {
-            return app.mediaFolder;
-          }
-          return;
-        })()).then(response => {
-          app.dataLoading = false;
-          app.albums = app.albums.concat(response);
-          return;
-        }).then(_ => requestAnimationFrame(cascadeElements))
-        .catch(err => console.error(err));
+        requestAlbums();
+        break;
+
+      case (app.page === 0 && app.subPage === 1):
+        requestArtists();
+        break;
+
+      case (app.page === 0 && app.subPage === 2):
+        requestPodcasts();
         break;
     }
   };
 
   app.openDrawer = function () {
     app.$.appDrawer.openDrawer();
+  };
+
+  app.newestAlbums = function () {
+    app.$.appDrawer.closeDrawer();
+    setRoute('#Albums/newest');
+  };
+
+  app.byArtistAlbums = function () {
+    app.$.appDrawer.closeDrawer();
+    setRoute('#Albums/alphabeticalByArtist');
+  };
+
+  app.byNameAlbums = function () {
+    app.$.appDrawer.closeDrawer();
+    setRoute('#Albums/alphabeticalByName');
+  };
+
+  app.frequestAlbums = function () {
+    app.$.appDrawer.closeDrawer();
+    setRoute('#Albums/frequent');
+  };
+
+  app.recentAlbums = function () {
+    app.$.appDrawer.closeDrawer();
+    setRoute('#Albums/recent');
+  };
+
+  app.getArtists = function () {
+    app.$.appDrawer.closeDrawer();
+    setRoute('#Artists');
   };
 
   app.settings = function () {
@@ -213,30 +303,22 @@
   };
 
   window.addEventListener('hashchange', hashChangeCallback);
-  hashChangeCallback();
   app.addEventListener('dom-change', _ => {
+    app.apge = 0;
+    app.subPage = 0;
     app.scrollTarget = app.$.mainPageHeader.scroller;
     app.scrollTarget.onscroll = function (e) {
-      if (app.scrollTarget.scrollTop === (app.scrollTarget.scrollHeight - app.scrollTarget.offsetHeight)) {
+      if (app.scrollTarget.scrollTop === (app.scrollTarget.scrollHeight - app.scrollTarget.offsetHeight) && app.page === 0 && app.subPage === 0 && !app.pageLimit) {
         app.requestOffset = app.requestOffset + app.requestSize;
-        app.dataLoading = true;
-        app.subsonic[app.request](app.sortType, app.requestSize, app.requestOffset, (function () {
-          if (app.mediaFolder !== 'none') {
-            return app.mediaFolder;
-          }
-          return;
-        })()).then(response => {
-          app.dataLoading = false;
-          app.albums = app.albums.concat(response);
-          return;
-        }).then(_ => requestAnimationFrame(cascadeElements))
-        .catch(err => console.error(err));
+        requestAlbums();
       }
     };
     simpleStorage.getSync().then(syncStorage => {
       app.albums = [];
+      app.artists = [];
       app.shown = false;
       app.dataLoading = false;
+      app.pageLimit = false;
       app.shuffleSettings = {};
       app.shuffleSizes = [20,40,50,75,100,200];
       app.requestOffset = 0;
@@ -255,7 +337,7 @@
         const currentConfig = updateConfig(app.configs[app.currentConfig]);
 
         saveConfigs(currentConfig);
-        testConnection({
+        app.testConnection({
           https: currentConfig.https,
           ip: currentConfig.ip,
           port: currentConfig.port,
@@ -265,18 +347,16 @@
           md5Auth: currentConfig.md5Auth
         }).then(subsonic => {
           app.subsonic = subsonic;
-          app.subsonic[app.request](app.sortType, app.requestSize, app.requestOffset, (function () {
-            if (app.mediaFolder !== 'none') {
-              return app.mediaFolder;
+          simpleStorage.getSync('lastHash').then(lastHash => {
+            console.log(lastHash)
+            if (!lastHash) {
+              setRoute('#Albums/newest');
+              return;
             }
-            return;
-          })()).then(response => {
-            app.albums = app.albums.concat(response);
-            return;
-          }).then(showApp).then(cascadeElements)
-          .catch(err => console.error(err));
-        }, err => {
-          console.log(currentConfig, err)
+            setRoute(lastHash);
+          });
+        }, _ => {
+          console.log(currentConfig)
         });
 
 

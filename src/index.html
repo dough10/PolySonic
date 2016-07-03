@@ -31,30 +31,63 @@
       <paper-drawer-panel id="appDrawer" narrow="{{narrow}}">
         <paper-header-panel drawer>
           <paper-toolbar class="medium-tall whiteHeader"></paper-toolbar>
-          <paper-item class="menu-item" on-tap="settings">
-            <iron-icon icon="settings" class="mRight16"></iron-icon>
-            Settings
-          </paper-item>
+          <paper-menu>
+            <paper-item class="menu-item" on-tap="getArtists">
+              <iron-icon icon="av:recent-actors" class="mRight16"></iron-icon>
+              Artists
+            </paper-item>
+            <paper-item class="menu-item" on-tap="newestAlbums">
+              <iron-icon icon="av:my-library-music" class="mRight16"></iron-icon>
+              Newest
+            </paper-item>
+            <paper-item class="menu-item" on-tap="byArtistAlbums">
+              <iron-icon icon="av:my-library-music" class="mRight16"></iron-icon>
+              By Artist
+            </paper-item>
+            <paper-item class="menu-item" on-tap="byNameAlbums">
+              <iron-icon icon="av:my-library-music" class="mRight16"></iron-icon>
+              By Name
+            </paper-item>
+            <paper-item class="menu-item" on-tap="frequestAlbums">
+              <iron-icon icon="av:my-library-music" class="mRight16"></iron-icon>
+              Frequent
+            </paper-item>
+            <paper-item class="menu-item" on-tap="recentAlbums">
+              <iron-icon icon="av:my-library-music" class="mRight16"></iron-icon>
+              Recent
+            </paper-item>
+
+            <paper-item class="menu-item" on-tap="settings">
+              <iron-icon icon="settings" class="mRight16"></iron-icon>
+              Settings
+            </paper-item>
+          </paper-menu>
+
         </paper-header-panel>
         <neon-animated-pages main on-iron-select="mainPageAnimationPrepare" on-neon-animation-finish="mainPageAnimationFinished" entry-animation="{{entryAnimation}}" exit-animation="{{exitAnimation}}" selected="{{page}}">
           <!-- album wall -->
           <neon-animated>
             <paper-header-panel id="mainPageHeader">
               <paper-toolbar>
-                <paper-icon-button hidden="{{!narrow}}" icon="menu" on-tap="openDrawer" class="mRight20"></paper-icon-button>
-                PolySonic
+                <paper-icon-button disabled$="{{dataLoading}}" hidden="{{!narrow}}" icon="menu" on-tap="openDrawer" class="mRight20"></paper-icon-button>
+                <div>PolySonic</div>
               </paper-toolbar>
               <div hidden="{{!dataLoading}}" class="data-loader">
                 <paper-spinner class="blackSpinner" active="{{dataLoading}}"></paper-spinner>
               </div>
               <div class="center">
-                <neon-animated-pages entry-animation="fade-in-animation" exit-animation="fade-out-animation" selected="{{subPage}}">
+                <!-- // page 0 = albums // page 1 = artists // page 2 = podcasts -->
+                <neon-animated-pages on-neon-animation-finish="mainPageAnimationFinished" entry-animation="fade-in-animation" exit-animation="fade-out-animation" selected="{{subPage}}">
                   <neon-animated>
                     <template is="dom-repeat" items="{{albums}}" as="album">
                       <div class="album js-album-hidden">{{album.artist}}</div>
                     </template>
                   </neon-animated>
-                  <neon-animated></neon-animated>
+                  <neon-animated>
+                    <template is="dom-repeat" items="{{artists}}" as="artist">
+                      <div class="js-album-hidden">{{artist.name}}</div>
+                    </template>
+                  </neon-animated>
                   <neon-animated></neon-animated>
                 </neon-animated-pages>
               </div>
@@ -69,7 +102,7 @@
             <paper-header-panel>
               <paper-toolbar class="whiteHeader">
                 <paper-icon-button hidden="{{!narrow}}" icon="close" on-tap="back" class="mRight20"></paper-icon-button>
-                Settings
+                <div>Settings</div>
               </paper-toolbar>
             </paper-header-panel>
           </neon-animated>
