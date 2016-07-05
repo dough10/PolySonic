@@ -26,6 +26,7 @@
       </div>
     </div>
     <template is="dom-bind" id="app">
+      <app-globals id="globals"></app-globals>
       <paper-drawer-panel id="appDrawer" narrow="{{narrow}}">
         <paper-header-panel drawer>
           <paper-toolbar class="medium-tall whiteHeader"></paper-toolbar>
@@ -78,7 +79,7 @@
                 <neon-animated-pages on-neon-animation-finish="mainPageAnimationFinished" entry-animation="fade-in-animation" exit-animation="fade-out-animation" selected="{{subPage}}">
                   <neon-animated>
                     <template is="dom-repeat" items="{{albums}}" as="album">
-                      <div class="album js-album-hidden">{{album.artist}}</div>
+                      <subsonic-album mode="{{albumMode}}" album="{{album}}"></subsonic-album>
                     </template>
                   </neon-animated>
                   <neon-animated>

@@ -42,9 +42,9 @@
     var albums = document.querySelectorAll('.js-album-hidden');
     var count = albums.length;
     for (var i = 0; i < count; i++) {
-      var delay = 25 * i;
+      var delay = 40 * i;
       var element = albums[i];
-      _transitionElement(element, 'all 150ms ' + delay + 'ms ease-in', 'translateY(0px)', 1, 'transform opacity');
+      _transitionElement(element, 'all 100ms ' + delay + 'ms ease-in', 'translateY(0px)', 1, 'transform opacity');
     }
   }
 
@@ -88,6 +88,7 @@
     console.log(hash);
     if (app.albums && app.albums.length) app.albums = [];
     if (app.artists && app.artists.length) app.artists = [];
+    if (app.podcasts && app.podcasts.length) app.podcasts = [];
     switch (hash[0]) {
       case '':
         return;
@@ -214,9 +215,102 @@
 
   function requestPodcasts() {}
 
+  function scrollCallback(e) {
+    if (app.scrollTarget.scrollTop === app.scrollTarget.scrollHeight - app.scrollTarget.offsetHeight && app.page === 0 && app.subPage === 0 && !app.pageLimit && app.albums.length) {
+      app.requestOffset = app.requestOffset + app.requestSize;
+      requestAlbums();
+    }
+  }
+
+  function attemptFirstConnection(local) {
+    app.currentConfig = local.currentConfig || 0;
+    app.bitRate = local.bitRate || '320';
+    if (!app.configs.length) {
+      // display login dialog
+      return;
+    }
+    var currentConfig = updateConfig(app.configs[app.currentConfig]);
+    saveConfigs(currentConfig);
+    app.testConnection({
+      https: currentConfig.https,
+      ip: currentConfig.ip,
+      port: currentConfig.port,
+      user: currentConfig.user,
+      password: currentConfig.password,
+      appName: 'PolySonic',
+      md5Auth: currentConfig.md5Auth
+    }).then(function (subsonic) {
+      app.subsonic = subsonic;
+      readyFileSystem().then(function (_) {
+        simpleStorage.getSync('lastHash').then(function (lastHash) {
+          if (!lastHash) {
+            setRoute('#Albums/newest');
+            return;
+          }
+          setRoute(lastHash);
+        });
+      });
+    }, function (_) {
+      // connection has failed show login dialog
+      console.log(currentConfig);
+    });
+  }
+
+  function readyFileSystem() {
+    return new Promise(function (resolve, reject) {
+      app.$.globals.initFS().then(setupIndexedDB).then(resolve).catch(reject);
+    });
+  }
+
+  /**
+   * synced settings have loaded 
+   */
+  function loadLocalStorage(syncStorage) {
+    return new Promise(function (resolve, reject) {
+      app.albums = [];
+      app.artists = [];
+      app.podcasts = [];
+      app.shown = false;
+      app.dataLoading = false;
+      app.pageLimit = false;
+      app.shuffleSettings = {};
+      app.queryMethod = syncStorage.queryMethod || 'ID3';
+      app.albumMode = syncStorage.albumMode || 'cover';
+      app.shuffleSizes = [20, 40, 50, 75, 100, 200];
+      app.requestOffset = 0;
+      app.requestSize = syncStorage.requestSize || 60;
+      app.sortType = syncStorage.sortType || 'newest';
+      app.request = syncStorage.request || 'getAlbumList2';
+      app.mediaFolder = syncStorage.mediaFolder || 'none';
+      app.configs = syncStorage.configs || [];
+      simpleStorage.getLocal().then(resolve).catch(reject);
+    });
+  }
+
+  /**
+   * initiate indexedDB
+   */
+  function setupIndexedDB() {
+    return new Promise(function (resolve, reject) {
+      app.$.globals.openIndexedDB().then(resolve).catch(reject);
+    });
+  }
+
+  /**
+   * indexeddb setup and ready to work with
+   */
+  function loadSyncStorage() {
+    return new Promise(function (resolve, reject) {
+      app.page = 0;
+      app.subPage = 0;
+      app.scrollTarget = app.$.mainPageHeader.scroller;
+      app.scrollTarget.onscroll = scrollCallback;
+      simpleStorage.getSync().then(resolve).catch(reject);
+    });
+  }
+
   app.testConnection = function (obj) {
     return new Promise(function (resolve, reject) {
-      var subsonic = new SubsonicAPI(obj);
       var readyCallback = function (event) {
         document.removeEventListener('subsonicApi-ready', readyCallback);
         if (event.detail.status === 'ok') {
@@ -226,6 +320,7 @@
         }
       };
       document.addEventListener('subsonicApi-ready', readyCallback);
+      var subsonic = new SubsonicAPI(obj);
     });
   };
 
@@ -246,6 +341,17 @@
         requestPodcasts();
         break;
     }
+  };
+
+  app.changeAlbumMode = function () {
+    if (app.albumMode === 'cover') {
+      app.albumMode = 'list';
+    } else {
+      app.albumMode = 'cover';
+    }
+    app.async(function (_) {
+      return requestAnimationFrame(cascadeElements);
+    });
   };
 
   app.openDrawer = function () {
@@ -292,62 +398,10 @@
   };
 
   window.addEventListener('hashchange', hashChangeCallback);
-  app.addEventListener('dom-change', function (_) {
-    app.apge = 0;
-    app.subPage = 0;
-    app.scrollTarget = app.$.mainPageHeader.scroller;
-    app.scrollTarget.onscroll = function (e) {
-      if (app.scrollTarget.scrollTop === app.scrollTarget.scrollHeight - app.scrollTarget.offsetHeight && app.page === 0 && app.subPage === 0 && !app.pageLimit) {
-        app.requestOffset = app.requestOffset + app.requestSize;
-        requestAlbums();
-      }
-    };
-    simpleStorage.getSync().then(function (syncStorage) {
-      app.albums = [];
-      app.artists = [];
-      app.shown = false;
-      app.dataLoading = false;
-      app.pageLimit = false;
-      app.shuffleSettings = {};
-      app.shuffleSizes = [20, 40, 50, 75, 100, 200];
-      app.requestOffset = 0;
-      app.requestSize = syncStorage.requestSize || 60;
-      app.sortType = syncStorage.sortType || 'newest';
-      app.request = syncStorage.request || 'getAlbumList2';
-      app.mediaFolder = syncStorage.mediaFolder || 'none';
-      app.configs = syncStorage.configs;
-      simpleStorage.getLocal().then(function (local) {
-        app.currentConfig = local.currentConfig || 0;
-        app.bitRate = local.bitRate || '320';
-        if (!app.configs) {
-          // display login dialog
-          return;
-        }
-        var currentConfig = updateConfig(app.configs[app.currentConfig]);
 
-        saveConfigs(currentConfig);
-        app.testConnection({
-          https: currentConfig.https,
-          ip: currentConfig.ip,
-          port: currentConfig.port,
-          user: currentConfig.user,
-          password: currentConfig.password,
-          appName: 'PolySonic',
-          md5Auth: currentConfig.md5Auth
-        }).then(function (subsonic) {
-          app.subsonic = subsonic;
-          simpleStorage.getSync('lastHash').then(function (lastHash) {
-            console.log(lastHash);
-            if (!lastHash) {
-              setRoute('#Albums/newest');
-              return;
-            }
-            setRoute(lastHash);
-          });
-        }, function (_) {
-          console.log(currentConfig);
-        });
-      });
+  app.addEventListener('dom-change', function (_) {
+    return loadSyncStorage().then(loadLocalStorage).then(attemptFirstConnection).catch(function (e) {
+      return console.log(e);
     });
   });
 })();

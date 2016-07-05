@@ -1,0 +1,159 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/app-globals/app-globals.html">
+<dom-module id="subsonic-album">
+  <style>
+    .album {
+      height: 150px;
+      width: 150px;
+      display: inline-block;
+      margin: 4px;
+      border-radius: 2px;
+      transform: translateY(200px);
+      opacity: 0;
+      background: #ccc;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-origin: content-box;
+      background-size:150px;
+      position: relative;
+    }
+    .smallCover {
+      height: 30px;
+      width: 30px;
+      display: inline-block;
+      margin-right: 16px;
+      border-radius: 50%;
+      background: #ccc;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-origin: content-box;
+      background-size:50px;
+      position: relative;
+    }
+    .card {
+      background: #fff;
+      display: block;
+      margin: 4px;
+      border-radius: 2px;
+      transform: translateY(200px);
+      opacity: 0;
+      padding:8px;
+    }
+    .loader {
+      position: absolute;
+      bottom:0;
+      right:0;
+      top: 0;
+      left: 0;
+      background: rgba(255,255,255,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+  <template>
+    <app-globals id="globals"></app-globals>
+    <template is="dom-if" if="{{showingCover}}">
+      <paper-material id="cover" 
+                      animated
+                      elevation="1"
+                      on-mouseover="mouseIn"
+                      on-mouseout="mouseOut" 
+                      class="album js-album-hidden">
+        <div class="loader" hidden$='{{!isLoading}}'>
+          <paper-spinner active="{{isLoading}}"></paper-spinner>
+        </div>
+      </paper-material>
+    </template>
+    <template is="dom-if" if="{{!showingCover}}">
+      <paper-material animated
+                      elevation="1"
+                      on-mouseover="mouseIn"
+                      on-mouseout="mouseOut" 
+                      class="card js-album-hidden">
+        <div class="horizontal layout">
+          <div id="cover" class="smallCover">
+            <div class="loader" hidden$='{{!isLoading}}'>
+              <paper-spinner active="{{isLoading}}"></paper-spinner>
+            </div>
+          </div>
+          <div class="flex"></div>
+          <paper-icon-button icon="more-vert"></paper-icon-button>
+        </div>
+      </paper-material>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'subsonic-album',
+      properties: {
+        mode: {
+          type: String,
+          value: 'cover',
+          observer: 'modeChanged'
+        },
+        album: {
+          type: Object,
+          observer: 'albumChanged'
+        },
+        isLoading: {
+          type: Boolean,
+          value: true
+        }
+      },
+      
+      ready: function () {
+        this.app = document.querySelector('#app');
+      },
+      
+      mouseIn: function (event) {
+        event.target.elevation = 3;
+      },
+
+      mouseOut: function (event) {
+        event.target.elevation = 1;
+      },
+
+      ready: function () {
+        this.app = document.querySelector("#app");
+      },
+      
+      setImage: function (imgURL) {
+        this.querySelector('#cover').style.backgroundImage = "url('" + imgURL + "')";
+        //this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
+        this.isLoading = false;
+        this.imgURL = imgURL;
+      },
+      
+      _updateAlbum: function () {
+        if (!this.album) return;
+        this.playlist = [];
+        this.albumSize = 0;
+        this.isLoading = true;
+        var albumId = (function () {
+          if (this.app.queryMethod === 'ID3') {
+            return "al-" + this.album.id;
+          }
+          return this.album.id;
+        }.bind(this))();
+        this.$.globals.fetchImage(albumId).then(this.setImage.bind(this));
+      },
+      
+      albumChanged: function () {
+        this.async(this._updateAlbum);
+      },
+      
+      _updateMode: function () {
+        if (this.mode === 'cover') {
+          this.showingCover = true;
+          return;
+        }
+        this.showingCover = false;
+      },
+      
+      modeChanged: function () {
+        this.async(this._updateMode);
+      }
+    });
+  </script>
+</dom-module>
