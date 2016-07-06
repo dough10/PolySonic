@@ -753,66 +753,6 @@
           reject();
         }
       }.bind(this));
-    },
-
-    /**
-     * create a random string of a given length
-     * @param {number} length
-     */
-    makeSalt: function (length) {
-      var text = "";
-      var possible = "ABCD/EFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      for( var i=0; i < length; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-      return text;
-    },
-
-    /**
-     * convert object a query string
-     * @param {Object} params
-     */
-    toQueryString: function (params) {
-      var r = [];
-      for (var n in params) {
-        n = encodeURIComponent(n);
-        r.push(params[n] === null ? n : (n + '=' + encodeURIComponent(params[n])));
-      }
-      return r.join('&');
-    },
-
-    /**
-     * generate a subsonic url string
-     * @param {String} method - the subsonic query method
-     * @param {Object} options - object of options for the query
-     */
-    buildUrl: function(method, options) {
-      if (options !== null && typeof options === 'object') {
-        options = '&' + this.toQueryString(options);
-      }
-      if (app.user !== app.params.u) {
-        app.params.u = app.user;
-      }
-      if (app.version !== app.params.v) {
-        app.params.v = app.version;
-      }
-      if (!options) {
-        options = '';
-      }
-      if (versionCompare(app.version, '1.13.0') >= 0 && app.md5Auth) {
-        if (app.params.p) {
-          delete app.params.p;
-        }
-        app.params.s = this.makeSalt(16);
-        app.params.t = md5(app.pass + app.params.s);
-        return app.url + '/rest/' + method + '.view?' + this.toQueryString(app.params) + options;
-      } else {
-        if (app.params.t) {
-          delete app.params.t;
-          delete app.params.s;
-        }
-        app.params.p = app.pass.hexEncode();
-        return app.url + '/rest/' + method + '.view?' + this.toQueryString(app.params) + options;
-      }
     }
   });
 
