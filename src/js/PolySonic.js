@@ -42,9 +42,9 @@
     var albums = document.querySelectorAll('.js-album-hidden');
     var count = albums.length;
     for (var i = 0; i < count; i++) {
-      var delay = 40 * i;
+      var delay = 20 * i;
       var element = albums[i];
-      _transitionElement(element, 'all 100ms ' + delay + 'ms ease-in', 'translateY(0px)', 1, 'transform opacity');
+      _transitionElement(element, 'all 50ms ' + delay + 'ms ease-in', 'translateY(0px)', 1, 'transform opacity');
     }
   }
 
@@ -166,6 +166,7 @@
       currentConfig.password = currentConfig.pass;
       delete currentConfig.pass;
     }
+    saveConfigs(currentConfig);
     return currentConfig;
   }
 
@@ -230,7 +231,6 @@
       return;
     }
     var currentConfig = updateConfig(app.configs[app.currentConfig]);
-    saveConfigs(currentConfig);
     app.testConnection({
       https: currentConfig.https,
       ip: currentConfig.ip,
@@ -263,7 +263,7 @@
   }
 
   /**
-   * synced settings have loaded 
+   * synced settings have loaded
    */
   function loadLocalStorage(syncStorage) {
     return new Promise(function (resolve, reject) {

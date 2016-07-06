@@ -38,23 +38,23 @@
               Artists
             </paper-item>
             <paper-item class="menu-item" on-tap="newestAlbums">
-              <iron-icon icon="av:my-library-music" class="mRight16"></iron-icon>
+              <iron-icon icon="av:queue-music" class="mRight16"></iron-icon>
               Newest
             </paper-item>
             <paper-item class="menu-item" on-tap="byArtistAlbums">
-              <iron-icon icon="av:my-library-music" class="mRight16"></iron-icon>
+              <iron-icon icon="av:queue-music" class="mRight16"></iron-icon>
               By Artist
             </paper-item>
             <paper-item class="menu-item" on-tap="byNameAlbums">
-              <iron-icon icon="av:my-library-music" class="mRight16"></iron-icon>
+              <iron-icon icon="av:queue-music" class="mRight16"></iron-icon>
               By Name
             </paper-item>
             <paper-item class="menu-item" on-tap="frequestAlbums">
-              <iron-icon icon="av:my-library-music" class="mRight16"></iron-icon>
+              <iron-icon icon="av:queue-music" class="mRight16"></iron-icon>
               Frequent
             </paper-item>
             <paper-item class="menu-item" on-tap="recentAlbums">
-              <iron-icon icon="av:my-library-music" class="mRight16"></iron-icon>
+              <iron-icon icon="av:queue-music" class="mRight16"></iron-icon>
               Recent
             </paper-item>
 
@@ -71,11 +71,9 @@
             <paper-header-panel id="mainPageHeader">
               <paper-toolbar>
                 <paper-icon-button disabled$="{{dataLoading}}" hidden="{{!narrow}}" icon="menu" on-tap="openDrawer" class="mRight20"></paper-icon-button>
-                <div>PolySonic</div>
+                <div class="title">PolySonic</div>
+                <paper-icon-button class="js-album-mode" icon="view-stream" on-tap="changeAlbumMode"></paper-icon-button>
               </paper-toolbar>
-              <div hidden="{{!dataLoading}}" class="data-loader">
-                <paper-spinner class="blackSpinner" active="{{dataLoading}}"></paper-spinner>
-              </div>
               <div class="center">
                 <!-- // page 0 = albums // page 1 = artists // page 2 = podcasts -->
                 <neon-animated-pages on-neon-animation-finish="mainPageAnimationFinished" entry-animation="fade-in-animation" exit-animation="fade-out-animation" selected="{{subPage}}">
@@ -83,6 +81,9 @@
                     <template is="dom-repeat" items="{{albums}}" as="album">
                       <subsonic-album mode="{{albumMode}}" album="{{album}}"></subsonic-album>
                     </template>
+                    <div style="padding:16px;">
+                      <paper-spinner hidden$="{{!dataLoading}}" class="blackSpinner" active$="{{dataLoading}}"></paper-spinner>
+                    </div>
                   </neon-animated>
                   <neon-animated>
                     <template is="dom-repeat" items="{{artists}}" as="artist">
@@ -103,7 +104,7 @@
             <paper-header-panel>
               <paper-toolbar class="whiteHeader">
                 <paper-icon-button hidden="{{!narrow}}" icon="close" on-tap="back" class="mRight20"></paper-icon-button>
-                <div>Settings</div>
+                <div class="title">Settings</div>
               </paper-toolbar>
             </paper-header-panel>
           </neon-animated>

@@ -1,14 +1,17 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link href="../../styles/theme.html" rel="import">
 <link rel="import" href="../../elements/app-globals/app-globals.html">
 <dom-module id="subsonic-album">
   <style>
     .album {
       height: 150px;
       width: 150px;
-      display: inline-block;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
       margin: 4px;
       border-radius: 2px;
-      transform: translateY(200px);
+      transform: translateY(100px);
       opacity: 0;
       background: #ccc;
       background-repeat: no-repeat;
@@ -18,10 +21,9 @@
       position: relative;
     }
     .smallCover {
-      height: 30px;
-      width: 30px;
+      height: 40px;
+      width: 40px;
       display: inline-block;
-      margin-right: 16px;
       border-radius: 50%;
       background: #ccc;
       background-repeat: no-repeat;
@@ -35,9 +37,10 @@
       display: block;
       margin: 4px;
       border-radius: 2px;
-      transform: translateY(200px);
+      transform: translateY(50px);
       opacity: 0;
       padding:8px;
+      max-width: 800px;
     }
     .loader {
       position: absolute;
@@ -50,18 +53,61 @@
       justify-content: center;
       align-items: center;
     }
+    .textBG {
+      background: rgba(255, 255, 255, 0.8);
+      position: absolute;
+      bottom:0;
+      left:0;
+      right:0;
+      text-align:left;
+    }
+    .artistName {
+      font-size: 12px;
+      max-height: 14px;
+      overflow: hidden;
+    }
+    .albumName {
+      font-size: 14px;
+      max-height: 16px;
+      overflow: hidden;
+    }
+    .pad5 {
+      padding:5px;
+    }
+    paper-icon-button.huge {
+      width: 80px;
+      height: 80px;
+    }
+    .huge {
+      color: white;
+    }
+    .albumString {
+      overflow: hidden;
+      text-align: left;
+      font-size: 16px;
+      max-height: 9px;
+      padding: 11px;
+    }
   </style>
   <template>
     <app-globals id="globals"></app-globals>
     <template is="dom-if" if="{{showingCover}}">
-      <paper-material id="cover" 
+      <paper-material id="cover"
                       animated
                       elevation="1"
                       on-mouseover="mouseIn"
-                      on-mouseout="mouseOut" 
+                      on-mouseout="mouseOut"
                       class="album js-album-hidden">
         <div class="loader" hidden$='{{!isLoading}}'>
           <paper-spinner active="{{isLoading}}"></paper-spinner>
+        </div>
+        <paper-icon-button class="huge" icon="av:play-arrow"></paper-icon-button>
+        <div class="textBG horizontal layout">
+          <div class="flex vertical layout pad5">
+            <div class="artistName">{{album.artist}}</div>
+            <div class="albumName">{{album.name}}</div>
+          </div>
+          <paper-icon-button icon="more-vert"></paper-icon-button>
         </div>
       </paper-material>
     </template>
@@ -69,7 +115,7 @@
       <paper-material animated
                       elevation="1"
                       on-mouseover="mouseIn"
-                      on-mouseout="mouseOut" 
+                      on-mouseout="mouseOut"
                       class="card js-album-hidden">
         <div class="horizontal layout">
           <div id="cover" class="smallCover">
@@ -77,7 +123,9 @@
               <paper-spinner active="{{isLoading}}"></paper-spinner>
             </div>
           </div>
-          <div class="flex"></div>
+          <div class="flex albumString">
+            <span>{{album.artist}}</span> - <span>{{album.name}}</span>
+          </div>
           <paper-icon-button icon="more-vert"></paper-icon-button>
         </div>
       </paper-material>
@@ -101,11 +149,11 @@
           value: true
         }
       },
-      
+
       ready: function () {
         this.app = document.querySelector('#app');
       },
-      
+
       mouseIn: function (event) {
         event.target.elevation = 3;
       },
@@ -117,14 +165,15 @@
       ready: function () {
         this.app = document.querySelector("#app");
       },
-      
+
       setImage: function (imgURL) {
+        if (!imgURL) return;
         this.querySelector('#cover').style.backgroundImage = "url('" + imgURL + "')";
         //this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
         this.isLoading = false;
         this.imgURL = imgURL;
       },
-      
+
       _updateAlbum: function () {
         if (!this.album) return;
         this.playlist = [];
@@ -138,19 +187,27 @@
         }.bind(this))();
         this.$.globals.fetchImage(albumId).then(this.setImage.bind(this));
       },
-      
+
       albumChanged: function () {
         this.async(this._updateAlbum);
       },
-      
+
       _updateMode: function () {
+        if (!this.mode) return;
+        this.isLoading = true;
+        var button = document.querySelector('.js-album-mode');
         if (this.mode === 'cover') {
+          button.icon = 'view-stream';
           this.showingCover = true;
-          return;
+        } else {
+          button.icon = 'view-module';
+          this.showingCover = false;
         }
-        this.showingCover = false;
+        this.async(function () {
+          this.setImage(this.imgURL);
+        }, 200);
       },
-      
+
       modeChanged: function () {
         this.async(this._updateMode);
       }

@@ -44,11 +44,11 @@
     const albums = document.querySelectorAll('.js-album-hidden');
     const count = albums.length;
     for (var i = 0; i < count; i++) {
-      var delay = 40 * i;
+      var delay = 20 * i;
       var element = albums[i];
       _transitionElement(
         element,
-        'all 100ms ' + delay + 'ms ease-in',
+        'all 50ms ' + delay + 'ms ease-in',
         'translateY(0px)',
         1,
         'transform opacity'
@@ -181,6 +181,7 @@
       currentConfig.password = currentConfig.pass;
       delete currentConfig.pass;
     }
+    saveConfigs(currentConfig);
     return currentConfig;
   }
 
@@ -223,14 +224,14 @@
   }
 
   function requestPodcasts() {}
-  
+
   function scrollCallback (e) {
     if (app.scrollTarget.scrollTop === (app.scrollTarget.scrollHeight - app.scrollTarget.offsetHeight) && app.page === 0 && app.subPage === 0 && !app.pageLimit && app.albums.length) {
       app.requestOffset = app.requestOffset + app.requestSize;
       requestAlbums();
     }
   }
-  
+
   function attemptFirstConnection (local) {
     app.currentConfig = local.currentConfig || 0;
     app.bitRate = local.bitRate || '320';
@@ -239,7 +240,6 @@
       return;
     }
     const currentConfig = updateConfig(app.configs[app.currentConfig]);
-    saveConfigs(currentConfig);
     app.testConnection({
       https: currentConfig.https,
       ip: currentConfig.ip,
@@ -266,7 +266,7 @@
       console.log(currentConfig)
     });
   }
-  
+
   function readyFileSystem() {
     return new Promise((resolve, reject) => {
       app.$.globals.initFS()
@@ -275,9 +275,9 @@
       .catch(reject);
     });
   }
-  
+
   /**
-   * synced settings have loaded 
+   * synced settings have loaded
    */
   function loadLocalStorage(syncStorage) {
     return new Promise((resolve, reject) => {
@@ -300,7 +300,7 @@
       simpleStorage.getLocal().then(resolve).catch(reject)
     });
   }
-  
+
   /**
    * initiate indexedDB
    */
@@ -308,9 +308,9 @@
     return new Promise((resolve, reject) => {
       app.$.globals.openIndexedDB().then(resolve).catch(reject);
     });
-    
+
   }
-  
+
   /**
    * indexeddb setup and ready to work with
    */
@@ -359,7 +359,7 @@
         break;
     }
   };
-  
+
   app.changeAlbumMode = function () {
     if (app.albumMode === 'cover') {
       app.albumMode = 'list';
@@ -413,7 +413,7 @@
   };
 
   window.addEventListener('hashchange', hashChangeCallback);
-  
+
   app.addEventListener('dom-change', _ => loadSyncStorage()
   .then(loadLocalStorage)
   .then(attemptFirstConnection)
