@@ -54,7 +54,7 @@
       align-items: center;
     }
     .textBG {
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.9);
       position: absolute;
       bottom:0;
       left:0;
@@ -107,7 +107,7 @@
             <div class="artistName">{{album.artist}}</div>
             <div class="albumName">{{album.name}}</div>
           </div>
-          <paper-icon-button icon="more-vert"></paper-icon-button>
+          <paper-icon-button icon="more-vert" on-tap="_getAlbumDetails"></paper-icon-button>
         </div>
       </paper-material>
     </template>
@@ -126,6 +126,7 @@
           <div class="flex albumString">
             <span>{{album.artist}}</span> - <span>{{album.name}}</span>
           </div>
+          <paper-icon-button icon="av:play-arrow"></paper-icon-button>
           <paper-icon-button icon="more-vert"></paper-icon-button>
         </div>
       </paper-material>
@@ -138,11 +139,11 @@
         mode: {
           type: String,
           value: 'cover',
-          observer: 'modeChanged'
+          observer: '_modeChanged'
         },
         album: {
           type: Object,
-          observer: 'albumChanged'
+          observer: '_albumChanged'
         },
         isLoading: {
           type: Boolean,
@@ -152,6 +153,9 @@
 
       ready: function () {
         this.app = document.querySelector('#app');
+        this._getMetaData = this._getMetaData.bind(this);
+        this._processJSON = this._processJSON.bind(this);
+        this._setImage = this._setImage.bind(this);
       },
 
       mouseIn: function (event) {
@@ -166,12 +170,101 @@
         this.app = document.querySelector("#app");
       },
 
-      setImage: function (imgURL) {
+      _setImage: function (imgURL) {
         if (!imgURL) return;
-        this.querySelector('#cover').style.backgroundImage = "url('" + imgURL + "')";
-        //this.$.smallCover.style.backgroundImage = "url('" + imgURL + "')";
+        document.querySelector('#cover').style.backgroundImage = "url('" + imgURL + "')";
         this.isLoading = false;
         this.imgURL = imgURL;
+      },
+      
+      _processJSON: function (json) {
+        return new Promise(function (resolve, reject) {
+          var data = (function (app) {
+            if (app.queryMethod === 'ID3') {
+              return {
+                tracks: json.song,
+                artistId: json.artistId
+              };
+            }
+            return {
+              tracks: json.child,
+              artistId: json.parent
+            };
+          })(this.app);
+          this.artistId = data.artistId;
+          data.tracks.sort(function sorting(a, b) {
+            return a.discNumber - b.discNumber || a.track - b.track;
+          });
+          var tracks = data.tracks;
+          var length = tracks.length;
+          for (var i = 0; i < length; i++) {
+            this.albumSize = this.albumSize + tracks[i].size;
+            this.push('playlist', {
+              id: tracks[i].id,
+              artist: tracks[i].artist,
+              title: tracks[i].title,
+              duration: this.$.globals.secondsToMins(tracks[i].duration),
+              cover: this.imgURL,
+              bookmarkPosition: tracks[i].bookmarkPosition,
+              palette: this.palette,
+              disc: tracks[i].discNumber,
+              track: tracks[i].track
+            });
+            if (tracks[i].bookmarkPosition && this.bookmarkIndex === undefined) {
+              this.bookmarkIndex = i;
+            }
+          }
+          resolve();
+        }.bind(this));
+      },
+      
+      _getPalette: function (id) {
+        return new Promise(function (resolve, reject) {
+          this.$.globals.getDbItem(id + '-palette').then(function (ev) {
+            resolve(ev.target.result);
+          });
+        });
+      },
+      
+      _getMetaData: function (palette) {
+        return new Promise(function (resolve, reject) {
+          this.palette = palette;
+          this.app.subsonic[this.request](this.album.id)
+          .then(resolve).catch(reject)
+        });
+      },
+      
+      _getAlbumDetails: function () {
+        console.time('getData');
+        var requestObj = (function (el) {
+          if (el.app.queryMethod === 'ID3') {
+            return {
+              request: 'getAlbum',
+              artId: 'al-' + el.album.id
+            };
+          }
+          return {
+            request: 'getMusicDirectory',
+            artId: el.album.id
+          }
+        })(this);
+        this.request = requestObj.request;
+        this._getPalette(requestObj.artId)
+        .then(this._getMetaData)
+        .then(this._processJSON)
+        .then(function () {
+          console.timeEnd('getData');
+          console.log(this.playlist);
+        }.bind(this));
+//        this.$.globals.getDbItem(requestObj.artId + '-palette').then(function (ev) {
+//          this.palette = ev.target.result;
+//          this.app.subsonic[requestObj.request](this.album.id)
+//          .then(this._processJSON.bind(this))
+//          .then(function () {
+//            console.timeEnd('getData');
+//            console.log(this.playlist);
+//          }.bind(this));
+//        }.bind(this));
       },
 
       _updateAlbum: function () {
@@ -185,10 +278,10 @@
           }
           return this.album.id;
         }.bind(this))();
-        this.$.globals.fetchImage(albumId).then(this.setImage.bind(this));
+        this.$.globals.fetchImage(albumId).then(this._setImage);
       },
 
-      albumChanged: function () {
+      _albumChanged: function () {
         this.async(this._updateAlbum);
       },
 
@@ -203,12 +296,9 @@
           button.icon = 'view-module';
           this.showingCover = false;
         }
-        this.async(function () {
-          this.setImage(this.imgURL);
-        }, 200);
       },
 
-      modeChanged: function () {
+      _modeChanged: function () {
         this.async(this._updateMode);
       }
     });
