@@ -1,0 +1,811 @@
+<html><head><link href="../../bower_components/polymer/polymer.html" rel="import">
+<link href="../../bower_components/paper-material/paper-material.html" rel="import">
+<link href="../../bower_components/paper-icon-button/paper-icon-button.html" rel="import">
+<link href="../../bower_components/neon-animation/neon-animated-pages.html" rel="import">
+<link href="../../bower_components/iron-media-query/iron-media-query.html" rel="import">
+<link href="../../bower_components/iron-icons/av-icons.html" rel="import">
+<link href="../../bower_components/iron-media-query/iron-media-query.html" rel="import">
+<link href="../../bower_components/paper-item/paper-item.html" rel="import">
+<link href="../../bower_components/paper-item/paper-item.html" rel="import">
+<link href="../../bower_components/neon-animation/neon-animation.html" rel="import">
+</head><body><dom-module id="music-player">
+  <style shim-shadowdom="">
+      .waitingToPlay {
+        background:rgba(255,255,255,0.3);
+        overflow:hidden;
+        position:absolute;
+        top:0;
+        bottom:128px;
+        left:0;
+        right:0;
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
+        pointer-events:none;
+      }
+      #progress {
+        position:absolute;
+        left:0;
+        right:0;
+        width:100%;
+        margin:0;
+        padding:0;
+        cursor:pointer;
+        height:15px;
+      }
+      paper-progress::shadow #activeProgress {
+        background-color:#db4437;
+      }
+      paper-progress::shadow #secondaryProgress {
+        background-color:#d99797;
+      }
+      #avIcon {
+        padding:0px;
+        margin-top:16px;
+      }
+      #avIcon2 {
+        padding:0px;
+        margin-top:16px;
+      }
+      .volume {
+        position:absolute;
+        right:1%;
+        margin-top:66px;
+      }
+      .repeat {
+        position:absolute;
+        left:1%;
+        margin-top:66px;
+      }
+      .controlsWrapper {
+        background: #6e6d6d;
+        height:128px;
+        display:block;
+        position: static;
+        bottom:0;
+        left:0;
+        right:0;
+        text-align: center;
+        margin:auto;
+      }
+      #time {
+        color: #ffffff;
+        position: absolute;
+        right: 2%;
+        margin-top: 18px;
+        font-size: 14pt;
+      }
+      #coverArt {
+        background-image:url("../../images/default-cover-art.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:cover;
+      }
+      paper-icon-button {
+        color: white;
+      }
+      paper-icon-button.huge::shadow #icon {
+        width: 95px;
+        height: 95px;
+      }
+      paper-progress::shadow #progressContainer {
+        background-color:{{app.colorThiefProgBg}};
+        transition: background-color 500ms linear;
+      }
+      paper-progress::shadow #activeProgress {
+        background-color:{{app.colorThiefFab}};
+        transition: background-color 500ms linear;
+      }
+      paper-progress::shadow #secondaryProgress {
+        background-color:{{app.colorThiefBuffered}};
+        transition: background-color 500ms linear;
+      }
+      paper-icon-button.big::shadow #icon {
+        width: 50px;
+        height: 50px;
+        margin-bottom:12px;
+      }
+      .spinner::shadow .circle {
+        border-color: #000;
+      }
+      #coverArt {
+        height: 535px;
+        width:100%;
+      }
+      #wrap {
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
+      }
+      #bg {
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:cover;
+        opacity: 0.1;
+        position:fixed;
+        left:0;
+        right:0;
+        width:100%;
+        margin:0;
+        padding:0;
+        top:99px;
+        bottom:0;
+      }
+      .progress {
+        position:absolute;
+        left:0;
+        right:0;
+        width:100%;
+        margin:0;
+        padding:0;
+        cursor:pointer;
+        height:15px;
+      }
+      img {
+        display: block;
+      }
+      #contents {
+        height:100px;
+        text-align: center;
+      }
+      #time2 {
+        color: #000;
+        position: absolute;
+        right: 2%;
+        margin-top: 18px;
+        font-size: 14pt;
+      }
+      .black {
+        color: #000;
+      }
+      paper-shadow {
+        border-radius: 2px;
+      }
+      #cover2 {
+        height:500px;
+        width:500px;
+        background-image:url("../../images/default-cover-art.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-origin: content-box;
+        background-size:500px;
+      }
+      .waitingToPlay2 {
+        background:rgba(255,255,255,0.3);
+        overflow:hidden;
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        right:0;
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        -webkit-justify-content: center;
+        -webkit-align-items: center;
+        justify-content: center;
+        align-items: center;
+        pointer-events:none;
+      }
+      .bookmark {
+        position: absolute;
+        margin-top: 66px;
+        left: 46px;
+      }
+      .shuffle {
+        position: absolute;
+        margin-top: 66px;
+        left: 86px;
+      }
+    </style>
+  <template>
+    <!-- globals -->
+    <app-globals id="globals"></app-globals>
+    <x-notification id="playNotify" timeout="5000" tag="tag"></x-notification>
+    <iron-media-query query="max-width:570px" query-matches="{{small}}"></iron-media-query>
+    <neon-animated-pages selected="{{page}}" transitions="cross-fade-all hero-transition">
+      <section>
+        <div style="position:relative;">
+          <div id="coverArt" hero-id="art" hero="">
+            <div class="waitingToPlay" hidden$="{{!app.waitingToPlay}}">
+              <paper-spinner class="spinner" active=""></paper-spinner>
+            </div>
+          </div>
+          <div class="controlsWrapper" hero-id="box" hero="">
+            <paper-progress hero-id="bar" hero="" class="progress" id="progress" value="{{progress}}" secondaryprogress="{{buffer}}" on-tap="progressClick"></paper-progress>
+            <div id="time">{{playTime}}</div>
+            <template is="dom-if" if="{{_computeIf(app)}}">
+              <paper-icon-button icon="av:skip-previous" on-tap="lastTrack" class="big"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="{{_computeIf2(app)}}">
+              <paper-icon-button class="big"></paper-icon-button>
+            </template>
+            <paper-icon-button id="avIcon" class="huge" icon="av:pause" on-tap="playPause"></paper-icon-button>
+            <template is="dom-if" if="{{app.playlist[0]}}">
+              <paper-icon-button icon="av:skip-next" on-tap="nextTrack" id="nextTrack" class="big"></paper-icon-button>
+            </template>
+            <paper-tooltip class="repeat" label="{{$.globals.texts.repeatText}}" position="right">
+              <paper-icon-button id="rButton" style="color:rgb(158, 158, 158);" on-tap="toggleRepeat" icon="av:repeat"></paper-icon-button>
+            </paper-tooltip>
+            <paper-tooltip class="bookmark" label="{{$.globals.texts.createBookmarkText}}" position="right">
+              <paper-icon-button on-tap="createBookmark" icon="bookmark"></paper-icon-button>
+            </paper-tooltip>
+            <paper-tooltip class="shuffle" label="{{$.globals.texts.shuffleList}}" position="right" hidden$="{{!app.playlist[2]}}">
+              <paper-icon-button on-tap="shufflePlaylist" icon="av:shuffle"></paper-icon-button>
+            </paper-tooltip>
+            <paper-tooltip label="{{$.globals.texts.adjustVolumeLabel}}" class="volume" position="left">
+              <template is="dom-if" if="{{_computeIf3(app)}}">
+                <paper-icon-button icon="av:volume-up" on-tap="toggleVolume"></paper-icon-button>
+              </template>
+              <template is="dom-if" if="{{_computeIf4(app)}}">
+                <paper-icon-button icon="av:volume-down" on-tap="toggleVolume"></paper-icon-button>
+              </template>
+              <template is="dom-if" if="{{_computeIf5(app)}}">
+                <paper-icon-button icon="av:volume-mute" on-tap="toggleVolume"></paper-icon-button>
+              </template>
+              <template is="dom-if" if="{{_computeIf6(app)}}">
+                <paper-icon-button icon="av:volume-off" on-tap="toggleVolume"></paper-icon-button>
+              </template>
+            </paper-tooltip>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div id="wrap">
+          <div id="bg"></div>
+          <paper-material elevation="5" style="background: white;">
+            <div id="cover2" hero-id="art" hero="">
+              <div class="waitingToPlay2" hidden$="{{!app.waitingToPlay}}">
+                <paper-spinner class="spinner" active=""></paper-spinner>
+              </div>
+            </div>
+            <paper-progress hero-id="bar" hero="" class="progress" value="{{progress}}" secondaryprogress="{{buffer}}" on-tap="progressClick"></paper-progress>
+            <div id="contents" hero-id="box" hero="">
+              <div id="time2">{{playTime}}</div>
+              <template is="dom-if" if="{{_computeIf(app)}}">
+                <paper-icon-button style="margin-top:8px;" icon="av:skip-previous" on-tap="lastTrack" class="big black"></paper-icon-button>
+              </template>
+              <template is="dom-if" if="{{_computeIf2(app)}}">
+                <paper-icon-button class="big"></paper-icon-button>
+              </template>
+              <paper-icon-button id="avIcon2" style="margin-top:8px;" class="huge black" icon="av:pause" on-tap="playPause"></paper-icon-button>
+              <template is="dom-if" if="{{app.playlist[0]}}">
+                <paper-icon-button icon="av:skip-next" style="margin-top:8px;" on-tap="nextTrack" id="nextTrack" class="big black"></paper-icon-button>
+              </template>
+              <paper-tooltip class="repeat" label="{{$.globals.texts.repeatText}}" style="bottom: 8px;" position="right">
+                <paper-icon-button id="rButton2" style="color:rgb(158, 158, 158);" on-tap="toggleRepeat" icon="av:repeat"></paper-icon-button>
+              </paper-tooltip>
+              <paper-tooltip class="bookmark" label="{{$.globals.texts.createBookmarkText}}" style="bottom: 8px;" position="right">
+                <paper-icon-button on-tap="createBookmark" class="black" icon="bookmark"></paper-icon-button>
+              </paper-tooltip>
+              <paper-tooltip class="shuffle" label="{{$.globals.texts.shuffleList}}" style="bottom: 8px;" position="right" hidden$="{{!app.playlist[2]}}">
+                <paper-icon-button on-tap="shufflePlaylist" class="black" icon="av:shuffle"></paper-icon-button>
+              </paper-tooltip>
+              <paper-tooltip label="{{$.globals.texts.adjustVolumeLabel}}" style="bottom: 8px;" class="volume" position="left">
+                <template is="dom-if" if="{{_computeIf3(app)}}">
+                  <paper-icon-button class="black" icon="av:volume-up" on-tap="toggleVolume"></paper-icon-button>
+                </template>
+                <template is="dom-if" if="{{_computeIf4(app)}}">
+                  <paper-icon-button class="black" icon="av:volume-down" on-tap="toggleVolume"></paper-icon-button>
+                </template>
+                <template is="dom-if" if="{{_computeIf5(app)}}">
+                  <paper-icon-button class="black" icon="av:volume-mute" on-tap="toggleVolume"></paper-icon-button>
+                </template>
+                <template is="dom-if" if="{{_computeIf6(app)}}">
+                  <paper-icon-button class="black" icon="av:volume-off" on-tap="toggleVolume"></paper-icon-button>
+                </template>
+              </paper-tooltip>
+            </div>
+          </paper-material>
+        </div>
+      </section>
+    </neon-animated-pages>
+  </template>
+  <script>
+    Polymer({
+      is: 'music-player',
+      properties: {
+        bookmarkDeleted: {
+          type: Boolean,
+          value: false
+        },
+        count: {
+          type: Number,
+          value: 0
+        },
+        playing: {
+          notify: true,
+          observer: 'playingChanged'
+        },
+        playlist: {
+          notify: true,
+          observer: 'playlistChanged'
+        },
+        progress: { notify: true },
+        small: { observer: 'smallChanged' }
+      },
+      /**
+       * element is ready
+       */
+      ready: function () {
+        this.page = 0;
+        this.app = document.getElementById('tmpl');
+        this.note = this.$.playNotify;
+      },
+      /**
+       * apply all needed callbacks and values to the audio element
+       * @param {Object} element - the audio element to add callbacks / values
+       */
+      applyAudioListeners: function (element) {
+        element.onprogress = this.buffering.bind(this);
+        element.onwaiting = this.playerProgress.bind(this);
+        element.ontimeupdate = this.playerProgress.bind(this);
+        element.onended = this.nextTrack.bind(this);
+        element.onerror = this.audioError.bind(this);
+        element.volume = this.app.volume / 100;
+      },
+      removeListeners: function (element) {
+        element.onprogress = null;
+        element.onwaiting = null;
+        element.ontimeupdate = null;
+        element.onended = null;
+        element.onerror = null;
+      },
+      /**
+       * app resize callback
+       * position and style things
+       */
+      resize: function () {
+        if (this.app) {
+          if (this.app.repeatPlaylist) {
+            if (this.page === 0) {
+              this.$.rButton.style.color = 'white';
+            } else {
+              this.$.rButton2.style.color = 'black';
+            }
+          } else {
+            this.$.rButton.style.color = 'rgb(158, 158, 158)';
+            this.$.rButton2.style.color = 'rgb(158, 158, 158)';
+          }
+        }
+        this.$.wrap.style.height = Math.floor(window.innerHeight - 128) + 'px';
+      },
+      /**
+       * index of playlist item being played has changed
+       * @param {Object} oldVal - value changing form
+       * @param {Object} newVal - then new value after change
+       */
+      playingChanged: function (newVal, oldVal) {
+        if (this.isCued && newVal !== oldVal + 1) {
+          delete this.isCued;
+        }
+        if (this.app.alreadyPlaying) {
+          // ignore default functions when shuffleing
+          this.app.alreadyPlaying = false;
+        } else {
+          this.$.cover2.style.backgroundImage = 'url(' + this.app.playlist[newVal].cover + ')';
+          this.$.coverArt.style.backgroundImage = 'url(' + this.app.playlist[newVal].cover + ')';
+          this.$.bg.style.backgroundImage = 'url(' + this.app.playlist[newVal].cover + ')';
+          this.playAudio(this.app.playlist[newVal]);
+        }
+        if (this.app.activeUser) {
+          simpleStorage.setSync({ lastPlaying: this.playing });
+        }
+      },
+      _savePlaylist: function () {
+        if (this.app.activeUser) {
+          this.$.globals._putInDb(this.playlist, 'playlist');
+        }
+      },
+      playlistChanged: function () {
+        this.async(this._savePlaylist);
+      },
+      /**
+       * the main play function
+       * @param {Object} obj - the playlist object to playback
+       */
+      playAudio: function (obj) {
+        // clean up old players
+        if (this.audio && !this.audio.paused) {
+          this.audio.pause();
+          this.removeListeners(this.audio);
+          delete this.audio;
+        }
+        // gapless playback if cached
+        if (this.app.gapless && this.isCued) {
+          this.audio = this.isCued;
+          this.app.currentPlaying = obj.artist + ' - ' + obj.title;
+          this.note.title = obj.artist + ' - ' + obj.title;
+          delete this.isCued;
+        } else
+          // when not using gapless playback
+          {
+            if (this.isCued) {
+              delete this.isCued;
+            }
+            this.audio = new Audio();
+            this.audio.preload = 'auto';
+            if (obj.artist === '') {
+              this.app.currentPlaying = obj.title;
+              this.note.title = obj.title;
+              // this.audio.src = this.$.globals.buildUrl('stream', {
+              //   format: 'raw',
+              //   estimateContentLength: true,
+              //   id: obj.id
+              // }));
+            } else
+              // default playback  * transcoded audio *
+              {
+                this.app.currentPlaying = obj.artist + ' - ' + obj.title;
+                this.note.title = obj.artist + ' - ' + obj.title;
+                if (!this.isCued) {
+                  // this.audio.src = this.$.globals.buildUrl('stream', {
+                  //   maxBitRate: this.app.bitRate,
+                  //   id: obj.id
+                  // }));
+                }
+              }
+          }
+        // set playback position if bookmarked file
+        if (obj.bookmarkPosition) {
+          this.audio.currentTime = obj.bookmarkPosition / 1000;
+        } else {
+          this.audio.currentTime =  0;
+        }
+        // set action fab color to match color of playing track art
+        if (obj.palette) {
+          this.app.colorThiefFab = obj.palette[0];
+          this.app.colorThiefFabOff = obj.palette[1];
+          this.app.colorThiefBuffered = obj.palette[2];
+          this.app.colorThiefProgBg = obj.palette[3];
+        }
+        // set cover art
+        this.$.cover2.style.backgroundImage = 'url(' + obj.cover + ')';
+        this.$.coverArt.style.backgroundImage = 'url(' + obj.cover + ')';
+        this.$.bg.style.backgroundImage = 'url(' + obj.cover + ')';
+        // this track has not been scrobbled to last.fm
+        this.scrobbled = false;
+        // set playing on mini player
+        var minis = Polymer.dom(document).querySelectorAll('mini-player');
+        var length = minis.length;
+        for (var i = 0; i < length; i++) {
+          minis[i].setPlaying(obj);
+        }
+        // start playback
+        this.applyAudioListeners(this.audio);
+        this.audio.play();
+        this.app.isNowPlaying = true;
+        // notify user of new track
+        this.note.icon = obj.cover;
+        this.note.show();
+        // send analitics
+        this.app.tracker.sendEvent('Playback Started', new Date());
+      },
+      /**
+       * toggle play / pause state
+       */
+      playPause: function () {
+        if (!this.audio.paused) {
+          this.audio.pause();
+          this.$.avIcon.icon = 'av:play-arrow';
+          this.$.avIcon2.icon = 'av:play-arrow';
+        } else {
+          this.audio.play();
+          this.$.avIcon.icon = 'av:pause';
+          this.$.avIcon2.icon = 'av:pause';
+        }
+      },
+      /**
+       * will play the next track with a given index
+       * @param {Number} next = index of the next item to play
+       */
+      playNext: function (next) {
+        if (this.app.repeatPlaylist && !this.app.playlist[next]) {
+          if (this.app.playing === 0) {
+            this.playAudio(this.app.playlist[0]);
+          } else {
+            this.app.playing = 0;
+          }
+        } else if (this.app.playlist[next]) {
+          this.app.playing = next;
+        } else {
+          this.audio.pause();
+          app.page = 0;
+          this.app.isNowPlaying = false;
+        }
+      },
+      /**
+       * incriment the playing item by 1 & remove any bookmark for the play file
+       */
+      nextTrack: function () {
+        // if track longer then 20 min and autobookmark enabled
+        // will delete the last bookmark
+        if (this.app.autoBookmark && this.audio.duration > 1200) {
+          // var url = this.$.globals.buildUrl('deleteBookmark', { id: this.app.playlist[this.app.playing].id });
+          // this.$.globals.doXhr(url, 'json').then(function (e) {
+          //   delete this.app.playlist[this.app.playing].bookmarkPosition;
+          //   this._savePlaylist();
+          //   if (e.target.response['subsonic-response'].status === 'failed') {
+          //     console.error(e.target.response['subsonic-response'].error.message);
+          //   }
+          // });
+        }
+        //this.app.playing = this.app.playing || 0;
+        this.playNext(this.app.playing + 1);
+      },
+      /**
+       * incriment the playing item by -1
+       */
+      lastTrack: function () {
+        if (this.app.playlist[this.app.playing - 1]) {
+          this.playNext(this.app.playing - 1);
+        } else {
+          this.audio.currentTime =  0;
+        }
+      },
+      /**
+       * audio playback error
+       */
+      audioError: function (e) {
+        this.app.isNowPlaying = false;
+        this.app.page = 0;
+        this.$.globals.makeToast('Audio Playback Error');
+      },
+      /**
+       * download progress callback
+       * @param {Event} e -  progress event
+       */
+      buffering: function (e) {
+        var audio = e.srcElement;
+        if (audio.duration && audio.buffered.end(0)) {
+          this.buffer = Math.floor(audio.buffered.end(0) / audio.duration * 100);
+        } else {
+          this.buffer = 0;
+        }
+        audio = null;
+      },
+      /**
+       * playback progress callback
+       *
+       * if gapless playback is enable will start precache
+       * of next track @ 1 min from end of currently playing
+       *
+       * will scrobble to last.fm if more then half of the track has been played
+       *
+       * will create a bookmark for files longer then 20 mins @ about every 1 min of play time
+       * if more then 2 mins into track and
+       *
+       * @param {Event} e - progress event
+       */
+      playerProgress: function (e) {
+        var audio = e.srcElement;
+        // gapless?
+        if (this.app.gapless && audio.currentTime >= Math.abs(audio.duration - 60) && !this.isCued && this.app.playlist[this.app.playing + 1]) {
+          this.isCued = new Audio();
+          this.isCued.preload = 'auto';
+          if (this.app.playlist[this.app.playing + 1].artist === '') {
+            this.set('isCued.src', this.$.globals.buildUrl('stream', {
+              format: 'raw',
+              estimateContentLength: true,
+              id: this.app.playlist[this.app.playing + 1].id
+            }));
+          } else {
+            this.set('isCued.src', this.$.globals.buildUrl('stream', {
+              maxBitRate: this.app.bitRate,
+              id: this.app.playlist[this.app.playing + 1].id
+            }));
+          }
+        }
+        // if waiting for playback to start
+        if (e) {
+          if (e.type === 'waiting') {
+            this.set('app.waitingToPlay', true);
+          } else // spinner on album art shown
+          if (e.type === 'timeupdate') {
+            this.set('app.waitingToPlay', false);
+          }
+        }
+        // spinner on album art hidden
+        if (this.app.page === 1) {
+          this.currentMins = Math.floor(audio.currentTime / 60);
+          this.currentSecs = Math.floor(audio.currentTime - this.currentMins * 60);
+          this.totalMins = Math.floor(audio.duration / 60);
+          this.totalSecs = Math.floor(audio.duration - this.totalMins * 60);
+        }
+        // scrobble lastFM if over half of song has been played played & it is not a podcast
+        if (this.app.activeUser.scrobblingEnabled && Math.abs(audio.currentTime / audio.duration * 100) > 50 && !this.scrobbled && this.app.playlist[this.app.playing].artist !== '') {
+          this.scrobbled = true;
+          // this.$.globals.doXhr(this.$.globals.buildUrl('scrobble', {
+          //   id: this.app.playlist[this.app.playing].id,
+          //   time: new Date().getTime()
+          // }), 'json').then(function (e) {
+          //   if (e.target.response['subsonic-response'].status === 'failed') {
+          //     console.log('Last FM submission: ' + e.target.response['subsonic-response'].status);
+          //     this.app.tracker.sendEvent('Last FM submission', 'Failed');
+          //   }
+          // }.bind(this));
+        }
+        // if file longer then 20 min and autobookmark enabled
+        // creates a bookmark about every 1 min.
+        if (this.app.autoBookmark && audio.duration > 1200 && audio.currentTime > 60 && !this.app.waitingToPlay && Math.abs(audio.currentTime / audio.duration * 100) < 98) {
+          this.count = this.count + 1;
+          if (this.count >= 250) {
+            this.count = 0;
+            var position = Math.floor(audio.currentTime * 1000);
+            // var url = this.$.globals.buildUrl('createBookmark', {
+            //   id: this.app.playlist[this.app.playing].id,
+            //   position: position,
+            //   comment: this.app.playlist[this.app.playing].title + ' at ' + this.$.globals.secondsToMins(audio.currentTime)
+            // });
+            // this.$.globals.doXhr(url, 'json').then(function (e) {
+            //   this.app.playlist[this.app.playing].bookmarkPosition = position;
+            //   this._savePlaylist();
+            //   if (e.target.response['subsonic-response'].status === 'failed') {
+            //     console.error(e.target.response['subsonic-response'].error.message);
+            //   }
+            // }.bind(this));
+          }
+        }
+        if (!audio.paused) {
+          this.set('app.isNowPlaying', true);
+          this.set('$.avIcon.icon', 'av:pause');
+          this.set('$.avIcon2.icon', 'av:pause');
+          if (!audio.duration) {
+            if (this.app.page === 1) {
+              this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ?:??';
+            }
+            this.progress = 0;
+          } else {
+            if (this.app.page === 1) {
+              this.playTime = this.currentMins + ':' + ('0' + this.currentSecs).slice(-2) + ' / ' + this.totalMins + ':' + ('0' + this.totalSecs).slice(-2);
+            }
+            this.progress = Math.floor(audio.currentTime / audio.duration * 100);
+          }
+        } else {
+          this.set('app.isNowPlaying', false);
+          this.set('$.avIcon.icon', 'av:play-arrow');
+          this.set('$.avIcon2.icon', 'av:play-arrow');
+        }
+      },
+      /**
+       * open the volume dialog
+       */
+      toggleVolume: function () {
+        this.app.toggleVolume();
+      },
+      /**
+       * user click on progress bar callback
+       * @param {Event} e - click event
+       */
+      progressClick: function (event) {
+        var width, x;
+        if (this.page === 1 && !this.app.narrow) {
+          width = 500;
+          x = event.x - (window.innerWidth - width) / 2 - 128;
+        } else if (this.page === 0) {
+          width = window.innerWidth;
+          x = event.x;
+        } else {
+          width = 500;
+          x = event.x - (window.innerWidth - width) / 2;
+        }
+        var duration = this.audio.duration;
+        var clicked = x / width;
+        this.progress = clicked * 100;
+        this.set('audio.currentTime', duration - (duration - duration * clicked));
+      },
+      /**
+       * toggle playlist repeat option
+       */
+      toggleRepeat: function () {
+        if (this.app.repeatPlaylist) {
+          this.set('app.repeatPlaylist', false);
+          this.set('app.repeatState', chrome.i18n.getMessage('disabled'));
+          this.set('app.repeatText', chrome.i18n.getMessage('playlistRepeatOff'));
+          this.set('$.rButton.style.color', 'rgb(158, 158, 158)');
+          this.set('$.rButton2.style.color', 'rgb(158, 158, 158)');
+          this.set('app.$.repeatButton.style.color', '#db4437');
+        } else {
+          this.set('app.repeatState', chrome.i18n.getMessage('enabled'));
+          if (this.page === 0) {
+            this.set('$.rButton.style.color', 'white');
+          } else {
+            this.set('$.rButton2.style.color', 'black');
+          }
+          this.set('app.$.repeatButton.style.color', '#57BA67');
+          this.set('app.repeatPlaylist', true);
+          this.set('app.repeatText', chrome.i18n.getMessage('playlistRepeatOn'));
+        }
+      },
+      /**
+       * callback for media query state change
+       * toggles player view
+       * @param {Number} oldVal
+       * @param {Number} newVal
+       */
+      smallChanged: function (newVal, oldVal) {
+        this.async(function () {
+          if (newVal) {
+            this.page = 0;
+          } else {
+            this.page = 1;
+          }
+        });
+      },
+      /**
+       * open the bookmark creation dialog
+       */
+      createBookmark: function () {
+        var artist = this.app.playlist[this.app.playing].artist;
+        var track = this.app.playlist[this.app.playing].title;
+        this.app.$.playlistDialog.close();
+        this.app.$.bookmarkDialog.open();
+        this.set('app.bookmarkComment', this.app.playlist[this.app.playing].title + ' at ' + this.$.globals.secondsToMins(this.audio.currentTime));
+      },
+      /**
+       * submit data to server to create a bookmark
+       */
+      submitBookmark: function () {
+        this.set('app.submittingBookmark', true);
+        var pos = Math.floor(this.audio.currentTime * 1000);
+        // var url = this.$.globals.buildUrl('createBookmark', {
+        //   id: this.app.playlist[this.app.playing].id,
+        //   position: pos,
+        //   comment: this.app.bookmarkComment
+        // });
+        // this.$.globals.doXhr(url, 'json').then(function (e) {
+        //   this.app.submittingBookmark = false;
+        //   if (e.target.response['subsonic-response'].status === 'ok') {
+        //     this.$.globals.makeToast(this.$.globals.texts.markCreated);
+        //     this.app.$.bookmarkDialog.close();
+        //   } else {
+        //     this.$.globals.makeToast(e.target.response['subsonic-response'].error.message);
+        //   }
+        // }.bind(this));
+      },
+      /**
+       * shuffle the current play queue
+       */
+      shufflePlaylist: function () {
+        this.app.shufflePlaylist();
+      },
+      _computeIf: function (app) {
+        return app.playlist && app.playing !== 0;
+      },
+      _computeIf2: function (app) {
+        return app.playlist[0] && app.playing === 0;
+      },
+      _computeIf3: function (app) {
+        return app.volume > 66;
+      },
+      _computeIf4: function (app) {
+        return app.volume >= 33 && app.volume <= 66;
+      },
+      _computeIf5: function (app) {
+        return app.volume > 0 && app.volume < 33;
+      },
+      _computeIf6: function (app) {
+        return app.volume === 0;
+      }
+    });
+
+  </script>
+</dom-module>
+
+</body></html>

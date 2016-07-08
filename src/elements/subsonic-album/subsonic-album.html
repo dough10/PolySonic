@@ -79,7 +79,7 @@
       height: 80px;
     }
     .huge {
-      color: white;
+      color: rgba(255, 255,255, 0.8);
     }
     .albumString {
       overflow: hidden;
@@ -101,13 +101,13 @@
         <div class="loader" hidden$='{{!isLoading}}'>
           <paper-spinner active="{{isLoading}}"></paper-spinner>
         </div>
-        <paper-icon-button class="huge" icon="av:play-arrow"></paper-icon-button>
+        <paper-icon-button hidden$="{{isLoading}}" class="huge" icon="av:play-arrow" on-tap="playAlbum"></paper-icon-button>
         <div class="textBG horizontal layout">
           <div class="flex vertical layout pad5">
             <div class="artistName">{{album.artist}}</div>
             <div class="albumName">{{album.name}}</div>
           </div>
-          <paper-icon-button icon="more-vert" on-tap="_getAlbumDetails"></paper-icon-button>
+          <paper-icon-button icon="more-vert" on-tap="showAlbumDetails"></paper-icon-button>
         </div>
       </paper-material>
     </template>
@@ -153,9 +153,6 @@
 
       ready: function () {
         this.app = document.querySelector('#app');
-        this._getMetaData = this._getMetaData.bind(this);
-        this._processJSON = this._processJSON.bind(this);
-        this._setImage = this._setImage.bind(this);
       },
 
       mouseIn: function (event) {
@@ -172,11 +169,11 @@
 
       _setImage: function (imgURL) {
         if (!imgURL) return;
-        document.querySelector('#cover').style.backgroundImage = "url('" + imgURL + "')";
+        this.querySelector('#cover').style.backgroundImage = "url('" + imgURL + "')";
         this.isLoading = false;
         this.imgURL = imgURL;
       },
-      
+
       _processJSON: function (json) {
         return new Promise(function (resolve, reject) {
           var data = (function (app) {
@@ -217,54 +214,50 @@
           resolve();
         }.bind(this));
       },
-      
+
       _getPalette: function (id) {
         return new Promise(function (resolve, reject) {
           this.$.globals.getDbItem(id + '-palette').then(function (ev) {
             resolve(ev.target.result);
           });
-        });
+        }.bind(this));
       },
-      
+
       _getMetaData: function (palette) {
         return new Promise(function (resolve, reject) {
           this.palette = palette;
           this.app.subsonic[this.request](this.album.id)
           .then(resolve).catch(reject)
-        });
-      },
-      
-      _getAlbumDetails: function () {
-        console.time('getData');
-        var requestObj = (function (el) {
-          if (el.app.queryMethod === 'ID3') {
-            return {
-              request: 'getAlbum',
-              artId: 'al-' + el.album.id
-            };
-          }
-          return {
-            request: 'getMusicDirectory',
-            artId: el.album.id
-          }
-        })(this);
-        this.request = requestObj.request;
-        this._getPalette(requestObj.artId)
-        .then(this._getMetaData)
-        .then(this._processJSON)
-        .then(function () {
-          console.timeEnd('getData');
-          console.log(this.playlist);
         }.bind(this));
-//        this.$.globals.getDbItem(requestObj.artId + '-palette').then(function (ev) {
-//          this.palette = ev.target.result;
-//          this.app.subsonic[requestObj.request](this.album.id)
-//          .then(this._processJSON.bind(this))
-//          .then(function () {
-//            console.timeEnd('getData');
-//            console.log(this.playlist);
-//          }.bind(this));
-//        }.bind(this));
+      },
+
+      _getAlbumDetails: function () {
+        return new Promise(function  (resolve, reject) {
+          var requestObj = (function (el) {
+            if (el.app.queryMethod === 'ID3') {
+              return {
+                request: 'getAlbum',
+                artId: 'al-' + el.album.id
+              };
+            }
+            return {
+              request: 'getMusicDirectory',
+              artId: el.album.id
+            }
+          })(this);
+          this.request = requestObj.request;
+          this._getPalette(requestObj.artId)
+          .then(this._getMetaData.bind(this))
+          .then(this._processJSON.bind(this))
+          .then(resolve).catch(reject);
+        }.bind(this));
+      },
+
+      playAlbum: function () {
+        this._getAlbumDetails().then(function () {
+          this.app.playlist = this.playlist;
+          console.log(this.app.playlist)
+        }.bind(this));
       },
 
       _updateAlbum: function () {
@@ -272,13 +265,13 @@
         this.playlist = [];
         this.albumSize = 0;
         this.isLoading = true;
-        var albumId = (function () {
-          if (this.app.queryMethod === 'ID3') {
-            return "al-" + this.album.id;
+        var albumId = (function (el) {
+          if (el.app.queryMethod === 'ID3') {
+            return "al-" + el.album.id;
           }
-          return this.album.id;
-        }.bind(this))();
-        this.$.globals.fetchImage(albumId).then(this._setImage);
+          return el.album.id;
+        })(this);
+        this.$.globals.fetchImage(albumId).then(this._setImage.bind(this));
       },
 
       _albumChanged: function () {
