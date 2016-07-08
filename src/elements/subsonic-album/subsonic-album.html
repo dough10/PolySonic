@@ -126,8 +126,8 @@
           <div class="flex albumString">
             <span>{{album.artist}}</span> - <span>{{album.name}}</span>
           </div>
-          <paper-icon-button icon="av:play-arrow"></paper-icon-button>
-          <paper-icon-button icon="more-vert"></paper-icon-button>
+          <paper-icon-button icon="av:play-arrow" on-tap="playAlbum"></paper-icon-button>
+          <paper-icon-button icon="more-vert" on-tap="showAlbumDetails"></paper-icon-button>
         </div>
       </paper-material>
     </template>
@@ -211,6 +211,14 @@
               this.bookmarkIndex = i;
             }
           }
+          delete json.song;
+          delete json.child;
+          if (!json.artistId) {
+            delete json.parent;
+            json.artistId = this.artistId;
+          }
+          json.playlist = this.playlist;
+          this.metaData = json;
           resolve();
         }.bind(this));
       },
@@ -233,6 +241,9 @@
 
       _getAlbumDetails: function () {
         return new Promise(function  (resolve, reject) {
+          if (this.playlist.length) {
+            resolve();
+          }
           var requestObj = (function (el) {
             if (el.app.queryMethod === 'ID3') {
               return {
@@ -252,11 +263,29 @@
           .then(resolve).catch(reject);
         }.bind(this));
       },
+      
+      _openDetailsDialog: function () {
+        return new Promise(function(resolve, reject) {
+          console.log(this.metaData);
+          resolve();
+        }.bind(this));
+      },
 
       playAlbum: function () {
+        this.isLoading = true;
         this._getAlbumDetails().then(function () {
+          this.isLoading = false;
           this.app.playlist = this.playlist;
-          console.log(this.app.playlist)
+          console.log(this.app.playlist);
+        }.bind(this));
+      },
+      
+      showAlbumDetails: function () {
+        this.isLoading = true;
+        this._getAlbumDetails()
+        .then(this._openDetailsDialog.bind(this))
+        .then(function () {
+          //this.isLoading = false;
         }.bind(this));
       },
 
